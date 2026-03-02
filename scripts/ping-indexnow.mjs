@@ -6,7 +6,7 @@
  * instead of waiting for the next crawl cycle.
  */
 
-const KEY = "7f2a9c4e1b8d5f3a6e2c7b9d4f1a8e5c";
+const KEY = "16af3c9866154db18d5a1655478c4daa"; // Registered in Bing WMT portal
 const HOST = "highlandfarmsoregon.com";
 const BASE_URL = `https://${HOST}`;
 
@@ -43,7 +43,7 @@ async function pingIndexNow() {
     body: JSON.stringify({
       host: HOST,
       key: KEY,
-      keyLocation: `${BASE_URL}/${KEY}.txt`,
+      keyLocation: `${BASE_URL}/${KEY}.txt`, // https://highlandfarmsoregon.com/16af3c9866154db18d5a1655478c4daa.txt
       urlList: urls,
     }),
   });
