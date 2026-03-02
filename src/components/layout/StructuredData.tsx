@@ -53,6 +53,26 @@ export function StructuredData() {
             name: "Brightwood",
           },
           {
+            "@type": "City",
+            name: "Sandy",
+          },
+          {
+            "@type": "City",
+            name: "Gresham",
+          },
+          {
+            "@type": "City",
+            name: "Welches",
+          },
+          {
+            "@type": "City",
+            name: "Hood River",
+          },
+          {
+            "@type": "City",
+            name: "Beaverton",
+          },
+          {
             "@type": "State",
             name: "Oregon",
             "@id": "https://en.wikipedia.org/wiki/Oregon",
@@ -68,13 +88,17 @@ export function StructuredData() {
           "Forest weddings",
           "Highland Cow farm tours",
           "Nordic spa experiences",
+          "Outdoor sauna",
+          "Cold plunge therapy",
+          "Sauna near Portland",
+          "Mt Hood activities",
           "Farm stays",
           "Intimate weddings",
           "Destination weddings",
           "Event venue",
         ],
         keywords:
-          "Oregon wedding venue, farm wedding, Mt Hood wedding, Highland Cow farm tour, Nordic spa Oregon, farm stay Oregon, Brightwood Oregon, Portland wedding venue, forest wedding, intimate wedding venue, destination wedding Oregon",
+          "Oregon wedding venue, farm wedding venue Oregon, outdoor wedding venue Oregon, Mt Hood wedding venue, Highland Cow farm tour, Nordic spa Oregon, sauna near Portland, sauna Mt Hood, cold plunge Portland, outdoor sauna Oregon, sauna day trip Portland, farm stay Oregon, Brightwood Oregon, Portland wedding venue, forest wedding, intimate wedding venue, destination wedding Oregon",
         slogan: SITE.tagline,
         numberOfRooms: 8,
         petsAllowed: false,
@@ -198,6 +222,51 @@ export function StructuredData() {
           price: "75",
           availability: "https://schema.org/InStock",
           priceCurrency: "USD",
+        },
+      },
+
+      // ── HealthAndBeautyBusiness (Nordic spa) ──
+      {
+        "@type": ["HealthAndBeautyBusiness", "LocalBusiness"],
+        "@id": `${SITE.url}/#spa`,
+        name: "Highland Farms Nordic Spa",
+        description:
+          "Private outdoor wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 60-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+        url: `${SITE.url}/nordic-spa`,
+        telephone: CONTACT.phone,
+        address,
+        geo,
+        image: `${SITE.url}/images/spa/spa-1.jpg`,
+        priceRange: "$$",
+        openingHoursSpecification: {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+          opens: "09:00",
+          closes: "20:00",
+        },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: "4.9",
+          reviewCount: "146",
+          bestRating: "5",
+        },
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          name: "Nordic Spa Sessions",
+          itemListElement: [
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: "Nordic Spa Session — Sauna & Cold Plunge",
+                description: "60-minute private session with wood-burning dry sauna, wet sauna, and cold plunge for up to 6 guests.",
+              },
+              price: "75",
+              priceCurrency: "USD",
+              availability: "https://schema.org/InStock",
+              url: BOOKING_LINKS.nordicSpa,
+            },
+          ],
         },
       },
 

@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/weddings", priority: 0.9, changeFrequency: "weekly" as const },
     { path: "/farm-tours", priority: 0.9, changeFrequency: "weekly" as const },
     { path: "/nordic-spa", priority: 0.9, changeFrequency: "weekly" as const },
+    { path: "/sauna-near-portland", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/stay", priority: 0.8, changeFrequency: "weekly" as const },
     { path: "/stay/lodge", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/stay/cottage", priority: 0.7, changeFrequency: "monthly" as const },

@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     template: "%s | Highland Farms Oregon",
   },
   description:
-    "All-inclusive farm and forest weddings at the base of Mt. Hood. Highland Cow farm tours, Nordic spa, and luxury farm stays in Brightwood, Oregon.",
+    "Oregon's premier farm wedding venue & outdoor sauna near Portland. All-inclusive farm and forest weddings, Highland Cow farm tours, sauna & cold plunge, and farm stays at the base of Mt. Hood.",
   metadataBase: new URL("https://highlandfarmsoregon.com"),
   alternates: {
     canonical: "/",

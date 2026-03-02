@@ -31,4 +31,19 @@ export const nordicSpaFAQ: FAQItem[] = [
     answer:
       "Please contact us at least 24 hours in advance to reschedule your session. Our spa reservations are nonrefundable; however, we will work with you to choose a better date and time.",
   },
+  {
+    question: "How far is the Highland Farms spa from Portland?",
+    answer:
+      "Our Nordic spa is located in Brightwood, Oregon — approximately 50 minutes east of Portland via US-26 (the Mt. Hood Highway). It's a scenic drive through the Sandy River valley that makes for a perfect sauna day trip from the Portland metro area.",
+  },
+  {
+    question: "Is this a good outdoor sauna day trip from Portland?",
+    answer:
+      "Absolutely. Many guests drive from Portland, Beaverton, Gresham, and the surrounding area for a half-day escape. Most combine a sauna session with a Highland Cow farm tour for a full Highland Farms experience — arriving mid-morning and heading back to Portland by afternoon.",
+  },
+  {
+    question: "Is this an outdoor sauna experience?",
+    answer:
+      "Yes. Our cedar sauna, cold plunge, and wet sauna are all nestled in our old-growth forest — completely outdoors. You'll hear the creek, breathe the mountain air, and be fully surrounded by towering Douglas fir. It's the opposite of a city spa.",
+  },
 ];

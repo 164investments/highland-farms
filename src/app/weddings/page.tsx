@@ -5,19 +5,20 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ImageGallery } from "@/components/gallery/ImageGallery";
+import { FAQAccordion } from "@/components/shared/FAQAccordion";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
 import { CONTACT } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Farm & Forest Weddings — Brightwood, Oregon",
+  title: "Oregon Farm Wedding Venue — All-Inclusive at Mt. Hood",
   description:
-    "All-inclusive farm and forest weddings at Highland Farms, Brightwood, Oregon. Exchange vows under towering evergreens with Scottish Highland Cows, on-site lodging for 20 guests, at the base of Mt. Hood. 50 minutes from Portland.",
+    "Oregon's premier farm wedding venue at the base of Mt. Hood — 50 minutes from Portland. All-inclusive outdoor weddings with Scottish Highland Cows, on-site lodging for 20 guests, Nordic spa & full event coordination.",
   alternates: { canonical: "/weddings" },
   openGraph: {
-    title: "Farm & Forest Weddings at Highland Farms Oregon",
+    title: "Oregon Farm Wedding Venue — Highland Farms at Mt. Hood",
     description:
-      "All-inclusive wedding venue at the base of Mt. Hood with five acres of forest, Scottish Highland Cows, and on-site lodging for 20 guests.",
+      "All-inclusive farm and forest wedding venue near Portland, Oregon. Five acres of old-growth forest, Scottish Highland Cows, on-site lodging for 20 guests, and dedicated event coordination.",
     url: "https://highlandfarmsoregon.com/weddings",
     type: "website",
     images: [
@@ -25,11 +26,70 @@ export const metadata: Metadata = {
         url: "/images/hero/wedding-hero.jpg",
         width: 1200,
         height: 630,
-        alt: "Forest wedding ceremony at Highland Farms",
+        alt: "Forest wedding ceremony at Highland Farms Oregon farm wedding venue",
       },
     ],
   },
 };
+
+const weddingFAQ = [
+  {
+    question: "What type of wedding venue is Highland Farms?",
+    answer:
+      "Highland Farms is an all-inclusive farm and forest wedding venue at the base of Mt. Hood in Brightwood, Oregon. You get exclusive use of our private 5-acre property with Scottish Highland Cows, on-site lodging for 20 guests, a Nordic spa, and dedicated event coordination — all just 50 minutes from Portland.",
+  },
+  {
+    question: "How far is Highland Farms from Portland?",
+    answer:
+      "We're located in Brightwood, Oregon — about 50 minutes east of Portland via US-26 (the Mt. Hood Highway). For Portland-area couples, Highland Farms is a destination wedding experience without a long travel burden for your guests.",
+  },
+  {
+    question: "Is Highland Farms an all-inclusive wedding venue?",
+    answer:
+      "Yes. Every Highland Farms wedding includes exclusive property use, on-site lodging for up to 20 guests across our William Wallace Lodge, Bonnie Lass Cottage, and The Camp, full kitchen access for your caterer, Highland Cow photo opportunities, Nordic spa access, and dedicated event coordination.",
+  },
+  {
+    question: "What makes Highland Farms different from other Oregon wedding venues?",
+    answer:
+      "Three things: exclusivity, intimacy, and setting. You get the entire 5-acre farm to yourselves — not a shared venue. Our Scottish Highland Cows create one-of-a-kind wedding photos. And our old-growth forest setting is unlike any other Oregon wedding venue. Plus, you're just 50 minutes from Portland.",
+  },
+  {
+    question: "Is this an outdoor wedding venue?",
+    answer:
+      "Yes. Highland Farms features stunning outdoor forest ceremony sites and reception areas surrounded by old-growth evergreens, moss-draped trees, and a spring-fed pond. The farm also has indoor spaces within the lodge for shelter if needed.",
+  },
+  {
+    question: "When should I book my Oregon farm wedding?",
+    answer:
+      "We recommend booking 12–18 months in advance. Summer and fall weekends fill earliest. 2027 bookings are now open — contact us to check your date.",
+  },
+  {
+    question: "Do you allow outside catering?",
+    answer:
+      "Yes. Our full kitchen is available to your catering team throughout the event. We can also recommend experienced local caterers who know our property well.",
+  },
+];
+
+function WeddingsSchema() {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: weddingFAQ.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+    />
+  );
+}
 
 const included = [
   { icon: TreePine, text: "Exclusive use of the entire 5-acre property" },
@@ -55,6 +115,7 @@ const galleryImages = [
 export default function WeddingsPage() {
   return (
     <>
+      <WeddingsSchema />
       {/* Hero */}
       <section className="relative flex min-h-[75vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
         <div className="absolute inset-0 bg-gradient-to-b from-charcoal/60 via-charcoal/40 to-charcoal/60" />
@@ -63,7 +124,7 @@ export default function WeddingsPage() {
 
         <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
           <p className="mb-4 text-xl font-normal text-white/80 font-script">
-            All-Inclusive Wedding Venue
+            Oregon Farm Wedding Venue
           </p>
           <h1 className="text-4xl font-normal leading-tight sm:text-5xl md:text-6xl">
             Your Dream Wedding in the Forest
@@ -221,8 +282,20 @@ export default function WeddingsPage() {
         </Container>
       </section>
 
-      {/* Inquiry Form */}
+      {/* FAQ */}
       <section className="py-20 lg:py-28 bg-warm-white">
+        <Container className="max-w-3xl">
+          <SectionHeading
+            eyebrow="Common Questions"
+            title="Oregon Farm Wedding Venue FAQ"
+            subtitle="Everything you want to know about hosting your wedding at Highland Farms."
+          />
+          <FAQAccordion items={weddingFAQ} />
+        </Container>
+      </section>
+
+      {/* Inquiry Form */}
+      <section className="py-20 lg:py-28 bg-background">
         <Container className="max-w-4xl">
           <div className="flex justify-center mb-6">
             <Image
