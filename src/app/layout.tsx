@@ -8,6 +8,7 @@ import { StructuredData } from "@/components/layout/StructuredData";
 import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/layout/GoogleTagManager";
 import { CookieConsent } from "@/components/layout/CookieConsent";
 import { EmailPopup } from "@/components/layout/EmailPopup";
+import { MicrosoftClarity } from "@/components/layout/MicrosoftClarity";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -35,6 +36,22 @@ export const metadata: Metadata = {
   },
   description:
     "Oregon's premier farm wedding venue & outdoor sauna near Portland. All-inclusive farm and forest weddings, Highland Cow farm tours, sauna & cold plunge, and farm stays at the base of Mt. Hood.",
+  keywords: [
+    "Oregon wedding venue",
+    "farm wedding venue Oregon",
+    "outdoor wedding venue Oregon",
+    "Mt Hood wedding venue",
+    "forest wedding venue",
+    "Highland Cow farm tour",
+    "Nordic spa Oregon",
+    "sauna near Portland",
+    "cold plunge Portland",
+    "outdoor sauna Oregon",
+    "sauna Mt Hood",
+    "farm stay Oregon",
+    "Brightwood Oregon",
+    "destination wedding Oregon",
+  ],
   metadataBase: new URL("https://highlandfarmsoregon.com"),
   alternates: {
     canonical: "/",
@@ -67,6 +84,12 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  // Bing Webmaster Tools verification — add NEXT_PUBLIC_BING_VERIFICATION to env vars
+  ...(process.env.NEXT_PUBLIC_BING_VERIFICATION && {
+    verification: {
+      other: { "msvalidate.01": process.env.NEXT_PUBLIC_BING_VERIFICATION },
+    },
+  }),
 };
 
 export default function RootLayout({
@@ -93,6 +116,9 @@ export default function RootLayout({
         <Footer />
         <CookieConsent />
         <EmailPopup />
+        {process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID && (
+          <MicrosoftClarity projectId={process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID} />
+        )}
       </body>
     </html>
   );
