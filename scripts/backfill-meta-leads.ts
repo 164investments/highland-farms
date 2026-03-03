@@ -68,7 +68,7 @@ async function main() {
   do {
     const page = await fetchFormLeads(after);
     const leads = page.data ?? [];
-    totalFetched += leads.size;
+    totalFetched += leads.length;
 
     for (const stub of leads) {
       totalFetched++;

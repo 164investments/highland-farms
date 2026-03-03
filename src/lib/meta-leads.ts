@@ -82,11 +82,12 @@ export function normalizeMetaLead(raw: RawMetaLead): MetaLeadData {
   const fields: Record<string, string | string[]> = {};
 
   for (const field of raw.field_data ?? []) {
+    const values = field.values ?? [];
     // Multi-select fields have multiple values
-    if (field.values.length > 1) {
-      fields[field.name] = field.values;
+    if (values.length > 1) {
+      fields[field.name] = values;
     } else {
-      fields[field.name] = field.values[0] ?? "";
+      fields[field.name] = values[0] ?? "";
     }
   }
 
