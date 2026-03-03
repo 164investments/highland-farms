@@ -28,6 +28,10 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
     "Content-Type": "application/json",
   };
 
+  const tags = ["source :: contact form"];
+  if (data.consent_marketing_sms)    tags.push("sms consent :: marketing");
+  if (data.consent_appointment_sms)  tags.push("sms consent :: appointments");
+
   try {
     const res = await fetch(`${GHL_API}/contacts/upsert`, {
       method: "POST",
@@ -39,7 +43,7 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
         email: data.email,
         ...(data.phone && { phone: data.phone }),
         source: "Website - Contact Form",
-        tags: ["source :: contact form"],
+        tags,
         ...(customFields.length > 0 && { customFields }),
       }),
     });
