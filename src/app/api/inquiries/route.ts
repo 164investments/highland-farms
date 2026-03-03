@@ -135,13 +135,29 @@ export async function POST(request: Request) {
     });
 
     // Server-side GA4 Measurement Protocol — fires even if client-side GTM is blocked
-    sendGenerateLead(request.headers.get("cookie"), {
+    const cookieHeader = request.headers.get("cookie");
+    sendGenerateLead(cookieHeader, {
       event_type,
       form_name: "event_inquiry",
       ...(_sid && { event_id: _sid }),
     }).catch((err) => {
       console.error("GA4 MP error:", err);
     });
+
+    // Wedding-type inquiries also fire a product-specific event so wedding
+    // ad campaigns can use "generate_lead_wedding" as their dedicated conversion
+    // goal instead of the blended "generate_lead" shared with spa / tour / other
+    const WEDDING_EVENT_TYPES = ["wedding", "elopement", "engagement-party", "rehearsal-dinner"];
+    if (WEDDING_EVENT_TYPES.includes(event_type)) {
+      sendGenerateLead(cookieHeader, {
+        event_type,
+        form_name: "event_inquiry",
+        event_name: "generate_lead_wedding",
+        // No event_id — different event name, no dedup needed with GTM
+      }).catch((err) => {
+        console.error("GA4 MP wedding event error:", err);
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch {

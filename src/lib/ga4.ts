@@ -8,6 +8,13 @@
  * Deduplication: pass event_id matching the value pushed to window.dataLayer
  * so a single form submission doesn't count twice when both paths fire.
  *
+ * Product-specific events:
+ *   Form submissions → "generate_lead" (all) + "generate_lead_wedding" (weddings)
+ *   Acuity bookings → "purchase" (all) + "book_farm_tour" | "book_nordic_spa" | "book_wedding_call"
+ *
+ * This lets each ad campaign (wedding, spa, farm tour) use its own conversion
+ * action for smart bidding rather than sharing a single blended signal.
+ *
  * Docs: https://developers.google.com/analytics/devguides/collection/protocol/ga4
  */
 
@@ -36,6 +43,12 @@ export interface GA4LeadEventParams {
   form_name: string;
   /** Matches the event_id pushed to window.dataLayer — prevents double-counting */
   event_id?: string;
+  /**
+   * Override the GA4 event name (default: "generate_lead").
+   * Used to fire product-specific lead events like "generate_lead_wedding"
+   * so each ad campaign can optimize independently.
+   */
+  event_name?: string;
 }
 
 export interface GA4BookingItem {
@@ -50,19 +63,27 @@ export interface GA4BookingParams {
   transaction_id: string;
   value: number;
   currency?: string;
+  /**
+   * Product type slug — "farm_tour" | "nordic_spa" | "wedding_call".
+   * Used to fire a product-specific conversion event alongside "purchase" so
+   * farm tour, spa, and wedding call ad campaigns can each use their own
+   * conversion goal for smart bidding.
+   */
   booking_type?: string;
   appointment_type?: string;
   items?: GA4BookingItem[];
 }
 
 /**
- * Fires a GA4 `purchase` event via Measurement Protocol when an Acuity
- * appointment is booked (called from the Acuity webhook handler).
+ * Fires GA4 events via Measurement Protocol when an Acuity appointment is booked.
+ * Sends TWO events per booking in a single request:
+ *   1. "purchase"          → feeds GA4 e-commerce / revenue reports
+ *   2. "book_{type}"       → product-specific conversion for Google Ads bidding
+ *      e.g. "book_farm_tour", "book_nordic_spa", "book_wedding_call"
  *
- * Note: Since webhook requests come from Acuity's servers, not the user's
- * browser, there are no _ga cookies to stitch the session. An ephemeral
- * client_id is used — the event still records revenue but has no session
- * attribution. This is the expected behaviour for server-side booking events.
+ * Note: Webhook requests come from Acuity's servers so there are no _ga cookies.
+ * An ephemeral client_id is used — revenue records correctly but has no session
+ * attribution. This is expected for server-side booking events.
  */
 export async function sendBookingPurchase(
   params: GA4BookingParams,
@@ -80,28 +101,41 @@ export async function sendBookingPurchase(
     items = [],
   } = params;
 
-  const payload = {
-    client_id: getClientId(null), // ephemeral — no browser session available
-    events: [
-      {
-        name: "purchase",
-        params: {
-          transaction_id,
-          value,
-          currency,
-          items,
-          engagement_time_msec: 1,
-          ...(booking_type && { booking_type }),
-          ...(appointment_type && { appointment_type }),
-        },
-      },
-    ],
+  const sharedParams = {
+    transaction_id,
+    value,
+    currency,
+    items,
+    engagement_time_msec: 1,
+    ...(booking_type && { booking_type }),
+    ...(appointment_type && { appointment_type }),
   };
+
+  // Always include "purchase" for GA4 e-commerce revenue tracking
+  const events: { name: string; params: Record<string, unknown> }[] = [
+    { name: "purchase", params: sharedParams },
+  ];
+
+  // Also fire product-specific event so each ad type gets its own conversion signal
+  // "book_farm_tour" | "book_nordic_spa" | "book_wedding_call"
+  if (booking_type && booking_type !== "other") {
+    events.push({
+      name: `book_${booking_type}`,
+      params: sharedParams,
+    });
+  }
 
   try {
     const res = await fetch(
       `${MP_ENDPOINT}?measurement_id=${measurementId}&api_secret=${apiSecret}`,
-      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) },
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client_id: getClientId(null), // ephemeral — no browser session available
+          events,
+        }),
+      },
     );
     if (!res.ok) console.error("GA4 MP booking error:", res.status, await res.text());
   } catch (err) {
@@ -109,6 +143,13 @@ export async function sendBookingPurchase(
   }
 }
 
+/**
+ * Fires a GA4 lead event via Measurement Protocol when the contact form is submitted.
+ *
+ * For wedding-type inquiries the caller should invoke this TWICE:
+ *   1. event_name: "generate_lead"         — general signal for all campaigns
+ *   2. event_name: "generate_lead_wedding" — wedding campaign–specific conversion
+ */
 export async function sendGenerateLead(
   cookieHeader: string | null,
   params: GA4LeadEventParams,
@@ -124,7 +165,7 @@ export async function sendGenerateLead(
     client_id: clientId,
     events: [
       {
-        name: "generate_lead",
+        name: params.event_name ?? "generate_lead",
         params: {
           event_type: params.event_type,
           form_name: params.form_name,
