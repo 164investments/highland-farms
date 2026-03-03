@@ -307,7 +307,7 @@ export async function GET(request: Request) {
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { error } = await resend.emails.send({
-      from: "Highland Farms <notifications@highlandfarms-oregon.com>",
+      from: "Highland Farms <notifications@highlandfarmsoregon.com>",
       to: RECIPIENTS,
       subject: `Highland Farms Daily Report — ${dateLabel}`,
       html,
