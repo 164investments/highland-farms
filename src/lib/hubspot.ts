@@ -1,4 +1,5 @@
 import { type InquiryFormData } from "@/lib/schemas";
+import { type MetaLeadData } from "@/lib/meta-leads";
 
 const API = "https://api.hubapi.com";
 
@@ -155,5 +156,146 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
     }
   } catch (err) {
     console.error("HubSpot deal error:", err);
+  }
+}
+
+export async function syncMetaLeadToHubSpot(lead: MetaLeadData): Promise<void> {
+  const token = process.env.HUBSPOT_ACCESS_TOKEN;
+  if (!token) return;
+
+  const [firstname, ...rest] = (lead.name || "Unknown").trim().split(/\s+/);
+  const lastname = rest.join(" ");
+
+  const authHeader = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+
+  // ── 1. Create or resolve contact ───────────────────────────────────────────
+  let contactId: string | undefined;
+
+  try {
+    const createRes = await fetch(`${API}/crm/v3/objects/contacts`, {
+      method: "POST",
+      headers: authHeader,
+      body: JSON.stringify({
+        properties: {
+          ...(lead.email && { email: lead.email }),
+          firstname,
+          ...(lastname && { lastname }),
+          ...(lead.phone && { phone: lead.phone }),
+          hf_event_type: "wedding",
+          ...(lead.weddingDateRange && { hf_preferred_date: lead.weddingDateRange }),
+          leadsource: "SOCIAL_MEDIA",
+        },
+      }),
+    });
+
+    if (createRes.ok) {
+      const body = await createRes.json();
+      contactId = body.id;
+    } else if (createRes.status === 409 && lead.email) {
+      const getRes = await fetch(
+        `${API}/crm/v3/objects/contacts/${encodeURIComponent(lead.email)}?idProperty=email`,
+        { headers: authHeader }
+      );
+      if (getRes.ok) {
+        const body = await getRes.json();
+        contactId = body.id;
+
+        await fetch(`${API}/crm/v3/objects/contacts/${contactId}`, {
+          method: "PATCH",
+          headers: authHeader,
+          body: JSON.stringify({
+            properties: {
+              hf_event_type: "wedding",
+              ...(lead.weddingDateRange && { hf_preferred_date: lead.weddingDateRange }),
+              leadsource: "SOCIAL_MEDIA",
+            },
+          }),
+        });
+      }
+    }
+  } catch (err) {
+    console.error("HubSpot meta lead contact error:", err);
+  }
+
+  if (!contactId) return;
+
+  // ── 2. Add a structured note ────────────────────────────────────────────────
+  try {
+    const noteLines = [
+      "Meta Lead Ad — Highland Farms Wedding Form",
+      "",
+      lead.weddingBudget ? `Budget: ${lead.weddingBudget}` : null,
+      lead.weddingDateRange ? `Wedding Date Range: ${lead.weddingDateRange}` : null,
+      lead.venuePriorities?.length
+        ? `Venue Priorities:\n${lead.venuePriorities.map((p) => `  • ${p}`).join("\n")}`
+        : null,
+      lead.adName ? `Ad Name: ${lead.adName}` : null,
+      lead.inboxUrl ? `Messenger: ${lead.inboxUrl}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    await fetch(`${API}/crm/v3/objects/notes`, {
+      method: "POST",
+      headers: authHeader,
+      body: JSON.stringify({
+        properties: {
+          hs_note_body: noteLines,
+          hs_timestamp: new Date().toISOString(),
+        },
+        associations: [
+          {
+            to: { id: contactId },
+            types: [{ associationCategory: "HUBSPOT_DEFINED", associationTypeId: NOTE_TO_CONTACT_TYPE_ID }],
+          },
+        ],
+      }),
+    });
+  } catch (err) {
+    console.error("HubSpot meta lead note error:", err);
+  }
+
+  // ── 3. Create a deal ────────────────────────────────────────────────────────
+  const pipelineId = process.env.HUBSPOT_PIPELINE_ID;
+  if (!pipelineId) return;
+
+  try {
+    const dealStage = process.env.HUBSPOT_DEAL_STAGE_NEW_LEAD ?? "";
+    const dealName = `Meta Lead — ${firstname}${lastname ? ` ${lastname}` : ""}`;
+    const closeDate = new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+    const dealRes = await fetch(`${API}/crm/v3/objects/deals`, {
+      method: "POST",
+      headers: authHeader,
+      body: JSON.stringify({
+        properties: {
+          dealname: dealName,
+          pipeline: pipelineId,
+          dealstage: dealStage,
+          closedate: closeDate,
+        },
+      }),
+    });
+
+    if (dealRes.ok) {
+      const deal = await dealRes.json();
+      const dealId: string = deal.id;
+
+      await fetch(`${API}/crm/v4/associations/deals/contacts/batch/create`, {
+        method: "POST",
+        headers: authHeader,
+        body: JSON.stringify({
+          inputs: [
+            {
+              from: { id: dealId },
+              to: { id: contactId },
+              types: [{ associationCategory: "HUBSPOT_DEFINED", associationTypeId: DEAL_TO_CONTACT_TYPE_ID }],
+            },
+          ],
+        }),
+      });
+    }
+  } catch (err) {
+    console.error("HubSpot meta lead deal error:", err);
   }
 }

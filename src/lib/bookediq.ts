@@ -1,4 +1,5 @@
 import { type InquiryFormData } from "@/lib/schemas";
+import { type MetaLeadData } from "@/lib/meta-leads";
 
 const GHL_API = "https://services.leadconnectorhq.com";
 
@@ -54,5 +55,57 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
     }
   } catch (err) {
     console.error("BookedIQ sync error:", err);
+  }
+}
+
+export async function syncMetaLeadToBookedIQ(lead: MetaLeadData): Promise<void> {
+  const locationId = process.env.BOOKEDIQ_LOCATION_ID;
+  const pit = process.env.BOOKEDIQ_PIT;
+  if (!locationId || !pit) return;
+
+  const [firstName, ...rest] = (lead.name || "Unknown").trim().split(/\s+/);
+  const lastName = rest.join(" ");
+
+  // Assemble message from budget + venue priorities
+  const messageParts: string[] = [];
+  if (lead.weddingBudget) messageParts.push(`Budget: ${lead.weddingBudget}`);
+  if (lead.venuePriorities?.length) messageParts.push(`Venue priorities: ${lead.venuePriorities.join(", ")}`);
+  if (lead.inboxUrl) messageParts.push(`Messenger: ${lead.inboxUrl}`);
+  if (lead.adName) messageParts.push(`Ad: ${lead.adName}`);
+
+  const customFields: { id: string; field_value: string }[] = [
+    { id: FIELD_EVENT_TYPE, field_value: "wedding" },
+  ];
+  if (lead.weddingDateRange) customFields.push({ id: FIELD_EVENT_DATE, field_value: lead.weddingDateRange });
+  if (messageParts.length) customFields.push({ id: FIELD_MESSAGE, field_value: messageParts.join("\n") });
+
+  const headers = {
+    Authorization: `Bearer ${pit}`,
+    Version: "2021-07-28",
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const res = await fetch(`${GHL_API}/contacts/upsert`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        locationId,
+        firstName,
+        ...(lastName && { lastName }),
+        ...(lead.email && { email: lead.email }),
+        ...(lead.phone && { phone: lead.phone }),
+        source: "Meta Lead Ad",
+        tags: ["source :: meta lead ad", "wedding lead"],
+        customFields,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("BookedIQ meta lead upsert error:", res.status, err);
+    }
+  } catch (err) {
+    console.error("BookedIQ meta lead sync error:", err);
   }
 }
