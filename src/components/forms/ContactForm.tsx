@@ -69,12 +69,14 @@ export function ContactForm({
       setStatus("success");
       reset();
 
-      // Push conversion event to GTM dataLayer
+      // Push conversion event to GTM dataLayer (email included for enhanced conversions)
       if (typeof window !== "undefined" && window.dataLayer) {
         window.dataLayer.push({
           event: "form_submission",
           form_name: "event_inquiry",
           event_type: data.event_type,
+          email: data.email,
+          ...(data.phone && { phone: data.phone }),
         });
       }
     } catch (err) {
@@ -328,6 +330,43 @@ export function ContactForm({
           />
         </div>
         <input type="hidden" {...register("_t", { valueAsNumber: true })} />
+
+        {/* SMS Consent Checkboxes — optional, A2P compliance */}
+        <div className="space-y-3 rounded-lg bg-cream/50 border border-cream-dark px-4 py-4">
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              id="consent-marketing-sms"
+              {...register("consent_marketing_sms")}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-cream-dark accent-forest"
+            />
+            <span className="text-xs text-charcoal/80 font-sans leading-relaxed">
+              I consent to receive marketing text messages from Highland Farms Oregon LLC at the phone number provided. Frequency may vary. Message and data rates may apply. Text HELP for assistance. Reply STOP to opt out.
+            </span>
+          </label>
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              id="consent-appointment-sms"
+              {...register("consent_appointment_sms")}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-cream-dark accent-forest"
+            />
+            <span className="text-xs text-charcoal/80 font-sans leading-relaxed">
+              I consent to receive non-marketing text messages from Highland Farms Oregon LLC about appointment information - confirmation &amp; reminder messages. Message and data rates may apply.
+            </span>
+          </label>
+          <p className="text-xs text-muted/70 font-sans pt-1">
+            By submitting this form, you agree to our{" "}
+            <a href="/privacy" className="text-forest underline underline-offset-2 hover:text-forest-light transition-colors">
+              Privacy Policy
+            </a>{" "}
+            and{" "}
+            <a href="/terms" className="text-forest underline underline-offset-2 hover:text-forest-light transition-colors">
+              Terms of Service
+            </a>
+            .
+          </p>
+        </div>
 
         {/* Submit button - large, full-width, prominent */}
         <button
