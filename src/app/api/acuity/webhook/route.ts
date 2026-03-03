@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { sendBookingPurchase } from "@/lib/ga4";
+import { sendMetaPurchase } from "@/lib/meta";
 
 /**
  * Acuity Scheduling webhook handler.
  *
- * Fires a GA4 `purchase` event via Measurement Protocol whenever an
- * appointment is booked or rescheduled on highlandfarms.as.me.
+ * Fires server-side conversion events whenever an appointment is booked
+ * or rescheduled on highlandfarms.as.me (Acuity's hosted subdomain).
+ *
+ * Platforms tracked:
+ *   - GA4 Measurement Protocol  → "purchase" + "book_{type}" events
+ *   - Meta Conversions API      → "Purchase" event (farm tour + spa only)
  *
  * Security: Acuity POSTs to the URL with a `secret` query parameter
  * that only we know. Register the full URL (with secret) in Acuity.
@@ -17,7 +22,7 @@ import { sendBookingPurchase } from "@/lib/ga4";
  * Calendar ID → booking type mapping (from Acuity calendars):
  *   7539520  → Farm Tours
  *   13047082 → Nordic Spa
- *   12109481 → Wedding Call
+ *   12109481 → Wedding Call (free — skipped by Meta CAPI)
  */
 
 const CALENDAR_TYPE: Record<number, string> = {
@@ -57,6 +62,8 @@ export async function POST(request: Request) {
     const appointmentTypeID = body.appointmentTypeID as number;
     const calendarID = body.calendarID as number;
     const appointmentTypeName = body.type as string | undefined;
+    const email = body.email as string | undefined;
+    const phone = body.phone as string | undefined;
 
     // amountPaid is the actual collected amount; fall back through priceSold → price
     const rawAmount = (body.amountPaid ?? body.priceSold ?? body.price ?? "0") as string;
@@ -65,9 +72,11 @@ export async function POST(request: Request) {
     const bookingType = CALENDAR_TYPE[calendarID] ?? "other";
     const category = CALENDAR_CATEGORY[calendarID] ?? "Other";
     const itemName = appointmentTypeName ?? category;
+    const transactionId = `acuity_${id}`;
 
-    await sendBookingPurchase({
-      transaction_id: `acuity_${id}`,
+    // GA4 Measurement Protocol — fires "purchase" + "book_{type}" events
+    sendBookingPurchase({
+      transaction_id: transactionId,
       value,
       currency: "USD",
       booking_type: bookingType,
@@ -81,7 +90,19 @@ export async function POST(request: Request) {
           item_category: category,
         },
       ],
-    });
+    }).catch((err) => console.error("GA4 booking error:", err));
+
+    // Meta Conversions API — fires "Purchase" event for paid bookings
+    // Wedding calls are free ($0) so sendMetaPurchase skips them automatically
+    sendMetaPurchase({
+      transaction_id: transactionId,
+      value,
+      currency: "USD",
+      content_name: itemName,
+      content_category: category,
+      email,
+      phone,
+    }).catch((err) => console.error("Meta CAPI error:", err));
 
     return NextResponse.json({ ok: true });
   } catch (err) {
