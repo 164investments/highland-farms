@@ -183,6 +183,8 @@ export async function syncMetaLeadToHubSpot(lead: MetaLeadData): Promise<void> {
           ...(lead.phone && { phone: lead.phone }),
           hf_event_type: "wedding",
           ...(lead.weddingDateRange && { hf_preferred_date: lead.weddingDateRange }),
+          ...(lead.weddingBudget && { hf_wedding_budget: normalizeMetaBudget(lead.weddingBudget) }),
+          ...(lead.venuePriorities?.length && { hf_venue_priorities: lead.venuePriorities.join(", ") }),
           leadsource: "SOCIAL_MEDIA",
         },
       }),
@@ -207,6 +209,8 @@ export async function syncMetaLeadToHubSpot(lead: MetaLeadData): Promise<void> {
             properties: {
               hf_event_type: "wedding",
               ...(lead.weddingDateRange && { hf_preferred_date: lead.weddingDateRange }),
+              ...(lead.weddingBudget && { hf_wedding_budget: normalizeMetaBudget(lead.weddingBudget) }),
+              ...(lead.venuePriorities?.length && { hf_venue_priorities: lead.venuePriorities.join(", ") }),
               leadsource: "SOCIAL_MEDIA",
             },
           }),
@@ -298,4 +302,20 @@ export async function syncMetaLeadToHubSpot(lead: MetaLeadData): Promise<void> {
   } catch (err) {
     console.error("HubSpot meta lead deal error:", err);
   }
+}
+
+/**
+ * Maps Meta lead form budget strings to HubSpot hf_wedding_budget enum values.
+ * Meta sends raw form values; HubSpot expects the defined option keys.
+ */
+function normalizeMetaBudget(raw: string): string {
+  const lower = raw.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (lower.includes("under") || lower.startsWith("under")) return "under_6000";
+  if (lower.includes("6000") && lower.includes("10000")) return "6000_to_10000";
+  if (lower.includes("10000") && lower.includes("15000")) return "10000_to_15000";
+  if (lower.includes("15000") && lower.includes("20000")) return "15000_to_20000";
+  if (lower.includes("20000") || lower.includes("20k")) return "20000_plus";
+  if (lower.includes("notsure") || lower.includes("sure")) return "not_sure";
+  // Return raw as fallback — HubSpot will reject unknown enum values gracefully
+  return raw;
 }
