@@ -106,6 +106,9 @@ export default function RootLayout({
       <body className={`${cormorant.variable} ${lora.variable} ${dancingScript.variable} antialiased overflow-x-hidden`}>
         <GoogleTagManager />
         <GoogleTagManagerNoScript />
+        <Script id="hs-form-capture-off" strategy="beforeInteractive">
+          {`window._hsq = window._hsq || []; _hsq.push(["setFormCapture", false]);`}
+        </Script>
         <Script
           id="hs-script-loader"
           src="//js.hs-scripts.com/241936089.js"
