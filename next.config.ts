@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       // Old Squarespace URL redirects
       { source: "/wedding-venue", destination: "/weddings", permanent: true },
       { source: "/outdoor-wedding-venue", destination: "/weddings", permanent: true },
+      { source: "/farm-wedding-venue", destination: "/weddings", permanent: true },
       { source: "/farm-tour-spa", destination: "/farm-tours", permanent: true },
       { source: "/farm-stay", destination: "/stay", permanent: true },
       { source: "/gatherings-retreats", destination: "/celebrations", permanent: true },
