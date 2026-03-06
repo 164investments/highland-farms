@@ -213,6 +213,21 @@ export function StructuredData() {
               "@type": "DefinedRegion",
               addressCountry: "US",
             },
+            deliveryTime: {
+              "@type": "ShippingDeliveryTime",
+              handlingTime: {
+                "@type": "QuantitativeValue",
+                minValue: 0,
+                maxValue: 0,
+                unitCode: "DAY",
+              },
+              transitTime: {
+                "@type": "QuantitativeValue",
+                minValue: 0,
+                maxValue: 0,
+                unitCode: "DAY",
+              },
+            },
           },
           hasMerchantReturnPolicy: {
             "@type": "MerchantReturnPolicy",
@@ -251,6 +266,21 @@ export function StructuredData() {
             shippingDestination: {
               "@type": "DefinedRegion",
               addressCountry: "US",
+            },
+            deliveryTime: {
+              "@type": "ShippingDeliveryTime",
+              handlingTime: {
+                "@type": "QuantitativeValue",
+                minValue: 0,
+                maxValue: 0,
+                unitCode: "DAY",
+              },
+              transitTime: {
+                "@type": "QuantitativeValue",
+                minValue: 0,
+                maxValue: 0,
+                unitCode: "DAY",
+              },
             },
           },
           hasMerchantReturnPolicy: {
