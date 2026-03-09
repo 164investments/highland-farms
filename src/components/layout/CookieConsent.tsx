@@ -17,15 +17,8 @@ export function CookieConsent() {
     }
   }, []);
 
-  function accept() {
-    localStorage.setItem(CONSENT_KEY, "accepted");
-    setVisible(false);
-    // Load GTM now that user has consented
-    window.dispatchEvent(new Event("cookie-consent-accepted"));
-  }
-
-  function decline() {
-    localStorage.setItem(CONSENT_KEY, "declined");
+  function dismiss() {
+    localStorage.setItem(CONSENT_KEY, "dismissed");
     setVisible(false);
   }
 
@@ -34,7 +27,7 @@ export function CookieConsent() {
   return (
     <div
       role="dialog"
-      aria-label="Cookie consent"
+      aria-label="Cookie notice"
       className="fixed bottom-0 left-0 right-0 z-[9999] border-t border-cream-dark bg-white px-4 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] sm:px-6 animate-[slide-up_0.3s_ease-out]"
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
@@ -51,25 +44,13 @@ export function CookieConsent() {
         </p>
         <div className="flex shrink-0 items-center gap-3 sm:gap-3">
           <button
-            onClick={decline}
-            className="flex-1 rounded-full border border-cream-dark px-4 py-2.5 text-sm font-light text-charcoal hover:bg-cream transition-colors font-sans sm:flex-none sm:py-2"
-          >
-            Decline
-          </button>
-          <button
-            onClick={accept}
+            onClick={dismiss}
             className="flex-1 rounded-full bg-forest px-5 py-2.5 text-sm font-medium text-white hover:bg-forest-light transition-colors font-sans sm:flex-none sm:py-2"
           >
-            Accept
+            Got it
           </button>
         </div>
       </div>
     </div>
   );
-}
-
-/** Check if user has accepted cookies (for use in other components) */
-export function hasConsentedToCookies(): boolean {
-  if (typeof window === "undefined") return false;
-  return localStorage.getItem(CONSENT_KEY) === "accepted";
 }

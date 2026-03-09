@@ -1,30 +1,9 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Script from "next/script";
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
-const CONSENT_KEY = "hf-cookie-consent";
 
 export function GoogleTagManager() {
-  const [consented, setConsented] = useState(false);
-
-  useEffect(() => {
-    // Check if user already consented
-    if (localStorage.getItem(CONSENT_KEY) === "accepted") {
-      setConsented(true);
-    }
-
-    // Listen for future consent
-    function handleConsent() {
-      setConsented(true);
-    }
-
-    window.addEventListener("cookie-consent-accepted", handleConsent);
-    return () => window.removeEventListener("cookie-consent-accepted", handleConsent);
-  }, []);
-
-  if (!GTM_ID || !consented) return null;
+  if (!GTM_ID) return null;
 
   return (
     <Script
