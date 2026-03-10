@@ -7,6 +7,7 @@ const RECIPIENTS = [
   "hayden.laverty@gmail.com",
   "Jalene@highlandfarms-oregon.com",
   "mcwilliamscc2@gmail.com",
+  "egbert.jordan@gmail.com",
 ];
 
 const DOW_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
