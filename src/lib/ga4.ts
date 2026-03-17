@@ -187,3 +187,43 @@ export async function sendGenerateLead(
     console.error("GA4 MP send error:", err);
   }
 }
+
+/**
+ * Fires multiple GA4 lead events in a single Measurement Protocol request.
+ * Prevents event throttling from near-simultaneous calls with the same client_id.
+ */
+export async function sendLeadEvents(
+  cookieHeader: string | null,
+  eventsList: GA4LeadEventParams[],
+): Promise<void> {
+  const measurementId = process.env.GA4_MEASUREMENT_ID;
+  const apiSecret = process.env.GA4_API_SECRET;
+  if (!measurementId || !apiSecret || eventsList.length === 0) return;
+
+  const clientId = getClientId(cookieHeader);
+  const sessionId = getSessionId(cookieHeader, measurementId);
+
+  const payload = {
+    client_id: clientId,
+    events: eventsList.map((params) => ({
+      name: params.event_name ?? "generate_lead",
+      params: {
+        event_type: params.event_type,
+        form_name: params.form_name,
+        engagement_time_msec: 1,
+        ...(params.event_id && { event_id: params.event_id }),
+        ...(sessionId && { session_id: sessionId }),
+      },
+    })),
+  };
+
+  try {
+    const res = await fetch(
+      `${MP_ENDPOINT}?measurement_id=${measurementId}&api_secret=${apiSecret}`,
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) },
+    );
+    if (!res.ok) console.error("GA4 MP error:", res.status, await res.text());
+  } catch (err) {
+    console.error("GA4 MP send error:", err);
+  }
+}

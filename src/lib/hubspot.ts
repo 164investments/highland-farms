@@ -8,7 +8,7 @@ const NOTE_TO_CONTACT_TYPE_ID = 202; // note → contact
 const DEAL_TO_CONTACT_TYPE_ID = 3;   // deal → contact
 
 export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void> {
-  const token = process.env.HUBSPOT_ACCESS_TOKEN;
+  const token = process.env.HUBSPOT_ACCESS_TOKEN?.trim();
   if (!token) return;
 
   const [firstname, ...rest] = data.name.trim().split(/\s+/);
@@ -104,7 +104,7 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
   }
 
   // ── 3. Create a deal and associate it to the contact ───────────────────────
-  const pipelineId = process.env.HUBSPOT_PIPELINE_ID;
+  const pipelineId = process.env.HUBSPOT_PIPELINE_ID?.trim();
   if (!pipelineId) return; // Skip deal creation until pipeline is set up
 
   try {
@@ -120,7 +120,7 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
       ? new Date(data.preferred_date).toISOString().split("T")[0]
       : new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
-    const dealStage = process.env.HUBSPOT_DEAL_STAGE_NEW_LEAD ?? "";
+    const dealStage = process.env.HUBSPOT_DEAL_STAGE_NEW_LEAD?.trim() ?? "";
 
     const dealRes = await fetch(`${API}/crm/v3/objects/deals`, {
       method: "POST",
@@ -160,7 +160,7 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
 }
 
 export async function syncMetaLeadToHubSpot(lead: MetaLeadData): Promise<void> {
-  const token = process.env.HUBSPOT_ACCESS_TOKEN;
+  const token = process.env.HUBSPOT_ACCESS_TOKEN?.trim();
   if (!token) return;
 
   const [firstname, ...rest] = (lead.name || "Unknown").trim().split(/\s+/);

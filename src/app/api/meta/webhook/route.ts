@@ -18,7 +18,7 @@
  *   META_PAGE_ID               — Facebook Page ID (102331176047064)
  */
 
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { fetchMetaLead, normalizeMetaLead } from "@/lib/meta-leads";
@@ -87,9 +87,10 @@ export async function POST(request: Request) {
       const { leadgen_id: leadgenId, form_id: formId, ad_id: adId, ad_name: adName, campaign_id: campaignId } = change.value;
       if (!leadgenId) continue;
 
-      // Fire-and-forget the full processing pipeline — don't block the response
-      processLead(leadgenId, { formId, adId, adName, campaignId }).catch((err) => {
-        console.error("Meta lead processing error:", leadgenId, err);
+      after(async () => {
+        await processLead(leadgenId, { formId, adId, adName, campaignId }).catch((err) => {
+          console.error("Meta lead processing error:", leadgenId, err);
+        });
       });
     }
   }
@@ -144,43 +145,43 @@ async function processLead(
     if (error) console.error("Supabase meta_leads upsert error:", error);
   }
 
-  // Fan out to all downstream systems — all fire-and-forget, non-blocking
-  syncMetaLeadToBookedIQ(lead)
-    .then(async () => {
-      if (supabaseUrl && supabaseServiceKey) {
-        const db = createClient(supabaseUrl, supabaseServiceKey);
-        await db.from("meta_leads")
-          .update({ synced_to_bookediq: true })
-          .eq("leadgen_id", lead.leadgenId);
-      }
-    })
-    .catch((err) => console.error("BookedIQ meta lead sync error:", err));
+  await Promise.all([
+    syncMetaLeadToBookedIQ(lead)
+      .then(async () => {
+        if (supabaseUrl && supabaseServiceKey) {
+          const db = createClient(supabaseUrl, supabaseServiceKey);
+          await db.from("meta_leads")
+            .update({ synced_to_bookediq: true })
+            .eq("leadgen_id", lead.leadgenId);
+        }
+      })
+      .catch((err) => console.error("BookedIQ meta lead sync error:", err)),
 
-  syncMetaLeadToHubSpot(lead)
-    .then(async () => {
-      if (supabaseUrl && supabaseServiceKey) {
-        const db = createClient(supabaseUrl, supabaseServiceKey);
-        await db.from("meta_leads")
-          .update({ synced_to_hubspot: true })
-          .eq("leadgen_id", lead.leadgenId);
-      }
-    })
-    .catch((err) => console.error("HubSpot meta lead sync error:", err));
+    syncMetaLeadToHubSpot(lead)
+      .then(async () => {
+        if (supabaseUrl && supabaseServiceKey) {
+          const db = createClient(supabaseUrl, supabaseServiceKey);
+          await db.from("meta_leads")
+            .update({ synced_to_hubspot: true })
+            .eq("leadgen_id", lead.leadgenId);
+        }
+      })
+      .catch((err) => console.error("HubSpot meta lead sync error:", err)),
 
-  sendMetaLeadNotification(lead).catch((err) =>
-    console.error("Meta lead email notification error:", err)
-  );
+    sendMetaLeadNotification(lead).catch((err) =>
+      console.error("Meta lead email notification error:", err)
+    ),
 
-  // GA4 — fire generate_lead + generate_lead_wedding (no browser session available)
-  sendGenerateLead(null, {
-    event_type: "wedding",
-    form_name: "meta_lead_ad",
-    event_name: "generate_lead",
-  }).catch((err) => console.error("GA4 meta lead error:", err));
+    sendGenerateLead(null, {
+      event_type: "wedding",
+      form_name: "meta_lead_ad",
+      event_name: "generate_lead",
+    }).catch((err) => console.error("GA4 meta lead error:", err)),
 
-  sendGenerateLead(null, {
-    event_type: "wedding",
-    form_name: "meta_lead_ad",
-    event_name: "generate_lead_wedding",
-  }).catch((err) => console.error("GA4 meta lead wedding event error:", err));
+    sendGenerateLead(null, {
+      event_type: "wedding",
+      form_name: "meta_lead_ad",
+      event_name: "generate_lead_wedding",
+    }).catch((err) => console.error("GA4 meta lead wedding event error:", err)),
+  ]);
 }

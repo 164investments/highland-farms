@@ -10,8 +10,8 @@ const FIELD_EVENT_DATE   = "bD5UbqcequJXjdwM7q6s"; // Desired Event Date
 const FIELD_MESSAGE      = "XdkbuNVwwMGVNIlCRfpE"; // Contact Form Message
 
 export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void> {
-  const locationId = process.env.BOOKEDIQ_LOCATION_ID;
-  const pit = process.env.BOOKEDIQ_PIT;
+  const locationId = process.env.BOOKEDIQ_LOCATION_ID?.trim();
+  const pit = process.env.BOOKEDIQ_PIT?.trim();
   if (!locationId || !pit) return;
 
   const [firstName, ...rest] = data.name.trim().split(/\s+/);
@@ -59,8 +59,8 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
 }
 
 export async function syncMetaLeadToBookedIQ(lead: MetaLeadData): Promise<void> {
-  const locationId = process.env.BOOKEDIQ_LOCATION_ID;
-  const pit = process.env.BOOKEDIQ_PIT;
+  const locationId = process.env.BOOKEDIQ_LOCATION_ID?.trim();
+  const pit = process.env.BOOKEDIQ_PIT?.trim();
   if (!locationId || !pit) return;
 
   const [firstName, ...rest] = (lead.name || "Unknown").trim().split(/\s+/);

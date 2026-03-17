@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { sendBookingPurchase } from "@/lib/ga4";
 import { sendMetaPurchase } from "@/lib/meta";
 
@@ -74,35 +74,37 @@ export async function POST(request: Request) {
     const itemName = appointmentTypeName ?? category;
     const transactionId = `acuity_${id}`;
 
-    // GA4 Measurement Protocol — fires "purchase" + "book_{type}" events
-    sendBookingPurchase({
-      transaction_id: transactionId,
-      value,
-      currency: "USD",
-      booking_type: bookingType,
-      appointment_type: appointmentTypeName,
-      items: [
-        {
-          item_id: String(appointmentTypeID),
-          item_name: itemName,
-          price: value,
-          quantity: 1,
-          item_category: category,
-        },
-      ],
-    }).catch((err) => console.error("GA4 booking error:", err));
+    after(async () => {
+      await Promise.all([
+        sendBookingPurchase({
+          transaction_id: transactionId,
+          value,
+          currency: "USD",
+          booking_type: bookingType,
+          appointment_type: appointmentTypeName,
+          items: [
+            {
+              item_id: String(appointmentTypeID),
+              item_name: itemName,
+              price: value,
+              quantity: 1,
+              item_category: category,
+            },
+          ],
+        }).catch((err) => console.error("GA4 booking error:", err)),
 
-    // Meta Conversions API — fires "Purchase" event for paid bookings
-    // Wedding calls are free ($0) so sendMetaPurchase skips them automatically
-    sendMetaPurchase({
-      transaction_id: transactionId,
-      value,
-      currency: "USD",
-      content_name: itemName,
-      content_category: category,
-      email,
-      phone,
-    }).catch((err) => console.error("Meta CAPI error:", err));
+        // Wedding calls are free ($0) so sendMetaPurchase skips them automatically
+        sendMetaPurchase({
+          transaction_id: transactionId,
+          value,
+          currency: "USD",
+          content_name: itemName,
+          content_category: category,
+          email,
+          phone,
+        }).catch((err) => console.error("Meta CAPI error:", err)),
+      ]);
+    });
 
     return NextResponse.json({ ok: true });
   } catch (err) {

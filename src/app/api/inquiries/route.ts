@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { inquirySchema } from "@/lib/schemas";
 import { sendInquiryNotification } from "@/lib/email";
 import { syncInquiryToHubSpot } from "@/lib/hubspot";
 import { syncInquiryToBookedIQ } from "@/lib/bookediq";
-import { sendGenerateLead } from "@/lib/ga4";
+import { sendLeadEvents, type GA4LeadEventParams } from "@/lib/ga4";
 
 // In-memory rate limiting (per warm serverless instance)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -119,45 +119,43 @@ export async function POST(request: Request) {
       );
     }
 
-    // Send email notification (fire-and-forget — data is safe in Supabase)
-    sendInquiryNotification(result.data).catch((err) => {
-      console.error("Email notification error:", err);
-    });
-
-    // Sync to HubSpot CRM (fire-and-forget — non-blocking)
-    syncInquiryToHubSpot(result.data).catch((err) => {
-      console.error("HubSpot sync error:", err);
-    });
-
-    // Sync to BookedIQ CRM (fire-and-forget — non-blocking)
-    syncInquiryToBookedIQ(result.data).catch((err) => {
-      console.error("BookedIQ sync error:", err);
-    });
-
-    // Server-side GA4 Measurement Protocol — fires even if client-side GTM is blocked
     const cookieHeader = request.headers.get("cookie");
-    sendGenerateLead(cookieHeader, {
-      event_type,
-      form_name: "event_inquiry",
-      ...(_sid && { event_id: _sid }),
-    }).catch((err) => {
-      console.error("GA4 MP error:", err);
-    });
-
-    // Wedding-type inquiries also fire a product-specific event so wedding
-    // ad campaigns can use "generate_lead_wedding" as their dedicated conversion
-    // goal instead of the blended "generate_lead" shared with spa / tour / other
     const WEDDING_EVENT_TYPES = ["wedding", "elopement", "engagement-party", "rehearsal-dinner"];
-    if (WEDDING_EVENT_TYPES.includes(event_type)) {
-      sendGenerateLead(cookieHeader, {
-        event_type,
-        form_name: "event_inquiry",
-        event_name: "generate_lead_wedding",
-        // No event_id — different event name, no dedup needed with GTM
-      }).catch((err) => {
-        console.error("GA4 MP wedding event error:", err);
-      });
-    }
+
+    after(async () => {
+      // Build GA4 events list — batch into single Measurement Protocol request
+      // to prevent throttling from near-simultaneous calls with same client_id
+      const ga4Events: GA4LeadEventParams[] = [
+        {
+          event_type,
+          form_name: "event_inquiry",
+          ...(_sid && { event_id: _sid }),
+        },
+      ];
+
+      if (WEDDING_EVENT_TYPES.includes(event_type)) {
+        ga4Events.push({
+          event_type,
+          form_name: "event_inquiry",
+          event_name: "generate_lead_wedding",
+        });
+      }
+
+      await Promise.all([
+        sendInquiryNotification(result.data).catch((err) => {
+          console.error("Email notification error:", err);
+        }),
+        syncInquiryToHubSpot(result.data).catch((err) => {
+          console.error("HubSpot sync error:", err);
+        }),
+        syncInquiryToBookedIQ(result.data).catch((err) => {
+          console.error("BookedIQ sync error:", err);
+        }),
+        sendLeadEvents(cookieHeader, ga4Events).catch((err) => {
+          console.error("GA4 MP error:", err);
+        }),
+      ]);
+    });
 
     return NextResponse.json({ success: true });
   } catch {
