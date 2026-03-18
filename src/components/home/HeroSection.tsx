@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 
 export function HeroSection() {
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
+    <section className="relative flex min-h-dvh items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
       {/* Background image */}
       <Image
         src="/images/weddings/hannah-max/01.jpg"
