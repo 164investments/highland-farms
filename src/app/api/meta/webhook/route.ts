@@ -119,7 +119,10 @@ async function processLead(
   if (!lead.campaignId && meta.campaignId) lead.campaignId = meta.campaignId;
   if (!lead.formId && meta.formId) lead.formId = meta.formId;
 
-  // Upsert into Supabase meta_leads table
+  // Budget-based lead qualification — under $6K leads are junk
+  const isDisqualified = lead.weddingBudget === "under_$6,000";
+
+  // Upsert into Supabase meta_leads table (always, even if disqualified)
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (supabaseUrl && supabaseServiceKey) {
@@ -139,10 +142,17 @@ async function processLead(
         venue_priorities: lead.venuePriorities ?? null,
         inbox_url: lead.inboxUrl ?? null,
         raw: rawLead,
+        disqualified: isDisqualified,
       },
       { onConflict: "leadgen_id" }
     );
     if (error) console.error("Supabase meta_leads upsert error:", error);
+  }
+
+  // Skip all downstream syncs for disqualified leads — don't waste team's time
+  if (isDisqualified) {
+    console.log(`Meta lead ${lead.leadgenId} disqualified (budget: ${lead.weddingBudget})`);
+    return;
   }
 
   await Promise.all([
