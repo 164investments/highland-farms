@@ -611,9 +611,9 @@ function buildReport(data: ReportData): string {
           ${referralSection}
           ${ytdSection}
 
-          <!-- HubSpot CTA -->
+          <!-- CRM CTA -->
           <tr><td style="padding:36px 36px 0;text-align:center;">
-            <a href="https://app-na2.hubspot.com/contacts/241936089" style="display:inline-block;background:#f2c070;color:#1c1d1d;padding:14px 32px;border-radius:6px;text-decoration:none;font-family:${SANS};font-weight:700;font-size:13px;letter-spacing:0.5px;">View All Contacts in HubSpot</a>
+            <a href="https://app.highlandfarmsoregon.com" style="display:inline-block;background:#f2c070;color:#1c1d1d;padding:14px 32px;border-radius:6px;text-decoration:none;font-family:${SANS};font-weight:700;font-size:13px;letter-spacing:0.5px;">View All Contacts in BookedIQ</a>
           </td></tr>
 
           <!-- Footer -->
