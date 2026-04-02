@@ -51,13 +51,41 @@ async function fetchJSON<T>(path: string, params: Record<string, string> = {}): 
 }
 
 export async function getAppointments(minDate: string, maxDate: string, canceled = false) {
-  return fetchJSON<AcuityAppointment[]>("/appointments", {
-    minDate,
-    maxDate,
-    max: "500",
-    direction: "ASC",
-    ...(canceled ? { canceled: "true" } : {}),
-  });
+  // Acuity API caps at 500 results with no page/offset param.
+  // Fetch month-by-month to avoid hitting the limit.
+  const start = new Date(minDate + "T00:00:00");
+  const end = new Date(maxDate + "T00:00:00");
+  const all: AcuityAppointment[] = [];
+  const seen = new Set<number>();
+
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    const chunkStart = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}-${String(cursor.getDate()).padStart(2, "0")}`;
+    const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
+    const chunkEnd = monthEnd > end
+      ? maxDate
+      : `${monthEnd.getFullYear()}-${String(monthEnd.getMonth() + 1).padStart(2, "0")}-${String(monthEnd.getDate()).padStart(2, "0")}`;
+
+    const batch = await fetchJSON<AcuityAppointment[]>("/appointments", {
+      minDate: chunkStart,
+      maxDate: chunkEnd,
+      max: "500",
+      direction: "ASC",
+      ...(canceled ? { canceled: "true" } : {}),
+    });
+
+    for (const a of batch) {
+      if (!seen.has(a.id)) {
+        seen.add(a.id);
+        all.push(a);
+      }
+    }
+
+    cursor.setMonth(cursor.getMonth() + 1);
+    cursor.setDate(1);
+  }
+
+  return all;
 }
 
 export async function getOrders() {
