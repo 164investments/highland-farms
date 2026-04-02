@@ -209,7 +209,10 @@ async function gatherData(): Promise<ReportData> {
     fetchMetaLeads(`${prevStartStr}T00:00:00`, `${prevEndStr}T23:59:59`),
     fetchMetaLeads(`${ytdStart}T00:00:00`, `${ytdEnd}T23:59:59`),
     acuityPromise,
-    getWeddingGA4Data(startStr, endStr, prevStartStr, prevEndStr).catch(() => null),
+    getWeddingGA4Data(startStr, endStr, prevStartStr, prevEndStr).catch((err) => {
+      console.error("GA4 wedding data error:", err);
+      return null;
+    }),
   ]);
 
   const weddingCalls = filterWeddingCalls(allAppointments, startStr, endStr);
@@ -379,7 +382,7 @@ function buildReport(data: ReportData): string {
           <tr><td style="padding:10px 14px;background:#f0f4ff;border-radius:6px;">
             <table width="100%">
               <tr>
-                <td style="font-size:14px;color:#1c1d1d;font-weight:600;">${escapeHtml(a.firstName)} ${escapeHtml(a.lastName[0])}.</td>
+                <td style="font-size:14px;color:#1c1d1d;font-weight:600;">${escapeHtml(a.firstName)}${a.lastName ? ` ${escapeHtml(a.lastName[0])}.` : ""}</td>
                 <td align="right" style="font-size:13px;color:#888;">${apptLabel} at ${timeLabel}</td>
               </tr>
               <tr><td colspan="2" style="padding-top:4px;font-size:13px;color:#888;">

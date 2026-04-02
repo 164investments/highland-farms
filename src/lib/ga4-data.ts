@@ -109,13 +109,28 @@ export async function getWeddingGA4Data(
     },
   };
 
-  const clickToCallFilter = {
-    filter: { fieldName: "eventName", stringFilter: { matchType: "EXACT", value: "click_to_call" } },
+  // Click-to-call scoped to wedding pages (AND filter: event + page)
+  const clickToCallWeddingFilter = {
+    andGroup: {
+      expressions: [
+        { filter: { fieldName: "eventName", stringFilter: { matchType: "EXACT", value: "click_to_call" } } },
+        {
+          orGroup: {
+            expressions: [
+              { filter: { fieldName: "pagePath", stringFilter: { matchType: "BEGINS_WITH", value: "/weddings" } } },
+              { filter: { fieldName: "pagePath", stringFilter: { matchType: "BEGINS_WITH", value: "/wedding-portfolio" } } },
+              { filter: { fieldName: "pagePath", stringFilter: { matchType: "BEGINS_WITH", value: "/celebrations" } } },
+              { filter: { fieldName: "pagePath", stringFilter: { matchType: "BEGINS_WITH", value: "/contact" } } },
+            ],
+          },
+        },
+      ],
+    },
   };
 
-  // Run 5 reports in parallel
-  const [pagesRes, sourcesRes, prevRes, ctcRes, ctcPrevRes] = await Promise.all([
-    // 1. Page-level traffic for wedding pages
+  // Run 7 reports in parallel (includes ungrouped totals for accuracy)
+  const [pagesRes, totalsRes, sourcesRes, prevRes, ctcRes, ctcPrevRes, ctcAllRes] = await Promise.all([
+    // 1. Page-level breakdown (top 20 — for the table)
     fetch(DATA_API, {
       method: "POST",
       headers: authHeaders,
@@ -129,7 +144,18 @@ export async function getWeddingGA4Data(
       }),
     }),
 
-    // 2. Traffic sources for wedding pages
+    // 2. Ungrouped totals for wedding pages (accurate sessions + users)
+    fetch(DATA_API, {
+      method: "POST",
+      headers: authHeaders,
+      body: JSON.stringify({
+        dateRanges: [{ startDate, endDate }],
+        metrics: [{ name: "sessions" }, { name: "totalUsers" }],
+        dimensionFilter: weddingPageFilter,
+      }),
+    }),
+
+    // 3. Traffic sources for wedding pages
     fetch(DATA_API, {
       method: "POST",
       headers: authHeaders,
@@ -143,7 +169,7 @@ export async function getWeddingGA4Data(
       }),
     }),
 
-    // 3. Previous period total sessions (for comparison)
+    // 4. Previous period total sessions (for comparison)
     fetch(DATA_API, {
       method: "POST",
       headers: authHeaders,
@@ -154,7 +180,7 @@ export async function getWeddingGA4Data(
       }),
     }),
 
-    // 4. Click-to-call events (current period)
+    // 5. Click-to-call on wedding pages (current, breakdown)
     fetch(DATA_API, {
       method: "POST",
       headers: authHeaders,
@@ -162,32 +188,45 @@ export async function getWeddingGA4Data(
         dateRanges: [{ startDate, endDate }],
         dimensions: [{ name: "customEvent:page_location" }, { name: "customEvent:phone_number" }],
         metrics: [{ name: "eventCount" }],
-        dimensionFilter: clickToCallFilter,
+        dimensionFilter: clickToCallWeddingFilter,
         orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
         limit: 20,
       }),
     }),
 
-    // 5. Click-to-call events (previous period, total only)
+    // 6. Click-to-call on wedding pages (previous, total only)
     fetch(DATA_API, {
       method: "POST",
       headers: authHeaders,
       body: JSON.stringify({
         dateRanges: [{ startDate: prevStartDate, endDate: prevEndDate }],
         metrics: [{ name: "eventCount" }],
-        dimensionFilter: clickToCallFilter,
+        dimensionFilter: clickToCallWeddingFilter,
+      }),
+    }),
+
+    // 7. Click-to-call site-wide total (for the ungrouped count)
+    fetch(DATA_API, {
+      method: "POST",
+      headers: authHeaders,
+      body: JSON.stringify({
+        dateRanges: [{ startDate, endDate }],
+        metrics: [{ name: "eventCount" }],
+        dimensionFilter: clickToCallWeddingFilter,
       }),
     }),
   ]);
 
-  if (!pagesRes.ok || !sourcesRes.ok || !prevRes.ok) return null;
+  if (!pagesRes.ok || !totalsRes.ok || !sourcesRes.ok || !prevRes.ok) return null;
 
-  const [pagesData, sourcesData, prevData, ctcData, ctcPrevData] = await Promise.all([
+  const [pagesData, totalsData, sourcesData, prevData, ctcData, ctcPrevData, ctcAllData] = await Promise.all([
     pagesRes.json(),
+    totalsRes.json(),
     sourcesRes.json(),
     prevRes.json(),
     ctcRes.ok ? ctcRes.json() : { rows: [] },
     ctcPrevRes.ok ? ctcPrevRes.json() : { rows: [] },
+    ctcAllRes.ok ? ctcAllRes.json() : { rows: [] },
   ]);
 
   const pages: GA4PageRow[] = (pagesData.rows ?? []).map(
@@ -206,8 +245,9 @@ export async function getWeddingGA4Data(
     })
   );
 
-  const totalSessions = pages.reduce((s, p) => s + p.sessions, 0);
-  const totalUsers = pages.reduce((s, p) => s + p.users, 0);
+  // Use ungrouped totals for accuracy (not sums of per-page rows)
+  const totalSessions = parseInt(totalsData.rows?.[0]?.metricValues?.[0]?.value) || 0;
+  const totalUsers = parseInt(totalsData.rows?.[0]?.metricValues?.[1]?.value) || 0;
   const prevPeriodSessions =
     parseInt(prevData.rows?.[0]?.metricValues?.[0]?.value) || 0;
 
@@ -218,7 +258,7 @@ export async function getWeddingGA4Data(
       count: parseInt(r.metricValues[0].value) || 0,
     })
   );
-  const totalClickToCalls = clickToCalls.reduce((s, c) => s + c.count, 0);
+  const totalClickToCalls = parseInt(ctcAllData.rows?.[0]?.metricValues?.[0]?.value) || 0;
   const prevClickToCalls =
     parseInt(ctcPrevData.rows?.[0]?.metricValues?.[0]?.value) || 0;
 
