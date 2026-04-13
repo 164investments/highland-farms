@@ -50,6 +50,10 @@ async function fetchJSON<T>(path: string, params: Record<string, string> = {}): 
   return res.json();
 }
 
+export async function getAppointment(id: number): Promise<AcuityAppointment> {
+  return fetchJSON<AcuityAppointment>(`/appointments/${id}`);
+}
+
 export async function getAppointments(minDate: string, maxDate: string, canceled = false) {
   // Acuity API caps at 500 results with no page/offset param.
   // Fetch month-by-month to avoid hitting the limit.

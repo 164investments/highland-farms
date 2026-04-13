@@ -1,23 +1,19 @@
 import { after, NextResponse } from "next/server";
 import { sendBookingPurchase } from "@/lib/ga4";
 import { sendMetaPurchase } from "@/lib/meta";
+import { getAppointment } from "@/lib/acuity";
 
 /**
  * Acuity Scheduling webhook handler.
  *
- * Fires server-side conversion events whenever an appointment is booked
- * or rescheduled on highlandfarms.as.me (Acuity's hosted subdomain).
- *
- * Platforms tracked:
- *   - GA4 Measurement Protocol  → "purchase" + "book_{type}" events
- *   - Meta Conversions API      → "Purchase" event (farm tour + spa only)
+ * Acuity POSTs application/x-www-form-urlencoded bodies containing only
+ *   { action, id, calendarID }
+ * on appointment.scheduled / appointment.rescheduled events. To get email,
+ * phone, and amount for GA4 + Meta CAPI, we fetch the full appointment from
+ * the Acuity API using the id.
  *
  * Security: Acuity POSTs to the URL with a `secret` query parameter
  * that only we know. Register the full URL (with secret) in Acuity.
- *
- * Events tracked:
- *   - appointment.scheduled   → farm_tour | nordic_spa | wedding_call
- *   - appointment.rescheduled → same mapping (value may differ)
  *
  * Calendar ID → booking type mapping (from Acuity calendars):
  *   7539520  → Farm Tours
@@ -44,11 +40,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: Record<string, unknown>;
+  // Acuity sends application/x-www-form-urlencoded; also accept JSON for
+  // test payloads and backfill replays.
+  let body: Record<string, string>;
   try {
-    body = await request.json();
+    const contentType = request.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      body = (await request.json()) as Record<string, string>;
+    } else {
+      const text = await request.text();
+      body = Object.fromEntries(new URLSearchParams(text));
+    }
   } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
   // Only track scheduled / rescheduled — ignore cancellations and changes
@@ -57,22 +61,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
+  const idRaw = body.id;
+  if (!idRaw) {
+    return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  }
+  const appointmentId = parseInt(String(idRaw), 10);
+  if (!Number.isFinite(appointmentId)) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
+
   try {
-    const id = body.id as number;
-    const appointmentTypeID = body.appointmentTypeID as number;
-    const calendarID = body.calendarID as number;
-    const appointmentTypeName = body.type as string | undefined;
-    const email = body.email as string | undefined;
-    const phone = body.phone as string | undefined;
+    // Fetch full appointment details from Acuity API
+    const appt = await getAppointment(appointmentId);
 
-    // amountPaid is the actual collected amount; fall back through priceSold → price
-    const rawAmount = (body.amountPaid ?? body.priceSold ?? body.price ?? "0") as string;
-    const value = parseFloat(rawAmount) || 0;
+    if (appt.canceled) {
+      return NextResponse.json({ ok: true });
+    }
 
+    const calendarID = appt.calendarID;
     const bookingType = CALENDAR_TYPE[calendarID] ?? "other";
     const category = CALENDAR_CATEGORY[calendarID] ?? "Other";
-    const itemName = appointmentTypeName ?? category;
-    const transactionId = `acuity_${id}`;
+    const itemName = appt.type ?? category;
+    const transactionId = `acuity_${appt.id}`;
+
+    // amountPaid is the actual collected amount; fall back through priceSold → price
+    const value =
+      parseFloat(appt.amountPaid) ||
+      parseFloat(appt.priceSold) ||
+      parseFloat(appt.price) ||
+      0;
 
     after(async () => {
       await Promise.all([
@@ -81,10 +98,10 @@ export async function POST(request: Request) {
           value,
           currency: "USD",
           booking_type: bookingType,
-          appointment_type: appointmentTypeName,
+          appointment_type: appt.type,
           items: [
             {
-              item_id: String(appointmentTypeID),
+              item_id: String(appt.appointmentTypeID),
               item_name: itemName,
               price: value,
               quantity: 1,
@@ -100,8 +117,8 @@ export async function POST(request: Request) {
           currency: "USD",
           content_name: itemName,
           content_category: category,
-          email,
-          phone,
+          email: appt.email,
+          phone: appt.phone,
         }).catch((err) => console.error("Meta CAPI error:", err)),
       ]);
     });
