@@ -118,8 +118,15 @@ export default function WeddingsPage() {
       <WeddingsSchema />
       {/* Hero */}
       <section className="relative flex min-h-[75vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
-        <div className="absolute inset-0 bg-gradient-to-b from-charcoal/60 via-charcoal/40 to-charcoal/60" />
-        <div className="absolute inset-0 bg-[url('/images/weddings/hero.jpg')] bg-cover bg-center" />
+        <Image
+          src="/images/weddings/hero.jpg"
+          alt=""
+          fill
+          priority
+          fetchPriority="high"
+          sizes="100vw"
+          className="object-cover object-center"
+        />
         <div className="absolute inset-0 bg-black/35" />
 
         <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
