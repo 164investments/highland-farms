@@ -15,6 +15,8 @@ export const inquirySchema = z.object({
   _t: z.number().optional(),
   // Submit ID for GA4 server-side / client-side deduplication
   _sid: z.string().optional(),
+  // Cloudflare Turnstile token — verified server-side before write
+  turnstile_token: z.string().optional(),
   // SMS consent checkboxes (optional — A2P compliance)
   consent_marketing_sms: z.boolean().optional(),
   consent_appointment_sms: z.boolean().optional(),

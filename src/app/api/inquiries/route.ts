@@ -5,6 +5,7 @@ import { sendInquiryNotification } from "@/lib/email";
 import { syncInquiryToHubSpot } from "@/lib/hubspot";
 import { syncInquiryToBookedIQ } from "@/lib/bookediq";
 import { sendLeadEvents, type GA4LeadEventParams } from "@/lib/ga4";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 // In-memory rate limiting (per warm serverless instance)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -93,6 +94,17 @@ export async function POST(request: Request) {
         { error: "Invalid form data. Please check your entries and try again." },
         { status: 400 }
       );
+    }
+
+    // Cloudflare Turnstile verification — required when configured, fails closed
+    if (process.env.TURNSTILE_SECRET_KEY) {
+      const ok = await verifyTurnstile(result.data.turnstile_token, ip);
+      if (!ok) {
+        return NextResponse.json(
+          { error: "Verification failed. Please refresh and try again." },
+          { status: 403 }
+        );
+      }
     }
 
     const { name, email, phone, event_type, guest_count, preferred_date, referral_source, message, consent_marketing_sms, consent_appointment_sms, _sid } = result.data;

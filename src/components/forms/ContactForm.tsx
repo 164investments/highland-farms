@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle, AlertCircle, Loader2, Star, Phone } from "lucide-react";
 import { inquirySchema, type InquiryFormData } from "@/lib/schemas";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { TurnstileWidget } from "./TurnstileWidget";
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 interface ContactFormProps {
   defaultEventType?: string;
@@ -40,12 +43,15 @@ export function ContactForm({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<InquiryFormData>({
     resolver: zodResolver(inquirySchema),
     defaultValues: {
       event_type: defaultEventType,
       website: "",
+      turnstile_token: "",
       _t: Date.now(),
       // Unique ID shared with server for GA4 dedup (server-side MP + client-side GTM)
       _sid: typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -53,6 +59,18 @@ export function ContactForm({
         : Math.random().toString(36).slice(2) + Date.now().toString(36),
     },
   });
+
+  const turnstileToken = watch("turnstile_token");
+  const turnstileReady = !TURNSTILE_SITE_KEY || !!turnstileToken;
+
+  const handleVerify = useCallback(
+    (token: string) => setValue("turnstile_token", token, { shouldValidate: false }),
+    [setValue],
+  );
+  const handleExpire = useCallback(
+    () => setValue("turnstile_token", "", { shouldValidate: false }),
+    [setValue],
+  );
 
   async function onSubmit(data: InquiryFormData) {
     setStatus("submitting");
@@ -336,6 +354,18 @@ export function ContactForm({
         </div>
         <input type="hidden" {...register("_t", { valueAsNumber: true })} />
         <input type="hidden" {...register("_sid")} />
+        <input type="hidden" {...register("turnstile_token")} />
+
+        {TURNSTILE_SITE_KEY && (
+          <div className="flex justify-center">
+            <TurnstileWidget
+              siteKey={TURNSTILE_SITE_KEY}
+              onVerify={handleVerify}
+              onExpire={handleExpire}
+              action="contact-form"
+            />
+          </div>
+        )}
 
         {/* SMS Consent Checkboxes — optional, A2P compliance */}
         <div className="space-y-3 rounded-lg bg-cream/50 border border-cream-dark px-4 py-4">
@@ -377,7 +407,7 @@ export function ContactForm({
         {/* Submit button - large, full-width, prominent */}
         <button
           type="submit"
-          disabled={status === "submitting"}
+          disabled={status === "submitting" || !turnstileReady}
           className="w-full rounded-full bg-forest px-6 py-4 text-base font-medium tracking-wide text-white transition-all hover:bg-forest-light hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {status === "submitting" ? (
@@ -385,6 +415,8 @@ export function ContactForm({
               <Loader2 className="h-4 w-4 animate-spin" />
               Sending...
             </>
+          ) : !turnstileReady ? (
+            "Verifying..."
           ) : (
             ctaText
           )}
