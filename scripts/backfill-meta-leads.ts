@@ -113,15 +113,16 @@ async function main() {
         if (upsertErr) console.error(`  → Supabase error: ${upsertErr.message}`);
 
         // CRM sync
-        await syncMetaLeadToBookedIQ(lead).catch((e) => console.error("  → BookedIQ error:", e));
-        await syncMetaLeadToHubSpot(lead).catch((e) => console.error("  → HubSpot error:", e));
-        await sendMetaLeadNotification(lead).catch((e) => console.error("  → Email error:", e));
+        const synced: string[] = [];
+        await syncMetaLeadToBookedIQ(lead).then(() => synced.push("BookedIQ")).catch((e) => console.error("  → BookedIQ error:", e));
+        await syncMetaLeadToHubSpot(lead).then(() => synced.push("HubSpot")).catch((e) => console.error("  → HubSpot error:", e));
+        await sendMetaLeadNotification(lead).then(() => synced.push("email")).catch((e) => console.error("  → Email error:", e));
 
         // GA4
-        await sendGenerateLead(null, { event_type: "wedding", form_name: "meta_lead_ad_backfill", event_name: "generate_lead" }).catch(() => {});
+        await sendGenerateLead(null, { event_type: "wedding", form_name: "meta_lead_ad_backfill", event_name: "generate_lead" }).then(() => synced.push("GA4")).catch(() => {});
         await sendGenerateLead(null, { event_type: "wedding", form_name: "meta_lead_ad_backfill", event_name: "generate_lead_wedding" }).catch(() => {});
 
-        console.log(`  → Synced to BookedIQ, HubSpot, email, GA4`);
+        console.log(`  → Synced to: ${synced.join(", ") || "nothing (all failed)"}`);
       }
 
       totalNew++;

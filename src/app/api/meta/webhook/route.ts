@@ -160,23 +160,25 @@ async function processLead(
       .then(async () => {
         if (supabaseUrl && supabaseServiceKey) {
           const db = createClient(supabaseUrl, supabaseServiceKey);
-          await db.from("meta_leads")
+          const { error } = await db.from("meta_leads")
             .update({ synced_to_bookediq: true })
             .eq("leadgen_id", lead.leadgenId);
+          if (error) console.error("Supabase synced_to_bookediq flag error:", lead.leadgenId, error);
         }
       })
-      .catch((err) => console.error("BookedIQ meta lead sync error:", err)),
+      .catch((err) => console.error("BookedIQ meta lead sync error:", lead.leadgenId, err)),
 
     syncMetaLeadToHubSpot(lead)
       .then(async () => {
         if (supabaseUrl && supabaseServiceKey) {
           const db = createClient(supabaseUrl, supabaseServiceKey);
-          await db.from("meta_leads")
+          const { error } = await db.from("meta_leads")
             .update({ synced_to_hubspot: true })
             .eq("leadgen_id", lead.leadgenId);
+          if (error) console.error("Supabase synced_to_hubspot flag error:", lead.leadgenId, error);
         }
       })
-      .catch((err) => console.error("HubSpot meta lead sync error:", err)),
+      .catch((err) => console.error("HubSpot meta lead sync error:", lead.leadgenId, err)),
 
     sendMetaLeadNotification(lead).catch((err) =>
       console.error("Meta lead email notification error:", err)
