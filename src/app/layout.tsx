@@ -81,6 +81,16 @@ export const metadata: Metadata = {
       "All-inclusive farm and forest weddings at the base of Mt. Hood.",
     images: ["/images/hero/farm-aerial.jpg"],
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/icon.png", sizes: "48x48", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "/site.webmanifest",
   robots: {
     index: true,
     follow: true,
