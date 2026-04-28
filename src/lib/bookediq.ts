@@ -12,7 +12,9 @@ const FIELD_MESSAGE      = "XdkbuNVwwMGVNIlCRfpE"; // Contact Form Message
 export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void> {
   const locationId = process.env.BOOKEDIQ_LOCATION_ID?.trim();
   const pit = process.env.BOOKEDIQ_PIT?.trim();
-  if (!locationId || !pit) return;
+  if (!locationId || !pit) {
+    throw new Error("BookedIQ credentials missing (BOOKEDIQ_LOCATION_ID or BOOKEDIQ_PIT)");
+  }
 
   const [firstName, ...rest] = data.name.trim().split(/\s+/);
   const lastName = rest.join(" ");
@@ -33,42 +35,51 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
   if (data.consent_marketing_sms)    tags.push("sms consent :: marketing");
   if (data.consent_appointment_sms)  tags.push("sms consent :: appointments");
 
-  try {
-    const res = await fetch(`${GHL_API}/contacts/upsert`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        locationId,
-        firstName,
-        ...(lastName && { lastName }),
-        email: data.email,
-        ...(data.phone && { phone: data.phone }),
-        source: "Website - Contact Form",
-        tags,
-        ...(customFields.length > 0 && { customFields }),
-      }),
-    });
+  const res = await fetch(`${GHL_API}/contacts/upsert`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      locationId,
+      firstName,
+      ...(lastName && { lastName }),
+      email: data.email,
+      ...(data.phone && { phone: data.phone }),
+      source: "Website - Contact Form",
+      tags,
+      ...(customFields.length > 0 && { customFields }),
+    }),
+  });
 
-    if (!res.ok) {
-      const err = await res.text();
-      console.error("BookedIQ upsert error:", res.status, err);
-    }
-  } catch (err) {
-    console.error("BookedIQ sync error:", err);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`BookedIQ upsert error: ${res.status} ${err}`);
   }
 }
 
 export async function syncMetaLeadToBookedIQ(lead: MetaLeadData): Promise<void> {
   const locationId = process.env.BOOKEDIQ_LOCATION_ID?.trim();
   const pit = process.env.BOOKEDIQ_PIT?.trim();
-  if (!locationId || !pit) return;
+  if (!locationId || !pit) {
+    throw new Error("BookedIQ credentials missing (BOOKEDIQ_LOCATION_ID or BOOKEDIQ_PIT)");
+  }
 
   const [firstName, ...rest] = (lead.name || "Unknown").trim().split(/\s+/);
   const lastName = rest.join(" ");
 
-  // Assemble message from budget + venue priorities
+  // BookedIQ's FIELD_EVENT_DATE is dataType=DATE — strings without digits ("just_starting_to_plan")
+  // 400 the entire upsert. Send only digit-bearing range strings; surface every value in the message.
+  const dr = lead.weddingDateRange;
+  const dateFieldAccepts = dr && dr !== "just_starting_to_plan";
+  const timelineLabel: Record<string, string> = {
+    just_starting_to_plan: "Just starting to plan",
+    "12–18_months": "12–18 months out",
+    "6–12_months": "6–12 months out",
+    within_6_months: "Within 6 months",
+  };
+
   const messageParts: string[] = [];
   if (lead.weddingBudget) messageParts.push(`Budget: ${lead.weddingBudget}`);
+  if (dr) messageParts.push(`Timeline: ${timelineLabel[dr] ?? dr}`);
   if (lead.venuePriorities?.length) messageParts.push(`Venue priorities: ${lead.venuePriorities.join(", ")}`);
   if (lead.inboxUrl) messageParts.push(`Messenger: ${lead.inboxUrl}`);
   if (lead.adName) messageParts.push(`Ad: ${lead.adName}`);
@@ -76,7 +87,7 @@ export async function syncMetaLeadToBookedIQ(lead: MetaLeadData): Promise<void> 
   const customFields: { id: string; field_value: string }[] = [
     { id: FIELD_EVENT_TYPE, field_value: "wedding" },
   ];
-  if (lead.weddingDateRange) customFields.push({ id: FIELD_EVENT_DATE, field_value: lead.weddingDateRange });
+  if (dateFieldAccepts) customFields.push({ id: FIELD_EVENT_DATE, field_value: dr });
   if (messageParts.length) customFields.push({ id: FIELD_MESSAGE, field_value: messageParts.join("\n") });
 
   const headers = {
@@ -85,27 +96,23 @@ export async function syncMetaLeadToBookedIQ(lead: MetaLeadData): Promise<void> 
     "Content-Type": "application/json",
   };
 
-  try {
-    const res = await fetch(`${GHL_API}/contacts/upsert`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        locationId,
-        firstName,
-        ...(lastName && { lastName }),
-        ...(lead.email && { email: lead.email }),
-        ...(lead.phone && { phone: lead.phone }),
-        source: "Meta Lead Ad",
-        tags: ["source :: meta lead ad", "wedding lead"],
-        customFields,
-      }),
-    });
+  const res = await fetch(`${GHL_API}/contacts/upsert`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      locationId,
+      firstName,
+      ...(lastName && { lastName }),
+      ...(lead.email && { email: lead.email }),
+      ...(lead.phone && { phone: lead.phone }),
+      source: "Meta Lead Ad",
+      tags: ["source :: meta lead ad", "wedding lead"],
+      customFields,
+    }),
+  });
 
-    if (!res.ok) {
-      const err = await res.text();
-      console.error("BookedIQ meta lead upsert error:", res.status, err);
-    }
-  } catch (err) {
-    console.error("BookedIQ meta lead sync error:", err);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`BookedIQ meta lead upsert error: ${res.status} ${err}`);
   }
 }
