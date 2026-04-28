@@ -22,12 +22,12 @@ import { BOOKING_LINKS, CONTACT } from "@/lib/constants";
 export const metadata: Metadata = {
   title: "Sauna & Cold Plunge Near Portland — Mt. Hood Nordic Spa",
   description:
-    "Outdoor wood-burning sauna & cold plunge 50 minutes from Portland, Oregon. Intimate 60-minute Nordic spa sessions limited to 6 guests at Highland Farms in the Mt. Hood National Forest. $75/person — book your sauna day trip.",
+    "Outdoor wood-burning sauna & cold plunge 50 minutes from Portland, Oregon. Intimate 90-minute Nordic spa sessions limited to 6 guests at Highland Farms in the Mt. Hood National Forest. $75/person — book your sauna day trip.",
   alternates: { canonical: "/nordic-spa" },
   openGraph: {
     title: "Sauna & Cold Plunge Near Portland — Highland Farms Mt. Hood",
     description:
-      "Outdoor wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland. Intimate 60-minute sessions limited to 6 guests in an old-growth Mt. Hood forest.",
+      "Outdoor wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland. Intimate 90-minute sessions limited to 6 guests in an old-growth Mt. Hood forest.",
     url: "https://highlandfarmsoregon.com/nordic-spa",
     type: "website",
     images: [
@@ -94,7 +94,7 @@ export default function NordicSpaPage() {
         <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
           {/* Key facts pills — answer top questions immediately */}
           <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
-            {["Limited to 6 Guests", "60 Minutes", "$75 / Person", "Never Crowded"].map(
+            {["Limited to 6 Guests", "90 Minutes", "$75 / Person", "Never Crowded"].map(
               (pill) => (
                 <span
                   key={pill}
@@ -171,7 +171,7 @@ export default function NordicSpaPage() {
               },
               {
                 icon: Clock,
-                title: "60 Full Minutes",
+                title: "90 Full Minutes",
                 desc: "Cycle between heat and cold at your own pace",
               },
               {
@@ -263,7 +263,7 @@ export default function NordicSpaPage() {
               <ul className="space-y-2.5 text-sm text-muted font-sans">
                 <li className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-forest" />
-                  60-minute session
+                  90-minute session
                 </li>
                 <li className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-forest" />

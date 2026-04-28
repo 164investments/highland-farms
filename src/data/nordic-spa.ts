@@ -4,12 +4,12 @@ export const nordicSpaFAQ: FAQItem[] = [
   {
     question: "What is the Nordic Spa experience?",
     answer:
-      "Our Nordic spa features a wood burning cedar dry sauna, wet sauna, and cold plunge nestled in the forest among towering evergreens. Enjoy a 60-minute session surrounded by nature.",
+      "Our Nordic spa features a wood burning cedar dry sauna, wet sauna, and cold plunge nestled in the forest among towering evergreens. Enjoy a 90-minute session surrounded by nature.",
   },
   {
     question: "How many guests per session?",
     answer:
-      "Our Nordic Spa accommodates 6 guests comfortably. One party or multiple parties may book up to 6 slots per 60-minute session.",
+      "Our Nordic Spa accommodates 6 guests comfortably. One party or multiple parties may book up to 6 slots per 90-minute session.",
   },
   {
     question: "What should I bring?",

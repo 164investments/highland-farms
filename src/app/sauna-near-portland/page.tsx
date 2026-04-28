@@ -44,12 +44,12 @@ const faqItems = [
   {
     question: "What's included in a sauna session?",
     answer:
-      "Each 60-minute session includes access to our wood-burning cedar dry sauna, wet sauna, and cold plunge tub — all nestled in our old-growth Mt. Hood forest. We provide towels and robes. Bring your swimsuit and comfortable shoes.",
+      "Each 90-minute session includes access to our wood-burning cedar dry sauna, wet sauna, and cold plunge tub — all nestled in our old-growth Mt. Hood forest. We provide towels and robes. Bring your swimsuit and comfortable shoes.",
   },
   {
     question: "How much does the sauna near Portland cost?",
     answer:
-      "Sessions are $75 per person for a 60-minute private session. Up to 6 guests per session. Book online through our scheduling system — no deposit required at booking.",
+      "Sessions are $75 per person for a 90-minute private session. Up to 6 guests per session. Book online through our scheduling system — no deposit required at booking.",
   },
   {
     question: "Can I combine the sauna with a Highland Cow farm tour?",
@@ -87,7 +87,7 @@ function SaunaNearPortlandSchema() {
     "@type": "Service",
     name: "Outdoor Sauna Near Portland — Highland Farms Nordic Spa",
     description:
-      "Private wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 60-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+      "Private wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
     url: "https://highlandfarmsoregon.com/sauna-near-portland",
     provider: {
       "@type": "LocalBusiness",
@@ -210,7 +210,7 @@ export default function SaunaNearPortlandPage() {
                   "Outdoor cedar dry sauna & wet sauna",
                   "Cold plunge in a forest setting",
                   "Towels and robes provided",
-                  "60-minute sessions",
+                  "90-minute sessions",
                   "Up to 6 guests per session",
                   "Free on-site parking",
                 ].map((item) => (
@@ -276,7 +276,7 @@ export default function SaunaNearPortlandPage() {
           <SectionHeading
             eyebrow="The Experience"
             title="What's Included in Your Sauna Session"
-            subtitle="A full hour to relax, heat up, cool down, and reconnect with nature."
+            subtitle="A full 90 minutes to relax, heat up, cool down, and reconnect with nature."
           />
 
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
@@ -295,9 +295,9 @@ export default function SaunaNearPortlandPage() {
               },
               {
                 icon: Clock,
-                title: "60 Minutes, Fully Private",
+                title: "90 Minutes, Fully Private",
                 description:
-                  "A full hour for up to 6 guests. No timers, no strangers — just your group and the forest. Towels and robes are provided.",
+                  "A full 90 minutes for up to 6 guests. No timers, no strangers — just your group and the forest. Towels and robes are provided.",
               },
             ].map((feature) => (
               <div key={feature.title} className="text-center">
@@ -337,7 +337,7 @@ export default function SaunaNearPortlandPage() {
               <ul className="space-y-2.5 text-sm text-muted font-sans">
                 <li className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-forest" />
-                  60-minute session
+                  90-minute session
                 </li>
                 <li className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-forest" />

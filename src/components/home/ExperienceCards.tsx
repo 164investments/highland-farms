@@ -16,7 +16,7 @@ const experiences = [
   {
     title: "Nordic Forest Spa",
     description:
-      "Relax in our wood burning dry sauna, unwind in the wet sauna, and refresh with our invigorating cold plunge. 60-minute sessions nestled among the evergreens.",
+      "Relax in our wood burning dry sauna, unwind in the wet sauna, and refresh with our invigorating cold plunge. 90-minute sessions nestled among the evergreens.",
     cta: "Book a Session",
     href: "/nordic-spa",
     image: "/images/spa/spa-1.jpg",
