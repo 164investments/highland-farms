@@ -28,6 +28,9 @@ export const metadata: Metadata = {
 const SQUARESPACE = "https://highlandfarms-oregon.squarespace.com";
 
 const products = [
+  // Floral
+  { name: "Fresh Flower Bouquet", price: 25.0, category: "Floral", image: "/images/shop/fresh-flower-bouquet.jpg", url: `${SQUARESPACE}/shop/p/fresh-flower-bouquet` },
+  { name: "Dried Flower Bouquet", price: 15.0, category: "Floral", image: "/images/shop/dried-flower-bouquet.jpg", url: `${SQUARESPACE}/shop/p/dried-flower-bouquet` },
   // Plush
   { name: "Princess Fiona — White Highland Cow Plush", price: 65.0, category: "Plush", image: "/images/shop/princess-fiona-plush.jpg", url: `${SQUARESPACE}/shop/p/weighted-microwavable-highland-cow-plush-white` },
   { name: "Mr. Finley — Red Highland Cow Plush", price: 65.0, category: "Plush", image: "/images/shop/mr-finley-plush.jpg", url: `${SQUARESPACE}/shop/p/weighted-mircrowavable-highland-cow-plush` },
