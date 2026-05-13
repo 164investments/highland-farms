@@ -4,10 +4,11 @@ import { type MetaLeadData } from "@/lib/meta-leads";
 const GHL_API = "https://services.leadconnectorhq.com";
 
 // Custom field IDs for Highland Farms location (MF69VyOlWn4TT9g8AiDp)
-const FIELD_EVENT_TYPE   = "SU7feL5qc3Rof5oH00K9"; // Desired Event Type
-const FIELD_GUEST_COUNT  = "oC80o6RFqL8IjgYfudqM"; // Estimated Number of Guests
-const FIELD_EVENT_DATE   = "bD5UbqcequJXjdwM7q6s"; // Desired Event Date
-const FIELD_MESSAGE      = "XdkbuNVwwMGVNIlCRfpE"; // Contact Form Message
+const FIELD_EVENT_TYPE      = "SU7feL5qc3Rof5oH00K9"; // Desired Event Type
+const FIELD_GUEST_COUNT     = "oC80o6RFqL8IjgYfudqM"; // Estimated Number of Guests
+const FIELD_EVENT_DATE      = "bD5UbqcequJXjdwM7q6s"; // Desired Event Date (DATE type — strict)
+const FIELD_EVENT_DATE_META = "P1OnvSvlMzgRA4i526jh"; // Desired Event Date (Meta) — free text for enum ranges
+const FIELD_MESSAGE         = "XdkbuNVwwMGVNIlCRfpE"; // Contact Form Message
 
 export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void> {
   const locationId = process.env.BOOKEDIQ_LOCATION_ID?.trim();
@@ -66,10 +67,11 @@ export async function syncMetaLeadToBookedIQ(lead: MetaLeadData): Promise<void> 
   const [firstName, ...rest] = (lead.name || "Unknown").trim().split(/\s+/);
   const lastName = rest.join(" ");
 
-  // BookedIQ's FIELD_EVENT_DATE is dataType=DATE — strings without digits ("just_starting_to_plan")
-  // 400 the entire upsert. Send only digit-bearing range strings; surface every value in the message.
+  // Meta's wedding date_range is an enum, not a parseable date. The canonical
+  // FIELD_EVENT_DATE is dataType=DATE and 400s on non-numeric values, so route
+  // all four enums to FIELD_EVENT_DATE_META (free text) instead. Keep the
+  // timeline in the message body as a redundant signal for the events team.
   const dr = lead.weddingDateRange;
-  const dateFieldAccepts = dr && dr !== "just_starting_to_plan";
   const timelineLabel: Record<string, string> = {
     just_starting_to_plan: "Just starting to plan",
     "12–18_months": "12–18 months out",
@@ -87,7 +89,7 @@ export async function syncMetaLeadToBookedIQ(lead: MetaLeadData): Promise<void> 
   const customFields: { id: string; field_value: string }[] = [
     { id: FIELD_EVENT_TYPE, field_value: "wedding" },
   ];
-  if (dateFieldAccepts) customFields.push({ id: FIELD_EVENT_DATE, field_value: dr });
+  if (dr) customFields.push({ id: FIELD_EVENT_DATE_META, field_value: dr });
   if (messageParts.length) customFields.push({ id: FIELD_MESSAGE, field_value: messageParts.join("\n") });
 
   const headers = {
