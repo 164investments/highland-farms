@@ -198,8 +198,8 @@ export default function NordicSpaPage() {
                 50&nbsp;minutes from Portland.
               </p>
 
-              {/* Icon + label pairs with vertical separators — single row on lg+ */}
-              <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-5 lg:flex-nowrap lg:gap-x-4">
+              {/* Icon + label pairs — 2×2 grid below lg, single row with separators on lg+ */}
+              <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-5 lg:flex lg:flex-nowrap lg:items-center lg:gap-x-4">
                 {heroPills.map(({ icon: Icon, label }, i) => (
                   <Fragment key={label}>
                     {i > 0 && (
