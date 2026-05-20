@@ -20,35 +20,35 @@ export const CATEGORIES: Category[] = [
     label: "Highland Cow Plush",
     shortLabel: "Plush",
     story:
-      "Weighted, microwavable plush versions of our two most-photographed Highland cows. Heat in the microwave for a heated, calming hug — the gift our farm-tour guests come back to buy.",
+      "Weighted, microwavable plush of our two most-photographed cows. Heat for a warm, calming hug — the gift our farm-tour guests come back to buy.",
   },
   {
     key: "apparel",
     label: "Apparel",
     shortLabel: "Apparel",
     story:
-      "The Dream collection — wear the farm. Embroidered hoodies, tees, and trucker hats, designed in Brightwood.",
+      "The Dream collection — hoodies, tees, and trucker hats, designed in Brightwood.",
   },
   {
     key: "mangalitsa",
     label: "Mangalitsa Pork",
     shortLabel: "Mangalitsa",
     story:
-      "Mangalitsa is a Hungarian heritage breed often called \"the wagyu of pork\" — marbled, rich, and slow-grown on our pastures. Limited cuts, sold in single packs.",
+      "The wagyu of pork. Hungarian heritage breed, marbled and rich, slow-grown on our pastures. Sold in single-cut packs.",
   },
   {
     key: "beef",
     label: "Highland Beef",
     shortLabel: "Highland Beef",
     story:
-      "Scottish Highland beef from our own herd, pasture-raised at the base of Mt. Hood. Lean, grass-fed, and ridiculously flavorful.",
+      "From our herd. Scottish Highland beef, grass-fed at the base of Mt. Hood — lean and deeply flavorful.",
   },
   {
     key: "pantry",
     label: "Farm Pantry",
     shortLabel: "Pantry",
     story:
-      "Eggs from our laying hens, hand-tied flower bouquets from the farm garden, and firewood for the lodge — fresh from Brightwood.",
+      "Eggs from our hens, hand-tied bouquets from the farm garden, and firewood for the lodge.",
   },
 ];
 

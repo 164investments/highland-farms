@@ -6,9 +6,10 @@ import { Star, Leaf, Home, Truck, Gift, MapPin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { FadeIn } from "@/components/ui/FadeIn";
 import { BOOKING_LINKS } from "@/lib/constants";
 import { CATEGORIES, PRODUCTS, type CategoryKey, type Product } from "./data";
+
+type NavKey = "featured" | CategoryKey;
 
 declare global {
   interface Window {
@@ -43,7 +44,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           ecommerce: { items: [toGA4Item(product, index)] },
         })
       }
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-500 hover:-translate-y-0.5 hover:shadow-md"
+      className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="relative aspect-square overflow-hidden bg-cream">
         <Image
@@ -56,11 +57,11 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           }`}
         />
         {product.badges && product.badges.length > 0 && !product.soldOut && (
-          <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+          <div className="absolute left-2.5 top-2.5 flex flex-col gap-1.5">
             {product.badges.map((badge) => (
               <span
                 key={badge}
-                className="rounded-full bg-white/95 px-2.5 py-1 text-[0.625rem] font-normal uppercase tracking-[0.12em] text-forest shadow-sm font-sans"
+                className="rounded-full bg-white/95 px-2.5 py-0.5 text-[0.625rem] font-normal uppercase tracking-[0.12em] text-forest shadow-sm font-sans"
               >
                 {badge}
               </span>
@@ -75,17 +76,17 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           </div>
         )}
       </div>
-      <div className="flex flex-1 flex-col p-4">
-        <h3 className="text-sm font-normal leading-snug text-charcoal font-sans">
+      <div className="flex flex-1 flex-col p-3.5 sm:p-4">
+        <h3 className="text-[0.9375rem] font-normal leading-tight text-charcoal font-sans">
           {product.name}
         </h3>
-        <div className="mt-auto pt-3">
+        <div className="mt-auto pt-2.5">
           {product.price !== null ? (
-            <p className="text-base font-normal text-forest font-sans">
+            <p className="text-[1.0625rem] font-medium text-forest font-sans">
               ${product.price.toFixed(2)}
               {product.priceNote && (
-                <span className="ml-1.5 text-xs text-muted font-sans">
-                  / {product.priceNote}
+                <span className="ml-1.5 text-[0.6875rem] font-normal uppercase tracking-wider text-muted">
+                  {product.priceNote}
                 </span>
               )}
             </p>
@@ -98,30 +99,45 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
   );
 }
 
+interface PillSpec {
+  key: NavKey;
+  label: string;
+  count: number;
+}
+
 function CategoryNav({
+  pills,
   active,
   onJump,
 }: {
-  active: CategoryKey | null;
-  onJump: (key: CategoryKey) => void;
+  pills: PillSpec[];
+  active: NavKey | null;
+  onJump: (key: NavKey) => void;
 }) {
   return (
-    <div className="sticky top-[var(--header-h,80px)] z-30 -mx-4 mt-0 border-y border-cream-dark/40 bg-background/95 px-4 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-      <Container className="!px-0">
+    <div className="sticky top-[var(--header-h,80px)] z-30 border-y border-cream-dark/40 bg-background/95 backdrop-blur-md">
+      <Container>
         <div className="flex gap-2 overflow-x-auto py-3 sm:justify-center [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {CATEGORIES.map((cat) => {
-            const isActive = active === cat.key;
+          {pills.map((p) => {
+            const isActive = active === p.key;
             return (
               <button
-                key={cat.key}
-                onClick={() => onJump(cat.key)}
-                className={`shrink-0 rounded-full border px-4 py-1.5 text-[0.7rem] font-normal uppercase tracking-[0.12em] transition-all duration-300 font-sans ${
+                key={p.key}
+                onClick={() => onJump(p.key)}
+                className={`shrink-0 rounded-full border px-4 py-1.5 text-[0.7rem] font-normal uppercase tracking-[0.12em] transition-all duration-200 font-sans ${
                   isActive
                     ? "border-forest bg-forest text-white shadow-sm"
                     : "border-cream-dark bg-white text-charcoal hover:border-forest/40 hover:text-forest"
                 }`}
               >
-                {cat.shortLabel}
+                {p.label}
+                <span
+                  className={`ml-1.5 text-[0.625rem] ${
+                    isActive ? "text-white/70" : "text-muted"
+                  }`}
+                >
+                  {p.count}
+                </span>
               </button>
             );
           })}
@@ -132,8 +148,9 @@ function CategoryNav({
 }
 
 export function ShopBody() {
-  const [active, setActive] = useState<CategoryKey | null>(null);
-  const sectionRefs = useRef<Record<CategoryKey, HTMLElement | null>>({
+  const [active, setActive] = useState<NavKey | null>("featured");
+  const sectionRefs = useRef<Record<NavKey, HTMLElement | null>>({
+    featured: null,
     plush: null,
     apparel: null,
     mangalitsa: null,
@@ -141,6 +158,18 @@ export function ShopBody() {
     pantry: null,
   });
   const viewLogged = useRef(false);
+
+  const featured = PRODUCTS.filter((p) => p.featured && !p.soldOut);
+  const totalCount = PRODUCTS.length;
+
+  const pills: PillSpec[] = [
+    { key: "featured", label: "Favorites", count: featured.length },
+    ...CATEGORIES.map((c) => ({
+      key: c.key as NavKey,
+      label: c.shortLabel,
+      count: PRODUCTS.filter((p) => p.category === c.key).length,
+    })),
+  ];
 
   useEffect(() => {
     if (viewLogged.current) return;
@@ -160,30 +189,33 @@ export function ShopBody() {
           .filter((e) => e.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
         if (visible) {
-          const key = visible.target.getAttribute("data-cat") as CategoryKey | null;
+          const key = visible.target.getAttribute("data-cat") as NavKey | null;
           if (key) setActive(key);
         }
       },
       {
-        rootMargin: "-30% 0px -55% 0px",
+        rootMargin: "-25% 0px -55% 0px",
         threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
       }
     );
 
-    CATEGORIES.forEach((c) => {
-      const el = sectionRefs.current[c.key];
+    (Object.keys(sectionRefs.current) as NavKey[]).forEach((k) => {
+      const el = sectionRefs.current[k];
       if (el) observer.observe(el);
     });
 
     return () => observer.disconnect();
   }, []);
 
-  const jumpTo = (key: CategoryKey) => {
+  const jumpTo = (key: NavKey) => {
     const el = sectionRefs.current[key];
     if (!el) return;
     pushEvent("select_promotion", {
       promotion_id: `shop_category_${key}`,
-      promotion_name: CATEGORIES.find((c) => c.key === key)?.label,
+      promotion_name:
+        key === "featured"
+          ? "Favorites"
+          : CATEGORIES.find((c) => c.key === key)?.label,
       creative_slot: "sticky_pill_nav",
     });
     const headerOffset = 140;
@@ -191,63 +223,67 @@ export function ShopBody() {
     window.scrollTo({ top, behavior: "smooth" });
   };
 
-  const featured = PRODUCTS.filter((p) => p.featured && !p.soldOut);
-
   return (
     <>
       {/* Trust Strip */}
-      <section className="border-b border-cream-dark/40 bg-cream py-5">
+      <section className="border-b border-cream-dark/40 bg-cream py-3.5">
         <Container>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-center text-xs text-charcoal font-sans sm:flex sm:flex-wrap sm:justify-center sm:gap-8 sm:text-sm">
-            <div className="flex items-center justify-center gap-2">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-center text-xs text-charcoal font-sans sm:flex sm:flex-wrap sm:justify-center sm:gap-x-10 sm:gap-y-2 sm:text-[0.8125rem]">
+            <div className="flex items-center justify-center gap-1.5">
               <Star className="h-4 w-4 fill-forest text-forest" />
               <span>
-                <span className="font-medium">4.9</span> from 146 reviews
+                <span className="font-medium">4.9</span> · 146 reviews
               </span>
             </div>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1.5">
               <Leaf className="h-4 w-4 text-forest" />
-              <span>Pasture-raised at Mt. Hood</span>
+              <span>Pasture-raised</span>
             </div>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1.5">
               <Home className="h-4 w-4 text-forest" />
-              <span>Family-run farm</span>
+              <span>Family-run since 2019</span>
             </div>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1.5">
               <Truck className="h-4 w-4 text-forest" />
-              <span>On-farm pickup or ship</span>
+              <span>Pickup or ship</span>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* Featured Row */}
-      {featured.length > 0 && (
-        <section className="bg-background py-14 lg:py-20">
-          <Container>
-            <FadeIn>
-              <div className="mb-10 text-center">
-                <p className="mb-2 text-lg font-normal text-sage font-script">
-                  Most-loved
-                </p>
-                <h2 className="text-2xl font-light tracking-tight sm:text-3xl">
-                  Farm Favorites
-                </h2>
-              </div>
-            </FadeIn>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-              {featured.map((p, i) => (
-                <FadeIn key={p.name} delay={i * 0.05}>
-                  <ProductCard product={p} index={i} />
-                </FadeIn>
-              ))}
-            </div>
-          </Container>
-        </section>
-      )}
+      {/* Sticky category nav — above everything */}
+      <CategoryNav pills={pills} active={active} onJump={jumpTo} />
 
-      {/* Sticky category nav */}
-      <CategoryNav active={active} onJump={jumpTo} />
+      {/* Featured Row */}
+      <section
+        ref={(el) => {
+          sectionRefs.current.featured = el;
+        }}
+        data-cat="featured"
+        id="cat-featured"
+        className="scroll-mt-32 bg-background py-10 lg:py-14"
+      >
+        <Container>
+          <div className="mb-6 flex items-baseline justify-between gap-4 sm:mb-8">
+            <div>
+              <p className="text-xs font-normal uppercase tracking-[0.18em] text-sage sm:text-[0.8125rem]">
+                Bestsellers
+              </p>
+              <h2 className="mt-1 text-[1.75rem] font-light leading-tight tracking-tight sm:text-[2rem]">
+                Farm Favorites
+              </h2>
+            </div>
+            <p className="shrink-0 text-xs text-muted font-sans sm:text-sm">
+              {totalCount} products in store
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+            {featured.map((p, i) => (
+              <ProductCard key={p.name} product={p} index={i} />
+            ))}
+          </div>
+        </Container>
+      </section>
 
       {/* Categorized sections */}
       <div className="bg-background">
@@ -262,26 +298,27 @@ export function ShopBody() {
               }}
               data-cat={cat.key}
               id={`cat-${cat.key}`}
-              className={`scroll-mt-32 py-14 lg:py-20 ${
-                catIdx % 2 === 1 ? "bg-cream/30" : ""
+              className={`scroll-mt-32 py-10 lg:py-14 ${
+                catIdx % 2 === 0 ? "bg-cream/30" : ""
               }`}
             >
               <Container>
-                <FadeIn>
-                  <div className="mx-auto mb-10 max-w-2xl text-center">
-                    <h2 className="text-2xl font-light tracking-tight sm:text-3xl lg:text-[2rem]">
+                <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+                  <div className="max-w-2xl">
+                    <h2 className="text-[1.75rem] font-light leading-tight tracking-tight sm:text-[2rem]">
                       {cat.label}
                     </h2>
-                    <p className="mt-3 text-sm leading-relaxed text-muted font-sans sm:text-base">
+                    <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted font-sans">
                       {cat.story}
                     </p>
                   </div>
-                </FadeIn>
-                <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+                  <p className="shrink-0 text-xs text-muted font-sans sm:text-sm">
+                    {inCategory.length} {inCategory.length === 1 ? "item" : "items"}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
                   {inCategory.map((p, i) => (
-                    <FadeIn key={p.name} delay={Math.min(i * 0.04, 0.2)}>
-                      <ProductCard product={p} index={i} />
-                    </FadeIn>
+                    <ProductCard key={p.name} product={p} index={i} />
                   ))}
                 </div>
               </Container>
@@ -291,30 +328,30 @@ export function ShopBody() {
       </div>
 
       {/* Gift Certificates - 3 card layout */}
-      <section className="bg-forest py-16 lg:py-24 text-white">
+      <section className="bg-forest py-14 lg:py-20 text-white">
         <Container>
-          <div className="mb-10 text-center">
-            <p className="mb-2 text-lg font-normal text-sage-light font-script">
-              The gift of Highland Farms
+          <div className="mb-8 text-center">
+            <p className="mb-2 text-xs font-normal uppercase tracking-[0.18em] text-sage-light sm:text-[0.8125rem]">
+              Give the farm
             </p>
-            <h2 className="text-2xl font-light tracking-tight sm:text-3xl lg:text-[2.25rem]">
+            <h2 className="text-[1.75rem] font-light leading-tight tracking-tight sm:text-[2rem]">
               Gift Certificates
             </h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/80 font-sans sm:text-base">
-              Give the experience of the farm. Redeemable for a tour, spa session, or overnight stay.
+            <p className="mx-auto mt-2.5 max-w-xl text-[0.9375rem] leading-relaxed text-white/80 font-sans">
+              A tour, spa session, or overnight stay — redeem online, no expiration.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
             {[
               {
                 icon: Gift,
                 title: "Farm Tour",
-                desc: "Private 60-minute Highland Cow encounter. From $150.",
+                desc: "Private 60-min Highland Cow encounter. From $150.",
               },
               {
                 icon: Leaf,
                 title: "Nordic Spa",
-                desc: "90-minute wood-burning sauna + cold plunge. $75/person.",
+                desc: "90-min wood-burning sauna + cold plunge. $75/person.",
               },
               {
                 icon: Home,
@@ -324,19 +361,19 @@ export function ShopBody() {
             ].map((card) => (
               <div
                 key={card.title}
-                className="rounded-2xl border border-white/15 bg-white/[0.04] p-6 backdrop-blur-sm"
+                className="rounded-2xl border border-white/15 bg-white/[0.04] p-5 backdrop-blur-sm"
               >
-                <card.icon className="h-6 w-6 text-sage-light" />
-                <h3 className="mt-4 text-lg font-normal text-white font-sans">
+                <card.icon className="h-5 w-5 text-sage-light" />
+                <h3 className="mt-3 text-lg font-normal text-white font-sans">
                   {card.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/75 font-sans">
+                <p className="mt-1.5 text-sm leading-relaxed text-white/75 font-sans">
                   {card.desc}
                 </p>
               </div>
             ))}
           </div>
-          <div className="mt-10 text-center">
+          <div className="mt-8 text-center">
             <Button
               href={BOOKING_LINKS.giftCertificates}
               size="lg"
@@ -350,14 +387,15 @@ export function ShopBody() {
       </section>
 
       {/* Cross-sell to experiences */}
-      <section className="bg-background py-16 lg:py-24">
+      <section className="bg-background py-14 lg:py-20">
         <Container>
           <SectionHeading
             eyebrow="Visit the farm"
             title="More than a store"
             subtitle="Most of our shop customers first met us in person. Come meet the cows, sit in the sauna, or stay the night."
+            className="!mb-10"
           />
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
             {[
               {
                 href: "/farm-tours",
@@ -400,7 +438,7 @@ export function ShopBody() {
               </a>
             ))}
           </div>
-          <div className="mt-12 flex flex-col items-center justify-center gap-3 text-center text-xs text-muted font-sans sm:flex-row sm:gap-6 sm:text-sm">
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 text-center text-xs text-muted font-sans sm:flex-row sm:gap-6 sm:text-sm">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-forest" />
               <span>21261 East Little River Road, Brightwood, OR</span>

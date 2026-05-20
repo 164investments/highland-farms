@@ -65,29 +65,26 @@ export default function ShopPage() {
     <>
       <StructuredData />
 
-      {/* Hero */}
-      <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
+      {/* Hero — slim collection-style banner */}
+      <section className="relative flex h-[240px] items-end overflow-hidden pt-[var(--header-h,100px)] sm:h-[280px]">
         <Image
-          src="/images/farm/highland-cows-hero.jpg"
+          src="/images/farm/farm-aerial-new.jpg"
           alt=""
           fill
           priority
           fetchPriority="high"
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover object-[center_55%]"
         />
-        <div className="absolute inset-0 bg-charcoal/45" />
+        <div className="absolute inset-0 bg-gradient-to-b from-charcoal/25 via-charcoal/40 to-charcoal/65" />
 
-        <div className="relative z-10 mx-auto max-w-3xl px-4 py-12 text-center text-white">
-          <p className="mb-4 text-xl font-normal text-white/80 font-script">
-            Highland Farms Oregon
-          </p>
-          <h1 className="text-4xl font-normal leading-tight sm:text-5xl md:text-6xl">
-            Bring the Farm Home
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-6 text-white sm:px-6 sm:pb-8 lg:px-8">
+          <h1 className="text-4xl font-normal leading-[1.05] tracking-tight sm:text-5xl">
+            Farm Store
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/85 font-sans font-light sm:text-lg">
-            Heritage Mangalitsa pork, pasture-raised Highland beef, eggs from
-            our hens, plus farm-made plush, apparel, and gifts.
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/90 font-sans sm:text-base">
+            Heritage Mangalitsa pork, pasture-raised Highland beef, and
+            farm-made gifts — ship anywhere or pick up at the farm.
           </p>
         </div>
       </section>
