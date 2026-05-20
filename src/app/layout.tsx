@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Lora, Dancing_Script } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import Script from "next/script";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -15,19 +15,14 @@ import "./globals.css";
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
 });
 
-const lora = Lora({
-  variable: "--font-lora",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500"],
-});
-
-const dancingScript = Dancing_Script({
-  variable: "--font-dancing",
-  subsets: ["latin"],
-  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -113,7 +108,7 @@ export default function RootLayout({
       <head>
         <StructuredData />
       </head>
-      <body className={`${cormorant.variable} ${lora.variable} ${dancingScript.variable} antialiased overflow-x-hidden`}>
+      <body className={`${cormorant.variable} ${inter.variable} antialiased overflow-x-hidden`}>
         <GoogleTagManager />
         <GoogleTagManagerNoScript />
         <Script id="hs-form-capture-off" strategy="beforeInteractive">

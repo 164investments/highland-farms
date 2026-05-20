@@ -38,21 +38,27 @@
   --color-blush-light: var(--blush-light);
   --color-gold: var(--gold);
   --color-gold-light: var(--gold-light);
-  --font-sans: var(--font-lora);
+  --font-sans: var(--font-inter);
   --font-display: var(--font-cormorant);
-  --font-script: var(--font-dancing);
+  --font-script: var(--font-cormorant);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 h1, h2, h3 {
   font-family: var(--font-display), Georgia, serif;
-  letter-spacing: 0.02em;
-  font-weight: 300;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+
+.font-script {
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.005em;
 }
 
 /* Prevent horizontal overflow/bounce on mobile */
