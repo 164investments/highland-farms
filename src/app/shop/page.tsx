@@ -18,8 +18,7 @@ import { Button } from "@/components/ui/Button";
 import { ShopBody } from "./ShopBody";
 import { PRODUCTS } from "./data";
 import {
-  REVIEW_COUNT,
-  REVIEW_RATING,
+  FIVE_STAR_COUNT,
 } from "@/components/shared/GoogleReviewsSection";
 
 export const metadata: Metadata = {
@@ -140,15 +139,20 @@ export default function ShopPage() {
 
             {/* Inline trust strip — 5 items, white pill below the CTAs */}
             <dl className="mt-8 inline-flex max-w-full flex-wrap items-start gap-x-7 gap-y-3 rounded-2xl bg-white/90 px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] backdrop-blur-sm sm:px-6">
-              {REVIEW_COUNT > 0 && (
+              {FIVE_STAR_COUNT > 0 && (
                 <div className="flex items-start gap-2">
-                  <Star
-                    className="mt-0.5 h-4 w-4 fill-forest text-forest shrink-0"
-                    strokeWidth={1.5}
-                  />
+                  <span className="mt-0.5 flex items-center gap-0.5 shrink-0" aria-hidden>
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className="h-3 w-3 fill-forest text-forest"
+                        strokeWidth={1.5}
+                      />
+                    ))}
+                  </span>
                   <div className="font-sans">
                     <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
-                      {REVIEW_RATING} · {REVIEW_COUNT}+ Reviews
+                      {FIVE_STAR_COUNT} 5-Star Reviews
                     </dt>
                     <dd className="mt-0.5 text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55">
                       Google verified

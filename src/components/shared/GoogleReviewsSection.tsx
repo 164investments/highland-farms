@@ -5,6 +5,9 @@ import googleReviews from "@/data/google-reviews.json";
 export const GOOGLE_REVIEW_LINK = "https://share.google/jrLOI4AhnpzbPPBpF";
 export const REVIEW_COUNT = googleReviews.user_rating_count;
 export const REVIEW_RATING = googleReviews.rating;
+export const FIVE_STAR_COUNT = googleReviews.reviews.filter(
+  (r) => r.rating === 5,
+).length;
 
 type Review = (typeof googleReviews.reviews)[number];
 
@@ -66,7 +69,7 @@ interface Props {
   max?: number;
   /** Section eyebrow text. */
   eyebrow?: string;
-  /** Section heading. Defaults to "4.9 ★ · {COUNT} Google reviews". */
+  /** Section heading. Defaults to "{FIVE_STAR_COUNT} five-star reviews on Google". */
   heading?: string;
   /** Section background — match the surrounding page. */
   background?: "cream" | "background" | "white";
@@ -93,7 +96,7 @@ export function GoogleReviewsSection({
         : "bg-background";
 
   const title =
-    heading ?? `${REVIEW_RATING} ★ · ${REVIEW_COUNT} Google reviews`;
+    heading ?? `${FIVE_STAR_COUNT} five-star reviews on Google`;
 
   return (
     <section

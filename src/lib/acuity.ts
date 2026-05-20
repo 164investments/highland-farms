@@ -113,16 +113,16 @@ export const FARM_TOUR_TYPE_IDS = {
   six: 64217701,
 } as const;
 
+// Nordic Spa appointment type (calendar 13047082, $75/person, 90 min).
+export const NORDIC_SPA_TYPE_ID = 85942611;
+
 interface AcuityAvailableDate {
   date: string; // "YYYY-MM-DD"
 }
 
-/**
- * Returns the earliest available farm tour date (ISO YYYY-MM-DD) over the next
- * ~60 days, or null if nothing is open. Probes the 2-guest tour as a proxy —
- * all 5 group sizes share calendar 7539520.
- */
-export async function getNextTourDate(): Promise<string | null> {
+async function getNextAvailableDate(
+  appointmentTypeID: number,
+): Promise<string | null> {
   const today = new Date();
   const months = [
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`,
@@ -139,7 +139,7 @@ export async function getNextTourDate(): Promise<string | null> {
       const dates = await fetchJSON<AcuityAvailableDate[]>(
         "/availability/dates",
         {
-          appointmentTypeID: String(FARM_TOUR_TYPE_IDS.two),
+          appointmentTypeID: String(appointmentTypeID),
           month,
         },
         { revalidate: 1800 },
@@ -154,4 +154,21 @@ export async function getNextTourDate(): Promise<string | null> {
     }
   }
   return null;
+}
+
+/**
+ * Returns the earliest available farm tour date (ISO YYYY-MM-DD) over the next
+ * ~60 days, or null if nothing is open. Probes the 2-guest tour as a proxy —
+ * all 5 group sizes share calendar 7539520.
+ */
+export async function getNextTourDate(): Promise<string | null> {
+  return getNextAvailableDate(FARM_TOUR_TYPE_IDS.two);
+}
+
+/**
+ * Returns the earliest available Nordic Spa date (ISO YYYY-MM-DD) over the next
+ * ~60 days, or null if nothing is open. Spa runs Tue/Wed/Fri/Sat/Sun only.
+ */
+export async function getNextSpaDate(): Promise<string | null> {
+  return getNextAvailableDate(NORDIC_SPA_TYPE_ID);
 }

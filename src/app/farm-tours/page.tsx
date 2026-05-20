@@ -19,7 +19,7 @@ import {
   GoogleReviewsSection,
   GOOGLE_REVIEW_LINK,
   REVIEW_COUNT,
-  REVIEW_RATING,
+  FIVE_STAR_COUNT,
 } from "@/components/shared/GoogleReviewsSection";
 import { farmTourFAQ } from "@/data/farm-tours";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
@@ -154,12 +154,14 @@ export default function FarmToursPage() {
             href={GOOGLE_REVIEW_LINK}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-flex items-center gap-1.5 text-sm text-white/80 underline-offset-4 hover:text-white hover:underline font-sans"
+            className="mt-6 inline-flex items-center gap-2 text-sm text-white/80 underline-offset-4 hover:text-white hover:underline font-sans"
           >
-            <Star className="h-4 w-4 fill-current" />
-            <span>
-              {REVIEW_RATING} · {REVIEW_COUNT} Google reviews
+            <span className="flex gap-0.5" aria-hidden>
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="h-4 w-4 fill-current" />
+              ))}
             </span>
+            <span>Loved by {REVIEW_COUNT} guests on Google</span>
           </a>
         </div>
       </section>
@@ -222,17 +224,19 @@ export default function FarmToursPage() {
           />
 
           <div className="rounded-xl bg-white p-8 shadow-sm">
-            <div className="mb-5 flex items-center justify-center gap-1.5 text-sm text-charcoal font-sans">
-              <Star className="h-4 w-4 fill-forest text-forest" />
-              <span className="font-normal">{REVIEW_RATING}</span>
-              <span className="text-muted">·</span>
+            <div className="mb-5 flex items-center justify-center gap-2 text-sm text-charcoal font-sans">
+              <span className="flex gap-0.5" aria-hidden>
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-forest text-forest" />
+                ))}
+              </span>
               <a
                 href={GOOGLE_REVIEW_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted underline-offset-4 hover:text-charcoal hover:underline"
               >
-                {REVIEW_COUNT} Google reviews
+                {FIVE_STAR_COUNT} five-star reviews on Google
               </a>
             </div>
             <div className="space-y-4">

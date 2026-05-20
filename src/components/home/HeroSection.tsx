@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Star, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
 
 export function HeroSection() {
   return (
@@ -57,7 +58,7 @@ export function HeroSection() {
                 <Star key={i} className="h-3 w-3 fill-gold text-gold" />
               ))}
             </div>
-            <span>4.9 on Google</span>
+            <span>{REVIEW_COUNT} reviews on Google</span>
           </a>
           <span className="hidden sm:inline text-white/40">&middot;</span>
           <a

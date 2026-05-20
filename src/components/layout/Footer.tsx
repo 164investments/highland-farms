@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Instagram, Phone, Mail, MapPin, Star } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { CONTACT, SITE } from "@/lib/constants";
+import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
 
 export function Footer() {
   return (
@@ -39,7 +40,7 @@ export function Footer() {
                     <Star key={i} className="h-3 w-3 fill-gold/70 text-gold/70" />
                   ))}
                 </div>
-                <span>4.9 on Google</span>
+                <span>{REVIEW_COUNT} reviews on Google</span>
               </a>
               <a
                 href="https://traveloregon.com/plan-your-trip/places-to-stay/farm-ranch-stays/highland-farms/"

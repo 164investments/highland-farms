@@ -10,8 +10,7 @@ import { BOOKING_LINKS } from "@/lib/constants";
 import { CATEGORIES, PRODUCTS, type CategoryKey, type Product } from "./data";
 import {
   GoogleReviewsSection,
-  REVIEW_COUNT,
-  REVIEW_RATING,
+  FIVE_STAR_COUNT,
 } from "@/components/shared/GoogleReviewsSection";
 
 type NavKey = "featured" | CategoryKey;
@@ -419,7 +418,7 @@ export function ShopBody() {
             >
               Purchase Gift Certificates
             </Button>
-            {REVIEW_COUNT > 0 && (
+            {FIVE_STAR_COUNT > 0 && (
               <div className="flex items-center gap-2 text-sm text-white/80 font-sans">
                 <span className="flex items-center gap-0.5" aria-hidden>
                   {[0, 1, 2, 3, 4].map((i) => (
@@ -427,10 +426,8 @@ export function ShopBody() {
                   ))}
                 </span>
                 <span>
-                  <span className="font-medium text-white">{REVIEW_RATING}</span>
-                  {" from "}
-                  <span className="font-medium text-white">{REVIEW_COUNT}</span>
-                  {" Google reviews"}
+                  <span className="font-medium text-white">{FIVE_STAR_COUNT}</span>
+                  {" five-star reviews on Google"}
                 </span>
               </div>
             )}

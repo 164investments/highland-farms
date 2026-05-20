@@ -1,5 +1,6 @@
 import { Star, Instagram } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
 
 export function SocialProofBar() {
   return (
@@ -19,8 +20,8 @@ export function SocialProofBar() {
               ))}
             </div>
             <span className="text-xs sm:text-sm font-light font-sans text-center sm:text-left">
-              <span className="font-normal">4.9</span> on Google
-              <span className="hidden sm:inline"> &middot; 188+ reviews</span>
+              <span className="font-normal">{REVIEW_COUNT}</span> reviews
+              <span className="hidden sm:inline"> on Google</span>
             </span>
           </a>
 

@@ -1,5 +1,5 @@
 import { Calendar } from "lucide-react";
-import { getNextTourDate } from "@/lib/acuity";
+import { getNextTourDate, getNextSpaDate } from "@/lib/acuity";
 
 function formatDate(iso: string): string {
   // iso is YYYY-MM-DD — anchor at noon to dodge timezone shifts.
@@ -11,10 +11,15 @@ function formatDate(iso: string): string {
   });
 }
 
-export async function NextAvailability() {
+interface Props {
+  /** Which product's availability to probe. Defaults to "tour". */
+  product?: "tour" | "spa";
+}
+
+export async function NextAvailability({ product = "tour" }: Props = {}) {
   let date: string | null = null;
   try {
-    date = await getNextTourDate();
+    date = product === "spa" ? await getNextSpaDate() : await getNextTourDate();
   } catch {
     return null;
   }

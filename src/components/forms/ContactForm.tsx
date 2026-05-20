@@ -7,6 +7,7 @@ import { CheckCircle, AlertCircle, Loader2, Star, Phone } from "lucide-react";
 import { inquirySchema, type InquiryFormData } from "@/lib/schemas";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
 import { TurnstileWidget } from "./TurnstileWidget";
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
@@ -432,7 +433,7 @@ export function ContactForm({
                 ))}
               </div>
               <span className="text-xs text-muted font-sans">
-                4.9 on Google &middot; 188+ reviews
+                {REVIEW_COUNT} reviews on Google
               </span>
             </div>
             <p className="text-xs text-muted/80 font-sans text-center">
