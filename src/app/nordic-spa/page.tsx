@@ -6,7 +6,6 @@ import {
   Users,
   Droplets,
   TreePine,
-  Sparkles,
   Check,
   MapPin,
   Flame,
@@ -177,20 +176,34 @@ export default function NordicSpaPage() {
                 Sauna &amp; Cold Plunge<br className="hidden sm:inline" />{" "}
                 in the Forest
               </h1>
+              {/* Ornamental leaf separator */}
+              <div
+                aria-hidden
+                className="mt-6 flex max-w-[130px] items-center gap-3"
+              >
+                <span className="h-px flex-1 bg-white/35" />
+                <Leaf
+                  className="h-4 w-4 -rotate-12 text-white/65"
+                  strokeWidth={1.5}
+                />
+                <span className="h-px flex-1 bg-white/35" />
+              </div>
               <p className="mt-6 max-w-lg text-lg text-white/85 leading-relaxed font-sans font-light">
                 Wood-burning sauna, steam sauna, and cold plunge tucked
                 into old-growth forest — private for up to 6 guests,
                 50&nbsp;minutes from Portland.
               </p>
 
-              {/* Icon pills */}
-              <div className="mt-7 flex flex-wrap items-center gap-2.5">
+              {/* Icon pills — circular icon badge inside a soft pill */}
+              <div className="mt-7 flex flex-wrap items-center gap-3">
                 {heroPills.map(({ icon: Icon, label }) => (
                   <span
                     key={label}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-[11px] tracking-wide text-white/90 backdrop-blur-sm font-sans"
+                    className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-charcoal/40 py-1 pl-1 pr-4 text-[11px] tracking-wide text-white/90 backdrop-blur-sm font-sans"
                   >
-                    <Icon className="h-3.5 w-3.5 text-white/80" />
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-forest/75 shadow-inner">
+                      <Icon className="h-3.5 w-3.5 text-cream" strokeWidth={1.75} />
+                    </span>
                     {label}
                   </span>
                 ))}
@@ -241,27 +254,66 @@ export default function NordicSpaPage() {
 
       {/* ─── EVERYTHING FOR A PERFECT SESSION ─── */}
       <section id="details" className="bg-cream py-20 lg:py-28">
-        <Container className="max-w-5xl">
-          <SectionHeading
-            eyebrow="What's Included"
-            title="Everything for a Perfect Session"
-            subtitle="A guided 90-minute cycle between heat, steam, and cold — at your own pace."
-          />
-
-          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3">
-            {sessionFeatures.map((item) => (
-              <div key={item.title} className="text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-forest/10">
-                  <item.icon className="h-5 w-5 text-forest" />
+        <Container className="max-w-7xl">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.55fr_1fr] lg:gap-14">
+            {/* Left: heading + features */}
+            <div>
+              <div className="text-center">
+                <h2 className="text-3xl font-light tracking-tight sm:text-4xl lg:text-[2.5rem]">
+                  Everything for a Perfect Session
+                </h2>
+                <div
+                  aria-hidden
+                  className="mx-auto mt-4 flex max-w-[110px] items-center gap-3"
+                >
+                  <span className="h-px flex-1 bg-forest/30" />
+                  <Leaf
+                    className="h-3.5 w-3.5 -rotate-12 text-forest/55"
+                    strokeWidth={1.5}
+                  />
+                  <span className="h-px flex-1 bg-forest/30" />
                 </div>
-                <h3 className="mt-3 text-sm font-normal text-charcoal font-display">
-                  {item.title}
-                </h3>
-                <p className="mt-1.5 text-xs text-muted leading-relaxed font-sans">
-                  {item.desc}
-                </p>
               </div>
-            ))}
+
+              <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-9 sm:grid-cols-3 lg:grid-cols-6 lg:gap-x-4">
+                {sessionFeatures.map((item) => (
+                  <div key={item.title} className="text-center">
+                    <item.icon
+                      className="mx-auto h-7 w-7 text-forest"
+                      strokeWidth={1.5}
+                    />
+                    <h3 className="mt-3 text-[0.6875rem] font-medium uppercase tracking-[0.12em] leading-tight text-charcoal font-sans">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-xs text-muted leading-snug font-sans">
+                      {item.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: two photo cards */}
+            <div className="grid grid-cols-2 gap-3 lg:gap-4">
+              <div className="relative aspect-[3/4] overflow-hidden rounded-2xl shadow-sm">
+                <Image
+                  src="/images/spa/spa-3.jpg"
+                  alt="Guest soaking in the cedar cold plunge surrounded by old-growth forest"
+                  fill
+                  sizes="(max-width: 1024px) 50vw, 22vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="relative aspect-[3/4] overflow-hidden rounded-2xl shadow-sm">
+                <Image
+                  src="/images/spa/spa-2.jpg"
+                  alt="Cedar spa deck at dusk with string lights and the cold plunge tub"
+                  fill
+                  sizes="(max-width: 1024px) 50vw, 22vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
           </div>
         </Container>
       </section>
@@ -454,14 +506,20 @@ export default function NordicSpaPage() {
         <Container className="relative z-10 py-16 lg:py-20">
           <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[1fr_1.4fr_1fr] md:gap-12">
             <div className="text-center md:text-left">
-              <div className="mb-4 inline-flex items-center justify-center md:justify-start">
-                <Sparkles className="h-7 w-7 text-cream" />
-              </div>
+              <span
+                aria-hidden
+                className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full border border-cream/35"
+              >
+                <Leaf
+                  className="h-5 w-5 text-cream"
+                  strokeWidth={1.5}
+                />
+              </span>
               <p className="text-xl font-normal leading-snug font-display sm:text-2xl">
-                More than a spa — a return to the forest.
+                More than a spa—it&rsquo;s a return to nature.
               </p>
               <p className="mt-3 text-sm text-white/70 font-sans leading-relaxed">
-                Leave feeling refreshed, reconnected, renewed.
+                Leave feeling refreshed, reconnected, and renewed.
               </p>
             </div>
 
@@ -471,7 +529,7 @@ export default function NordicSpaPage() {
                 cold plunge, and the privacy.&rdquo;
               </p>
               <p className="mt-4 text-xs font-normal uppercase tracking-[0.18em] text-white/60 font-sans">
-                — Tracy C. · Google Review
+                — Tracy C., Google Review
               </p>
             </div>
 
@@ -480,11 +538,11 @@ export default function NordicSpaPage() {
                 href={closingBookingHref}
                 label="Book Your Session"
                 size="lg"
-                className="bg-white text-charcoal hover:bg-cream"
+                className="bg-cream text-charcoal hover:bg-white"
                 title="Book your Nordic Spa session"
               />
               <p className="text-center text-xs text-white/65 font-sans md:text-right">
-                Spots fill up fast · Tue / Wed / Fri-Sun
+                Spots fill up fast. Reserve your time today.
               </p>
             </div>
           </div>

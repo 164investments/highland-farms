@@ -18,6 +18,7 @@
   --blush-light: #E8D5C8;
   --gold: #C4A96A;
   --gold-light: #D4BE8A;
+  --gold-bright: #FBBC04;
 }
 
 @theme inline {
@@ -38,6 +39,7 @@
   --color-blush-light: var(--blush-light);
   --color-gold: var(--gold);
   --color-gold-light: var(--gold-light);
+  --color-gold-bright: var(--gold-bright);
   --font-sans: var(--font-inter);
   --font-display: var(--font-cormorant);
   --font-script: var(--font-cormorant);

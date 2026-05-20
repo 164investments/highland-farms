@@ -43,14 +43,14 @@ interface StarsProps {
 
 function Stars({ size = "md" }: StarsProps) {
   const cls =
-    size === "sm" ? "h-3 w-3" : size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5";
+    size === "sm" ? "h-3.5 w-3.5" : size === "lg" ? "h-5 w-5" : "h-4 w-4";
   return (
     <span className="flex items-center gap-0.5" aria-hidden>
       {[...Array(5)].map((_, i) => (
         <Star
           key={i}
-          className={cn(cls, "fill-gold text-gold")}
-          strokeWidth={1.5}
+          className={cn(cls, "fill-gold-bright text-gold-bright")}
+          strokeWidth={1.25}
         />
       ))}
     </span>
