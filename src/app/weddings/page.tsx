@@ -8,6 +8,7 @@ import { ImageGallery } from "@/components/gallery/ImageGallery";
 import { FAQAccordion } from "@/components/shared/FAQAccordion";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
+import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { CONTACT } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -257,37 +258,12 @@ export default function WeddingsPage() {
       </section>
 
       {/* Testimonial */}
-      <section className="py-20 lg:py-28 bg-background">
-        <Container className="max-w-3xl text-center">
-          <div className="flex justify-center mb-6">
-            {[...Array(5)].map((_, i) => (
-              <Heart key={i} className="h-4 w-4 fill-accent text-accent" />
-            ))}
-          </div>
-          <blockquote>
-            <p className="text-xl font-normal leading-relaxed text-charcoal sm:text-2xl font-display">
-              &ldquo;We had our wedding at Highland Farms and I can not recommend
-              them highly enough!! An absolutely stunning and unique venue that
-              surpassed our wildest dreams! Connor made every part of the process
-              so simple and seamless!&rdquo;
-            </p>
-          </blockquote>
-          <p className="mt-6 text-sm text-charcoal font-sans font-normal">
-            Hannah M.
-          </p>
-          <p className="mt-0.5 text-xs text-muted font-sans font-light">
-            Google Review — Wedding
-          </p>
-          <a
-            href="https://share.google/jrLOI4AhnpzbPPBpF"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-1 text-sm font-light text-forest hover:text-forest-light transition-colors font-sans tracking-wide"
-          >
-            Read all 188+ reviews on Google &rarr;
-          </a>
-        </Container>
-      </section>
+      <GoogleReviewsSection
+        topic="wedding"
+        max={6}
+        eyebrow="What couples are saying"
+        background="background"
+      />
 
       {/* FAQ */}
       <section className="py-20 lg:py-28 bg-warm-white">

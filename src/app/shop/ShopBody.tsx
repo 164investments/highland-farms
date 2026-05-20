@@ -2,26 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Star, Leaf, Home, Truck, Gift, MapPin } from "lucide-react";
+import { Star, Leaf, Home, Truck, MapPin, Check } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { BOOKING_LINKS } from "@/lib/constants";
 import { CATEGORIES, PRODUCTS, type CategoryKey, type Product } from "./data";
-import googleReviews from "@/data/google-reviews.json";
-
-const REVIEW_LINK = "https://share.google/jrLOI4AhnpzbPPBpF";
-const REVIEW_COUNT = googleReviews.user_rating_count;
-const REVIEW_RATING = googleReviews.rating;
-
-type Review = (typeof googleReviews.reviews)[number];
-
-function truncate(text: string, max: number): string {
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max);
-  const lastSpace = cut.lastIndexOf(" ");
-  return cut.slice(0, lastSpace > max - 30 ? lastSpace : max).trim() + "…";
-}
+import {
+  GoogleReviewsSection,
+  GOOGLE_REVIEW_LINK,
+  REVIEW_COUNT,
+  REVIEW_RATING,
+} from "@/components/shared/GoogleReviewsSection";
 
 type NavKey = "featured" | CategoryKey;
 
@@ -244,7 +236,7 @@ export function ShopBody() {
         <Container>
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-center text-xs text-charcoal font-sans sm:flex sm:flex-wrap sm:justify-center sm:gap-x-10 sm:gap-y-2 sm:text-[0.8125rem]">
             <a
-              href={REVIEW_LINK}
+              href={GOOGLE_REVIEW_LINK}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-1.5 transition-opacity hover:opacity-70"
@@ -347,126 +339,108 @@ export function ShopBody() {
       </div>
 
       {/* Google Reviews — social proof */}
-      <section className="border-y border-cream-dark/40 bg-cream/50 py-14 lg:py-20">
-        <Container>
-          <div className="mb-8 flex flex-col items-start justify-between gap-3 sm:mb-10 sm:flex-row sm:items-end">
-            <div>
-              <p className="text-xs font-normal uppercase tracking-[0.18em] text-sage sm:text-[0.8125rem]">
-                What guests are saying
-              </p>
-              <h2 className="mt-1 text-[1.75rem] font-light leading-tight tracking-tight sm:text-[2rem]">
-                {REVIEW_RATING} ★ · {REVIEW_COUNT} Google reviews
-              </h2>
-            </div>
-            <a
-              href={REVIEW_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-normal text-forest underline-offset-4 hover:underline font-sans"
-            >
-              Read all {REVIEW_COUNT} reviews →
-            </a>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {googleReviews.reviews.slice(0, 6).map((r: Review, i: number) => (
-              <article
-                key={i}
-                className="flex flex-col rounded-2xl bg-white p-5 shadow-sm"
-              >
-                <div className="mb-3 flex items-center gap-0.5">
-                  {[...Array(5)].map((_, k) => (
-                    <Star
-                      key={k}
-                      className={`h-4 w-4 ${
-                        k < r.rating
-                          ? "fill-forest text-forest"
-                          : "text-cream-dark"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <blockquote className="flex-1 text-[0.9375rem] leading-relaxed text-charcoal font-sans">
-                  &ldquo;{truncate(r.text, 240)}&rdquo;
-                </blockquote>
-                <div className="mt-4 flex items-center gap-3 border-t border-cream-dark/40 pt-4">
-                  {r.author_photo ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={r.author_photo}
-                      alt={r.author_name ?? ""}
-                      width={36}
-                      height={36}
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                      className="h-9 w-9 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cream text-sm font-medium text-forest">
-                      {(r.author_name ?? "?").charAt(0)}
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-normal text-charcoal font-sans">
-                      {r.author_name}
-                    </p>
-                    <p className="text-xs text-muted font-sans">
-                      {r.relative_time} · Google
-                    </p>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </Container>
-      </section>
+      <GoogleReviewsSection topic="all" max={6} />
 
-      {/* Gift Certificates - 3 card layout */}
+
+      {/* Gift Certificates - photo cards, per-card CTA, trust strip, social proof */}
       <section className="bg-forest py-14 lg:py-20 text-white">
         <Container>
-          <div className="mb-8 text-center">
+          <div className="mb-10 text-center">
             <p className="mb-2 text-xs font-normal uppercase tracking-[0.18em] text-sage-light sm:text-[0.8125rem]">
-              Give the farm
+              Gift the farm · Birthdays, anniversaries & holidays
             </p>
             <h2 className="text-[1.75rem] font-light leading-tight tracking-tight sm:text-[2rem]">
               Gift Certificates
             </h2>
             <p className="mx-auto mt-2.5 max-w-xl text-[0.9375rem] leading-relaxed text-white/80 font-sans">
-              A tour, spa session, or overnight stay — redeem online, no expiration.
+              Give a tour, a sauna ritual, or a night under the cedars.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
             {[
               {
-                icon: Gift,
+                image: "/images/farm/cows.jpg",
                 title: "Farm Tour",
-                desc: "Private 60-min Highland Cow encounter. From $150.",
+                desc: "Private 60-min Highland Cow encounter for up to six.",
+                price: "From $150",
+                utm: "farm-tour",
               },
               {
-                icon: Leaf,
+                image: "/images/spa/spa-1.jpg",
                 title: "Nordic Spa",
-                desc: "90-min wood-burning sauna + cold plunge. $75/person.",
+                desc: "90-min wood-burning sauna + cold plunge ritual.",
+                price: "$75 / person",
+                utm: "nordic-spa",
               },
               {
-                icon: Home,
+                image: "/images/farm/lodge-bridge.jpg",
                 title: "Farm Stay",
-                desc: "Overnight at the Lodge, Cottage, or Airstream Camp.",
+                desc: "A night at the Lodge, Cottage, or Airstream Camp.",
+                price: "Choose any amount",
+                utm: "farm-stay",
               },
             ].map((card) => (
-              <div
+              <a
                 key={card.title}
-                className="rounded-2xl border border-white/15 bg-white/[0.04] p-5 backdrop-blur-sm"
+                href={`${BOOKING_LINKS.giftCertificates}?utm_source=hf_site&utm_medium=shop&utm_content=gift-${card.utm}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  pushEvent("select_promotion", {
+                    promotion_id: `gift-${card.utm}`,
+                    promotion_name: `Gift Certificate - ${card.title}`,
+                    creative_slot: "shop_gift_section",
+                  })
+                }
+                className="group overflow-hidden rounded-2xl border border-white/15 bg-white/[0.04] backdrop-blur-sm transition hover:border-white/30 hover:bg-white/[0.07]"
               >
-                <card.icon className="h-5 w-5 text-sage-light" />
-                <h3 className="mt-3 text-lg font-normal text-white font-sans">
-                  {card.title}
-                </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-white/75 font-sans">
-                  {card.desc}
-                </p>
-              </div>
+                <div className="relative aspect-[5/3] w-full overflow-hidden">
+                  <Image
+                    src={card.image}
+                    alt={card.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest/40 to-transparent" />
+                </div>
+                <div className="p-5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h3 className="text-lg font-normal text-white font-sans">
+                      {card.title}
+                    </h3>
+                    <span className="text-sm text-sage-light font-sans">
+                      {card.price}
+                    </span>
+                  </div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-white/75 font-sans">
+                    {card.desc}
+                  </p>
+                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-white font-sans">
+                    Gift this
+                    <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+                      →
+                    </span>
+                  </span>
+                </div>
+              </a>
             ))}
           </div>
-          <div className="mt-8 text-center">
+          <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/80 font-sans">
+            <li className="inline-flex items-center gap-1.5">
+              <Check className="h-4 w-4 text-sage-light" aria-hidden />
+              Delivered instantly by email
+            </li>
+            <li className="inline-flex items-center gap-1.5">
+              <Check className="h-4 w-4 text-sage-light" aria-hidden />
+              Never expires
+            </li>
+            <li className="inline-flex items-center gap-1.5">
+              <Check className="h-4 w-4 text-sage-light" aria-hidden />
+              Email or print to give
+            </li>
+          </ul>
+          <div className="mt-8 flex flex-col items-center gap-3 text-center">
             <Button
               href={BOOKING_LINKS.giftCertificates}
               size="lg"
@@ -475,6 +449,21 @@ export function ShopBody() {
             >
               Purchase Gift Certificates
             </Button>
+            {REVIEW_COUNT > 0 && (
+              <div className="flex items-center gap-2 text-sm text-white/80 font-sans">
+                <span className="flex items-center gap-0.5" aria-hidden>
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <Star key={i} className="h-4 w-4 fill-sage-light text-sage-light" />
+                  ))}
+                </span>
+                <span>
+                  <span className="font-medium text-white">{REVIEW_RATING}</span>
+                  {" from "}
+                  <span className="font-medium text-white">{REVIEW_COUNT}</span>
+                  {" Google reviews"}
+                </span>
+              </div>
+            )}
           </div>
         </Container>
       </section>

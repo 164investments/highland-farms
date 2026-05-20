@@ -8,6 +8,7 @@ import { ImageCarousel } from "@/components/gallery/ImageCarousel";
 import { FAQAccordion } from "@/components/shared/FAQAccordion";
 import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
+import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { farmTourFAQ } from "@/data/farm-tours";
 import { BOOKING_LINKS } from "@/lib/constants";
 
@@ -259,36 +260,12 @@ export default function FarmToursPage() {
       </section>
 
       {/* Social Proof */}
-      <section className="py-20 lg:py-28 bg-cream">
-        <Container className="max-w-3xl text-center">
-          <div className="flex justify-center mb-6">
-            {[...Array(5)].map((_, i) => (
-              <Sparkles key={i} className="h-4 w-4 text-accent" />
-            ))}
-          </div>
-          <blockquote>
-            <p className="text-xl font-normal leading-relaxed text-charcoal sm:text-2xl font-display">
-              &ldquo;Huge shoutout to Dante, our tour guide — he was incredible!
-              We were able to pet, brush and feed some of the beautiful and sweet
-              highland cows.&rdquo;
-            </p>
-          </blockquote>
-          <p className="mt-6 text-sm text-charcoal font-sans font-normal">
-            Jessica R.
-          </p>
-          <p className="mt-0.5 text-xs text-muted font-sans font-light">
-            Google Review — Farm Tour
-          </p>
-          <a
-            href="https://share.google/jrLOI4AhnpzbPPBpF"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-1 text-sm font-light text-forest hover:text-forest-light transition-colors font-sans tracking-wide"
-          >
-            Read all reviews on Google &rarr;
-          </a>
-        </Container>
-      </section>
+      <GoogleReviewsSection
+        topic="tour"
+        max={6}
+        eyebrow="What tour guests are saying"
+        background="cream"
+      />
 
       <EventCategoryCards />
 

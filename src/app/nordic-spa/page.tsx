@@ -16,6 +16,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ImageCarousel } from "@/components/gallery/ImageCarousel";
 import { FAQAccordion } from "@/components/shared/FAQAccordion";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
+import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { nordicSpaFAQ } from "@/data/nordic-spa";
 import { BOOKING_LINKS, CONTACT } from "@/lib/constants";
 
@@ -196,40 +197,13 @@ export default function NordicSpaPage() {
         </Container>
       </section>
 
-      {/* ─── SOCIAL PROOF (moved from section 8 → 3) ─── */}
-      <section className="py-16 lg:py-20 bg-warm-white">
-        <Container className="max-w-3xl text-center">
-          <div className="flex justify-center mb-4">
-            {[...Array(5)].map((_, i) => (
-              <Sparkles key={i} className="h-4 w-4 text-accent" />
-            ))}
-          </div>
-          <blockquote>
-            <p className="text-xl font-normal leading-relaxed text-charcoal sm:text-2xl font-display">
-              &ldquo;We loved walking the property, taking in the peaceful
-              forest setting, and soaking in the hot tub under the stars. This
-              was easily one of the highlights of our Oregon trip.&rdquo;
-            </p>
-          </blockquote>
-          <p className="mt-5 text-sm text-charcoal font-sans font-normal">
-            Emily T.
-          </p>
-          <p className="mt-0.5 text-xs text-muted font-sans font-light">
-            Google Review
-          </p>
-          <div className="mt-5 flex items-center justify-center gap-4 text-sm text-muted font-sans">
-            <span>4.9 / 5 · 188 reviews</span>
-            <a
-              href="https://share.google/jrLOI4AhnpzbPPBpF"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-forest hover:text-forest-light transition-colors"
-            >
-              Read reviews →
-            </a>
-          </div>
-        </Container>
-      </section>
+      {/* ─── SOCIAL PROOF ─── */}
+      <GoogleReviewsSection
+        topic="spa"
+        max={6}
+        eyebrow="What spa guests are saying"
+        background="cream"
+      />
 
       {/* ─── GALLERY ─── */}
       <section className="py-16 lg:py-20 bg-background">
