@@ -19,6 +19,7 @@ import { ShopBody } from "./ShopBody";
 import { PRODUCTS } from "./data";
 import {
   FIVE_STAR_COUNT,
+  GOOGLE_REVIEW_LINK,
 } from "@/components/shared/GoogleReviewsSection";
 
 export const metadata: Metadata = {
@@ -99,11 +100,11 @@ export default function ShopPage() {
         </div>
 
         <Container>
-          <div className="max-w-2xl">
+          <div className="max-w-3xl">
             <p className="text-xs font-normal uppercase tracking-[0.18em] text-sage sm:text-[0.8125rem]">
               Brightwood · Oregon
             </p>
-            <h1 className="mt-3 text-5xl leading-[1.02] tracking-tight text-charcoal sm:text-6xl lg:text-[5rem]">
+            <h1 className="mt-3 font-display font-light text-5xl leading-[1.02] tracking-tight text-charcoal sm:text-6xl lg:text-[5rem]">
               Farm Store
             </h1>
             <p className="mt-5 max-w-md text-base leading-relaxed text-charcoal/80 font-sans sm:text-[1.0625rem]">
@@ -112,8 +113,8 @@ export default function ShopPage() {
               for farm pickup or insulated shipping.
             </p>
 
-            {/* CTAs — same height row, no wrap on desktop */}
-            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:flex-wrap">
+            {/* CTAs — single row on desktop, stacked on mobile */}
+            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-nowrap sm:items-center">
               <Button
                 href="#cat-featured"
                 size="lg"
@@ -137,29 +138,34 @@ export default function ShopPage() {
               </Button>
             </div>
 
-            {/* Inline trust strip — 5 items, white pill below the CTAs */}
-            <dl className="mt-8 inline-flex max-w-full flex-wrap items-start gap-x-7 gap-y-3 rounded-2xl bg-white/90 px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] backdrop-blur-sm sm:px-6">
-              {FIVE_STAR_COUNT > 0 && (
-                <div className="flex items-start gap-2">
-                  <span className="mt-0.5 flex items-center gap-0.5 shrink-0" aria-hidden>
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-3 w-3 fill-forest text-forest"
-                        strokeWidth={1.5}
-                      />
-                    ))}
-                  </span>
-                  <div className="font-sans">
-                    <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
-                      {FIVE_STAR_COUNT} 5-Star Reviews
-                    </dt>
-                    <dd className="mt-0.5 text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55">
-                      Google verified
-                    </dd>
-                  </div>
-                </div>
-              )}
+            {/* Standalone social proof — stars + review count linking to Google */}
+            {FIVE_STAR_COUNT > 0 && (
+              <a
+                href={GOOGLE_REVIEW_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex items-center gap-2 text-sm text-charcoal/75 font-sans transition-colors hover:text-charcoal"
+              >
+                <span className="flex items-center gap-0.5" aria-hidden>
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="h-4 w-4 fill-gold text-gold"
+                      strokeWidth={1.5}
+                    />
+                  ))}
+                </span>
+                <span>
+                  <span className="font-medium text-charcoal">
+                    {FIVE_STAR_COUNT}+
+                  </span>{" "}
+                  5-Star Google Reviews
+                </span>
+              </a>
+            )}
+
+            {/* Inline trust strip — 4 feature pills below the social proof (reviews now standalone above) */}
+            <dl className="mt-6 inline-flex max-w-full flex-wrap items-start gap-x-7 gap-y-3 rounded-2xl bg-white/90 px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] backdrop-blur-sm sm:px-6">
               <div className="flex items-start gap-2">
                 <Leaf
                   className="mt-0.5 h-4 w-4 text-forest shrink-0"
