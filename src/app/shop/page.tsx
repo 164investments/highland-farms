@@ -68,7 +68,7 @@ export default function ShopPage() {
       {/* Hero — slim collection-style banner */}
       <section className="relative flex h-[240px] items-end overflow-hidden pt-[var(--header-h,100px)] sm:h-[280px]">
         <Image
-          src="/images/farm/farm-aerial-new.jpg"
+          src="/images/farm/farm-store-hero.jpg"
           alt=""
           fill
           priority
