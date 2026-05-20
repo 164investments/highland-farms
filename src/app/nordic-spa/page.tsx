@@ -171,12 +171,12 @@ export default function NordicSpaPage() {
 
         <Container className="relative z-10 flex min-h-[calc(88vh-var(--header-h,120px))] items-center py-10 lg:py-16">
           <div className="grid w-full grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)] lg:gap-14">
-            {/* Left: hero text */}
-            <div className="max-w-xl text-white">
+            {/* Left: hero text — width is unconstrained so the pill row fits on a single line at lg+ */}
+            <div className="text-white">
               <p className="text-[0.7rem] font-normal uppercase tracking-[0.28em] text-white/70 font-sans">
                 Reset · Restore · Reconnect
               </p>
-              <h1 className="mt-5 text-4xl font-normal leading-[1.05] sm:text-5xl md:text-6xl">
+              <h1 className="mt-5 max-w-xl text-4xl font-normal leading-[1.05] sm:text-5xl md:text-6xl">
                 Sauna &amp; Cold Plunge<br className="hidden sm:inline" />{" "}
                 in the Forest
               </h1>
@@ -198,24 +198,24 @@ export default function NordicSpaPage() {
                 50&nbsp;minutes from Portland.
               </p>
 
-              {/* Icon + label pairs with vertical separators — no enclosing pill */}
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-5 sm:gap-x-7 lg:gap-x-6">
+              {/* Icon + label pairs with vertical separators — single row on lg+ */}
+              <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-5 lg:flex-nowrap lg:gap-x-4">
                 {heroPills.map(({ icon: Icon, label }, i) => (
                   <Fragment key={label}>
                     {i > 0 && (
                       <span
                         aria-hidden
-                        className="hidden h-10 w-px bg-white/20 lg:block"
+                        className="hidden h-10 w-px shrink-0 bg-white/20 lg:block"
                       />
                     )}
-                    <div className="flex items-center gap-3.5">
-                      <span className="flex h-12 w-12 items-center justify-center rounded-full border border-cream/25 bg-forest/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm">
+                    <div className="flex shrink-0 items-center gap-3">
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-cream/25 bg-forest/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm">
                         <Icon
                           className="h-5 w-5 text-cream"
                           strokeWidth={1.5}
                         />
                       </span>
-                      <span className="max-w-[6.25rem] text-[13px] leading-snug text-white/90 font-sans">
+                      <span className="max-w-[5.75rem] text-[13px] leading-snug text-white/90 font-sans">
                         {label}
                       </span>
                     </div>
