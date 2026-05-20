@@ -278,7 +278,7 @@ export default function WeddingsPage() {
       </section>
 
       {/* Inquiry Form */}
-      <section className="py-20 lg:py-28 bg-background">
+      <section id="contact" className="py-20 lg:py-28 bg-background">
         <Container className="max-w-4xl">
           <div className="flex justify-center mb-6">
             <Image

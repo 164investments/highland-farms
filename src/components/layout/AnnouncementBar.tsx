@@ -1,46 +1,186 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X, Truck } from "lucide-react";
+import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
+
+type Variant = {
+  id: string;
+  layout: "shop" | "single";
+  body: ReactNode;
+};
+
+const SHOP: Variant = {
+  id: "hf-shop-promo-dismissed",
+  layout: "shop",
+  body: (
+    <>
+      <span className="inline-flex items-center gap-1.5">
+        <Truck className="h-3.5 w-3.5" aria-hidden />
+        Free farm pickup in Brightwood, Oregon
+      </span>
+      <span aria-hidden className="hidden sm:inline opacity-50">·</span>
+      <span className="hidden sm:inline">Insulated shipping available</span>
+      <span aria-hidden className="hidden sm:inline opacity-50">·</span>
+      <span className="hidden sm:inline">Pasture-raised &amp; family-run since 2019</span>
+      <Link
+        href="#cat-featured"
+        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors"
+      >
+        Shop Bestsellers
+      </Link>
+    </>
+  ),
+};
+
+const FARM_TOURS: Variant = {
+  id: "hf-bar-farm-tours-2026-05",
+  layout: "single",
+  body: (
+    <>
+      Meet the Highland Coos &middot; Private Farm Tours &middot; 60 Min From $150{" "}
+      <a
+        href={bookingUrl(BOOKING_LINKS.farmTour, "announcement-bar-farm-tours")}
+        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
+      >
+        Book Your Tour
+      </a>
+    </>
+  ),
+};
+
+const NORDIC_SPA: Variant = {
+  id: "hf-bar-nordic-spa-2026-05",
+  layout: "single",
+  body: (
+    <>
+      Nordic Sauna + Cold Plunge &middot; 90 Min From $75 &middot; Weekends Fill Fast{" "}
+      <a
+        href={bookingUrl(BOOKING_LINKS.nordicSpa, "announcement-bar-nordic-spa")}
+        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
+      >
+        Reserve Your Session
+      </a>
+    </>
+  ),
+};
+
+const SAUNA_NEAR_PDX: Variant = {
+  id: "hf-bar-sauna-near-pdx-2026-05",
+  layout: "single",
+  body: (
+    <>
+      50 Minutes From Portland &middot; Forest Sauna + Cold Plunge &middot; From $75{" "}
+      <a
+        href={bookingUrl(BOOKING_LINKS.nordicSpa, "announcement-bar-sauna-near-portland")}
+        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
+      >
+        Reserve Your Session
+      </a>
+    </>
+  ),
+};
+
+const WEDDINGS: Variant = {
+  id: "hf-bar-weddings-2027-2026-05",
+  layout: "single",
+  body: (
+    <>
+      All-Inclusive Forest Weddings &middot; 2027 Summer &amp; Fall Dates Filling Fast{" "}
+      <Link
+        href="/weddings#contact"
+        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
+      >
+        Schedule a Tour
+      </Link>
+    </>
+  ),
+};
+
+const CELEBRATIONS: Variant = {
+  id: "hf-bar-celebrations-2026-05",
+  layout: "single",
+  body: (
+    <>
+      Anniversaries &middot; Birthdays &middot; Family Gatherings at Mt. Hood{" "}
+      <Link
+        href="/contact"
+        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
+      >
+        Inquire
+      </Link>
+    </>
+  ),
+};
+
+const STAY: Variant = {
+  id: "hf-bar-stay-2026-05",
+  layout: "single",
+  body: (
+    <>
+      William Wallace Lodge &amp; Bonnie Lass Cottage &middot; Up to 16 Guests{" "}
+      <Link
+        href="/stay"
+        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
+      >
+        Plan Your Stay
+      </Link>
+    </>
+  ),
+};
+
+const DEFAULT: Variant = {
+  id: "hf-bar-default-weddings-2027-2026-05",
+  layout: "single",
+  body: (
+    <>
+      Forest Weddings &middot; 2027 Summer &amp; Fall Dates Filling Fast{" "}
+      <Link
+        href="/weddings"
+        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
+      >
+        Inquire
+      </Link>
+    </>
+  ),
+};
+
+function pickVariant(pathname: string | null): Variant {
+  if (!pathname) return DEFAULT;
+  if (pathname.startsWith("/shop")) return SHOP;
+  if (pathname.startsWith("/farm-tours")) return FARM_TOURS;
+  if (pathname.startsWith("/sauna-near-portland")) return SAUNA_NEAR_PDX;
+  if (pathname.startsWith("/nordic-spa")) return NORDIC_SPA;
+  if (pathname.startsWith("/weddings") || pathname.startsWith("/wedding-portfolio")) return WEDDINGS;
+  if (pathname.startsWith("/celebrations")) return CELEBRATIONS;
+  if (pathname.startsWith("/stay")) return STAY;
+  return DEFAULT;
+}
 
 export function AnnouncementBar() {
   const [visible, setVisible] = useState(false);
   const pathname = usePathname();
-  const isShop = pathname?.startsWith("/shop");
-  const storageKey = isShop ? "hf-shop-promo-dismissed" : "hf-announcement-dismissed";
+  const variant = pickVariant(pathname);
 
   useEffect(() => {
-    const dismissed = localStorage.getItem(storageKey);
-    if (!dismissed) setVisible(true);
-  }, [storageKey]);
+    const dismissed = localStorage.getItem(variant.id);
+    setVisible(!dismissed);
+  }, [variant.id]);
 
   function dismiss() {
     setVisible(false);
-    localStorage.setItem(storageKey, "true");
+    localStorage.setItem(variant.id, "true");
   }
 
   if (!visible) return null;
 
-  if (isShop) {
+  if (variant.layout === "shop") {
     return (
       <div className="relative bg-charcoal/90 backdrop-blur-sm text-white text-center text-[0.6875rem] py-2.5 px-12 sm:px-10 sm:text-xs">
         <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-light tracking-[0.1em] uppercase font-sans sm:gap-x-5 sm:tracking-[0.14em]">
-          <span className="inline-flex items-center gap-1.5">
-            <Truck className="h-3.5 w-3.5" aria-hidden />
-            Free farm pickup in Brightwood, Oregon
-          </span>
-          <span aria-hidden className="hidden sm:inline opacity-50">·</span>
-          <span className="hidden sm:inline">Insulated shipping available</span>
-          <span aria-hidden className="hidden sm:inline opacity-50">·</span>
-          <span className="hidden sm:inline">Pasture-raised &amp; family-run since 2019</span>
-          <Link
-            href="#cat-featured"
-            className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors"
-          >
-            Shop Bestsellers
-          </Link>
+          {variant.body}
         </p>
         <button
           onClick={dismiss}
@@ -56,10 +196,7 @@ export function AnnouncementBar() {
   return (
     <div className="relative bg-charcoal/90 backdrop-blur-sm text-white text-center text-xs py-2.5 px-12 sm:px-10">
       <p className="font-light tracking-[0.1em] sm:tracking-[0.15em] uppercase font-sans">
-        Forest Weddings &middot; 2027 Summer &amp; Fall Dates Filling Fast{" "}
-        <Link href="/weddings" className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1">
-          Inquire
-        </Link>
+        {variant.body}
       </p>
       <button
         onClick={dismiss}
