@@ -11,12 +11,35 @@ import {
   Home,
   Truck,
   Snowflake,
+  Star,
+  Package,
+  ChevronRight,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { Button } from "@/components/ui/Button";
 import { ShopBody } from "./ShopBody";
 import { PRODUCTS } from "./data";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
+
+function BarnIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.4}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M3 21V10l9-6 9 6v11z" />
+      <path d="M3 21h18" />
+      <rect x="9.25" y="13.5" width="5.5" height="7.5" />
+      <path d="M12 13.5v7.5" />
+      <rect x="10.5" y="7.5" width="3" height="3" />
+    </svg>
+  );
+}
 
 export const metadata: Metadata = {
   title: "Farm Store — Highland Farms Oregon",
@@ -81,7 +104,7 @@ export default function ShopPage() {
       <StructuredData />
 
       {/* Hero — copy + 3 CTAs left, cow portrait right (fades into cream on the left edge) */}
-      <section className="relative isolate overflow-hidden bg-cream pt-[calc(var(--header-h,100px)+1.5rem)] pb-12 sm:pt-[calc(var(--header-h,100px)+2.5rem)] sm:pb-16 lg:pb-20">
+      <section className="relative isolate overflow-hidden bg-cream pt-[calc(var(--header-h,100px)+1rem)] pb-8 sm:pt-[calc(var(--header-h,100px)+2.5rem)] sm:pb-16 lg:pb-20">
         <div className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-full md:w-[60%] lg:w-[55%]">
           <Image
             src="/images/farm/shop-hero-cow.jpg"
@@ -109,38 +132,66 @@ export default function ShopPage() {
               for farm pickup or insulated shipping.
             </p>
 
-            {/* CTAs — single row on desktop, stacked on mobile */}
-            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-nowrap sm:items-center">
-              <Button
+            {/* CTAs — icon-pill design: primary green w/ circled star, white secondaries; stack mobile / 3-col desktop */}
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-3 sm:gap-3.5">
+              <Link
                 href="#cat-featured"
-                size="lg"
-                className="bg-forest text-white hover:bg-forest/90"
+                className="group flex min-h-[60px] items-center gap-3 rounded-full bg-forest py-2 pl-2 pr-5 text-white shadow-sm transition-shadow duration-300 hover:shadow-md sm:min-h-[68px] sm:gap-3.5 sm:py-2.5 sm:pl-2.5 sm:pr-6"
               >
-                Shop Bestsellers
-              </Button>
-              <Button
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full ring-[1.5px] ring-white/75 sm:h-[3.25rem] sm:w-[3.25rem]">
+                  <Star
+                    className="h-[1.125rem] w-[1.125rem] sm:h-5 sm:w-5"
+                    strokeWidth={1.5}
+                  />
+                </span>
+                <span className="flex-1 text-left font-sans text-[0.78rem] font-medium uppercase tracking-[0.13em] leading-[1.15] sm:text-[0.82rem]">
+                  Shop Bestsellers
+                </span>
+                <ChevronRight
+                  className="h-4 w-4 shrink-0 text-white/85 transition-transform group-hover:translate-x-0.5 sm:h-5 sm:w-5"
+                  strokeWidth={1.75}
+                />
+              </Link>
+
+              <Link
                 href="#cat-mangalitsa"
-                size="lg"
-                className="border border-charcoal/25 bg-white/80 text-charcoal hover:border-charcoal/50 hover:bg-white"
+                className="group flex min-h-[60px] items-center gap-3 rounded-full bg-white py-3 pl-4 pr-5 text-charcoal shadow-sm transition-shadow duration-300 hover:shadow-md sm:min-h-[68px] sm:gap-3.5 sm:py-3.5 sm:pl-5 sm:pr-6"
               >
-                Shop Meat Boxes
-              </Button>
-              <Button
+                <Package
+                  className="h-7 w-7 shrink-0 text-forest sm:h-[1.875rem] sm:w-[1.875rem]"
+                  strokeWidth={1.4}
+                />
+                <span className="flex-1 text-left font-sans text-[0.78rem] font-medium uppercase tracking-[0.13em] leading-[1.15] sm:text-[0.82rem]">
+                  Shop Meat Boxes
+                </span>
+                <ChevronRight
+                  className="h-4 w-4 shrink-0 text-forest transition-transform group-hover:translate-x-0.5 sm:h-5 sm:w-5"
+                  strokeWidth={1.75}
+                />
+              </Link>
+
+              <Link
                 href="/contact"
-                size="lg"
-                className="border border-charcoal/25 bg-white/80 text-charcoal hover:border-charcoal/50 hover:bg-white"
+                className="group flex min-h-[60px] items-center gap-3 rounded-full bg-white py-3 pl-4 pr-5 text-charcoal shadow-sm transition-shadow duration-300 hover:shadow-md sm:min-h-[68px] sm:gap-3.5 sm:py-3.5 sm:pl-5 sm:pr-6"
               >
-                Pickup at the Farm
-              </Button>
+                <BarnIcon className="h-7 w-7 shrink-0 text-forest sm:h-[1.875rem] sm:w-[1.875rem]" />
+                <span className="flex-1 text-left font-sans text-[0.78rem] font-medium uppercase tracking-[0.13em] leading-[1.15] sm:text-[0.82rem]">
+                  Pickup at the Farm
+                </span>
+                <ChevronRight
+                  className="h-4 w-4 shrink-0 text-forest transition-transform group-hover:translate-x-0.5 sm:h-5 sm:w-5"
+                  strokeWidth={1.75}
+                />
+              </Link>
             </div>
 
             {/* Designed Google review badge */}
-            <div className="mt-5">
+            <div className="mt-4 sm:mt-5">
               <ReviewBadge variant="card" />
             </div>
 
-            {/* Inline trust strip — 4 feature pills below the social proof (reviews now standalone above) */}
-            <dl className="mt-6 inline-flex max-w-full flex-wrap items-start gap-x-7 gap-y-3 rounded-2xl bg-white/90 px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] backdrop-blur-sm sm:px-6">
+            {/* Inline trust strip — 4 feature pills; sublabels hidden on mobile to stay one row */}
+            <dl className="mt-5 inline-flex max-w-full flex-wrap items-start gap-x-5 gap-y-2.5 rounded-2xl bg-white/90 px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.05)] backdrop-blur-sm sm:mt-6 sm:gap-x-7 sm:gap-y-3 sm:px-6 sm:py-4">
               <div className="flex items-start gap-2">
                 <Leaf
                   className="mt-0.5 h-4 w-4 text-forest shrink-0"
@@ -150,7 +201,7 @@ export default function ShopPage() {
                   <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
                     Pasture-raised
                   </dt>
-                  <dd className="mt-0.5 text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55">
+                  <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
                     No hormones
                   </dd>
                 </div>
@@ -164,7 +215,7 @@ export default function ShopPage() {
                   <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
                     Family-run
                   </dt>
-                  <dd className="mt-0.5 text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55">
+                  <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
                     Since 2019
                   </dd>
                 </div>
@@ -178,7 +229,7 @@ export default function ShopPage() {
                   <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
                     Farm pickup
                   </dt>
-                  <dd className="mt-0.5 text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55">
+                  <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
                     &amp; Shipping
                   </dd>
                 </div>
@@ -192,7 +243,7 @@ export default function ShopPage() {
                   <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
                     Insulated
                   </dt>
-                  <dd className="mt-0.5 text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55">
+                  <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
                     Shipping
                   </dd>
                 </div>
