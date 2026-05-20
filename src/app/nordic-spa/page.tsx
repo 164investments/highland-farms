@@ -73,14 +73,18 @@ function NordicSpaSchema() {
 }
 
 const galleryImages = [
-  { src: "/images/spa/spa-1.jpg", alt: "Cedar spa deck nestled among old-growth forest" },
-  { src: "/images/spa/spa-2.jpg", alt: "Spa deck with cold plunge tub and string lights" },
+  { src: "/images/spa/spa-sauna-interior.jpg", alt: "Cedar sauna interior with Himalayan salt-brick wall" },
+  { src: "/images/spa/spa-exterior-cabin.jpg", alt: "Black-clad spa cabin with cedar deck and cold plunge in the forest" },
+  { src: "/images/spa/spa-relaxation-towels.jpg", alt: "Spa relaxation room with white shiplap, cedar ceiling, and rolled towels" },
+  { src: "/images/spa/spa-exterior-plunge-moss.jpg", alt: "Cold plunge tub set into the cedar deck beside a moss-covered old-growth tree" },
+  { src: "/images/spa/spa-sauna-stove.jpg", alt: "Harvia wood-burning sauna stove visible from the spa entry" },
+  { src: "/images/spa/spa-communal-table.jpg", alt: "Cedar communal table and bench seating between sauna sessions" },
+  { src: "/images/spa/spa-exterior-deck-plunge.jpg", alt: "Cedar deck with cold plunge tub surrounded by ferns and old-growth forest" },
+  { src: "/images/spa/spa-relaxation-view.jpg", alt: "Spa lounge looking out to the cedar deck and the forest" },
+  { src: "/images/spa/spa-bench-towels.jpg", alt: "Bench seating with fresh towels and view into the cedar sauna" },
+  { src: "/images/spa/spa-exterior-wide.jpg", alt: "Wide view of the spa cabin, deck, and cold plunge nestled in old-growth forest" },
   { src: "/images/spa/spa-8.jpg", alt: "Friends laughing together in the cedar sauna" },
   { src: "/images/spa/spa-3.jpg", alt: "Guests in robes relaxing on the spa deck" },
-  { src: "/images/spa/spa-6.jpg", alt: "Inside the cedar sauna" },
-  { src: "/images/spa/spa-9.jpg", alt: "Sauna interior view through cedar doorway" },
-  { src: "/images/spa/spa-7.jpg", alt: "Overhead view of the Nordic spa area" },
-  { src: "/images/spa/spa-robes.jpg", alt: "Two guests in robes enjoying the cedar sauna" },
 ];
 
 const heroPills = [

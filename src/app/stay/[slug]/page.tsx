@@ -86,7 +86,12 @@ export default async function PropertyPage({
     ],
     camp: [
       { src: "/images/properties/camp-1.jpg", alt: "Airstream trailer under the evergreens" },
-      { src: "/images/properties/camp-3.jpg", alt: "Inside the Airstream dining area" },
+      { src: "/images/properties/camp-interior-kitchen-dining.jpg", alt: "Airstream interior with full kitchen and rear dining nook" },
+      { src: "/images/properties/camp-interior-bedroom.jpg", alt: "Airstream rear sleeping nook with forest view" },
+      { src: "/images/properties/camp-interior-lounge.jpg", alt: "Airstream lounge with TV and view through to the bedroom" },
+      { src: "/images/properties/camp-interior-galley.jpg", alt: "Airstream galley kitchen looking back toward the bedroom" },
+      { src: "/images/properties/camp-interior-dining-door.jpg", alt: "Airstream dining nook with open door to the forest path" },
+      { src: "/images/properties/camp-interior-lounge-wide.jpg", alt: "Wide view of the Airstream lounge and dining area" },
       { src: "/images/properties/camp-4.jpg", alt: "Airstream nestled in fall foliage" },
       { src: "/images/properties/camp-6.jpg", alt: "Airstream campsite in the forest" },
       { src: "/images/properties/camp-7.jpg", alt: "Family meeting the Highland cows" },
