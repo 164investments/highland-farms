@@ -267,17 +267,19 @@ export default function ShopPage() {
               },
             ].map((tile) => (
               <Link key={tile.title} href={tile.href} className="group block">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-                  <Image
-                    src={tile.image}
-                    alt={tile.title}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-charcoal/20" />
-                  {/* Floating icon medallion — overlaps the bottom edge */}
-                  <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2">
+                <div className="relative">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
+                    <Image
+                      src={tile.image}
+                      alt={tile.title}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-charcoal/20" />
+                  </div>
+                  {/* Floating icon medallion — lives outside the overflow-hidden so it isn't clipped */}
+                  <div className="pointer-events-none absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2">
                     <div className="rounded-full bg-cream p-3 shadow-[0_2px_8px_rgba(0,0,0,0.08)] ring-1 ring-charcoal/5 transition-transform group-hover:-translate-y-0.5">
                       <tile.Icon
                         className="h-5 w-5 text-forest"
