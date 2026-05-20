@@ -284,7 +284,7 @@ export default function WeddingsPage() {
             rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-1 text-sm font-light text-forest hover:text-forest-light transition-colors font-sans tracking-wide"
           >
-            Read all 146+ reviews on Google &rarr;
+            Read all 188+ reviews on Google &rarr;
           </a>
         </Container>
       </section>

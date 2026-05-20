@@ -123,7 +123,7 @@ export default function NordicSpaPage() {
                 <Sparkles key={i} className="h-3 w-3 text-accent" />
               ))}
             </div>
-            <span>4.9 · 146 Google Reviews</span>
+            <span>4.9 · 188 Google Reviews</span>
           </div>
 
           <div className="mt-7">
@@ -218,7 +218,7 @@ export default function NordicSpaPage() {
             Google Review
           </p>
           <div className="mt-5 flex items-center justify-center gap-4 text-sm text-muted font-sans">
-            <span>4.9 / 5 · 146 reviews</span>
+            <span>4.9 / 5 · 188 reviews</span>
             <a
               href="https://share.google/jrLOI4AhnpzbPPBpF"
               target="_blank"

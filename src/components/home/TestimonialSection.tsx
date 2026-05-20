@@ -54,7 +54,7 @@ export function TestimonialSection() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm font-light text-forest hover:text-forest-light transition-colors font-sans tracking-wide"
           >
-            Read all 146+ reviews on Google &rarr;
+            Read all 188+ reviews on Google &rarr;
           </a>
         </div>
       </Container>

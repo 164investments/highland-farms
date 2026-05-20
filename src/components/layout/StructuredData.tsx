@@ -117,7 +117,7 @@ export function StructuredData() {
         aggregateRating: {
           "@type": "AggregateRating",
           ratingValue: "4.9",
-          reviewCount: "146",
+          reviewCount: "188",
           bestRating: "5",
         },
         maximumAttendeeCapacity: 16,
@@ -313,7 +313,7 @@ export function StructuredData() {
         aggregateRating: {
           "@type": "AggregateRating",
           ratingValue: "4.9",
-          reviewCount: "146",
+          reviewCount: "188",
           bestRating: "5",
         },
         hasOfferCatalog: {

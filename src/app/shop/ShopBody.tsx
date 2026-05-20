@@ -8,6 +8,20 @@ import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { BOOKING_LINKS } from "@/lib/constants";
 import { CATEGORIES, PRODUCTS, type CategoryKey, type Product } from "./data";
+import googleReviews from "@/data/google-reviews.json";
+
+const REVIEW_LINK = "https://share.google/jrLOI4AhnpzbPPBpF";
+const REVIEW_COUNT = googleReviews.user_rating_count;
+const REVIEW_RATING = googleReviews.rating;
+
+type Review = (typeof googleReviews.reviews)[number];
+
+function truncate(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return cut.slice(0, lastSpace > max - 30 ? lastSpace : max).trim() + "…";
+}
 
 type NavKey = "featured" | CategoryKey;
 
@@ -229,12 +243,17 @@ export function ShopBody() {
       <section className="border-b border-cream-dark/40 bg-cream py-3.5">
         <Container>
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-center text-xs text-charcoal font-sans sm:flex sm:flex-wrap sm:justify-center sm:gap-x-10 sm:gap-y-2 sm:text-[0.8125rem]">
-            <div className="flex items-center justify-center gap-1.5">
+            <a
+              href={REVIEW_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 transition-opacity hover:opacity-70"
+            >
               <Star className="h-4 w-4 fill-forest text-forest" />
               <span>
-                <span className="font-medium">4.9</span> · 146 reviews
+                <span className="font-medium">{REVIEW_RATING}</span> · {REVIEW_COUNT} reviews
               </span>
-            </div>
+            </a>
             <div className="flex items-center justify-center gap-1.5">
               <Leaf className="h-4 w-4 text-forest" />
               <span>Pasture-raised</span>
@@ -326,6 +345,80 @@ export function ShopBody() {
           );
         })}
       </div>
+
+      {/* Google Reviews — social proof */}
+      <section className="border-y border-cream-dark/40 bg-cream/50 py-14 lg:py-20">
+        <Container>
+          <div className="mb-8 flex flex-col items-start justify-between gap-3 sm:mb-10 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-xs font-normal uppercase tracking-[0.18em] text-sage sm:text-[0.8125rem]">
+                What guests are saying
+              </p>
+              <h2 className="mt-1 text-[1.75rem] font-light leading-tight tracking-tight sm:text-[2rem]">
+                {REVIEW_RATING} ★ · {REVIEW_COUNT} Google reviews
+              </h2>
+            </div>
+            <a
+              href={REVIEW_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-normal text-forest underline-offset-4 hover:underline font-sans"
+            >
+              Read all {REVIEW_COUNT} reviews →
+            </a>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {googleReviews.reviews.slice(0, 6).map((r: Review, i: number) => (
+              <article
+                key={i}
+                className="flex flex-col rounded-2xl bg-white p-5 shadow-sm"
+              >
+                <div className="mb-3 flex items-center gap-0.5">
+                  {[...Array(5)].map((_, k) => (
+                    <Star
+                      key={k}
+                      className={`h-4 w-4 ${
+                        k < r.rating
+                          ? "fill-forest text-forest"
+                          : "text-cream-dark"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <blockquote className="flex-1 text-[0.9375rem] leading-relaxed text-charcoal font-sans">
+                  &ldquo;{truncate(r.text, 240)}&rdquo;
+                </blockquote>
+                <div className="mt-4 flex items-center gap-3 border-t border-cream-dark/40 pt-4">
+                  {r.author_photo ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={r.author_photo}
+                      alt={r.author_name ?? ""}
+                      width={36}
+                      height={36}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      className="h-9 w-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cream text-sm font-medium text-forest">
+                      {(r.author_name ?? "?").charAt(0)}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-normal text-charcoal font-sans">
+                      {r.author_name}
+                    </p>
+                    <p className="text-xs text-muted font-sans">
+                      {r.relative_time} · Google
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </Container>
+      </section>
 
       {/* Gift Certificates - 3 card layout */}
       <section className="bg-forest py-14 lg:py-20 text-white">

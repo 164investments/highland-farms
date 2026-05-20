@@ -88,7 +88,7 @@ export const PRODUCTS: Product[] = [
   // Apparel
   {
     name: "The Dream Hoodie",
-    price: 49.95,
+    price: 55.0,
     category: "apparel",
     image: "/images/shop/dream-hoodie.png",
     url: `${SQUARESPACE}/shop/p/highland-farms-the-dream-hoodie`,
@@ -97,7 +97,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     name: "The Dream T-Shirt",
-    price: 29.95,
+    price: 32.0,
     category: "apparel",
     image: "/images/shop/dream-tshirt.png",
     url: `${SQUARESPACE}/shop/p/highland-farms-the-dream-t-shirt`,
@@ -109,6 +109,14 @@ export const PRODUCTS: Product[] = [
     image: "/images/shop/camo-trucker-hat.jpg",
     url: `${SQUARESPACE}/shop/p/highland-farms-camo-trucker-hat`,
   },
+  {
+    name: "Logo Leather Keychain",
+    price: 10.0,
+    category: "apparel",
+    image: "/images/shop/keychain.jpg",
+    url: `${SQUARESPACE}/shop/p/highland-farms-logo-keychain-leather-branded`,
+    badges: ["Genuine Leather"],
+  },
 
   // Mangalitsa Pork (12)
   {
@@ -119,6 +127,7 @@ export const PRODUCTS: Product[] = [
     image: "/images/shop/mangalitsa-peppered-bacon.jpg",
     url: `${SQUARESPACE}/shop/p/mangalitsa-thick-cut-peppered-bacon`,
     badges: ["Heritage Breed"],
+    soldOut: true,
   },
   {
     name: "Thick Cut Bacon",
@@ -239,6 +248,15 @@ export const PRODUCTS: Product[] = [
     badges: ["From Our Herd"],
     soldOut: true,
   },
+  {
+    name: "Tenderloin Steak",
+    price: 29.0,
+    category: "beef",
+    image: "/images/shop/tenderloin-steak.jpg",
+    url: `${SQUARESPACE}/shop/p/highland-beef-tenderloin-steak`,
+    badges: ["From Our Herd"],
+    soldOut: true,
+  },
 
   // Pantry
   {
@@ -258,6 +276,7 @@ export const PRODUCTS: Product[] = [
     image: "/images/shop/fresh-flower-bouquet.jpg",
     url: `${SQUARESPACE}/shop/p/fresh-flower-bouquet`,
     badges: ["Farm Garden"],
+    soldOut: true,
   },
   {
     name: "Dried Flower Bouquet",

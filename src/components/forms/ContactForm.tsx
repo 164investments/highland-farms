@@ -432,7 +432,7 @@ export function ContactForm({
                 ))}
               </div>
               <span className="text-xs text-muted font-sans">
-                4.9 on Google &middot; 146+ reviews
+                4.9 on Google &middot; 188+ reviews
               </span>
             </div>
             <p className="text-xs text-muted/80 font-sans text-center">

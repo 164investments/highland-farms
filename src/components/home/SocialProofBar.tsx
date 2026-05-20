@@ -20,7 +20,7 @@ export function SocialProofBar() {
             </div>
             <span className="text-xs sm:text-sm font-light font-sans text-center sm:text-left">
               <span className="font-normal">4.9</span> on Google
-              <span className="hidden sm:inline"> &middot; 146+ reviews</span>
+              <span className="hidden sm:inline"> &middot; 188+ reviews</span>
             </span>
           </a>
 
