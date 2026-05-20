@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Bed, UtensilsCrossed, Wifi, Car } from "lucide-react";
+import { Bed, UtensilsCrossed, Wifi, Car, Users, BedDouble, Bath } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { ImageCarousel } from "@/components/gallery/ImageCarousel";
 import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
+import { properties } from "@/data/properties";
 
 export const metadata: Metadata = {
   title: "About The Farm — Highland Farms Brightwood, Oregon",
@@ -240,57 +241,80 @@ export default function AboutPage() {
           <SectionHeading
             eyebrow="Stay With Us"
             title="The Accommodations"
-            subtitle="Two unique spaces designed for comfort and connection."
+            subtitle="Two unique spaces designed for comfort and connection — sleeping up to 16 guests together."
           />
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 max-w-3xl mx-auto">
-            {[
-              {
-                name: "William Wallace Lodge",
-                tagline: "Relax & Reminisce",
-                description:
-                  "Our cedar mill lodge is a warm and inviting retreat where scenic meals, fireside conversations, and lasting memories are made.",
-                href: "/stay/lodge",
-                illustration: "/images/illustrations/lodge-illustration.png",
-              },
-              {
-                name: "Bonnie Lass Cottage",
-                tagline: "Retreat & Converse",
-                description:
-                  "A cozy retreat neighboring our barn pasture where the Scottish Highland Cows greet you in the morning and relax with you in the evenings.",
-                href: "/stay/cottage",
-                illustration: "/images/illustrations/cottage-illustration.png",
-              },
-            ].map((acc) => (
-              <Link
-                key={acc.name}
-                href={acc.href}
-                className="group block rounded-xl bg-white p-6 shadow-sm hover:shadow-md transition-all"
-              >
-                <div className="flex justify-center mb-4">
-                  <Image
-                    src={acc.illustration}
-                    alt=""
-                    width={200}
-                    height={120}
-                    className="h-24 w-auto opacity-70 group-hover:opacity-90 transition-opacity"
-                    aria-hidden="true"
-                  />
-                </div>
-                <h3 className="text-xl font-normal text-charcoal font-display">
-                  {acc.name}
-                </h3>
-                <p className="mt-1 text-sm italic text-sage font-display">
-                  {acc.tagline}
-                </p>
-                <p className="mt-3 text-sm text-muted leading-relaxed font-sans">
-                  {acc.description}
-                </p>
-                <p className="mt-4 text-sm font-light text-forest group-hover:text-forest-light transition-colors font-sans tracking-wide">
-                  View &amp; Book &rarr;
-                </p>
-              </Link>
-            ))}
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 max-w-5xl mx-auto">
+            {properties
+              .filter((p) => p.slug === "lodge" || p.slug === "cottage")
+              .map((property) => {
+                const shortDescription =
+                  property.slug === "lodge"
+                    ? "Our cedar mill lodge is a warm and inviting retreat where scenic meals, fireside conversations, and lasting memories are made."
+                    : "A cozy retreat neighboring our barn pasture where the Scottish Highland Cows greet you in the morning and relax with you in the evenings.";
+
+                return (
+                  <Link
+                    key={property.slug}
+                    href={property.bookingUrl}
+                    className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-lg transition-all duration-500"
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <Image
+                        src={property.imageSrc}
+                        alt={property.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/10 transition-colors" />
+                    </div>
+
+                    <div className="flex flex-col flex-1 p-6 lg:p-7">
+                      <h3 className="text-2xl font-normal text-charcoal font-display">
+                        {property.name}
+                      </h3>
+                      <p className="mt-1 text-sm italic text-sage font-display">
+                        {property.tagline}
+                      </p>
+
+                      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted font-sans">
+                        <span className="flex items-center gap-1.5">
+                          <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>{property.guests} guests</span>
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <BedDouble className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>{property.bedrooms} bedrooms</span>
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Bath className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>{property.baths} bathrooms</span>
+                        </span>
+                      </div>
+
+                      <p className="mt-4 text-sm text-muted leading-relaxed font-sans">
+                        {shortDescription}
+                      </p>
+
+                      <div className="mt-4 flex flex-wrap gap-1.5">
+                        {property.highlights.slice(0, 3).map((highlight) => (
+                          <span
+                            key={highlight}
+                            className="rounded-full bg-cream px-2.5 py-1 text-[11px] text-charcoal/70 font-sans"
+                          >
+                            {highlight}
+                          </span>
+                        ))}
+                      </div>
+
+                      <p className="mt-auto pt-5 text-sm font-light text-forest group-hover:text-forest-light transition-colors font-sans tracking-wide">
+                        View &amp; Book &rarr;
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
           </div>
         </Container>
       </section>
