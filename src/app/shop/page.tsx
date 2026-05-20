@@ -17,8 +17,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/images/shop/princess-fiona-plush.jpg",
-        width: 1200,
-        height: 630,
+        width: 1067,
+        height: 1067,
         alt: "Princess Fiona White Highland Cow Plush",
       },
     ],
