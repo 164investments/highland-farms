@@ -103,9 +103,9 @@ export default function ShopPage() {
     <>
       <StructuredData />
 
-      {/* Hero — copy + 3 CTAs left, cow portrait right (fades into cream on the left edge) */}
-      <section className="relative isolate overflow-hidden bg-cream pt-[calc(var(--header-h,100px)+1rem)] pb-8 sm:pt-[calc(var(--header-h,100px)+2.5rem)] sm:pb-16 lg:pb-20">
-        <div className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-full md:w-[60%] lg:w-[55%]">
+      {/* Hero — cow as top photo band on mobile (under header), right portrait on desktop */}
+      <section className="relative isolate overflow-hidden bg-cream pb-8 sm:pb-16 md:pt-[calc(var(--header-h,100px)+2.5rem)] lg:pb-20">
+        <div className="pointer-events-none relative h-[320px] w-full sm:h-[400px] md:absolute md:inset-y-0 md:right-0 md:-z-10 md:h-auto md:w-[60%] lg:w-[55%]">
           <Image
             src="/images/farm/shop-hero-cow.jpg"
             alt=""
@@ -115,11 +115,11 @@ export default function ShopPage() {
             sizes="(max-width: 768px) 100vw, 60vw"
             className="object-cover object-[60%_center]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-cream via-cream/70 to-cream/0 md:from-cream md:via-cream/40 md:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-cream/35 via-transparent to-cream md:bg-gradient-to-r md:from-cream md:via-cream/40 md:to-transparent" />
         </div>
 
         <Container>
-          <div className="max-w-3xl">
+          <div className="max-w-3xl pt-6 md:pt-0">
             <p className="text-xs font-normal uppercase tracking-[0.18em] text-sage sm:text-[0.8125rem]">
               Brightwood · Oregon
             </p>
