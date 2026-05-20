@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Star, Leaf, Home, Truck, MapPin, Check } from "lucide-react";
+import { Star, MapPin, Check } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -10,7 +10,6 @@ import { BOOKING_LINKS } from "@/lib/constants";
 import { CATEGORIES, PRODUCTS, type CategoryKey, type Product } from "./data";
 import {
   GoogleReviewsSection,
-  GOOGLE_REVIEW_LINK,
   REVIEW_COUNT,
   REVIEW_RATING,
 } from "@/components/shared/GoogleReviewsSection";
@@ -231,36 +230,7 @@ export function ShopBody() {
 
   return (
     <>
-      {/* Trust Strip */}
-      <section className="border-b border-cream-dark/40 bg-cream py-3.5">
-        <Container>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-center text-xs text-charcoal font-sans sm:flex sm:flex-wrap sm:justify-center sm:gap-x-10 sm:gap-y-2 sm:text-[0.8125rem]">
-            <a
-              href={GOOGLE_REVIEW_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 transition-opacity hover:opacity-70"
-            >
-              <Star className="h-4 w-4 fill-forest text-forest" />
-              <span>
-                <span className="font-medium">{REVIEW_RATING}</span> · {REVIEW_COUNT} reviews
-              </span>
-            </a>
-            <div className="flex items-center justify-center gap-1.5">
-              <Leaf className="h-4 w-4 text-forest" />
-              <span>Pasture-raised</span>
-            </div>
-            <div className="flex items-center justify-center gap-1.5">
-              <Home className="h-4 w-4 text-forest" />
-              <span>Family-run since 2019</span>
-            </div>
-            <div className="flex items-center justify-center gap-1.5">
-              <Truck className="h-4 w-4 text-forest" />
-              <span>Pickup or ship</span>
-            </div>
-          </div>
-        </Container>
-      </section>
+      {/* Trust strip now lives in the hero (page.tsx) */}
 
       {/* Sticky category nav — above everything */}
       <CategoryNav pills={pills} active={active} onJump={jumpTo} />
