@@ -26,3 +26,16 @@ export const BOOKING_LINKS = {
   nordicSpa: "https://highlandfarms.as.me/schedule/e759f21b/appointment/85942611/calendar/13047082",
   giftCertificates: "https://highlandfarms.as.me/catalog/e759f21b",
 } as const;
+
+export function bookingUrl(
+  base: string,
+  content: string,
+  source = "website",
+  medium = "organic",
+): string {
+  const url = new URL(base);
+  url.searchParams.set("utm_source", source);
+  url.searchParams.set("utm_medium", medium);
+  url.searchParams.set("utm_content", content);
+  return url.toString();
+}

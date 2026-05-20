@@ -42,10 +42,18 @@ export interface AcuityOrder {
   products: { id: number; name: string; quantity: number; total: number }[];
 }
 
-async function fetchJSON<T>(path: string, params: Record<string, string> = {}): Promise<T> {
+async function fetchJSON<T>(
+  path: string,
+  params: Record<string, string> = {},
+  options: { revalidate?: number } = {},
+): Promise<T> {
   const url = new URL(`${BASE_URL}${path}`);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-  const res = await fetch(url.toString(), { headers });
+  const fetchOpts: RequestInit & { next?: { revalidate?: number } } = { headers };
+  if (options.revalidate !== undefined) {
+    fetchOpts.next = { revalidate: options.revalidate };
+  }
+  const res = await fetch(url.toString(), fetchOpts);
   if (!res.ok) throw new Error(`Acuity API ${res.status}: ${await res.text()}`);
   return res.json();
 }
@@ -94,4 +102,56 @@ export async function getAppointments(minDate: string, maxDate: string, canceled
 
 export async function getOrders() {
   return fetchJSON<AcuityOrder[]>("/orders", { max: "100" });
+}
+
+// Farm tour appointment type IDs (all on calendar 7539520, $75/person).
+export const FARM_TOUR_TYPE_IDS = {
+  two: 48403186,
+  three: 48403269,
+  four: 48403283,
+  five: 48403306,
+  six: 64217701,
+} as const;
+
+interface AcuityAvailableDate {
+  date: string; // "YYYY-MM-DD"
+}
+
+/**
+ * Returns the earliest available farm tour date (ISO YYYY-MM-DD) over the next
+ * ~60 days, or null if nothing is open. Probes the 2-guest tour as a proxy —
+ * all 5 group sizes share calendar 7539520.
+ */
+export async function getNextTourDate(): Promise<string | null> {
+  const today = new Date();
+  const months = [
+    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`,
+    (() => {
+      const d = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    })(),
+  ];
+
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+  for (const month of months) {
+    try {
+      const dates = await fetchJSON<AcuityAvailableDate[]>(
+        "/availability/dates",
+        {
+          appointmentTypeID: String(FARM_TOUR_TYPE_IDS.two),
+          month,
+        },
+        { revalidate: 1800 },
+      );
+      const future = dates
+        .map((d) => d.date)
+        .filter((d) => d >= todayStr)
+        .sort();
+      if (future.length > 0) return future[0];
+    } catch {
+      // Swallow and try next month — availability is best-effort UX.
+    }
+  }
+  return null;
 }

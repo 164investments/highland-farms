@@ -1,16 +1,36 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Image from "next/image";
-import { Clock, Users, Heart, Sparkles, Gift } from "lucide-react";
+import { Clock, Users, Heart, Sparkles, Star } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ImageCarousel } from "@/components/gallery/ImageCarousel";
 import { FAQAccordion } from "@/components/shared/FAQAccordion";
 import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
-import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
-import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
+import {
+  BookingButton,
+  BookingModalRoot,
+  BookingStickyCTA,
+} from "@/components/shared/BookingButton";
+import { TourVideo } from "@/components/shared/TourVideo";
+import { TourSpaCombo } from "@/components/shared/TourSpaCombo";
+import { NextAvailability } from "@/components/shared/NextAvailability";
+import {
+  GoogleReviewsSection,
+  GOOGLE_REVIEW_LINK,
+  REVIEW_COUNT,
+  REVIEW_RATING,
+} from "@/components/shared/GoogleReviewsSection";
 import { farmTourFAQ } from "@/data/farm-tours";
-import { BOOKING_LINKS } from "@/lib/constants";
+import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
+
+const GROUP_PRICING = [
+  { guests: 2, total: 150 },
+  { guests: 3, total: 225 },
+  { guests: 4, total: 300 },
+  { guests: 5, total: 375 },
+  { guests: 6, total: 450 },
+];
 
 export const metadata: Metadata = {
   title: "Highland Cow Farm Tours — Brightwood, Oregon",
@@ -118,19 +138,29 @@ export default function FarmToursPage() {
             Meet Our Scottish Highland Cows
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light">
-            Book a private farm tour and get up close with our gentle Highland
-            Cows, Icelandic Sheep, White Peacocks, guardian dogs, and more.
+            Private 60-minute tour for up to 6 guests · $75 per person
+            <br />
+            50 minutes from Portland at the base of Mt. Hood
           </p>
           <div className="mt-8">
-            <Button
-              href={BOOKING_LINKS.farmTour}
+            <BookingButton
+              href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-hero")}
+              label="Book Your Tour"
               size="lg"
               className="bg-white text-charcoal hover:bg-cream"
-              external
-            >
-              Book Your Tour
-            </Button>
+            />
           </div>
+          <a
+            href={GOOGLE_REVIEW_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex items-center gap-1.5 text-sm text-white/80 underline-offset-4 hover:text-white hover:underline font-sans"
+          >
+            <Star className="h-4 w-4 fill-current" />
+            <span>
+              {REVIEW_RATING} · {REVIEW_COUNT} Google reviews
+            </span>
+          </a>
         </div>
       </section>
 
@@ -172,6 +202,17 @@ export default function FarmToursPage() {
         </Container>
       </section>
 
+      {/* Tour Video */}
+      <TourVideo
+        videoSrc="/videos/farm-tour-pov.mp4"
+        posterSrc="/videos/farm-tour-pov-poster.jpg"
+        posterAlt="A guest meeting the Highland cows during a tour"
+        eyebrow="A glimpse from the field"
+        heading="See what a tour feels like"
+        body="A short walk through the farm — meet the herd, the guardian dogs, and the views you'll wake up to."
+        bookingHref={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-video")}
+      />
+
       {/* Pricing & Details */}
       <section className="py-20 lg:py-28 bg-cream">
         <Container className="max-w-3xl">
@@ -181,6 +222,19 @@ export default function FarmToursPage() {
           />
 
           <div className="rounded-xl bg-white p-8 shadow-sm">
+            <div className="mb-5 flex items-center justify-center gap-1.5 text-sm text-charcoal font-sans">
+              <Star className="h-4 w-4 fill-forest text-forest" />
+              <span className="font-normal">{REVIEW_RATING}</span>
+              <span className="text-muted">·</span>
+              <a
+                href={GOOGLE_REVIEW_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted underline-offset-4 hover:text-charcoal hover:underline"
+              >
+                {REVIEW_COUNT} Google reviews
+              </a>
+            </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-cream-light pb-4">
                 <span className="text-base font-normal text-charcoal font-sans">
@@ -206,15 +260,38 @@ export default function FarmToursPage() {
               </ul>
             </div>
 
-            <div className="mt-8">
-              <Button
-                href={BOOKING_LINKS.farmTour}
+            <div className="mt-6 rounded-lg bg-cream/60 p-5">
+              <p className="mb-3 text-xs font-normal uppercase tracking-[0.18em] text-sage font-sans">
+                Total for your group
+              </p>
+              <ul className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-charcoal font-sans sm:grid-cols-3">
+                {GROUP_PRICING.map(({ guests, total }) => (
+                  <li
+                    key={guests}
+                    className="flex items-baseline justify-between"
+                  >
+                    <span className="text-muted">
+                      {guests} guests
+                    </span>
+                    <span className="font-normal text-forest">${total}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <Suspense fallback={null}>
+                <NextAvailability />
+              </Suspense>
+            </div>
+
+            <div className="mt-6">
+              <BookingButton
+                href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-pricing")}
+                label="Book Your Tour"
                 size="lg"
                 className="w-full"
-                external
-              >
-                Book Your Tour
-              </Button>
+              />
             </div>
           </div>
         </Container>
@@ -241,9 +318,12 @@ export default function FarmToursPage() {
             gift certificate for someone special.
           </p>
           <div className="mt-8">
-            <Button href={BOOKING_LINKS.giftCertificates} variant="outline" external>
-              Purchase Gift Certificates
-            </Button>
+            <BookingButton
+              href={bookingUrl(BOOKING_LINKS.giftCertificates, "farm-tours-gift")}
+              label="Purchase Gift Certificates"
+              variant="outline"
+              title="Purchase a gift certificate"
+            />
           </div>
         </Container>
       </section>
@@ -255,6 +335,16 @@ export default function FarmToursPage() {
             title="Frequently Asked Questions"
             subtitle="Everything you need to know about our farm tours."
           />
+          <div className="mb-8 rounded-lg border border-cream-dark/50 bg-cream/40 p-5 text-sm text-charcoal font-sans font-light leading-relaxed sm:p-6">
+            <p className="mb-2 text-xs font-normal uppercase tracking-[0.18em] text-sage">
+              Before you arrive
+            </p>
+            <p>
+              Closed-toe shoes recommended — dress in layers. We&rsquo;re at the
+              base of Mt. Hood and the weather can shift quickly. Tours run rain
+              or shine, with covered areas throughout the farm.
+            </p>
+          </div>
           <FAQAccordion items={farmTourFAQ} />
         </Container>
       </section>
@@ -267,14 +357,19 @@ export default function FarmToursPage() {
         background="cream"
       />
 
+      {/* Tour + Spa Combo Upsell */}
+      <TourSpaCombo utmContent="farm-tours-combo" />
+
       <EventCategoryCards />
 
       {/* Sticky Mobile CTA */}
-      <StickyMobileCTA
+      <BookingStickyCTA
         label="Book Your Farm Tour"
-        href={BOOKING_LINKS.farmTour}
-        external
+        href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-sticky-mobile")}
       />
+
+      {/* Modal mount — listens for openBookingModal() calls from every CTA */}
+      <BookingModalRoot />
 
       {/* Bottom padding for sticky CTA on mobile */}
       <div className="h-20 lg:hidden" />
