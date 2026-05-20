@@ -63,7 +63,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               height={21}
               className="h-5 w-auto"
             />
-            <span className="text-lg font-normal font-script">
+            <span className="text-lg font-normal font-logo">
               Highland Farms
             </span>
           </Link>

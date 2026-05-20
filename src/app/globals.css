@@ -41,6 +41,7 @@
   --font-sans: var(--font-inter);
   --font-display: var(--font-cormorant);
   --font-script: var(--font-cormorant);
+  --font-logo: var(--font-dancing);
 }
 
 body {
