@@ -29,7 +29,7 @@ export const farmTourFAQ: FAQItem[] = [
   {
     question: "What should I wear?",
     answer:
-      "Wear comfortable, closed-toe shoes suitable for walking on uneven ground. Dress for the weather — we're in the Pacific Northwest, so layers are always a good idea.",
+      "Closed-toe shoes are required — please wear something comfortable suitable for walking on uneven ground. Dress for the weather — we're in the Pacific Northwest, so layers are always a good idea.",
   },
   {
     question: "Can I combine a farm tour with a spa session?",

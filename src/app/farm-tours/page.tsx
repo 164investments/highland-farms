@@ -318,9 +318,9 @@ export default function FarmToursPage() {
               Before you arrive
             </p>
             <p>
-              Closed-toe shoes recommended — dress in layers. We&rsquo;re at the
-              base of Mt. Hood and the weather can shift quickly. Tours run rain
-              or shine, with covered areas throughout the farm.
+              Closed-toe shoes are required — dress in layers. We&rsquo;re at
+              the base of Mt. Hood and the weather can shift quickly. Tours run
+              rain or shine, with covered areas throughout the farm.
             </p>
           </div>
           <FAQAccordion items={farmTourFAQ} />
