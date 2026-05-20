@@ -39,7 +39,7 @@ export function TourVideo({
         : "bg-warm-white";
 
   return (
-    <section className={`py-20 lg:py-28 ${bgClass}`}>
+    <section className={`py-14 sm:py-20 lg:py-28 ${bgClass}`}>
       <Container>
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
           <div className="mx-auto w-full max-w-[340px] lg:max-w-[380px]">

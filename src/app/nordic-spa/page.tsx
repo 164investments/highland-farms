@@ -156,7 +156,7 @@ export default function NordicSpaPage() {
       <NordicSpaSchema />
 
       {/* ─── HERO ─── */}
-      <section className="relative min-h-[88vh] overflow-hidden pt-[var(--header-h,120px)]">
+      <section className="relative overflow-hidden pt-[var(--header-h,120px)] lg:min-h-[88vh]">
         <Image
           src="/images/spa/spa-1.jpg"
           alt=""
@@ -169,7 +169,7 @@ export default function NordicSpaPage() {
         {/* Asymmetric gradient — heavier on the left for readable text */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/45 to-black/20" />
 
-        <Container className="relative z-10 flex min-h-[calc(88vh-var(--header-h,120px))] items-center py-10 lg:py-16">
+        <Container className="relative z-10 flex items-center py-12 lg:min-h-[calc(88vh-var(--header-h,120px))] lg:py-16">
           <div className="grid w-full grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)] lg:gap-14">
             {/* Left: hero text — width is unconstrained so the pill row fits on a single line at lg+ */}
             <div className="text-white">
@@ -267,9 +267,9 @@ export default function NordicSpaPage() {
       </section>
 
       {/* ─── EVERYTHING FOR A PERFECT SESSION ─── */}
-      <section id="details" className="bg-cream py-20 lg:py-28">
+      <section id="details" className="bg-cream py-14 sm:py-20 lg:py-28">
         <Container className="max-w-7xl">
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.55fr_1fr] lg:gap-14">
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.55fr_1fr] lg:gap-14">
             {/* Left: heading + features */}
             <div>
               <div className="text-center">
@@ -354,7 +354,7 @@ export default function NordicSpaPage() {
       />
 
       {/* ─── GALLERY ─── */}
-      <section className="bg-background py-20 lg:py-28">
+      <section className="bg-background py-14 sm:py-20 lg:py-28">
         <Container>
           <SectionHeading
             title="The Spa"
@@ -378,7 +378,7 @@ export default function NordicSpaPage() {
       />
 
       {/* ─── PRICING + BOOKING ─── */}
-      <section className="bg-cream py-20 lg:py-28">
+      <section className="bg-cream py-14 sm:py-20 lg:py-28">
         <Container className="max-w-3xl">
           <SectionHeading
             eyebrow="Book Your Session"
@@ -446,7 +446,7 @@ export default function NordicSpaPage() {
       </section>
 
       {/* ─── WORTH THE DRIVE ─── */}
-      <section className="bg-warm-white py-20 lg:py-28">
+      <section className="bg-warm-white py-14 sm:py-20 lg:py-28">
         <Container className="max-w-4xl">
           <SectionHeading
             eyebrow="Worth the Drive"
@@ -494,7 +494,7 @@ export default function NordicSpaPage() {
       </section>
 
       {/* ─── FAQ ─── */}
-      <section className="bg-background py-20 lg:py-28">
+      <section className="bg-background py-14 sm:py-20 lg:py-28">
         <Container className="max-w-3xl">
           <SectionHeading
             title="Frequently Asked Questions"
@@ -564,7 +564,7 @@ export default function NordicSpaPage() {
       </section>
 
       {/* ─── FARM TOUR UPSELL ─── */}
-      <section className="bg-cream py-20 lg:py-28">
+      <section className="bg-cream py-14 sm:py-20 lg:py-28">
         <Container className="max-w-3xl text-center">
           <div className="mb-5 flex justify-center">
             <Image
