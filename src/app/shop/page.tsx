@@ -46,8 +46,6 @@ const products = [
   // Mangalitsa Pork
   { name: "Mangalitsa — Thick Cut Peppered Bacon", price: null, category: "Mangalitsa Pork", image: "/images/shop/mangalitsa-peppered-bacon.jpg", url: `${SQUARESPACE}/shop/p/mangalitsa-thick-cut-peppered-bacon` },
   { name: "Mangalitsa — Thick Cut Bacon", price: null, category: "Mangalitsa Pork", image: "/images/shop/mangalitsa-thick-cut-bacon.jpg", url: `${SQUARESPACE}/shop/p/mangalitsa-thick-cut-bacon` },
-  { name: "Mangalitsa — Peppered Bacon Ends", price: null, category: "Mangalitsa Pork", image: "/images/shop/mangalitsa-peppered-bacon-ends.jpg", url: `${SQUARESPACE}/shop/p/mangalitsa-peppered-bacon-ends-82-113-lbs` },
-  { name: "Mangalitsa — Bacon Ends", price: null, category: "Mangalitsa Pork", image: "/images/shop/mangalitsa-bacon-ends.jpg", url: `${SQUARESPACE}/shop/p/mangalitsa-bacon-ends-82-113-lbs` },
   { name: "Mangalitsa — Cured Ham", price: null, category: "Mangalitsa Pork", image: "/images/shop/mangalitsa-cured-ham.png", url: `${SQUARESPACE}/shop/p/mangalitsa-cured-hams` },
   { name: "Mangalitsa — Sirloin Roast (2 lb+)", price: null, category: "Mangalitsa Pork", image: "/images/shop/mangalitsa-sirloin-roast.jpg", url: `${SQUARESPACE}/shop/p/mangalitsa-sirloin-roast-213-lb` },
   { name: "Mangalitsa — Pork Shoulder Roast", price: null, category: "Mangalitsa Pork", image: "/images/shop/mangalitsa-shoulder-roast.png", url: `${SQUARESPACE}/shop/p/mangalitsa-pork-roast` },
@@ -59,7 +57,6 @@ const products = [
   { name: "Mangalitsa — Sausage Links (1 lb)", price: null, category: "Mangalitsa Pork", image: "/images/shop/mangalitsa-sausage-links.png", url: `${SQUARESPACE}/shop/p/mangalitsa-special-blend-sausage` },
   { name: "Mangalitsa — Breakfast Sausage Ground (1 lb)", price: null, category: "Mangalitsa Pork", image: "/images/shop/mangalitsa-breakfast-sausage.jpg", url: `${SQUARESPACE}/shop/p/mangalitsa-breakfast-sausage` },
   // Amenities
-  { name: "S'mores Kit for 1", price: 2.0, category: "Amenities", image: "/images/shop/smores-kit.jpg", url: `${SQUARESPACE}/shop/p/smores-kit-for-two` },
   { name: "Firewood & Kindling", price: 9.0, category: "Amenities", image: "/images/shop/firewood.jpg", url: `${SQUARESPACE}/shop/p/firewood` },
 ];
 
