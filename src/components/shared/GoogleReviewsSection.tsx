@@ -25,11 +25,37 @@ function truncate(text: string, max: number): string {
   return cut.slice(0, lastSpace > max - 30 ? lastSpace : max).trim() + "…";
 }
 
+function relativeTime(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const then = new Date(iso).getTime();
+  if (!Number.isFinite(then)) return "";
+  const diffMs = Date.now() - then;
+  const days = Math.floor(diffMs / 86_400_000);
+  if (days < 7) return days <= 1 ? "this week" : `${days} days ago`;
+  if (days < 30) {
+    const w = Math.floor(days / 7);
+    return w === 1 ? "1 week ago" : `${w} weeks ago`;
+  }
+  if (days < 365) {
+    const m = Math.floor(days / 30);
+    return m === 1 ? "1 month ago" : `${m} months ago`;
+  }
+  const y = Math.floor(days / 365);
+  return y === 1 ? "1 year ago" : `${y} years ago`;
+}
+
 export function filterReviews(topic: Topic, max: number): Review[] {
   const pattern = TOPIC_PATTERNS[topic];
-  const candidates = pattern
-    ? googleReviews.reviews.filter((r) => pattern.test(r.text))
-    : googleReviews.reviews;
+  const candidates = googleReviews.reviews.filter((r) => {
+    if (r.rating < 4) return false;
+    if (!r.text || r.text.length < 60) return false;
+    return pattern ? pattern.test(r.text) : true;
+  });
+  candidates.sort((a, b) => {
+    const at = a.publish_time ? new Date(a.publish_time).getTime() : 0;
+    const bt = b.publish_time ? new Date(b.publish_time).getTime() : 0;
+    return bt - at;
+  });
   return candidates.slice(0, max);
 }
 
@@ -135,7 +161,7 @@ export function GoogleReviewsSection({
                     {r.author_name}
                   </p>
                   <p className="text-xs text-muted font-sans">
-                    {r.relative_time} · Google
+                    {r.relative_time || relativeTime(r.publish_time)} · Google
                   </p>
                 </div>
               </div>
