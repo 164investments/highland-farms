@@ -7,7 +7,6 @@ import {
   Shirt,
   Egg,
   Sparkles,
-  Star,
   Leaf,
   Home,
   Truck,
@@ -17,10 +16,7 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { ShopBody } from "./ShopBody";
 import { PRODUCTS } from "./data";
-import {
-  FIVE_STAR_COUNT,
-  GOOGLE_REVIEW_LINK,
-} from "@/components/shared/GoogleReviewsSection";
+import { ReviewBadge } from "@/components/shared/ReviewBadge";
 
 export const metadata: Metadata = {
   title: "Farm Store — Highland Farms Oregon",
@@ -138,31 +134,10 @@ export default function ShopPage() {
               </Button>
             </div>
 
-            {/* Standalone social proof — stars + review count linking to Google */}
-            {FIVE_STAR_COUNT > 0 && (
-              <a
-                href={GOOGLE_REVIEW_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-5 inline-flex items-center gap-2 text-sm text-charcoal/75 font-sans transition-colors hover:text-charcoal"
-              >
-                <span className="flex items-center gap-0.5" aria-hidden>
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-4 w-4 fill-gold text-gold"
-                      strokeWidth={1.5}
-                    />
-                  ))}
-                </span>
-                <span>
-                  <span className="font-medium text-charcoal">
-                    {FIVE_STAR_COUNT}+
-                  </span>{" "}
-                  5-Star Google Reviews
-                </span>
-              </a>
-            )}
+            {/* Designed Google review badge */}
+            <div className="mt-5">
+              <ReviewBadge variant="card" />
+            </div>
 
             {/* Inline trust strip — 4 feature pills below the social proof (reviews now standalone above) */}
             <dl className="mt-6 inline-flex max-w-full flex-wrap items-start gap-x-7 gap-y-3 rounded-2xl bg-white/90 px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] backdrop-blur-sm sm:px-6">

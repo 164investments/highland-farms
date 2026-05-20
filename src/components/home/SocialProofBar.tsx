@@ -1,6 +1,6 @@
-import { Star, Instagram } from "lucide-react";
+import { Instagram } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
+import { ReviewBadge } from "@/components/shared/ReviewBadge";
 
 export function SocialProofBar() {
   return (
@@ -8,22 +8,7 @@ export function SocialProofBar() {
       <Container>
         <div className="grid grid-cols-3 gap-3 sm:flex sm:items-center sm:justify-center sm:gap-10">
           {/* Google Rating */}
-          <a
-            href="https://share.google/jrLOI4AhnpzbPPBpF"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-2.5 text-charcoal/80 hover:text-charcoal transition-colors"
-          >
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-4 w-4 fill-gold text-gold" />
-              ))}
-            </div>
-            <span className="text-xs sm:text-sm font-light font-sans text-center sm:text-left">
-              <span className="font-normal">{REVIEW_COUNT}</span> reviews
-              <span className="hidden sm:inline"> on Google</span>
-            </span>
-          </a>
+          <ReviewBadge variant="pill" className="justify-self-center" />
 
           <div className="hidden sm:block h-5 w-px bg-charcoal/10" />
 

@@ -3,11 +3,11 @@
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle, AlertCircle, Loader2, Star, Phone } from "lucide-react";
+import { CheckCircle, AlertCircle, Loader2, Phone } from "lucide-react";
 import { inquirySchema, type InquiryFormData } from "@/lib/schemas";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
+import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { TurnstileWidget } from "./TurnstileWidget";
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
@@ -426,16 +426,7 @@ export function ContactForm({
         {/* Trust signals below form */}
         {showTrustSignals && (
           <div className="flex flex-col items-center gap-3 pt-2">
-            <div className="flex items-center gap-1.5">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-gold text-gold" />
-                ))}
-              </div>
-              <span className="text-xs text-muted font-sans">
-                {REVIEW_COUNT} reviews on Google
-              </span>
-            </div>
+            <ReviewBadge variant="pill" />
             <p className="text-xs text-muted/80 font-sans text-center">
               We respond within 24 hours &middot; No commitment required
             </p>

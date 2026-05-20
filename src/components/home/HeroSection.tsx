@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { Star, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
+import { ReviewBadge } from "@/components/shared/ReviewBadge";
 
 export function HeroSection() {
   return (
@@ -47,19 +47,7 @@ export function HeroSection() {
 
         {/* Social proof */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-white/75 text-xs font-sans">
-          <a
-            href="https://share.google/jrLOI4AhnpzbPPBpF"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 hover:text-white/80 transition-colors"
-          >
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-3 w-3 fill-gold text-gold" />
-              ))}
-            </div>
-            <span>{REVIEW_COUNT} reviews on Google</span>
-          </a>
+          <ReviewBadge variant="compact" className="text-white/85" />
           <span className="hidden sm:inline text-white/40">&middot;</span>
           <a
             href="https://traveloregon.com/plan-your-trip/places-to-stay/farm-ranch-stays/highland-farms/"

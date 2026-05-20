@@ -1,9 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Instagram, Phone, Mail, MapPin, Star } from "lucide-react";
+import { Instagram, Phone, Mail, MapPin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { CONTACT, SITE } from "@/lib/constants";
-import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
+import { ReviewBadge } from "@/components/shared/ReviewBadge";
 
 export function Footer() {
   return (
@@ -29,19 +29,7 @@ export function Footer() {
             </p>
             {/* Social Proof */}
             <div className="mt-4 flex flex-col gap-3">
-              <a
-                href="https://share.google/jrLOI4AhnpzbPPBpF"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-xs text-white/65 hover:text-white/70 transition-colors font-sans"
-              >
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-3 w-3 fill-gold/70 text-gold/70" />
-                  ))}
-                </div>
-                <span>{REVIEW_COUNT} reviews on Google</span>
-              </a>
+              <ReviewBadge variant="compact" className="text-white/75" />
               <a
                 href="https://traveloregon.com/plan-your-trip/places-to-stay/farm-ranch-stays/highland-farms/"
                 target="_blank"

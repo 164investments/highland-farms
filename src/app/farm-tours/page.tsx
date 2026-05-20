@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
-import { Clock, Users, Heart, Sparkles, Star } from "lucide-react";
+import { Clock, Users, Heart, Sparkles } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ImageCarousel } from "@/components/gallery/ImageCarousel";
@@ -15,12 +15,8 @@ import {
 import { TourVideo } from "@/components/shared/TourVideo";
 import { TourSpaCombo } from "@/components/shared/TourSpaCombo";
 import { NextAvailability } from "@/components/shared/NextAvailability";
-import {
-  GoogleReviewsSection,
-  GOOGLE_REVIEW_LINK,
-  REVIEW_COUNT,
-  FIVE_STAR_COUNT,
-} from "@/components/shared/GoogleReviewsSection";
+import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
+import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { farmTourFAQ } from "@/data/farm-tours";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 
@@ -150,19 +146,9 @@ export default function FarmToursPage() {
               className="bg-white text-charcoal hover:bg-cream"
             />
           </div>
-          <a
-            href={GOOGLE_REVIEW_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-flex items-center gap-2 text-sm text-white/80 underline-offset-4 hover:text-white hover:underline font-sans"
-          >
-            <span className="flex gap-0.5" aria-hidden>
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-4 w-4 fill-current" />
-              ))}
-            </span>
-            <span>Loved by {REVIEW_COUNT} guests on Google</span>
-          </a>
+          <div className="mt-6 flex justify-center">
+            <ReviewBadge variant="card" />
+          </div>
         </div>
       </section>
 
@@ -224,20 +210,8 @@ export default function FarmToursPage() {
           />
 
           <div className="rounded-xl bg-white p-8 shadow-sm">
-            <div className="mb-5 flex items-center justify-center gap-2 text-sm text-charcoal font-sans">
-              <span className="flex gap-0.5" aria-hidden>
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-forest text-forest" />
-                ))}
-              </span>
-              <a
-                href={GOOGLE_REVIEW_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted underline-offset-4 hover:text-charcoal hover:underline"
-              >
-                {FIVE_STAR_COUNT} five-star reviews on Google
-              </a>
+            <div className="mb-5 flex justify-center">
+              <ReviewBadge variant="pill" />
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-cream-light pb-4">

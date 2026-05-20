@@ -2,16 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Star, MapPin, Check } from "lucide-react";
+import { MapPin, Check } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { BOOKING_LINKS } from "@/lib/constants";
 import { CATEGORIES, PRODUCTS, type CategoryKey, type Product } from "./data";
-import {
-  GoogleReviewsSection,
-  FIVE_STAR_COUNT,
-} from "@/components/shared/GoogleReviewsSection";
+import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
+import { ReviewBadge } from "@/components/shared/ReviewBadge";
 
 type NavKey = "featured" | CategoryKey;
 
@@ -418,19 +416,7 @@ export function ShopBody() {
             >
               Purchase Gift Certificates
             </Button>
-            {FIVE_STAR_COUNT > 0 && (
-              <div className="flex items-center gap-2 text-sm text-white/80 font-sans">
-                <span className="flex items-center gap-0.5" aria-hidden>
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <Star key={i} className="h-4 w-4 fill-sage-light text-sage-light" />
-                  ))}
-                </span>
-                <span>
-                  <span className="font-medium text-white">{FIVE_STAR_COUNT}</span>
-                  {" five-star reviews on Google"}
-                </span>
-              </div>
-            )}
+            <ReviewBadge variant="pill" />
           </div>
         </Container>
       </section>

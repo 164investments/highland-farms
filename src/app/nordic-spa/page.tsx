@@ -12,7 +12,6 @@ import {
   Flame,
   Leaf,
   ArrowRight,
-  Star,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -24,13 +23,10 @@ import {
   BookingModalRoot,
   BookingStickyCTA,
 } from "@/components/shared/BookingButton";
+import { TourVideo } from "@/components/shared/TourVideo";
 import { NextAvailability } from "@/components/shared/NextAvailability";
-import {
-  GoogleReviewsSection,
-  GOOGLE_REVIEW_LINK,
-  REVIEW_COUNT,
-  FIVE_STAR_COUNT,
-} from "@/components/shared/GoogleReviewsSection";
+import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
+import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { nordicSpaFAQ } from "@/data/nordic-spa";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 
@@ -218,24 +214,9 @@ export default function NordicSpaPage() {
               </div>
 
               {/* Trust */}
-              <a
-                href={GOOGLE_REVIEW_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-7 inline-flex items-center gap-2 text-sm text-white/75 hover:text-white font-sans"
-              >
-                <div className="flex items-center gap-0.5" aria-hidden>
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-3.5 w-3.5 fill-accent text-accent"
-                    />
-                  ))}
-                </div>
-                <span className="underline-offset-4 hover:underline">
-                  Loved by {REVIEW_COUNT} guests on Google
-                </span>
-              </a>
+              <div className="mt-7">
+                <ReviewBadge variant="card" />
+              </div>
             </div>
 
             {/* Right: What's Included overlay card (lg+ only) */}
@@ -317,6 +298,19 @@ export default function NordicSpaPage() {
         </Container>
       </section>
 
+      {/* ─── SPA VIDEO ─── */}
+      <TourVideo
+        videoSrc="/videos/spa-meta-ad.mp4"
+        posterSrc="/videos/spa-meta-ad-poster.jpg"
+        posterAlt="The Nordic spa deck and cedar sauna nestled in the forest"
+        eyebrow="A few quiet minutes"
+        heading="What 90 minutes in the forest feels like"
+        body="A short clip from the spa — wood smoke from the sauna, the cold plunge through the trees, then quiet on the cedar deck."
+        bookingHref={bookingUrl(BOOKING_LINKS.nordicSpa, "nordic-spa-video")}
+        bookingLabel="Book Your Session"
+        background="warm-white"
+      />
+
       {/* ─── PRICING + BOOKING ─── */}
       <section className="bg-cream py-20 lg:py-28">
         <Container className="max-w-3xl">
@@ -326,20 +320,8 @@ export default function NordicSpaPage() {
           />
 
           <div className="rounded-xl bg-white p-8 shadow-sm">
-            <div className="mb-5 flex items-center justify-center gap-2 text-sm text-charcoal font-sans">
-              <span className="flex gap-0.5" aria-hidden>
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-forest text-forest" />
-                ))}
-              </span>
-              <a
-                href={GOOGLE_REVIEW_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted underline-offset-4 hover:text-charcoal hover:underline"
-              >
-                {FIVE_STAR_COUNT} five-star reviews on Google
-              </a>
+            <div className="mb-5 flex justify-center">
+              <ReviewBadge variant="pill" />
             </div>
 
             <div className="space-y-4">
