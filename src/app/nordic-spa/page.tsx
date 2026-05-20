@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 import Image from "next/image";
 import {
   Clock,
@@ -85,9 +85,9 @@ const galleryImages = [
 
 const heroPills = [
   { icon: Leaf, label: "Private & Peaceful" },
-  { icon: Users, label: "Up to 6 Guests" },
-  { icon: Clock, label: "90 Minutes" },
-  { icon: MapPin, label: "50 Min from Portland" },
+  { icon: Users, label: "Limited to 6 Guests" },
+  { icon: Clock, label: "90-Minute Sessions" },
+  { icon: MapPin, label: "Just 50 Min from Portland" },
 ];
 
 const includedItems = [
@@ -194,18 +194,28 @@ export default function NordicSpaPage() {
                 50&nbsp;minutes from Portland.
               </p>
 
-              {/* Icon pills — circular icon badge inside a soft pill */}
-              <div className="mt-7 flex flex-wrap items-center gap-3">
-                {heroPills.map(({ icon: Icon, label }) => (
-                  <span
-                    key={label}
-                    className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-charcoal/40 py-1 pl-1 pr-4 text-[11px] tracking-wide text-white/90 backdrop-blur-sm font-sans"
-                  >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-forest/75 shadow-inner">
-                      <Icon className="h-3.5 w-3.5 text-cream" strokeWidth={1.75} />
-                    </span>
-                    {label}
-                  </span>
+              {/* Icon + label pairs with vertical separators — no enclosing pill */}
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-5 sm:gap-x-7 lg:gap-x-6">
+                {heroPills.map(({ icon: Icon, label }, i) => (
+                  <Fragment key={label}>
+                    {i > 0 && (
+                      <span
+                        aria-hidden
+                        className="hidden h-10 w-px bg-white/20 lg:block"
+                      />
+                    )}
+                    <div className="flex items-center gap-3.5">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-full border border-cream/25 bg-forest/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm">
+                        <Icon
+                          className="h-5 w-5 text-cream"
+                          strokeWidth={1.5}
+                        />
+                      </span>
+                      <span className="max-w-[6.25rem] text-[13px] leading-snug text-white/90 font-sans">
+                        {label}
+                      </span>
+                    </div>
+                  </Fragment>
                 ))}
               </div>
 
