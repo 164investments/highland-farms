@@ -1,8 +1,9 @@
 import { after, NextResponse } from "next/server";
 import { sendBookingPurchase } from "@/lib/ga4";
 import { sendMetaPurchase } from "@/lib/meta";
-import { getAppointment } from "@/lib/acuity";
+import { getAppointment, type AcuityAppointment } from "@/lib/acuity";
 import { claimTrackingEvent } from "@/lib/tracking-dedupe";
+import { type AttributionData } from "@/lib/attribution";
 
 /**
  * Acuity Scheduling webhook handler.
@@ -33,6 +34,57 @@ const CALENDAR_CATEGORY: Record<number, string> = {
   13047082: "Nordic Spa",
   12109481: "Wedding Call",
 };
+
+/**
+ * Pulls first-party attribution out of the Acuity appointment's intake answers.
+ *
+ *  - `referralSource`: the existing "How did you hear about us?" multi-select —
+ *    available on every booking today, attached to GA4 + Meta as a source signal.
+ *  - `attribution` / `clientId` / `fbc`: recovered from an optional hidden intake
+ *    field carrying the JSON attribution captured at booking-CTA click. Inert
+ *    until that field is added in Acuity (see README "Acuity booking attribution"),
+ *    then it stitches the purchase back to the originating session/ad click.
+ *
+ * Fully guarded — any malformed/absent field is ignored so booking tracking
+ * never breaks.
+ */
+function extractBookingTracking(appt: AcuityAppointment): {
+  referralSource?: string;
+  attribution?: AttributionData;
+  clientId?: string;
+  fbc?: string;
+} {
+  const result: {
+    referralSource?: string;
+    attribution?: AttributionData;
+    clientId?: string;
+    fbc?: string;
+  } = {};
+
+  try {
+    const values = (appt.forms ?? []).flatMap((f) => f.values ?? []);
+
+    const heard = values
+      .filter((v) => /hear about/i.test(v.name) && v.value?.trim())
+      .map((v) => v.value.trim());
+    if (heard.length) result.referralSource = heard.join(", ");
+
+    const trackingRaw = values.find((v) => /tracking|attribution/i.test(v.name))?.value?.trim();
+    if (trackingRaw) {
+      const parsed = JSON.parse(trackingRaw) as AttributionData & { client_id?: string };
+      result.attribution = parsed;
+      if (parsed.client_id) result.clientId = parsed.client_id;
+      if (parsed.fbclid) {
+        const ts = Date.parse(appt.datetimeCreated) || Date.now();
+        result.fbc = `fb.1.${ts}.${parsed.fbclid}`;
+      }
+    }
+  } catch (err) {
+    console.error("Acuity attribution parse error:", err);
+  }
+
+  return result;
+}
 
 export async function POST(request: Request) {
   // Validate secret token — only accept requests from Acuity
@@ -97,6 +149,8 @@ export async function POST(request: Request) {
       parseFloat(appt.price) ||
       0;
 
+    const tracking = extractBookingTracking(appt);
+
     after(async () => {
       await Promise.all([
         sendBookingPurchase({
@@ -105,6 +159,9 @@ export async function POST(request: Request) {
           currency: "USD",
           booking_type: bookingType,
           appointment_type: appt.type,
+          referral_source: tracking.referralSource,
+          attribution: tracking.attribution,
+          client_id: tracking.clientId,
           items: [
             {
               item_id: String(appt.appointmentTypeID),
@@ -125,6 +182,8 @@ export async function POST(request: Request) {
           content_category: category,
           email: appt.email,
           phone: appt.phone,
+          fbc: tracking.fbc,
+          referral_source: tracking.referralSource,
         }).catch((err) => console.error("Meta CAPI error:", err)),
       ]);
     });

@@ -39,6 +39,12 @@ export interface MetaPurchaseParams {
   email?: string;
   /** Customer phone from Acuity booking — hashed before sending */
   phone?: string;
+  /** Meta click identifier (fb.1.<ts>.<fbclid>) recovered from the booking link. */
+  fbc?: string;
+  /** Meta browser identifier (_fbp), if recovered from the booking link. */
+  fbp?: string;
+  /** Self-reported "How did you hear about us?" answer from the Acuity intake form. */
+  referral_source?: string;
 }
 
 /**
@@ -65,12 +71,18 @@ export async function sendMetaPurchase(params: MetaPurchaseParams): Promise<void
     content_category,
     email,
     phone,
+    fbc,
+    fbp,
+    referral_source,
   } = params;
 
-  // Build user_data — only include fields we have from the Acuity webhook
+  // Build user_data — only include fields we have from the Acuity webhook.
+  // fbc/fbp are NOT hashed (Meta expects them raw); em/ph are SHA-256 hashed.
   const user_data: Record<string, string> = {};
   if (email) user_data.em = hash(email);
   if (phone) user_data.ph = hashPhone(phone);
+  if (fbc) user_data.fbc = fbc;
+  if (fbp) user_data.fbp = fbp;
 
   const event = {
     event_name: "Purchase",
@@ -85,6 +97,7 @@ export async function sendMetaPurchase(params: MetaPurchaseParams): Promise<void
       content_category,
       content_type: "product",
       content_ids: [content_category.toLowerCase().replace(/\s+/g, "_")],
+      ...(referral_source && { referral_source }),
     },
   };
 

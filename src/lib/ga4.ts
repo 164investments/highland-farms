@@ -75,6 +75,16 @@ export interface GA4BookingParams {
   booking_type?: string;
   appointment_type?: string;
   items?: GA4BookingItem[];
+  /** Self-reported "How did you hear about us?" answer from the Acuity intake form. */
+  referral_source?: string;
+  /** First-party attribution (UTMs, click IDs) recovered from the booking link, when available. */
+  attribution?: AttributionData;
+  /**
+   * GA4 client_id recovered from the booking link (via an Acuity intake field).
+   * When present, the purchase stitches to the visitor's original browser session
+   * instead of using an ephemeral id — restoring channel/campaign attribution.
+   */
+  client_id?: string;
 }
 
 /**
@@ -85,8 +95,10 @@ export interface GA4BookingParams {
  *      e.g. "book_farm_tour", "book_nordic_spa", "book_wedding_call"
  *
  * Note: Webhook requests come from Acuity's servers so there are no _ga cookies.
- * An ephemeral client_id is used — revenue records correctly but has no session
- * attribution. This is expected for server-side booking events.
+ * If a client_id was carried through the booking link (via an Acuity intake
+ * field) it is used to stitch the purchase to the original session; otherwise an
+ * ephemeral client_id is used — revenue still records, just without session
+ * attribution.
  */
 export async function sendBookingPurchase(
   params: GA4BookingParams,
@@ -102,6 +114,9 @@ export async function sendBookingPurchase(
     booking_type,
     appointment_type,
     items = [],
+    referral_source,
+    attribution,
+    client_id,
   } = params;
 
   const sharedParams = {
@@ -112,6 +127,8 @@ export async function sendBookingPurchase(
     engagement_time_msec: 1,
     ...(booking_type && { booking_type }),
     ...(appointment_type && { appointment_type }),
+    ...(referral_source && { booking_referral_source: referral_source }),
+    ...ga4AttributionParams(attribution),
   };
 
   // Always include "purchase" for GA4 e-commerce revenue tracking
@@ -135,7 +152,8 @@ export async function sendBookingPurchase(
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          client_id: getClientId(null), // ephemeral — no browser session available
+          // Real client_id when recovered from the booking link, else ephemeral.
+          client_id: client_id || getClientId(null),
           events,
         }),
       },

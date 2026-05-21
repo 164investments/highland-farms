@@ -74,15 +74,14 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
 
   // ── 2. Add a note with the full free-text message ──────────────────────────
   try {
+    const attributionText = formatAttribution(data.attribution);
     const noteLines = [
       `Event Type: ${data.event_type}`,
       data.guest_count ? `Guest Count: ${data.guest_count}` : null,
       data.preferred_date ? `Preferred Date: ${data.preferred_date}` : null,
       data.referral_source ? `Referral Source: ${data.referral_source}` : null,
       data.message ? `\nMessage:\n${data.message}` : null,
-      formatAttribution(data.attribution)
-        ? `\nAttribution:\n${formatAttribution(data.attribution)}`
-        : null,
+      attributionText ? `\nAttribution:\n${attributionText}` : null,
     ]
       .filter(Boolean)
       .join("\n");
