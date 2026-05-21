@@ -95,7 +95,7 @@ export default function PrivacyPolicyPage() {
                 <li>Processing transactions and payments</li>
                 <li>Communicating with you about your inquiries, appointments, and promotions</li>
                 <li>To improve our website and services</li>
-                <li>To analyze website traffic and understand how visitors use our site (with consent)</li>
+                <li>To analyze website traffic and understand how visitors use our site</li>
                 <li>Ensuring security and fraud prevention</li>
                 <li>Maintaining records of your communication preferences and consent</li>
                 <li>To comply with legal obligations</li>
@@ -186,14 +186,12 @@ export default function PrivacyPolicyPage() {
                 Cookies &amp; Tracking Technologies
               </h2>
               <p>
-                Our website uses a cookie consent banner and Google Consent Mode. Analytics and advertising tags may
-                load in a restricted mode before you make a choice, but analytics/ad storage and personalization remain
-                denied unless you accept cookies. You may decline cookies at any time, and the site will function
-                normally without them.
+                Our website uses analytics and advertising technologies to understand visits, measure campaign
+                performance, and improve the site experience.
               </p>
               <p className="text-sm mt-2">
-                Essential cookies (such as those needed for site functionality) do not require consent and are minimal
-                on this site.
+                We also use local storage to remember popup dismissal and first-party attribution details such as UTM
+                parameters, landing page, and referrer.
               </p>
             </section>
 
@@ -204,7 +202,7 @@ export default function PrivacyPolicyPage() {
               <p>We do not sell, rent, or trade personal information. We may share information with:</p>
               <ul className="list-disc pl-5 space-y-1 text-sm mt-3">
                 <li>
-                  <strong>Google Tag Manager / Google Analytics</strong> — website analytics (with consent)
+                  <strong>Google Tag Manager / Google Analytics</strong> — website analytics and campaign measurement
                 </li>
                 <li>
                   <strong>Meta Pixel / Conversions API</strong> — advertising measurement and conversion reporting

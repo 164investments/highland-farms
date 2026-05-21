@@ -2,7 +2,7 @@
  * Meta Conversions API (CAPI) — server-side event tracking.
  *
  * Sends Purchase events directly to Meta from the Acuity webhook handler,
- * bypassing ad blockers and cookie consent gates.
+ * bypassing ad blockers and browser-side tracking failures.
  *
  * Why server-side: farm tour and spa bookings happen on highlandfarms.as.me
  * (Acuity's domain), not on the Highland Farms site, so the browser pixel

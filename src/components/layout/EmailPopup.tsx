@@ -27,17 +27,6 @@ export function EmailPopup() {
   const show = useCallback(() => {
     if (triggerFired.current) return;
     triggerFired.current = true;
-
-    // Don't show if cookie consent banner is visible
-    const consentKey = localStorage.getItem("hf-cookie-consent");
-    if (!consentKey) {
-      const retryTimer = setTimeout(() => {
-        triggerFired.current = false;
-        show();
-      }, 5000);
-      return () => clearTimeout(retryTimer);
-    }
-
     setVisible(true);
   }, []);
 

@@ -22,7 +22,7 @@ npm run indexnow # submit pages to Bing
 - API routes: `src/app/api/` (inquiries, acuity/webhook, meta/webhook, subscribe, cron/daily-report)
 - Data: `src/data/` (properties, farm-tours, nordic-spa, navigation, wedding-portfolio)
 - Libs: `src/lib/` (supabase, acuity, hubspot, bookediq, email, ga4, meta, meta-leads, schemas)
-- Layout: `src/components/layout/` (Header, Footer, GTM, CookieConsent, EmailPopup, BookedIQWidget, StructuredData, AttributionTracker)
+- Layout: `src/components/layout/` (Header, Footer, GTM, EmailPopup, BookedIQWidget, StructuredData, AttributionTracker)
 - Forms: `src/components/forms/ContactForm.tsx`
 - Config: `next.config.ts` (17 redirects, security headers), `vercel.json` (daily cron)
 
