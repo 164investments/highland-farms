@@ -107,10 +107,9 @@ export async function POST(request: Request) {
       }
     }
 
-    const { name, email, phone, event_type, guest_count, preferred_date, referral_source, message, consent_marketing_sms, consent_appointment_sms, _sid } = result.data;
+    const { name, email, phone, event_type, guest_count, preferred_date, referral_source, message, consent_marketing_sms, consent_appointment_sms, _sid, attribution } = result.data;
 
-    // Insert into Supabase
-    const { error } = await supabase.from("event_inquiries").insert({
+    const inquiryPayload = {
       name,
       email,
       phone: phone || null,
@@ -121,7 +120,28 @@ export async function POST(request: Request) {
       message: message || null,
       consent_marketing_sms: consent_marketing_sms ?? false,
       consent_appointment_sms: consent_appointment_sms ?? false,
-    });
+      attribution: attribution ?? null,
+    };
+
+    // Insert into Supabase. Retry without the additive attribution column so
+    // deploys remain safe if the DB migration has not been applied yet.
+    let { error } = await supabase.from("event_inquiries").insert(inquiryPayload);
+    if (error && /attribution|schema cache|column/i.test(error.message)) {
+      const fallbackPayload = {
+        name: inquiryPayload.name,
+        email: inquiryPayload.email,
+        phone: inquiryPayload.phone,
+        event_type: inquiryPayload.event_type,
+        guest_count: inquiryPayload.guest_count,
+        preferred_date: inquiryPayload.preferred_date,
+        referral_source: inquiryPayload.referral_source,
+        message: inquiryPayload.message,
+        consent_marketing_sms: inquiryPayload.consent_marketing_sms,
+        consent_appointment_sms: inquiryPayload.consent_appointment_sms,
+      };
+      const fallback = await supabase.from("event_inquiries").insert(fallbackPayload);
+      error = fallback.error;
+    }
 
     if (error) {
       console.error("Supabase insert error:", error);
@@ -141,6 +161,7 @@ export async function POST(request: Request) {
         {
           event_type,
           form_name: "event_inquiry",
+          attribution,
           ...(_sid && { event_id: _sid }),
         },
       ];
@@ -150,6 +171,8 @@ export async function POST(request: Request) {
           event_type,
           form_name: "event_inquiry",
           event_name: "generate_lead_wedding",
+          attribution,
+          ...(_sid && { event_id: `${_sid}:wedding` }),
         });
       }
 

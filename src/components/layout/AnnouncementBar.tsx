@@ -5,12 +5,39 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X, Truck } from "lucide-react";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
+import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
 
 type Variant = {
   id: string;
   layout: "shop" | "single";
   body: ReactNode;
 };
+
+function AnnouncementBookingLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      onClick={(event) => {
+        event.currentTarget.href = appendAttributionToUrl(href, getClientAttribution());
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "booking_start",
+          booking_url: event.currentTarget.href,
+          booking_title: typeof children === "string" ? children : undefined,
+        });
+      }}
+      className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
+    >
+      {children}
+    </a>
+  );
+}
 
 const SHOP: Variant = {
   id: "hf-shop-promo-dismissed",
@@ -41,12 +68,11 @@ const FARM_TOURS: Variant = {
   body: (
     <>
       Meet the Highland Coos &middot; Private Farm Tours &middot; 60 Min From $150{" "}
-      <a
+      <AnnouncementBookingLink
         href={bookingUrl(BOOKING_LINKS.farmTour, "announcement-bar-farm-tours")}
-        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
       >
         Book Your Tour
-      </a>
+      </AnnouncementBookingLink>
     </>
   ),
 };
@@ -57,12 +83,11 @@ const NORDIC_SPA: Variant = {
   body: (
     <>
       Nordic Sauna + Cold Plunge &middot; 90 Min From $75 &middot; Weekends Fill Fast{" "}
-      <a
+      <AnnouncementBookingLink
         href={bookingUrl(BOOKING_LINKS.nordicSpa, "announcement-bar-nordic-spa")}
-        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
       >
         Reserve Your Session
-      </a>
+      </AnnouncementBookingLink>
     </>
   ),
 };
@@ -73,12 +98,11 @@ const SAUNA_NEAR_PDX: Variant = {
   body: (
     <>
       50 Minutes From Portland &middot; Forest Sauna + Cold Plunge &middot; From $75{" "}
-      <a
+      <AnnouncementBookingLink
         href={bookingUrl(BOOKING_LINKS.nordicSpa, "announcement-bar-sauna-near-portland")}
-        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
       >
         Reserve Your Session
-      </a>
+      </AnnouncementBookingLink>
     </>
   ),
 };
@@ -166,7 +190,7 @@ export function AnnouncementBar() {
 
   useEffect(() => {
     const dismissed = localStorage.getItem(variant.id);
-    setVisible(!dismissed);
+    queueMicrotask(() => setVisible(!dismissed));
   }, [variant.id]);
 
   function dismiss() {

@@ -26,6 +26,7 @@ import { syncMetaLeadToBookedIQ } from "@/lib/bookediq";
 import { syncMetaLeadToHubSpot } from "@/lib/hubspot";
 import { sendMetaLeadNotification } from "@/lib/email";
 import { sendGenerateLead } from "@/lib/ga4";
+import { claimTrackingEvent } from "@/lib/tracking-dedupe";
 
 // ── GET — webhook verification challenge ─────────────────────────────────────
 // Meta sends this once when you register the webhook subscription.
@@ -155,6 +156,13 @@ async function processLead(
     return;
   }
 
+  const claimed = await claimTrackingEvent(
+    `meta_lead_${lead.leadgenId}`,
+    "generate_lead",
+    "meta_lead_ad",
+  );
+  if (!claimed) return;
+
   await Promise.all([
     syncMetaLeadToBookedIQ(lead)
       .then(async () => {
@@ -188,12 +196,14 @@ async function processLead(
       event_type: "wedding",
       form_name: "meta_lead_ad",
       event_name: "generate_lead",
+      event_id: lead.leadgenId,
     }).catch((err) => console.error("GA4 meta lead error:", err)),
 
     sendGenerateLead(null, {
       event_type: "wedding",
       form_name: "meta_lead_ad",
       event_name: "generate_lead_wedding",
+      event_id: `${lead.leadgenId}:wedding`,
     }).catch((err) => console.error("GA4 meta lead wedding event error:", err)),
   ]);
 }

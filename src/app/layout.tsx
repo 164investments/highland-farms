@@ -9,6 +9,8 @@ import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/layout/
 import { EmailPopup } from "@/components/layout/EmailPopup";
 import { MicrosoftClarity } from "@/components/layout/MicrosoftClarity";
 import { BookedIQWidget } from "@/components/layout/BookedIQWidget";
+import { AttributionTracker } from "@/components/layout/AttributionTracker";
+import { CookieConsent } from "@/components/layout/CookieConsent";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -114,8 +116,22 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body className={`${cormorant.variable} ${inter.variable} ${dancingScript.variable} antialiased overflow-x-hidden`}>
+        <Script id="google-consent-default" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+              ad_storage: 'denied',
+              analytics_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              wait_for_update: 500
+            });
+          `}
+        </Script>
         <GoogleTagManager />
         <GoogleTagManagerNoScript />
+        <AttributionTracker />
         <Script id="hs-form-capture-off" strategy="beforeInteractive">
           {`window._hsq = window._hsq || []; _hsq.push(["setFormCapture", false]);`}
         </Script>
@@ -133,6 +149,7 @@ export default function RootLayout({
           <MicrosoftClarity projectId={process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID} />
         )}
         <BookedIQWidget />
+        <CookieConsent />
       </body>
     </html>
   );

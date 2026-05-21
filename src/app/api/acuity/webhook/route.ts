@@ -2,6 +2,7 @@ import { after, NextResponse } from "next/server";
 import { sendBookingPurchase } from "@/lib/ga4";
 import { sendMetaPurchase } from "@/lib/meta";
 import { getAppointment } from "@/lib/acuity";
+import { claimTrackingEvent } from "@/lib/tracking-dedupe";
 
 /**
  * Acuity Scheduling webhook handler.
@@ -55,9 +56,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  // Only track scheduled / rescheduled — ignore cancellations and changes
+  // Only track first-time scheduled appointments. Reschedules retain the same
+  // appointment ID and would otherwise duplicate purchase conversions.
   const action = String(body.action ?? "");
-  if (!action.includes("scheduled")) {
+  if (action !== "scheduled" && action !== "appointment.scheduled") {
     return NextResponse.json({ ok: true });
   }
 
@@ -83,6 +85,10 @@ export async function POST(request: Request) {
     const category = CALENDAR_CATEGORY[calendarID] ?? "Other";
     const itemName = appt.type ?? category;
     const transactionId = `acuity_${appt.id}`;
+    const claimed = await claimTrackingEvent(transactionId, "purchase", "acuity");
+    if (!claimed) {
+      return NextResponse.json({ ok: true, duplicate: true });
+    }
 
     // amountPaid is the actual collected amount; fall back through priceSold → price
     const value =

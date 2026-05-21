@@ -1,3 +1,5 @@
+import type { AttributionData } from "@/lib/attribution";
+
 /**
  * GA4 Measurement Protocol — server-side event tracking.
  *
@@ -49,6 +51,7 @@ export interface GA4LeadEventParams {
    * so each ad campaign can optimize independently.
    */
   event_name?: string;
+  attribution?: AttributionData;
 }
 
 export interface GA4BookingItem {
@@ -170,6 +173,7 @@ export async function sendGenerateLead(
           event_type: params.event_type,
           form_name: params.form_name,
           engagement_time_msec: 1,
+          ...ga4AttributionParams(params.attribution),
           ...(params.event_id && { event_id: params.event_id }),
           ...(sessionId && { session_id: sessionId }),
         },
@@ -211,6 +215,7 @@ export async function sendLeadEvents(
         event_type: params.event_type,
         form_name: params.form_name,
         engagement_time_msec: 1,
+        ...ga4AttributionParams(params.attribution),
         ...(params.event_id && { event_id: params.event_id }),
         ...(sessionId && { session_id: sessionId }),
       },
@@ -226,4 +231,26 @@ export async function sendLeadEvents(
   } catch (err) {
     console.error("GA4 MP send error:", err);
   }
+}
+
+function ga4AttributionParams(attribution?: AttributionData): Record<string, string> {
+  if (!attribution) return {};
+
+  return {
+    ...(attribution.utm_source && { campaign_source: attribution.utm_source }),
+    ...(attribution.utm_medium && { campaign_medium: attribution.utm_medium }),
+    ...(attribution.utm_campaign && { campaign_name: attribution.utm_campaign }),
+    ...(attribution.utm_term && { campaign_term: attribution.utm_term }),
+    ...(attribution.utm_content && { campaign_content: attribution.utm_content }),
+    ...(attribution.gclid && { gclid: attribution.gclid }),
+    ...(attribution.gbraid && { gbraid: attribution.gbraid }),
+    ...(attribution.wbraid && { wbraid: attribution.wbraid }),
+    ...(attribution.fbclid && { fbclid: attribution.fbclid }),
+    ...(attribution.msclkid && { msclkid: attribution.msclkid }),
+    ...(attribution.ttclid && { ttclid: attribution.ttclid }),
+    ...(attribution.first_landing_page && { first_landing_page: attribution.first_landing_page }),
+    ...(attribution.landing_page && { page_location: attribution.landing_page }),
+    ...(attribution.first_referrer && { first_referrer: attribution.first_referrer }),
+    ...(attribution.referrer && { page_referrer: attribution.referrer }),
+  };
 }

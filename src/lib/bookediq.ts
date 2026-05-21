@@ -1,5 +1,6 @@
 import { type InquiryFormData } from "@/lib/schemas";
 import { type MetaLeadData } from "@/lib/meta-leads";
+import { formatAttribution } from "@/lib/attribution";
 
 const GHL_API = "https://services.leadconnectorhq.com";
 
@@ -20,11 +21,16 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
   const [firstName, ...rest] = data.name.trim().split(/\s+/);
   const lastName = rest.join(" ");
 
+  const attributionText = formatAttribution(data.attribution);
+  const messageText = [data.message, attributionText ? `Attribution:\n${attributionText}` : null]
+    .filter(Boolean)
+    .join("\n\n");
+
   const customFields: { id: string; field_value: string }[] = [];
   if (data.event_type)    customFields.push({ id: FIELD_EVENT_TYPE,  field_value: data.event_type });
   if (data.guest_count)   customFields.push({ id: FIELD_GUEST_COUNT, field_value: data.guest_count });
   if (data.preferred_date) customFields.push({ id: FIELD_EVENT_DATE, field_value: data.preferred_date });
-  if (data.message)       customFields.push({ id: FIELD_MESSAGE,     field_value: data.message });
+  if (messageText)        customFields.push({ id: FIELD_MESSAGE,     field_value: messageText });
 
   const headers = {
     Authorization: `Bearer ${pit}`,
@@ -33,6 +39,8 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
   };
 
   const tags = ["source :: contact form"];
+  if (data.attribution?.utm_source) tags.push(`utm_source :: ${data.attribution.utm_source}`);
+  if (data.attribution?.utm_campaign) tags.push(`utm_campaign :: ${data.attribution.utm_campaign}`);
   if (data.consent_marketing_sms)    tags.push("sms consent :: marketing");
   if (data.consent_appointment_sms)  tags.push("sms consent :: appointments");
 

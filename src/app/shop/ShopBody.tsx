@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { MapPin, Check } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { BOOKING_LINKS } from "@/lib/constants";
+import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
 import { CATEGORIES, PRODUCTS, type CategoryKey, type Product } from "./data";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
@@ -23,6 +23,10 @@ function pushEvent(event: string, payload: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event, ...payload });
+}
+
+function trackedAcuityUrl(href: string) {
+  return appendAttributionToUrl(href, getClientAttribution());
 }
 
 function toGA4Item(p: Product, index: number) {
@@ -352,13 +356,19 @@ export function ShopBody() {
                 href={`${BOOKING_LINKS.giftCertificates}?utm_source=hf_site&utm_medium=shop&utm_content=gift-${card.utm}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() =>
+                onClick={(event) => {
+                  event.currentTarget.href = trackedAcuityUrl(event.currentTarget.href);
                   pushEvent("select_promotion", {
                     promotion_id: `gift-${card.utm}`,
                     promotion_name: `Gift Certificate - ${card.title}`,
                     creative_slot: "shop_gift_section",
-                  })
-                }
+                  });
+                  pushEvent("booking_start", {
+                    booking_type: "gift_certificate",
+                    booking_url: event.currentTarget.href,
+                    booking_title: `Gift Certificate - ${card.title}`,
+                  });
+                }}
                 className="group overflow-hidden rounded-2xl border border-white/15 bg-white/[0.04] backdrop-blur-sm transition hover:border-white/30 hover:bg-white/[0.07]"
               >
                 <div className="relative aspect-[5/3] w-full overflow-hidden">
@@ -408,14 +418,22 @@ export function ShopBody() {
             </li>
           </ul>
           <div className="mt-8 flex flex-col items-center gap-3 text-center">
-            <Button
+            <a
               href={BOOKING_LINKS.giftCertificates}
-              size="lg"
-              external
-              className="bg-white text-charcoal hover:bg-cream"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => {
+                event.currentTarget.href = trackedAcuityUrl(BOOKING_LINKS.giftCertificates);
+                pushEvent("booking_start", {
+                  booking_type: "gift_certificate",
+                  booking_url: event.currentTarget.href,
+                  booking_title: "Gift Certificates",
+                });
+              }}
+              className="inline-flex items-center justify-center rounded-full bg-white px-9 py-3.5 text-base font-normal uppercase tracking-[0.15em] text-charcoal transition-all duration-300 hover:bg-cream"
             >
               Purchase Gift Certificates
-            </Button>
+            </a>
             <ReviewBadge variant="pill" />
           </div>
         </Container>

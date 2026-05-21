@@ -54,7 +54,7 @@ export function TurnstileWidget({
   // If the script was already loaded by a previous mount, skip waiting on onLoad
   useEffect(() => {
     if (typeof window !== "undefined" && window.turnstile) {
-      setScriptReady(true);
+      queueMicrotask(() => setScriptReady(true));
     }
   }, []);
 

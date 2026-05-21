@@ -65,7 +65,6 @@ function buildReport(data: ReportData) {
   const { today, yesterday, active, canceled, orders } = data;
   const year = today.getFullYear();
   const yesterdayStr = fmtDate(yesterday);
-  const todayStr = fmtDate(today);
 
   // Yesterday's delivered appointments
   const deliveredYesterday = active.filter((a) => a.datetime.slice(0, 10) === yesterdayStr);

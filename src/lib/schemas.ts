@@ -1,5 +1,27 @@
 import { z } from "zod";
 
+export const attributionSchema = z
+  .object({
+    utm_source: z.string().optional(),
+    utm_medium: z.string().optional(),
+    utm_campaign: z.string().optional(),
+    utm_term: z.string().optional(),
+    utm_content: z.string().optional(),
+    gclid: z.string().optional(),
+    gbraid: z.string().optional(),
+    wbraid: z.string().optional(),
+    fbclid: z.string().optional(),
+    msclkid: z.string().optional(),
+    ttclid: z.string().optional(),
+    first_landing_page: z.string().optional(),
+    landing_page: z.string().optional(),
+    first_referrer: z.string().optional(),
+    referrer: z.string().optional(),
+    captured_at: z.string().optional(),
+    updated_at: z.string().optional(),
+  })
+  .optional();
+
 export const inquirySchema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Please enter a valid email"),
@@ -20,6 +42,8 @@ export const inquirySchema = z.object({
   // SMS consent checkboxes (optional — A2P compliance)
   consent_marketing_sms: z.boolean().optional(),
   consent_appointment_sms: z.boolean().optional(),
+  // First-party attribution captured in localStorage and attached on submit
+  attribution: attributionSchema,
 });
 
 export type InquiryFormData = z.infer<typeof inquirySchema>;

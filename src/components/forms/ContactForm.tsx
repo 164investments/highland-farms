@@ -7,6 +7,7 @@ import { CheckCircle, AlertCircle, Loader2, Phone } from "lucide-react";
 import { inquirySchema, type InquiryFormData } from "@/lib/schemas";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { getClientAttribution } from "@/lib/attribution";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { TurnstileWidget } from "./TurnstileWidget";
 
@@ -81,7 +82,10 @@ export function ContactForm({
       const res = await fetch("/api/inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          attribution: getClientAttribution(),
+        }),
       });
 
       if (!res.ok) {

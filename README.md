@@ -16,6 +16,22 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Tracking Setup
+
+Production tracking expects these public IDs to be configured in Vercel:
+
+- `NEXT_PUBLIC_GTM_ID` for Google Tag Manager.
+- `NEXT_PUBLIC_CLARITY_PROJECT_ID` for Microsoft Clarity session analytics.
+- `NEXT_PUBLIC_BOOKEDIQ_LOCATION_ID` for the LeadConnector chat widget.
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` for Cloudflare Turnstile.
+
+Server-side conversion tracking also requires `GA4_MEASUREMENT_ID`,
+`GA4_API_SECRET`, `META_PIXEL_ID`, `META_CAPI_TOKEN`, `ACUITY_WEBHOOK_SECRET`,
+`ACUITY_USER_ID`, `ACUITY_API_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
+
+Run the additive SQL in `supabase-setup.sql` after deploying attribution or
+webhook dedupe changes.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

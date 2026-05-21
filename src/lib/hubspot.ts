@@ -1,5 +1,6 @@
 import { type InquiryFormData } from "@/lib/schemas";
 import { type MetaLeadData } from "@/lib/meta-leads";
+import { formatAttribution } from "@/lib/attribution";
 
 const API = "https://api.hubapi.com";
 
@@ -79,6 +80,9 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
       data.preferred_date ? `Preferred Date: ${data.preferred_date}` : null,
       data.referral_source ? `Referral Source: ${data.referral_source}` : null,
       data.message ? `\nMessage:\n${data.message}` : null,
+      formatAttribution(data.attribution)
+        ? `\nAttribution:\n${formatAttribution(data.attribution)}`
+        : null,
     ]
       .filter(Boolean)
       .join("\n");

@@ -4,12 +4,24 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
+import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
 
 const OPEN_EVENT = "hf:open-booking";
 
 interface OpenDetail {
   src: string;
   title?: string;
+}
+
+declare global {
+  interface Window {
+    dataLayer?: Record<string, unknown>[];
+    fbq?: (
+      action: "track" | "trackCustom",
+      eventName: string,
+      params?: Record<string, unknown>,
+    ) => void;
+  }
 }
 
 /**
@@ -20,6 +32,38 @@ interface OpenDetail {
 export function openBookingModal(detail: OpenDetail) {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent<OpenDetail>(OPEN_EVENT, { detail }));
+}
+
+function bookingTypeFromUrl(url: string): string {
+  if (url.includes("85942611") || url.includes("calendar/13047082")) return "nordic_spa";
+  if (url.includes("/catalog/")) return "gift_certificate";
+  return "farm_tour";
+}
+
+function prepareBookingUrl(href: string): string {
+  return appendAttributionToUrl(href, getClientAttribution());
+}
+
+function trackBookingStart(href: string, title?: string) {
+  if (typeof window === "undefined") return;
+
+  const bookingType = bookingTypeFromUrl(href);
+  const payload = {
+    booking_type: bookingType,
+    booking_url: href,
+    booking_title: title,
+  };
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: "booking_start",
+    ...payload,
+  });
+
+  window.fbq?.("track", "InitiateCheckout", {
+    content_category: bookingType,
+    content_name: title ?? bookingType,
+  });
 }
 
 interface BookingButtonProps {
@@ -39,12 +83,18 @@ export function BookingButton({
   className,
   title,
 }: BookingButtonProps) {
+  const handleClick = () => {
+    const src = prepareBookingUrl(href);
+    trackBookingStart(src, title ?? label);
+    openBookingModal({ src, title });
+  };
+
   return (
     <Button
       size={size}
       variant={variant}
       className={className}
-      onClick={() => openBookingModal({ src: href, title })}
+      onClick={handleClick}
     >
       {label}
     </Button>
@@ -58,11 +108,17 @@ interface BookingStickyCTAProps {
 }
 
 export function BookingStickyCTA({ href, label, title }: BookingStickyCTAProps) {
+  const handleClick = () => {
+    const src = prepareBookingUrl(href);
+    trackBookingStart(src, title ?? label);
+    openBookingModal({ src, title });
+  };
+
   return (
     <StickyMobileCTA
       label={label}
       href={href}
-      onClick={() => openBookingModal({ src: href, title })}
+      onClick={handleClick}
     />
   );
 }

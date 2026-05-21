@@ -186,9 +186,10 @@ export default function PrivacyPolicyPage() {
                 Cookies &amp; Tracking Technologies
               </h2>
               <p>
-                Our website uses a cookie consent banner. Analytics cookies (Google Tag Manager / Google Analytics)
-                are only loaded after you explicitly accept cookies. You may decline cookies at any time, and the site
-                will function normally without them.
+                Our website uses a cookie consent banner and Google Consent Mode. Analytics and advertising tags may
+                load in a restricted mode before you make a choice, but analytics/ad storage and personalization remain
+                denied unless you accept cookies. You may decline cookies at any time, and the site will function
+                normally without them.
               </p>
               <p className="text-sm mt-2">
                 Essential cookies (such as those needed for site functionality) do not require consent and are minimal
@@ -204,6 +205,12 @@ export default function PrivacyPolicyPage() {
               <ul className="list-disc pl-5 space-y-1 text-sm mt-3">
                 <li>
                   <strong>Google Tag Manager / Google Analytics</strong> — website analytics (with consent)
+                </li>
+                <li>
+                  <strong>Meta Pixel / Conversions API</strong> — advertising measurement and conversion reporting
+                </li>
+                <li>
+                  <strong>Microsoft Clarity</strong> — session analytics when enabled
                 </li>
                 <li>
                   <strong>Supabase</strong> — secure form data storage

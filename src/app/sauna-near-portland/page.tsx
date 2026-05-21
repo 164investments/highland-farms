@@ -5,8 +5,8 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FAQAccordion } from "@/components/shared/FAQAccordion";
-import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
-import { BOOKING_LINKS, CONTACT } from "@/lib/constants";
+import { BookingButton, BookingStickyCTA } from "@/components/shared/BookingButton";
+import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Sauna Near Portland, Oregon — Private Outdoor Sauna & Cold Plunge",
@@ -159,14 +159,13 @@ export default function SaunaNearPortlandPage() {
             forest — Oregon&apos;s best outdoor sauna day trip from Portland.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button
-              href={BOOKING_LINKS.nordicSpa}
+            <BookingButton
+              href={bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-hero")}
+              label="Book Your Sauna Session"
               size="lg"
               className="bg-white text-charcoal hover:bg-cream"
-              external
-            >
-              Book Your Sauna Session
-            </Button>
+              title="Book your sauna session"
+            />
             <Button
               href="/nordic-spa"
               variant="outline"
@@ -351,14 +350,13 @@ export default function SaunaNearPortlandPage() {
             </div>
 
             <div className="mt-8">
-              <Button
-                href={BOOKING_LINKS.nordicSpa}
+              <BookingButton
+                href={bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-pricing")}
+                label="Book Your Sauna Session"
                 size="lg"
                 className="w-full"
-                external
-              >
-                Book Your Sauna Session
-              </Button>
+                title="Book your sauna session"
+              />
             </div>
           </div>
         </Container>
@@ -376,9 +374,11 @@ export default function SaunaNearPortlandPage() {
             the Nordic spa. Most guests are back in Portland by mid-afternoon.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button href={BOOKING_LINKS.nordicSpa} external>
-              Book the Spa
-            </Button>
+            <BookingButton
+              href={bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-combo")}
+              label="Book the Spa"
+              title="Book the spa"
+            />
             <Button href="/farm-tours" variant="outline">
               Add a Farm Tour
             </Button>
@@ -398,10 +398,10 @@ export default function SaunaNearPortlandPage() {
         </Container>
       </section>
 
-      <StickyMobileCTA
+      <BookingStickyCTA
         label="Book Your Sauna Session"
-        href={BOOKING_LINKS.nordicSpa}
-        external
+        href={bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-sticky-mobile")}
+        title="Book your sauna session"
       />
 
       <div className="h-20 lg:hidden" />
