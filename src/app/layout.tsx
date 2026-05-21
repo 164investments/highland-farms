@@ -6,7 +6,6 @@ import { Footer } from "@/components/layout/Footer";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/layout/GoogleTagManager";
-import { CookieConsent } from "@/components/layout/CookieConsent";
 import { EmailPopup } from "@/components/layout/EmailPopup";
 import { MicrosoftClarity } from "@/components/layout/MicrosoftClarity";
 import { BookedIQWidget } from "@/components/layout/BookedIQWidget";
@@ -129,7 +128,6 @@ export default function RootLayout({
         <Header />
         <main id="main-content">{children}</main>
         <Footer />
-        <CookieConsent />
         <EmailPopup />
         {process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID && (
           <MicrosoftClarity projectId={process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID} />
