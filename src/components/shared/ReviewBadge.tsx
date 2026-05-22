@@ -2,6 +2,7 @@ import { Star, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   FIVE_STAR_COUNT,
+  REVIEW_COUNT,
   GOOGLE_REVIEW_LINK,
 } from "@/components/shared/GoogleReviewsSection";
 
@@ -82,17 +83,16 @@ export function ReviewBadge({
           "group inline-flex items-center gap-3 rounded-2xl border border-charcoal/10 bg-white px-4 py-3 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg",
           className,
         )}
-        aria-label={`${FIVE_STAR_COUNT} five-star reviews on Google — open in new tab`}
+        aria-label={`Loved by ${REVIEW_COUNT} guests on Google — open in new tab`}
       >
         <GoogleG className="h-7 w-7 shrink-0" />
         <span className="h-9 w-px bg-charcoal/10" aria-hidden />
         <div className="flex flex-col font-sans leading-tight">
           <Stars size="md" />
           <span className="mt-1 text-[0.8125rem] text-charcoal/70">
-            <span className="font-semibold text-charcoal">
-              {FIVE_STAR_COUNT}
-            </span>{" "}
-            Five-Star Reviews
+            Loved by{" "}
+            <span className="font-semibold text-charcoal">{REVIEW_COUNT}</span>{" "}
+            guests on Google
           </span>
         </div>
         <ExternalLink className="h-3.5 w-3.5 shrink-0 text-charcoal/35 transition-colors group-hover:text-charcoal/70" />

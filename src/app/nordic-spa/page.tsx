@@ -26,6 +26,7 @@ import { TourVideo } from "@/components/shared/TourVideo";
 import { NextAvailability } from "@/components/shared/NextAvailability";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
+import { InlineEmailCapture } from "@/components/shared/InlineEmailCapture";
 import { nordicSpaFAQ } from "@/data/nordic-spa";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 
@@ -169,7 +170,7 @@ export default function NordicSpaPage() {
         {/* Asymmetric gradient — heavier on the left for readable text */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/45 to-black/20" />
 
-        <Container className="relative z-10 flex items-center py-12 lg:min-h-[calc(88vh-var(--header-h,120px))] lg:py-16">
+        <Container className="relative z-10 flex items-center py-8 lg:min-h-[calc(88vh-var(--header-h,120px))] lg:py-16">
           <div className="grid w-full grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)] lg:gap-14">
             {/* Left: hero text — width is unconstrained so the pill row fits on a single line at lg+ */}
             <div className="text-white">
@@ -180,10 +181,10 @@ export default function NordicSpaPage() {
                 Sauna &amp; Cold Plunge<br className="hidden sm:inline" />{" "}
                 in the Forest
               </h1>
-              {/* Ornamental leaf separator */}
+              {/* Ornamental leaf separator — decorative, hidden on mobile to lift the CTA */}
               <div
                 aria-hidden
-                className="mt-6 flex max-w-[130px] items-center gap-3"
+                className="mt-6 hidden max-w-[130px] items-center gap-3 lg:flex"
               >
                 <span className="h-px flex-1 bg-white/35" />
                 <Leaf
@@ -192,14 +193,14 @@ export default function NordicSpaPage() {
                 />
                 <span className="h-px flex-1 bg-white/35" />
               </div>
-              <p className="mt-6 max-w-lg text-lg text-white/85 leading-relaxed font-sans font-light">
+              <p className="mt-4 max-w-lg text-lg text-white/85 leading-relaxed font-sans font-light lg:mt-6">
                 Wood-burning sauna, steam sauna, and cold plunge tucked
                 into old-growth forest — private for up to 6 guests,
                 50&nbsp;minutes from Portland.
               </p>
 
               {/* Icon + label pairs — 2×2 grid below lg, single row with separators on lg+ */}
-              <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-5 lg:flex lg:flex-nowrap lg:items-center lg:gap-x-4">
+              <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-4 lg:mt-8 lg:flex lg:flex-nowrap lg:items-center lg:gap-x-4 lg:gap-y-5">
                 {heroPills.map(({ icon: Icon, label }, i) => (
                   <Fragment key={label}>
                     {i > 0 && (
@@ -224,7 +225,7 @@ export default function NordicSpaPage() {
               </div>
 
               {/* Dual CTA */}
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 lg:mt-8">
                 <BookingButton
                   href={heroBookingHref}
                   label="Book Your Session"
@@ -241,7 +242,7 @@ export default function NordicSpaPage() {
               </div>
 
               {/* Trust */}
-              <div className="mt-7">
+              <div className="mt-5 lg:mt-7">
                 <ReviewBadge variant="card" />
               </div>
             </div>
@@ -503,6 +504,16 @@ export default function NordicSpaPage() {
           <FAQAccordion items={nordicSpaFAQ} />
         </Container>
       </section>
+
+      {/* ─── NOT-READY CAPTURE (catches the long-research-cycle visitor) ─── */}
+      <InlineEmailCapture
+        source="spa-page"
+        eyebrow="Not ready to book?"
+        heading="Get first dibs on weekend openings"
+        body="With only 6 spots per session and the spa open 5 days a week, weekends fill fast. Leave your email and we'll let you know the moment new sessions open up."
+        buttonLabel="Notify Me"
+        background="sage"
+      />
 
       {/* ─── CLOSING: TAGLINE + TESTIMONIAL + CTA + SCARCITY ─── */}
       <section className="relative overflow-hidden bg-forest text-white">

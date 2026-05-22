@@ -36,9 +36,14 @@ if (process.env.NODE_ENV === "development") {
   ALLOWED_ORIGINS.push("http://localhost:3000");
 }
 
+// Allowlisted capture sources so we can segment where a subscriber came from.
+// Unknown/missing values fall back to "popup" (the original site-wide popup).
+const SUBSCRIBE_SOURCES = ["popup", "spa-page", "farm-tours-page"] as const;
+
 const subscribeSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   phone: z.string().optional(),
+  source: z.enum(SUBSCRIBE_SOURCES).optional(),
   website: z.string().optional(), // honeypot
   _t: z.number().optional(), // timing
 });
@@ -93,7 +98,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email, phone } = result.data;
+    const { email, phone, source } = result.data;
 
     // Upsert: if email exists, update phone if provided
     const { error } = await supabase
@@ -102,7 +107,7 @@ export async function POST(request: Request) {
         {
           email,
           phone: phone || null,
-          source: "popup",
+          source: source ?? "popup",
         },
         { onConflict: "email" }
       );
