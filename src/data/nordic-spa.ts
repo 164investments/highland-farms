@@ -9,12 +9,17 @@ export const nordicSpaFAQ: FAQItem[] = [
   {
     question: "How many guests per session?",
     answer:
-      "Our Nordic Spa accommodates 6 guests comfortably. One party or multiple parties may book up to 6 slots per 90-minute session.",
+      "Our Nordic Spa is a public, shared experience that holds up to 6 guests per 90-minute session. One party or several smaller parties may book the available slots, so you may share your session with other guests.",
   },
   {
     question: "What should I bring?",
     answer:
       "Bring your bathing suit and comfortable walking shoes. We will provide you with a towel and robe for your spa session. Changing areas are available on-site.",
+  },
+  {
+    question: "Is the Nordic Spa wheelchair accessible?",
+    answer:
+      "Our Nordic Spa is not ADA accessible. It sits in a natural forest setting reached by uneven ground and steps, so it cannot accommodate wheelchairs or mobility devices. Please reach out before booking if you have any questions about access — we're always happy to help.",
   },
   {
     question: "Can I book a spa session with a farm tour?",

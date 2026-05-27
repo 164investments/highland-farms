@@ -87,7 +87,7 @@ export const PRODUCTS: Product[] = [
 
   // Apparel
   {
-    name: "The Dream Hoodie",
+    name: "The Dream Hoodie — Coyote Brown",
     price: 55.0,
     category: "apparel",
     image: "/images/shop/dream-hoodie.png",
@@ -96,11 +96,32 @@ export const PRODUCTS: Product[] = [
     featured: true,
   },
   {
-    name: "The Dream T-Shirt",
+    name: "The Dream Hoodie — Olive Green",
+    price: 55.0,
+    category: "apparel",
+    image: "/images/shop/dream-hoodie-olive.jpg",
+    url: `${SQUARESPACE}/shop/p/highland-farm-the-dream-hoodie-olive-green`,
+  },
+  {
+    name: "The Dream T-Shirt — Olive Green",
     price: 32.0,
     category: "apparel",
     image: "/images/shop/dream-tshirt.png",
     url: `${SQUARESPACE}/shop/p/highland-farms-the-dream-t-shirt`,
+  },
+  {
+    name: "The Dream T-Shirt — Cream",
+    price: 32.0,
+    category: "apparel",
+    image: "/images/shop/dream-tshirt-cream.jpg",
+    url: `${SQUARESPACE}/shop/p/highland-farms-the-dream-t-shirt-j7bx6`,
+  },
+  {
+    name: "The Farm T-Shirt — Cream",
+    price: 32.0,
+    category: "apparel",
+    image: "/images/shop/farm-tshirt-cream.jpg",
+    url: `${SQUARESPACE}/shop/p/highland-farms-the-dream-t-shirt-j7bx6-appl6`,
   },
   {
     name: "Highland Farms Camo Trucker Hat",

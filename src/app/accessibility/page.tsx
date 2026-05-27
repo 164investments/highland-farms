@@ -88,6 +88,12 @@ export default function AccessibilityPage() {
                 visit.
               </p>
               <p className="mt-3">
+                Please note that our Nordic Spa — the wood-burning sauna, wet
+                sauna, and cold plunge — is not ADA accessible. It sits in a
+                natural forest setting reached by uneven ground and steps and
+                cannot accommodate wheelchairs or mobility devices.
+              </p>
+              <p className="mt-3">
                 Please contact us in advance so we can help plan your visit and
                 ensure the best possible experience.
               </p>

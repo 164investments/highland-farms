@@ -9,14 +9,14 @@ import { BookingButton, BookingStickyCTA } from "@/components/shared/BookingButt
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Sauna Near Portland, Oregon — Private Outdoor Sauna & Cold Plunge",
+  title: "Sauna Near Portland, Oregon — Public Outdoor Sauna & Cold Plunge",
   description:
-    "The best sauna near Portland, Oregon. Private wood-burning sauna & cold plunge just 50 minutes from downtown Portland in the Mt. Hood National Forest. $75/person — book online.",
+    "The best sauna near Portland, Oregon. Public wood-burning sauna & cold plunge just 50 minutes from downtown Portland in the Mt. Hood National Forest. $75/person — book online.",
   alternates: { canonical: "/sauna-near-portland" },
   openGraph: {
     title: "Sauna Near Portland — Highland Farms Mt. Hood Nordic Spa",
     description:
-      "Private outdoor sauna & cold plunge 50 minutes from Portland, Oregon. Escape to old-growth forest at the base of Mt. Hood. Book your sauna day trip.",
+      "Public outdoor sauna & cold plunge 50 minutes from Portland, Oregon. Escape to old-growth forest at the base of Mt. Hood. Book your sauna day trip.",
     url: "https://highlandfarmsoregon.com/sauna-near-portland",
     type: "website",
     images: [
@@ -37,9 +37,9 @@ const faqItems = [
       "Highland Farms is located in Brightwood, Oregon — approximately 50 minutes east of downtown Portland via US-26 (the Mt. Hood Highway). From Gresham and Troutdale it's about 30 minutes. From Sandy it's just 15 minutes.",
   },
   {
-    question: "Is this a private sauna near Portland?",
+    question: "Is this a public or private sauna near Portland?",
     answer:
-      "Yes — completely private. When you book a session at Highland Farms, you get the entire Nordic spa area exclusively for your group. No shared locker rooms, no strangers, just your group of up to 6 guests and the old-growth forest.",
+      "It's a public outdoor sauna. Each 90-minute session holds up to 6 guests, and you may share it with other guests who booked the same time — much like a traditional Scandinavian sauna. What sets it apart isn't having the space to yourselves; it's that the whole experience is outdoors in an old-growth Mt. Hood forest, not an indoor city facility with locker rooms.",
   },
   {
     question: "What's included in a sauna session?",
@@ -47,9 +47,14 @@ const faqItems = [
       "Each 90-minute session includes access to our wood-burning cedar dry sauna, wet sauna, and cold plunge tub — all nestled in our old-growth Mt. Hood forest. We provide towels and robes. Bring your swimsuit and comfortable shoes.",
   },
   {
+    question: "Is the sauna wheelchair accessible?",
+    answer:
+      "No — the sauna is not ADA accessible. It sits in a natural forest setting reached by uneven ground and steps, so it cannot accommodate wheelchairs or mobility devices. Please reach out before booking if you have any questions about access.",
+  },
+  {
     question: "How much does the sauna near Portland cost?",
     answer:
-      "Sessions are $75 per person for a 90-minute private session. Up to 6 guests per session. Book online through our scheduling system — no deposit required at booking.",
+      "Sessions are $75 per person for a 90-minute session, with up to 6 guests per session. Book online through our scheduling system — no deposit required at booking.",
   },
   {
     question: "Can I combine the sauna with a Highland Cow farm tour?",
@@ -87,7 +92,7 @@ function SaunaNearPortlandSchema() {
     "@type": "Service",
     name: "Outdoor Sauna Near Portland — Highland Farms Nordic Spa",
     description:
-      "Private wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+      "Public wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
     url: "https://highlandfarmsoregon.com/sauna-near-portland",
     provider: {
       "@type": "LocalBusiness",
@@ -155,7 +160,7 @@ export default function SaunaNearPortlandPage() {
             Sauna Near Portland
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light">
-            Private wood-burning sauna, wet sauna & cold plunge in the Mt. Hood
+            Public wood-burning sauna, wet sauna & cold plunge in the Mt. Hood
             forest — Oregon&apos;s best outdoor sauna day trip from Portland.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -187,15 +192,16 @@ export default function SaunaNearPortlandPage() {
                 Portland&apos;s Best Sauna Day Trip
               </p>
               <h2 className="text-3xl font-normal sm:text-4xl">
-                A Private Outdoor Sauna — Not a City Spa
+                An Outdoor Forest Sauna — Not a City Spa
               </h2>
               <p className="mt-4 text-base text-muted leading-relaxed font-sans">
-                Most &ldquo;saunas near Portland&rdquo; are indoor, shared
+                Most &ldquo;saunas near Portland&rdquo; are indoor city
                 facilities. Highland Farms is different. Our cedar sauna, wet
                 sauna, and cold plunge are completely outdoors — nestled in five
-                acres of old-growth Douglas fir at the base of Mt. Hood. Your
-                session is 100% private: no strangers, no locker rooms, just
-                your group and the forest.
+                acres of old-growth Douglas fir at the base of Mt. Hood.
+                It&apos;s a public sauna in the Nordic tradition: each 90-minute
+                session holds up to 6 guests, so you may share the forest with a
+                few fellow travelers — never a crowd.
               </p>
               <p className="mt-4 text-base text-muted leading-relaxed font-sans">
                 Drive east on US-26 and in 50 minutes you&apos;ll trade city
@@ -205,7 +211,7 @@ export default function SaunaNearPortlandPage() {
               </p>
               <ul className="mt-6 space-y-2">
                 {[
-                  "Completely private — your group only",
+                  "Public, shared sessions — never a crowd",
                   "Outdoor cedar dry sauna & wet sauna",
                   "Cold plunge in a forest setting",
                   "Towels and robes provided",
@@ -294,9 +300,9 @@ export default function SaunaNearPortlandPage() {
               },
               {
                 icon: Clock,
-                title: "90 Minutes, Fully Private",
+                title: "A Full 90 Minutes",
                 description:
-                  "A full 90 minutes for up to 6 guests. No timers, no strangers — just your group and the forest. Towels and robes are provided.",
+                  "A full 90 minutes for up to 6 guests to cycle between heat and cold at your own pace. Towels and robes are provided.",
               },
             ].map((feature) => (
               <div key={feature.title} className="text-center">
@@ -340,7 +346,7 @@ export default function SaunaNearPortlandPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-forest" />
-                  Up to 6 guests — fully private
+                  Up to 6 guests per session
                 </li>
                 <li className="flex items-center gap-2">
                   <Droplets className="h-4 w-4 text-forest" />

@@ -86,7 +86,7 @@ export function TourSpaCombo({ utmContent }: TourSpaComboProps) {
               <ul className="mt-4 space-y-2 text-sm text-muted font-sans">
                 <li className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-forest" />
-                  90-minute private session
+                  90-minute public session
                 </li>
                 <li className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-forest" />

@@ -33,12 +33,12 @@ import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 export const metadata: Metadata = {
   title: "Sauna & Cold Plunge Near Portland — Mt. Hood Nordic Spa",
   description:
-    "Outdoor wood-burning sauna & cold plunge 50 minutes from Portland, Oregon. Intimate 90-minute Nordic spa sessions limited to 6 guests at Highland Farms in the Mt. Hood National Forest. $75/person — book your sauna day trip.",
+    "Outdoor wood-burning sauna & cold plunge 50 minutes from Portland, Oregon. Public 90-minute Nordic spa sessions for up to 6 guests at Highland Farms in the Mt. Hood National Forest. $75/person — book your sauna day trip.",
   alternates: { canonical: "/nordic-spa" },
   openGraph: {
     title: "Sauna & Cold Plunge Near Portland — Highland Farms Mt. Hood",
     description:
-      "Outdoor wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland. Intimate 90-minute sessions limited to 6 guests in an old-growth Mt. Hood forest.",
+      "Outdoor wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland. Public 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
     url: "https://highlandfarmsoregon.com/nordic-spa",
     type: "website",
     images: [
@@ -89,7 +89,7 @@ const galleryImages = [
 ];
 
 const heroPills = [
-  { icon: Leaf, label: "Private & Peaceful" },
+  { icon: Leaf, label: "Peaceful & Restorative" },
   { icon: Users, label: "Limited to 6 Guests" },
   { icon: Clock, label: "90-Minute Sessions" },
   { icon: MapPin, label: "Just 50 Min from Portland" },
@@ -100,7 +100,7 @@ const includedItems = [
   "Wet Steam Sauna",
   "Cold Plunge",
   "Robes & Towels",
-  "Private for Up to 6",
+  "Up to 6 Guests per Session",
   "Open Year-Round",
 ];
 
@@ -195,7 +195,7 @@ export default function NordicSpaPage() {
               </div>
               <p className="mt-4 max-w-lg text-lg text-white/85 leading-relaxed font-sans font-light lg:mt-6">
                 Wood-burning sauna, steam sauna, and cold plunge tucked
-                into old-growth forest — private for up to 6 guests,
+                into old-growth forest — public sessions for up to 6 guests,
                 50&nbsp;minutes from Portland.
               </p>
 
@@ -550,11 +550,11 @@ export default function NordicSpaPage() {
 
             <div className="text-center">
               <p className="text-lg italic leading-relaxed font-display sm:text-xl">
-                &ldquo;Beautiful place — enjoyed the dry sauna, steam room,
-                cold plunge, and the privacy.&rdquo;
+                &ldquo;The sauna was great and the surroundings were
+                beautiful. They took wonderful care of us.&rdquo;
               </p>
               <p className="mt-4 text-xs font-normal uppercase tracking-[0.18em] text-white/60 font-sans">
-                — Tracy C., Google Review
+                — Roman S., Google Review
               </p>
             </div>
 

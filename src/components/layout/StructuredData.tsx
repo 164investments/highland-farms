@@ -297,7 +297,7 @@ export function StructuredData() {
         "@id": `${SITE.url}/#spa`,
         name: "Highland Farms Nordic Spa",
         description:
-          "Private outdoor wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+          "Public outdoor wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
         url: `${SITE.url}/nordic-spa`,
         telephone: CONTACT.phone,
         address,
@@ -325,7 +325,7 @@ export function StructuredData() {
               itemOffered: {
                 "@type": "Service",
                 name: "Nordic Spa Session — Sauna & Cold Plunge",
-                description: "90-minute private session with wood-burning dry sauna, wet sauna, and cold plunge for up to 6 guests.",
+                description: "90-minute public session with wood-burning dry sauna, wet sauna, and cold plunge for up to 6 guests.",
               },
               price: "75",
               priceCurrency: "USD",
