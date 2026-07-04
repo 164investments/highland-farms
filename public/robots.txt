@@ -1,0 +1,78 @@
+# Highland Farms Oregon — robots.txt
+# We welcome AI search and answer engines. A structured overview lives at /llms.txt
+# llms.txt: https://highlandfarmsoregon.com/llms.txt
+#
+# Content-Signal (Cloudflare Content Signals Policy) declares how this content may be used:
+#   search   = yes  (index for search results)
+#   ai-input = yes  (use as grounding/context to answer user prompts)
+#   ai-train = yes  (permitted for AI model training)
+
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+# ── OpenAI ──
+User-agent: GPTBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+User-agent: OAI-SearchBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+# ── Anthropic ──
+User-agent: ClaudeBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+User-agent: Claude-User
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+User-agent: Claude-SearchBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+# ── Perplexity ──
+User-agent: PerplexityBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+User-agent: Perplexity-User
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+# ── Google (Gemini) & Apple training-consent tokens ──
+User-agent: Google-Extended
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+
+User-agent: Applebot-Extended
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+
+# ── Meta AI ──
+User-agent: Meta-ExternalAgent
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+# ── Search engines ──
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+
+Sitemap: https://highlandfarmsoregon.com/sitemap.xml

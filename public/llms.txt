@@ -1,12 +1,24 @@
 # Highland Farms Oregon
 
-> Highland Farms is an all-inclusive farm and forest wedding venue located at 21261 East Little River Road, Brightwood, Oregon 97011 — 50 minutes from Portland and 20 minutes from Mt. Hood. The five-acre property features Scottish Highland Cows, old-growth forest, on-site lodging for up to 24 guests, a Nordic cedar soaking spa, and private farm tours. Primary contact: events@highlandfarms-oregon.com or +1 (831) 214-2053.
+> All-inclusive farm and forest wedding venue and outdoor Nordic sauna spa at the base of Mt. Hood — 21261 East Little River Road, Brightwood, Oregon 97011, 50 minutes from Portland and 20 minutes from Mt. Hood. The five-acre property is home to Scottish Highland Cows and old-growth forest, with on-site lodging for up to 24 guests, private Highland Cow farm tours, and a wood-burning cedar sauna + cold plunge. Contact: events@highlandfarms-oregon.com or +1 (831) 214-2053.
+
+Name: Highland Farms Oregon
+Base: https://highlandfarmsoregon.com
+Last-Updated: 2026-07-04
+Contact: events@highlandfarms-oregon.com | +1 (831) 214-2053
+Sitemap: https://highlandfarmsoregon.com/sitemap.xml
 
 ## About
 
 Highland Farms is a transformed cedar mill property at the base of Mt. Hood, nestled in the forest valley of Brightwood, Oregon. The farm is home to Scottish Highland Cows, Icelandic Sheep, White Peacocks, Nigerian Dwarf Goats, Kunekune Pigs, geese, and chickens. The property includes a restored historic lodge, a cozy cottage, and a glamping camp — all surrounded by towering old-growth evergreens and accessed via a private road.
 
 Highland Farms was featured on LivePDX, Portland's popular local guide, and has 18,000+ Instagram followers at @highlandfarmsor.
+
+## How Highland Farms Compares
+
+- **vs. a typical Oregon wedding venue:** Exclusive-use and all-inclusive — one wedding at a time, the entire 5-acre property yours, on-site lodging for your closest guests, and dedicated event coordination included rather than à la carte. The old-growth forest and Scottish Highland Cow setting is not something a ballroom or vineyard offers.
+- **vs. an indoor Portland spa or bathhouse:** The Nordic Forest Spa is a wood-burning cedar sauna, wet sauna, and cold plunge set in an old-growth forest 50 minutes from Portland. It's a public, Scandinavian-style shared session (90 minutes, up to 6 guests) — what sets it apart is being fully outdoors in the Mt. Hood forest, not an indoor city facility with locker rooms.
+- **vs. a public farm tour or petting zoo:** Farm tours are private (up to 6 guests, 60 minutes) and hands-on with Scottish Highland Cows, Icelandic Sheep, White Peacocks, Nigerian Dwarf Goats, and more.
 
 ## Weddings & Events
 
@@ -16,15 +28,16 @@ Highland Farms was featured on LivePDX, Portland's popular local guide, and has 
 
 ## Experiences
 
-- [Highland Cow Farm Tours](https://highlandfarmsoregon.com/farm-tours): Private 60-minute farm tours for up to 6 guests. Meet Highland Cows, Icelandic Sheep, White Peacocks, Nigerian Dwarf Goats, and more. Book via Acuity Scheduling.
-- [Nordic Forest Spa](https://highlandfarmsoregon.com/nordic-spa): Private 90-minute cedar soaking tub sessions for 6-8 guests, nestled among towering evergreens. Nordic-inspired forest bathing experience. Book via Acuity Scheduling.
+- [Highland Cow Farm Tours](https://highlandfarmsoregon.com/farm-tours): Private 60-minute farm tours for up to 6 guests ($75/person). Meet Highland Cows, Icelandic Sheep, White Peacocks, Nigerian Dwarf Goats, and more. Book via Acuity Scheduling.
+- [Nordic Forest Spa](https://highlandfarmsoregon.com/nordic-spa): Public, Scandinavian-style 90-minute Nordic spa sessions for up to 6 guests ($75/person) — a wood-burning cedar dry sauna, wet sauna, and cold plunge nestled among towering evergreens. Sessions are shared, so you may share your slot with other guests. (Separately, the Lodge and Cottage accommodations each have a private cedar hot tub — not part of the Nordic Forest Spa.)
+- [Sauna Near Portland](https://highlandfarmsoregon.com/sauna-near-portland): The Nordic Forest Spa as a day trip from Portland — a public outdoor wood-burning sauna and cold plunge roughly 50 minutes from the city, in the Mt. Hood National Forest.
 - [Gift Certificates](https://highlandfarms.as.me/schedule/e759f21b): Give the gift of a Highland Farms experience.
 
 ## Accommodations
 
 - [Stay Overview](https://highlandfarmsoregon.com/stay): Four unique accommodations nestled among towering evergreens. Book direct for the best rate.
-- [The Lodge](https://highlandfarmsoregon.com/stay/lodge): Historic cedar mill lodge sleeping 8 guests across 4 bedrooms and 2 baths. Features a spacious family room, dining area, full kitchen, and outdoor forest deck.
-- [The Cottage](https://highlandfarmsoregon.com/stay/cottage): Cozy retreat near The Lodge with 3 bedrooms, 1 bath, and full kitchen. Sleeps 8 guests. Perfect for families or a peaceful forest getaway.
+- [The Lodge](https://highlandfarmsoregon.com/stay/lodge): Historic cedar mill lodge sleeping 8 guests across 4 bedrooms and 2 baths. Features a spacious family room, dining area, full kitchen, private cedar hot tub, and outdoor forest deck.
+- [The Cottage](https://highlandfarmsoregon.com/stay/cottage): Cozy retreat near The Lodge with 3 bedrooms, 1 bath, full kitchen, and private cedar hot tub. Sleeps 8 guests. Perfect for families or a peaceful forest getaway.
 - [The Camp](https://highlandfarmsoregon.com/stay/camp): Glamping experience with a restored Airstream trailer and canvas tent camping under towering evergreens. Sleeps 4 guests.
 - [The Whole Farm](https://highlandfarmsoregon.com/stay/whole-farm): Reserve the entire property for up to 24 guests. Exclusive access to all accommodations, the farm, and the forest. Perfect for weddings, retreats, and large gatherings.
 
@@ -52,5 +65,13 @@ Highland Farms was featured on LivePDX, Portland's popular local guide, and has 
 - Maximum guest capacity: 24 (overnight), larger for day events
 - Animals: Scottish Highland Cows, Icelandic Sheep, White Peacocks, Nigerian Dwarf Goats, Kunekune Pigs, geese, chickens
 - Accommodations: The Lodge (8 guests), The Cottage (8 guests), The Camp (4 guests), Whole Farm (24 guests)
+- Nordic Forest Spa: 90-minute public, shared sessions, up to 6 guests, $75/person — wood-burning cedar dry sauna, wet sauna, and cold plunge
+- Farm Tours: 60-minute private tours, up to 6 guests, $75/person
 - Farm tour booking: https://highlandfarms.as.me/schedule/e759f21b
 - Spa booking: https://highlandfarms.as.me/schedule/e759f21b/appointment/85942611/calendar/13047082
+
+## Machine-Readable Data
+
+- Structured data (JSON-LD, schema.org) is embedded on every page: LocalBusiness / LodgingBusiness / EventVenue, TouristAttraction, HealthAndBeautyBusiness, and Product/Offer entities with pricing for farm tours ($75/person) and Nordic spa sessions ($75/person), plus AggregateRating and per-accommodation detail.
+- Sitemap: https://highlandfarmsoregon.com/sitemap.xml
+- Live booking availability via Acuity Scheduling: https://highlandfarms.as.me
