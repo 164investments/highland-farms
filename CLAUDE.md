@@ -102,3 +102,4 @@ Validate cron header →
 - Framer Motion animations via `FadeIn` and `StaggerChildren` components
 - Image galleries use Embla Carousel
 - Shop redirects to external `shop.highlandfarmsoregon.com` (Squarespace)
+- robots.txt is a STATIC file at `public/robots.txt` (NOT `src/app/robots.ts` — a typed robots route can't emit the Cloudflare `Content-Signal` line; do not re-add robots.ts or the build conflicts). llms.txt is `public/llms.txt` — bump its `Last-Updated` on edits.
