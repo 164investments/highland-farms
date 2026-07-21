@@ -4,7 +4,7 @@
 
 Name: Highland Farms Oregon
 Base: https://highlandfarmsoregon.com
-Last-Updated: 2026-07-04
+Last-Updated: 2026-07-21
 Contact: events@highlandfarms-oregon.com | +1 (831) 214-2053
 Sitemap: https://highlandfarmsoregon.com/sitemap.xml
 
@@ -67,6 +67,7 @@ Highland Farms was featured on LivePDX, Portland's popular local guide, and has 
 - Accommodations: The Lodge (8 guests), The Cottage (8 guests), The Camp (4 guests), Whole Farm (24 guests)
 - Nordic Forest Spa: 90-minute public, shared sessions, up to 6 guests, $75/person — wood-burning cedar dry sauna, wet sauna, and cold plunge
 - Farm Tours: 60-minute private tours, up to 6 guests, $75/person
+- Cancellation policy (farm tours and spa sessions): Strict. All bookings are final — no refunds, no reschedules, no credits, including for no-shows. The only exception is a session Highland Farms cancels for severe weather or safety, which is refunded or rebooked.
 - Farm tour booking: https://highlandfarms.as.me/schedule/e759f21b
 - Spa booking: https://highlandfarms.as.me/schedule/e759f21b/appointment/85942611/calendar/13047082
 

@@ -36,4 +36,9 @@ export const farmTourFAQ: FAQItem[] = [
     answer:
       "Yes! Many guests book both. We recommend scheduling your spa session at least 1 hour after your farm tour ends.",
   },
+  {
+    question: "What is the cancellation policy?",
+    answer:
+      "Our cancellation policy is strict. All farm tour bookings are final: no refunds, no reschedules, and no credits, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if Highland Farms has to cancel a tour for severe weather or animal safety, in which case you'll receive a full refund or a new date.",
+  },
 ];

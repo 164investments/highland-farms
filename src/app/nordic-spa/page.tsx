@@ -441,6 +441,10 @@ export default function NordicSpaPage() {
               <p className="mt-3 text-center text-xs text-muted font-sans">
                 Spa runs Tue / Wed / Fri / Sat / Sun
               </p>
+              <p className="mt-1.5 text-center text-xs text-muted font-sans">
+                Strict cancellation policy: all bookings are final. No refunds
+                or reschedules.
+              </p>
             </div>
           </div>
         </Container>

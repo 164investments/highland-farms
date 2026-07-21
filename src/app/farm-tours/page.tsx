@@ -270,6 +270,10 @@ export default function FarmToursPage() {
                 size="lg"
                 className="w-full"
               />
+              <p className="mt-3 text-center text-xs text-muted font-sans">
+                Strict cancellation policy: all bookings are final. No refunds
+                or reschedules.
+              </p>
             </div>
           </div>
         </Container>

@@ -69,7 +69,7 @@ const faqItems = [
   {
     question: "What's the cancellation policy?",
     answer:
-      "Please contact us at least 24 hours in advance to reschedule. Spa reservations are non-refundable, but we'll work with you to find a better date and time.",
+      "Our cancellation policy is strict. All spa bookings are final: no refunds, no reschedules, and no credits, including for no-shows. Please confirm your date and time before you book. The only exception is if we have to cancel a session for severe weather or a safety issue on our end, in which case you'll receive a full refund or a new date.",
   },
 ];
 

@@ -120,7 +120,7 @@ export default function TermsOfServicePage() {
               </h2>
               <ul className="list-disc pl-5 space-y-2 text-sm">
                 <li>
-                  <strong>Farm tours &amp; spa sessions:</strong> Cancellations must be made at least 24 hours before your scheduled appointment for a full refund. Cancellations within 24 hours are non-refundable.
+                  <strong>Farm tours &amp; spa sessions:</strong> Strict cancellation policy. All bookings are final. We do not offer refunds, reschedules, credits, or transfers for cancellations, date changes, or no-shows. Please confirm your date, time, and guest count before booking. This does not apply when Highland Farms cancels a session (see Weather below).
                 </li>
                 <li>
                   <strong>Accommodations:</strong> Cancellation terms vary by property and booking date. Specific cancellation policies are provided at the time of booking.
