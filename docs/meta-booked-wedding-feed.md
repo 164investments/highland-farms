@@ -46,7 +46,7 @@ Without `--payments-csv`, the script still builds identity coverage, a fully has
 
 All output files are mode `0600`. No raw email or phone is written.
 
-## Meta constraints
+## Platform constraints
 
 - Historical bookings belong in a value-based customer-list Custom Audience.
 - Future Meta offline conversions may be sent only when the verified BookedIQ booked-stage time is within 62 days. Their value still comes only from settled payment records.
