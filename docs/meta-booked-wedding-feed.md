@@ -49,12 +49,12 @@ All output files are mode `0600`. No raw email or phone is written.
 ## Meta constraints
 
 - Historical bookings belong in a value-based customer-list Custom Audience.
-- Future Meta offline conversions may be sent only when their true payment time is within 62 days.
+- Future Meta offline conversions may be sent only when the verified BookedIQ booked-stage time is within 62 days. Their value still comes only from settled payment records.
 - Google offline conversions use `UPLOAD_CLICKS` enhanced conversions for leads, only within the click lookback window, and the action must remain Secondary.
 - Google eligibility is measured from a captured ad-click timestamp to the BookedIQ won timestamp. A recent payment alone never makes an old lead eligible. Missing click time fails closed.
 - Where no click ID survives, the captured web-lead time is only a conservative local lag prefilter; Google performs the final enhanced-conversions-for-leads match and can still reject the conversion.
 - `lastStatusChangeAt` is the only accepted BookedIQ booking timestamp. Generic record `updatedAt` is never substituted.
-- Repeated runs require `--prior-upload-state` recorded only after confirmed successful uploads. Google value changes become `RESTATEMENT` adjustments; an already-uploaded Meta booking with changed collected value is blocked from unsafe CAPI re-upload and reported for review.
+- Repeated runs require `--prior-upload-state` recorded only after confirmed successful uploads, including the original order ID, conversion action, conversion time, platform-recorded time, and success status. Google value changes become `RESTATEMENT` candidates only inside Google's 55-day adjustment window; an already-uploaded Meta booking with changed collected value is blocked from unsafe CAPI re-upload and reported for review.
 - `HF — Leads — Weddings` must remain optimized for leads. This feed must never be connected to a value-based bid strategy.
 - `fbp` and `fbc` are not customer-list upload columns. They are retained only for eligible future CAPI events.
 - The 34-person seed is too small for a Meta lookalike or a serving Google Customer Match list. Do not create a booked-wedding lookalike.

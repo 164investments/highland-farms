@@ -80,7 +80,7 @@ Do not upload conversions or change any campaign goal/bidding settings in this w
 
 ## Write 6 — eligible conversion uploads
 
-This plan ID will be written after the new action propagates and a `validateOnly` check passes. It will list every exact order ID, true payment time, collected value, identifier coverage, and local 90-day eligibility result. `partialFailure` will be enabled and success counts will exclude empty result objects. No conversion older than the permitted window will be described as an upload defect.
+This plan ID will be written after the new action propagates and a `validateOnly` check passes. It will list every exact order ID, verified BookedIQ booked-stage time, collected value, identifier coverage, and local 90-day click-to-booking eligibility result. `partialFailure` will be enabled and success counts will exclude empty result objects. No conversion older than the permitted window will be described as an upload defect.
 
 ## Exclusion recommendation — discuss after real match rates
 

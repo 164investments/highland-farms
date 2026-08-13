@@ -40,6 +40,7 @@ GOOGLE_API_VERSION = "v22"
 GOOGLE_TOKEN_DEFAULT = Path.home() / "Downloads/Code-and-Text/gmail_token.json"
 DEFAULT_ENV_FILE = Path.home() / "projects/highland-farms/.env.prod"
 GOOGLE_CLICK_LOOKBACK_DAYS = 90
+GOOGLE_ADJUSTMENT_WINDOW_DAYS = 55
 META_OFFLINE_BACKDATE_DAYS = 62
 MONEY_TOLERANCE = 0.01
 
@@ -718,13 +719,38 @@ def conversion_candidates(
         common["eligibility_basis"] = "captured_click_time" if any((identity.gclid, identity.gbraid, identity.wbraid)) else "lead_capture_time_prefilter_google_final_match_required"
         google.append(common)
     elif prior_google and abs(float(prior_google.get("value", 0)) - row.collected_value) > MONEY_TOLERANCE:
-        google_adjustments.append({
-            "order_id": common["order_id"],
-            "adjustment_type": "RESTATEMENT",
-            "adjustment_date_time": now.isoformat(),
-            "restatement_value": row.collected_value,
-            "currency_code": "USD",
-        })
+        original_conversion_time = parse_datetime(prior_google.get("conversion_date_time"))
+        original_recorded_time = parse_datetime(prior_google.get("recorded_at"))
+        prior_order_id = as_text(prior_google.get("order_id"))
+        conversion_action = as_text(prior_google.get("conversion_action"))
+        upload_status = as_text(prior_google.get("upload_status")).upper()
+        if upload_status != "SUCCESS":
+            diagnostics.append("google_restatement_blocked_original_upload_not_confirmed_successful")
+        elif prior_order_id != common["order_id"]:
+            diagnostics.append("google_restatement_blocked_order_id_mismatch")
+        elif not conversion_action:
+            diagnostics.append("google_restatement_blocked_missing_conversion_action")
+        elif not original_conversion_time or not original_recorded_time:
+            diagnostics.append("google_restatement_blocked_missing_original_timestamps")
+        elif original_recorded_time > now or now - original_recorded_time > timedelta(days=GOOGLE_ADJUSTMENT_WINDOW_DAYS):
+            diagnostics.append("google_restatement_blocked_outside_55_day_window")
+        elif now <= original_conversion_time:
+            diagnostics.append("google_restatement_blocked_adjustment_not_after_conversion")
+        else:
+            google_adjustments.append({
+                "conversion_action": conversion_action,
+                "order_id": prior_order_id,
+                "adjustment_type": "RESTATEMENT",
+                "adjustment_date_time": now.isoformat(),
+                "restatement_value": {
+                    "adjusted_value": row.collected_value,
+                    "currency_code": "USD",
+                },
+                "validation_context": {
+                    "original_conversion_date_time": original_conversion_time.isoformat(),
+                    "original_recorded_at": original_recorded_time.isoformat(),
+                },
+            })
     elif not click_time:
         diagnostics.append("missing_click_or_lead_capture_time")
     meta = []
@@ -785,7 +811,8 @@ def validate_rows(meta_rows: list[dict[str, Any]], google_rows: list[dict[str, A
 
 
 def validate_event_candidates(
-    google_rows: list[dict[str, Any]], meta_rows: list[dict[str, Any]], now: datetime
+    google_rows: list[dict[str, Any]], meta_rows: list[dict[str, Any]], now: datetime,
+    google_adjustments: list[dict[str, Any]] | None = None,
 ) -> None:
     errors = []
     for number, row in enumerate(google_rows, start=1):
@@ -801,6 +828,31 @@ def validate_event_candidates(
             errors.append(f"Google conversion {number}: invalid identifier hash")
         if sum(bool(row.get(key)) for key in ("gclid", "gbraid", "wbraid")) > 1:
             errors.append(f"Google conversion {number}: multiple click IDs")
+    for number, row in enumerate(google_adjustments or [], start=1):
+        adjustment_time = parse_datetime(row.get("adjustment_date_time"))
+        context = row.get("validation_context", {})
+        original_conversion_time = parse_datetime(context.get("original_conversion_date_time")) if isinstance(context, dict) else None
+        original_recorded_time = parse_datetime(context.get("original_recorded_at")) if isinstance(context, dict) else None
+        restatement = row.get("restatement_value", {})
+        if row.get("adjustment_type") != "RESTATEMENT":
+            errors.append(f"Google adjustment {number}: adjustment type must be RESTATEMENT")
+        if not as_text(row.get("conversion_action")) or not as_text(row.get("order_id")):
+            errors.append(f"Google adjustment {number}: missing conversion action or order ID")
+        if not adjustment_time or adjustment_time > now:
+            errors.append(f"Google adjustment {number}: invalid or future adjustment time")
+        if not original_conversion_time or not adjustment_time or adjustment_time <= original_conversion_time:
+            errors.append(f"Google adjustment {number}: adjustment must follow original conversion")
+        if (
+            not original_recorded_time
+            or not adjustment_time
+            or original_recorded_time > adjustment_time
+            or adjustment_time - original_recorded_time > timedelta(days=GOOGLE_ADJUSTMENT_WINDOW_DAYS)
+        ):
+            errors.append(f"Google adjustment {number}: outside 55-day recorded-conversion window")
+        if not isinstance(restatement, dict) or (money(restatement.get("adjusted_value")) or 0) <= 0:
+            errors.append(f"Google adjustment {number}: missing positive adjusted value")
+        if not isinstance(restatement, dict) or as_text(restatement.get("currency_code")).upper() != "USD":
+            errors.append(f"Google adjustment {number}: currency must be USD")
     for number, row in enumerate(meta_rows, start=1):
         user_data = row.get("user_data", {})
         try:
@@ -970,7 +1022,12 @@ def build(args: argparse.Namespace) -> int:
     for identity in google_people.values():
         google_match_upload.append(google_match_row(identity))
     validate_rows(meta_upload, google_match_upload)
-    validate_event_candidates(google_conversion_candidates, meta_capi_candidates, now)
+    validate_event_candidates(
+        google_conversion_candidates,
+        meta_capi_candidates,
+        now,
+        google_conversion_adjustments,
+    )
 
     sheet_matched_ids = {id(row.sheet) for row in booked if row.sheet}
     sheet_only = [row for row in sheet_rows if id(row) not in sheet_matched_ids]

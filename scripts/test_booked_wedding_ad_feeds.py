@@ -170,12 +170,56 @@ class FeedTests(unittest.TestCase):
         booked = feed.BookedWedding("opp", "Alex", 20000, identity, won_at=(now - timedelta(days=10)).isoformat())
         booked.payments = [{"net_collected": 10000}]
         google, meta, adjustments, diagnostics = feed.conversion_candidates(
-            booked, now, {"google": {"value": 2500}, "meta": {"value": 2500}},
+            booked, now, {"google": {
+                "value": 2500,
+                "upload_status": "SUCCESS",
+                "order_id": "BookedIQ:opp",
+                "conversion_action": "customers/9938773372/conversionActions/123",
+                "conversion_date_time": (now - timedelta(days=10)).isoformat(),
+                "recorded_at": (now - timedelta(days=5)).isoformat(),
+            }, "meta": {"value": 2500}},
         )
         self.assertEqual(google, [])
         self.assertEqual(meta, [])
-        self.assertEqual(adjustments[0]["restatement_value"], 10000)
+        self.assertEqual(adjustments[0]["restatement_value"]["adjusted_value"], 10000)
         self.assertIn("meta_prior_event_value_changed_no_safe_capi_reupload", diagnostics)
+
+    def test_google_restatement_requires_successful_original_upload_and_window(self):
+        now = datetime(2026, 8, 13, 12, tzinfo=timezone.utc)
+        identity = feed.Identity("contact", "Alex", "alex@example.com", "", click_time=(now - timedelta(days=40)).isoformat())
+        booked = feed.BookedWedding("opp", "Alex", 20000, identity, won_at=(now - timedelta(days=10)).isoformat())
+        booked.payments = [{"net_collected": 10000}]
+        base = {
+            "value": 2500,
+            "order_id": "BookedIQ:opp",
+            "conversion_action": "customers/9938773372/conversionActions/123",
+            "conversion_date_time": (now - timedelta(days=10)).isoformat(),
+            "recorded_at": (now - timedelta(days=5)).isoformat(),
+        }
+        _, _, adjustments, diagnostics = feed.conversion_candidates(booked, now, {"google": base})
+        self.assertEqual(adjustments, [])
+        self.assertIn("google_restatement_blocked_original_upload_not_confirmed_successful", diagnostics)
+
+        expired = {**base, "upload_status": "SUCCESS", "recorded_at": (now - timedelta(days=56)).isoformat()}
+        _, _, adjustments, diagnostics = feed.conversion_candidates(booked, now, {"google": expired})
+        self.assertEqual(adjustments, [])
+        self.assertIn("google_restatement_blocked_outside_55_day_window", diagnostics)
+
+    def test_invalid_google_adjustment_rejects_whole_batch(self):
+        now = datetime(2026, 8, 13, 12, tzinfo=timezone.utc)
+        adjustment = {
+            "conversion_action": "customers/9938773372/conversionActions/123",
+            "order_id": "BookedIQ:opp",
+            "adjustment_type": "RESTATEMENT",
+            "adjustment_date_time": now.isoformat(),
+            "restatement_value": {"adjusted_value": 10000, "currency_code": "USD"},
+            "validation_context": {
+                "original_conversion_date_time": (now - timedelta(days=70)).isoformat(),
+                "original_recorded_at": (now - timedelta(days=56)).isoformat(),
+            },
+        }
+        with self.assertRaisesRegex(RuntimeError, "Google adjustment"):
+            feed.validate_event_candidates([], [], now, [adjustment])
 
     def test_unresolved_contract_is_hard_blocked(self):
         row = feed.SheetWedding("Emma Williams & Partner", 2026, "", 100)
