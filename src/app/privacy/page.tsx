@@ -19,7 +19,7 @@ export default function PrivacyPolicyPage() {
             Privacy Policy
           </h1>
           <p className="text-sm text-muted font-sans mb-10">
-            Last updated: March 3, 2026
+            Last updated: August 13, 2026
           </p>
 
           <div className="prose prose-neutral max-w-none text-base text-charcoal/90 font-sans leading-relaxed space-y-8">
@@ -103,6 +103,11 @@ export default function PrivacyPolicyPage() {
               <p className="text-sm mt-3">
                 We do not sell, rent, or share your personal information with
                 third parties for their own marketing purposes.
+              </p>
+              <p className="text-sm mt-3">
+                We may use our own customer and booking information to measure our advertising, avoid showing ads to
+                existing customers, and create audiences of people with similar interests. This use does not include
+                text-message opt-in data or consent records.
               </p>
             </section>
 
@@ -205,7 +210,8 @@ export default function PrivacyPolicyPage() {
                   <strong>Google Tag Manager / Google Analytics</strong> — website analytics and campaign measurement
                 </li>
                 <li>
-                  <strong>Meta Pixel / Conversions API</strong> — advertising measurement and conversion reporting
+                  <strong>Meta Pixel / Conversions API / Custom Audiences</strong> — advertising measurement,
+                  conversion reporting, suppression of existing customers, and audience modeling
                 </li>
                 <li>
                   <strong>Microsoft Clarity</strong> — session analytics when enabled
@@ -234,6 +240,13 @@ export default function PrivacyPolicyPage() {
                 are contractually obligated to maintain confidentiality and security.
               </p>
               <p className="text-sm mt-2">
+                For Google and Meta advertising services, we may share identifiers such as email address, phone number,
+                name, and general location after applying a one-way cryptographic hash, together with transaction or
+                booking value. These platforms use the information to match our records to their users for measurement,
+                customer suppression, and creation of similar audiences. We do not send payment-card numbers, message
+                content, or text-message opt-in data for these purposes.
+              </p>
+              <p className="text-sm mt-2">
                 All of the above categories exclude text messaging originator opt-in data and consent; this information
                 will not be shared with any third parties, excluding aggregators and providers of the Text Message services.
               </p>
@@ -260,6 +273,7 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Delete</strong> — Request that we delete your personal information</li>
                 <li><strong>Correct</strong> — Request correction of inaccurate personal information</li>
                 <li><strong>Opt out of sale</strong> — We do not sell your personal information</li>
+                <li><strong>Opt out of targeted advertising</strong> — Contact us to stop our use of your information for customer-list advertising audiences</li>
                 <li><strong>Opt out of SMS</strong> — Reply &ldquo;STOP&rdquo; to any message or contact us directly</li>
                 <li><strong>Opt out of marketing emails</strong> — Click &ldquo;unsubscribe&rdquo; in any email</li>
                 <li><strong>Non-discrimination</strong> — We will not discriminate against you for exercising your privacy rights</li>
@@ -270,6 +284,17 @@ export default function PrivacyPolicyPage() {
                   {CONTACT.email}
                 </a>
                 . We will respond within 45 days.
+              </p>
+              <p className="text-sm mt-3">
+                You can also manage ad personalization directly through{" "}
+                <a href="https://www.facebook.com/adpreferences" className="text-forest underline underline-offset-2">
+                  Meta Ad Preferences
+                </a>{" "}
+                and{" "}
+                <a href="https://adssettings.google.com/" className="text-forest underline underline-offset-2">
+                  Google Ad Settings
+                </a>
+                .
               </p>
 
               <h3 className="text-lg font-normal font-display mb-2 mt-4">

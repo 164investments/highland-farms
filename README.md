@@ -32,6 +32,15 @@ Server-side conversion tracking also requires `GA4_MEASUREMENT_ID`,
 Run the additive SQL in `supabase-setup.sql` after deploying attribution or
 webhook dedupe changes.
 
+## Booked-Wedding Ad Feeds
+
+The repository includes a read-only builder for locally validated Meta and
+Google suppression and revenue-measurement files. It does not write to either
+ad account. See [the feed guide](docs/meta-booked-wedding-feed.md) for inputs,
+commands, output files, and safety gates. Any future live-account write must
+follow the exact, approval-gated sequence in the
+[staged ads plan](docs/live-ads-plan-2026-08-13.md).
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

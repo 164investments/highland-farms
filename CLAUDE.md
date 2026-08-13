@@ -24,6 +24,8 @@ npm run indexnow # submit pages to Bing
 - Libs: `src/lib/` (supabase, acuity, hubspot, bookediq, email, ga4, meta, meta-leads, schemas)
 - Layout: `src/components/layout/` (Header, Footer, GTM, EmailPopup, BookedIQWidget, StructuredData, AttributionTracker)
 - Forms: `src/components/forms/ContactForm.tsx`
+- Booked-wedding feed tooling: `scripts/build-booked-wedding-ad-feeds.py`, read-only account-state scripts, and `scripts/test_booked_wedding_ad_feeds.py`
+- Booked-wedding feed docs and approval-gated live-account plan: `docs/meta-booked-wedding-feed.md`, `docs/live-ads-plan-2026-08-13.md`
 - Config: `next.config.ts` (17 redirects, security headers), `vercel.json` (daily cron)
 
 ## Environment Variables
