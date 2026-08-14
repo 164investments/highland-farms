@@ -5,7 +5,10 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { StructuredData } from "@/components/layout/StructuredData";
-import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/layout/GoogleTagManager";
+import {
+  GoogleTagManager,
+  GoogleTagManagerNoScript,
+} from "@/components/layout/GoogleTagManager";
 import { EmailPopup } from "@/components/layout/EmailPopup";
 import { MicrosoftClarity } from "@/components/layout/MicrosoftClarity";
 import { BookedIQWidget } from "@/components/layout/BookedIQWidget";
@@ -87,9 +90,7 @@ export const metadata: Metadata = {
       { url: "/favicon.ico", sizes: "48x48" },
       { url: "/icon.png", sizes: "48x48", type: "image/png" },
     ],
-    apple: [
-      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
   manifest: "/site.webmanifest",
   robots: {
@@ -113,8 +114,16 @@ export default function RootLayout({
     <html lang="en" className="overflow-x-hidden">
       <head>
         <StructuredData />
+        <link
+          rel="alternate"
+          type="text/plain"
+          href="/llms.txt"
+          title="llms.txt"
+        />
       </head>
-      <body className={`${cormorant.variable} ${inter.variable} ${dancingScript.variable} antialiased overflow-x-hidden`}>
+      <body
+        className={`${cormorant.variable} ${inter.variable} ${dancingScript.variable} antialiased overflow-x-hidden`}
+      >
         <GoogleTagManager />
         <GoogleTagManagerNoScript />
         <AttributionTracker />
@@ -132,7 +141,9 @@ export default function RootLayout({
         <Footer />
         <EmailPopup />
         {process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID && (
-          <MicrosoftClarity projectId={process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID} />
+          <MicrosoftClarity
+            projectId={process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID}
+          />
         )}
         <BookedIQWidget />
       </body>
