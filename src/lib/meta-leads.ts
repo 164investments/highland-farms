@@ -22,7 +22,12 @@ export interface MetaLeadData {
   phone?: string;
   /** "Within 6 months" | "6–12 months" | "12–18 months" | "Just starting to plan" */
   weddingDateRange?: string;
-  /** "Under $6,000" | "$6,000–$10,000" | "$10,000–$15,000" | "$15,000+" */
+  /**
+   * Venue budget band. Newer forms ask for the VENUE budget
+   * ("$10,000–$15,000" … "$30,000+"); older forms asked for the couple's TOTAL
+   * wedding budget ("Under $6,000" … "$30,000+"). Both land here — see
+   * BUDGET_FIELD_KEYS for the field names each form uses.
+   */
   weddingBudget?: string;
   /** ["Private, exclusive setting", "On-site catering", ...] */
   venuePriorities?: string[];
@@ -30,6 +35,21 @@ export interface MetaLeadData {
   inboxUrl?: string;
   createdTime?: string;
 }
+
+/**
+ * Field keys the budget question has shipped under, newest first.
+ *
+ * Meta lead forms are immutable once they have received a lead, so changing the
+ * question means publishing a NEW form. Both forms then run concurrently while
+ * ads are migrated, and leads arrive under whichever key their form used. Add
+ * new keys to the front of this list rather than replacing — dropping an old key
+ * silently writes NULL into `meta_leads.wedding_budget` for any ad still on the
+ * older form.
+ */
+const BUDGET_FIELD_KEYS = [
+  "venue_budget", // "Wedding Form - Qualified" (2026-08): venue budget
+  "estimated_total_wedding_budget", // "Wedding Form - 3.20.26" / "1.1.26": total wedding budget
+] as const;
 
 interface FieldData {
   name: string;
@@ -96,9 +116,10 @@ export function normalizeMetaLead(raw: RawMetaLead): MetaLeadData {
   const email = (fields["email"] as string) || undefined;
   const phone = (fields["phone_number"] as string) || undefined;
 
-  // Custom form fields from Wedding Form 1.1.26
+  // Custom form fields — see BUDGET_FIELD_KEYS for why the budget is a lookup
   const weddingDateRange = (fields["_estimated_wedding_date_or_season"] as string) || undefined;
-  const weddingBudget = (fields["estimated_total_wedding_budget"] as string) || undefined;
+  const weddingBudget =
+    BUDGET_FIELD_KEYS.map((key) => fields[key] as string | undefined).find(Boolean) || undefined;
   const inboxUrl = (fields["inbox_url"] as string) || undefined;
 
   // Multi-select venue priorities

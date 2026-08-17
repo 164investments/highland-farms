@@ -120,8 +120,13 @@ async function processLead(
   if (!lead.campaignId && meta.campaignId) lead.campaignId = meta.campaignId;
   if (!lead.formId && meta.formId) lead.formId = meta.formId;
 
-  // Budget-based lead qualification — under $6K leads are junk
-  const isDisqualified = lead.weddingBudget === "under_$6,000";
+  // Budget-based lead qualification. Match any "under the floor" band instead of one
+  // hardcoded value: this previously tested only "under_$6,000", an option removed from
+  // the form on 2026-03-20. From the last such lead (2026-05-04) until this fix nothing
+  // was ever disqualified, so every lead reached BookedIQ, HubSpot and events@ flagged
+  // as qualified. Meta slugifies option labels, so "Under $10,000" arrives as
+  // "under_$10,000" and a future sub-floor band is covered without another code change.
+  const isDisqualified = /^under[_\s$]/i.test(lead.weddingBudget ?? "");
 
   // Upsert into Supabase meta_leads table (always, even if disqualified)
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
