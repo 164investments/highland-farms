@@ -310,14 +310,24 @@ export async function syncMetaLeadToHubSpot(lead: MetaLeadData): Promise<void> {
 /**
  * Maps Meta lead form budget strings to HubSpot hf_wedding_budget enum values.
  * Meta sends raw form values; HubSpot expects the defined option keys.
+ *
+ * The live property defines exactly: under_6000, 6000_to_10000, 10000_to_15000,
+ * 15000_to_20000, 20000_plus, not_sure. "$20,000+" is the top bucket, so every
+ * band above it collapses into it.
+ *
+ * Order matters. Ranges are matched before open-ended bands, because
+ * "$20,000–$30,000" contains both 20000 and 30000 and must not be read as "$30,000+".
  */
-function normalizeMetaBudget(raw: string): string {
+export function normalizeMetaBudget(raw: string): string {
   const lower = raw.toLowerCase().replace(/[^a-z0-9]/g, "");
   if (lower.includes("under") || lower.startsWith("under")) return "under_6000";
   if (lower.includes("6000") && lower.includes("10000")) return "6000_to_10000";
   if (lower.includes("10000") && lower.includes("15000")) return "10000_to_15000";
   if (lower.includes("15000") && lower.includes("20000")) return "15000_to_20000";
   if (lower.includes("20000") || lower.includes("20k")) return "20000_plus";
+  // "$30,000+" reached the raw fallback before this line and HubSpot rejected it,
+  // so the top-budget leads — the ones worth the most — lost their budget in the CRM.
+  if (lower.includes("30000") || lower.includes("30k")) return "20000_plus";
   if (lower.includes("notsure") || lower.includes("sure")) return "not_sure";
   // Return raw as fallback — HubSpot will reject unknown enum values gracefully
   return raw;
