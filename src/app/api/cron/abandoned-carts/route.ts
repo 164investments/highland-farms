@@ -8,8 +8,11 @@ import {
   renderReminder,
   renderReminderText,
   subjectFor,
+  type CartStep,
+  type CartVariant,
   type ReminderLine,
 } from "@/lib/shop/abandoned-cart-email";
+import { resolveSender } from "@/lib/shop/cart-senders";
 
 /**
  * Cart reminders. Hourly.
@@ -36,6 +39,9 @@ export const maxDuration = 60;
 const HOUR = 60 * 60 * 1000;
 const STEP_1_AFTER = 1 * HOUR;
 const STEP_2_AFTER = 24 * HOUR;
+// Klaviyo, Omnisend and Barilliance independently recommend three emails; this
+// is the closer, and it's where the batch/pickup cutoff naturally lives.
+const STEP_3_AFTER = 60 * HOUR;
 const TOO_OLD = 7 * 24 * HOUR;
 /** Ceiling per run so a backlog or a bug can't turn into a mail blast. */
 const MAX_SENDS_PER_RUN = 40;
@@ -62,6 +68,9 @@ interface CartRow {
   updated_at: string;
   reminder_1_at: string | null;
   reminder_2_at: string | null;
+  reminder_3_at: string | null;
+  variant: CartVariant | null;
+  sender: string | null;
 }
 
 function firstNameOf(row: CartRow): string {
@@ -75,13 +84,14 @@ export async function GET(request: Request) {
   }
 
   const now = Date.now();
-  const result = { considered: 0, sent1: 0, sent2: 0, skipped: 0, failed: 0 };
+  const result = { considered: 0, sent1: 0, sent2: 0, sent3: 0, skipped: 0, failed: 0 };
 
   try {
     const { data, error } = await db()
       .from("shop_abandoned_carts")
       .select(
-        "id, recovery_token, email, name, items, updated_at, reminder_1_at, reminder_2_at",
+        "id, recovery_token, email, name, items, updated_at, " +
+          "reminder_1_at, reminder_2_at, reminder_3_at, variant, sender",
       )
       .is("recovered_at", null)
       .is("unsubscribed_at", null)
@@ -94,7 +104,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "read failed" }, { status: 500 });
     }
 
-    const carts = (data ?? []) as CartRow[];
+    const carts = (data ?? []) as unknown as CartRow[];
     result.considered = carts.length;
     if (carts.length === 0) return NextResponse.json({ ok: true, ...result });
 
@@ -119,9 +129,10 @@ export async function GET(request: Request) {
       if (sends >= MAX_SENDS_PER_RUN) break;
 
       const idle = now - new Date(cart.updated_at).getTime();
-      let step: 1 | 2 | null = null;
+      let step: CartStep | null = null;
       if (!cart.reminder_1_at && idle >= STEP_1_AFTER) step = 1;
       else if (cart.reminder_1_at && !cart.reminder_2_at && idle >= STEP_2_AFTER) step = 2;
+      else if (cart.reminder_2_at && !cart.reminder_3_at && idle >= STEP_3_AFTER) step = 3;
       if (!step) continue;
 
       // Bought since? Then this isn't an abandoned cart, it's a customer.
@@ -167,12 +178,17 @@ export async function GET(request: Request) {
         lines,
         subtotalCents,
         step,
+        // Assigned once when the cart was first saved, so the whole sequence
+        // stays in one arm. Fall back rather than skip if it's ever missing.
+        variant: (cart.variant ?? "B") as CartVariant,
+        senderKey: resolveSender(cart.sender).key,
       };
 
       // Stamp BEFORE sending. A crash after the send would otherwise let the
       // next run mail the same person again; a crash after the stamp costs one
       // reminder, which is the cheaper mistake.
-      const column = step === 1 ? "reminder_1_at" : "reminder_2_at";
+      const column =
+        step === 1 ? "reminder_1_at" : step === 2 ? "reminder_2_at" : "reminder_3_at";
       const { error: stampError } = await db()
         .from("shop_abandoned_carts")
         .update({ [column]: new Date().toISOString() })
@@ -200,7 +216,8 @@ export async function GET(request: Request) {
         });
         sends += 1;
         if (step === 1) result.sent1 += 1;
-        else result.sent2 += 1;
+        else if (step === 2) result.sent2 += 1;
+        else result.sent3 += 1;
       } catch (err) {
         console.error(`[cart-reminders] send failed for cart ${cart.id}:`, err);
         result.failed += 1;
