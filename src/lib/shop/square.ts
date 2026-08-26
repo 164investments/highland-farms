@@ -364,3 +364,73 @@ export async function adjustInventory(
     console.error("[shop] Square inventory adjust threw:", err);
   }
 }
+
+/**
+ * Every Square catalog variation, for the admin's match picker.
+ *
+ * Deliberately unfiltered: the "is this merchandise or a wedding deposit"
+ * judgement belongs to the person choosing, not to a regex. Sorted by name so
+ * the list is scannable.
+ */
+export async function listCatalogVariations(): Promise<
+  { variationId: string; name: string; priceCents: number | null; trackInventory: boolean }[]
+> {
+  const { accessToken } = config();
+  try {
+    const response = await fetch(`${SQUARE_API}/catalog/list?types=ITEM`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Square-Version": SQUARE_VERSION,
+      },
+      // The catalog changes rarely; a short cache keeps the admin snappy without
+      // going stale enough to matter.
+      next: { revalidate: 300 },
+    });
+    const body = (await response.json().catch(() => ({}))) as {
+      objects?: {
+        item_data?: {
+          name?: string;
+          variations?: {
+            id?: string;
+            item_variation_data?: {
+              name?: string;
+              price_money?: { amount?: number };
+              track_inventory?: boolean;
+            };
+          }[];
+        };
+      }[];
+      errors?: SquareError[];
+    };
+    if (!response.ok) {
+      console.error("[shop] catalog list failed:", JSON.stringify(body.errors ?? {}));
+      return [];
+    }
+    const rows: {
+      variationId: string;
+      name: string;
+      priceCents: number | null;
+      trackInventory: boolean;
+    }[] = [];
+    for (const obj of body.objects ?? []) {
+      const item = obj.item_data;
+      for (const v of item?.variations ?? []) {
+        const iv = v.item_variation_data;
+        if (!v.id) continue;
+        // Square names a single-variation item's variation "Regular"; the item
+        // name is what a person recognises.
+        const variationName = iv?.name && iv.name !== "Regular" ? ` (${iv.name})` : "";
+        rows.push({
+          variationId: v.id,
+          name: `${item?.name ?? "Untitled"}${variationName}`,
+          priceCents: iv?.price_money?.amount ?? null,
+          trackInventory: Boolean(iv?.track_inventory),
+        });
+      }
+    }
+    return rows.sort((a, b) => a.name.localeCompare(b.name));
+  } catch (err) {
+    console.error("[shop] catalog list threw:", err);
+    return [];
+  }
+}

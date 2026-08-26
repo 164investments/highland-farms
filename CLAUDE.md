@@ -90,7 +90,7 @@ Validate cron header →
 - Env vars for GA4 (optional): `GOOGLE_SA_EMAIL`, `GOOGLE_SA_PRIVATE_KEY`
 
 ## Database Tables (Supabase)
-- `shop_inventory` / `shop_orders` / `shop_order_items` / `shop_webhook_events` — farm store (DDL: `supabase-shop.sql` + `supabase-shop-sync.sql`; RLS on, service-role only)
+- `shop_inventory` / `shop_orders` / `shop_order_items` / `shop_webhook_events` / `shop_stock_counts` — farm store (DDL: `supabase-shop*.sql`; RLS on, service-role only)
 - `event_inquiries` — contact form submissions
 - `email_subscribers` — newsletter popup signups
 - `meta_leads` — Meta instant form leads (synced to BookedIQ + HubSpot)
@@ -110,6 +110,8 @@ Validate cron header →
 - Image galleries use Embla Carousel
 - Shop: native commerce, built Aug 2026 after the Squarespace store was cancelled and went dark. Catalog is static in `src/app/shop/data.ts`; stock is live in Supabase `shop_inventory`. Payment is **Square** (`src/lib/shop/square.ts`). Fulfillment is farm pickup + local delivery — **the site must NOT promise shipping**. Structure and the rules that keep it correct: `ARCHITECTURE.md`.
 - ⛔ The server re-prices every checkout line from `data.ts`; the browser never sends prices. Don't "optimise" that away.
-- ⛔ The Square POS catalog has DIFFERENT prices and SKUs from the website. Square is the payment rail, not the price source — the Square order is built from ad-hoc lines at OUR prices, never `catalog_object_id`.
-- Square POS ↔ website inventory is linked per-variant via `shop_inventory.square_variation_id`. Mapping is ONE-TO-ONE (unique index). Propose links with `scripts/square-catalog-match.mjs`.
+- ⛔ **Square is the PRICE source of truth** (Hayden, 2026-08-26). Linked variants carry Square's price; re-sync with `scripts/sync-square-prices.mjs --apply`. Unlinked products (apparel, plush, bouquets) keep their own price.
+- ⛔ Even so, the Square ORDER is built from ad-hoc lines at our price, never `catalog_object_id` — a catalog line re-prices itself from Square and would diverge from what we charged.
+- Square POS ↔ website inventory is linked per-variant via `shop_inventory.square_variation_id`. Mapping is ONE-TO-ONE (unique index). Confirm links in `/shop/admin` → Square link; `scripts/square-catalog-match.mjs` only proposes.
+- Stock counts are entered in `/shop/admin` → Count. Every count writes an audit row to `shop_stock_counts` (previous value + who counted). Do NOT hand anyone a spreadsheet for this.
 - robots.txt is a STATIC file at `public/robots.txt` (NOT `src/app/robots.ts` — a typed robots route can't emit the Cloudflare `Content-Signal` line; do not re-add robots.ts or the build conflicts). llms.txt is `public/llms.txt` — bump its `Last-Updated` on edits.

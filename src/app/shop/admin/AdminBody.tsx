@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Check, Link2, Link2Off, Loader2 } from "lucide-react";
 import { formatCents } from "@/lib/shop/money";
 import { ADMIN_COOKIE } from "@/lib/shop/admin-cookie";
+import { CountSheet } from "./CountSheet";
+import { MatchPicker, type SquareCandidate } from "./MatchPicker";
 
 export interface InventoryRow {
   variantId: string;
@@ -30,16 +32,18 @@ export interface OrderRow {
   createdAt: string;
 }
 
-type Tab = "stock" | "orders" | "square";
+type Tab = "stock" | "count" | "orders" | "square";
 
 export function AdminBody({
   inventory,
   orders,
+  candidates,
   token,
   setCookie,
 }: {
   inventory: InventoryRow[];
   orders: OrderRow[];
+  candidates: SquareCandidate[];
   token: string;
   setCookie: boolean;
 }) {
@@ -86,6 +90,7 @@ export function AdminBody({
         {(
           [
             ["stock", "Stock"],
+            ["count", "Count"],
             ["orders", `Orders (${orders.length})`],
             ["square", "Square link"],
           ] as [Tab, string][]
@@ -105,8 +110,42 @@ export function AdminBody({
       </div>
 
       {tab === "stock" && <StockTable rows={rows} setRows={setRows} token={token} />}
+      {tab === "count" && (
+        <CountSheet
+          rows={rows}
+          token={token}
+          onApplied={(counts) =>
+            setRows(
+              rows.map((r) =>
+                counts[r.variantId] !== undefined
+                  ? { ...r, stock: counts[r.variantId] }
+                  : r,
+              ),
+            )
+          }
+        />
+      )}
       {tab === "orders" && <OrdersTable orders={orders} />}
-      {tab === "square" && <SquareTable rows={rows} />}
+      {tab === "square" && (
+        <MatchPicker
+          rows={rows}
+          candidates={candidates}
+          token={token}
+          onLinked={(variantId, c) =>
+            setRows(
+              rows.map((r) =>
+                r.variantId === variantId
+                  ? {
+                      ...r,
+                      squareVariationId: c?.variationId ?? null,
+                      squareItemName: c?.name ?? null,
+                    }
+                  : r,
+              ),
+            )
+          }
+        />
+      )}
     </div>
   );
 }
@@ -306,55 +345,6 @@ function OrdersTable({ orders }: { orders: OrderRow[] }) {
           ))}
         </tbody>
       </table>
-    </div>
-  );
-}
-
-function SquareTable({ rows }: { rows: InventoryRow[] }) {
-  const linked = rows.filter((r) => r.squareVariationId);
-  const unlinked = rows.filter((r) => !r.squareVariationId);
-  return (
-    <div className="space-y-4">
-      <div className="rounded-2xl bg-white p-5 shadow-sm">
-        <h2 className="text-sm uppercase tracking-[0.1em] text-muted font-sans">
-          Linked to Square ({linked.length})
-        </h2>
-        <p className="mt-1.5 text-xs text-muted font-sans">
-          A sale rung up on the register updates these on the website, and a
-          website sale reduces them in Square. Both directions only work once
-          the item has inventory tracking switched on in Square.
-        </p>
-        <ul className="mt-3 space-y-1 text-sm font-sans">
-          {linked.map((r) => (
-            <li key={r.variantId} className="flex justify-between gap-4">
-              <span className="text-charcoal">
-                {r.name}
-                {r.label && <span className="text-muted"> · {r.label}</span>}
-              </span>
-              <span className="shrink-0 text-muted">{r.squareItemName}</span>
-            </li>
-          ))}
-          {linked.length === 0 && <li className="text-muted">Nothing linked yet.</li>}
-        </ul>
-      </div>
-
-      <div className="rounded-2xl bg-white p-5 shadow-sm">
-        <h2 className="text-sm uppercase tracking-[0.1em] text-muted font-sans">
-          Not linked ({unlinked.length})
-        </h2>
-        <p className="mt-1.5 text-xs text-muted font-sans">
-          These sell online only. If one is also sold at the farm, it can be
-          oversold — the register and the website are counting separately.
-        </p>
-        <ul className="mt-3 grid gap-1 text-sm text-charcoal font-sans sm:grid-cols-2">
-          {unlinked.map((r) => (
-            <li key={r.variantId}>
-              {r.name}
-              {r.label && <span className="text-muted"> · {r.label}</span>}
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 }

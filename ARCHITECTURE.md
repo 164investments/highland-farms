@@ -78,7 +78,9 @@ src/lib/shop/
 src/app/api/shop/checkout/route.ts   the one transactional endpoint
 src/app/api/square/webhook/route.ts  Square -> website (POS sales, refunds, orphan payments)
 src/app/api/shop/admin/inventory/    admin writes
-src/app/shop/admin/                  stock, orders, Square link status
+src/app/shop/admin/                  stock, count, orders, Square matching
+  CountSheet.tsx                     shelf count -> DB, with an audit trail
+  MatchPicker.tsx                    human-confirmed Square linking
 src/lib/shop/admin-auth.ts           shared-token gate (+ admin-cookie.ts for the client)
 ```
 
@@ -109,9 +111,24 @@ src/lib/shop/admin-auth.ts           shared-token gate (+ admin-cookie.ts for th
    the announcement bar, the `/shop` hero and the trust strip all advertised
    "insulated shipping" and had to be corrected when the Squarespace store died.
 
-6. **Square is the payment rail, not the catalog.** The farm's Square POS catalog
-   has different SKUs *and different prices* from the website. Never sync one to
-   the other without a human decision.
+6. **⛔ SQUARE IS THE PRICE SOURCE OF TRUTH** (Hayden, 2026-08-26). For any
+   variant linked to a Square variation, Square's price wins and `data.ts` holds
+   a copy. Re-sync with `node scripts/sync-square-prices.mjs --apply`, which only
+   touches linked variants. Unlinked products (all apparel, both plush, the
+   bouquets) keep their own price because Square has no opinion on them.
+
+   This inverted an earlier rule that said the opposite. The reason the earlier
+   rule existed still holds in one specific place: **the Square order is still
+   built from ad-hoc line items at our price, never `catalog_object_id`.** Prices
+   agreeing today doesn't make them the same system, and a catalog line would
+   re-price itself from Square the instant someone edits the register, silently
+   diverging from the amount we charged. Pricing is synced deliberately, not
+   implicitly.
+
+   ⚠️ A Square variation with **no set price** is a custom-price or duplicate
+   line, not a $0 product. The sync skips and reports those. The website's New
+   York Steak was auto-linked to exactly such a duplicate; the real item was
+   "NY Steak" at $20.
 
 7. **Shop tables AND functions are service-role only.** The tables have RLS on
    with zero policies, which is deny-all. The functions need separate care:
@@ -168,7 +185,9 @@ Ranked.
   oracle with a weak brake. Wants a shared store (Redis/Supabase) and/or the
   Turnstile challenge the repo already uses on the contact form.
 - **Admin auth is a single shared token**, and its cookie is set client-side so
-  it is not httpOnly. Adequate for one farm team; not real accounts.
+  it is not httpOnly. Adequate for one farm team; not real accounts. If this ever
+  needs per-person accountability beyond the free-text "counted by" field, that's
+  the thing to fix first.
 - **Only 7 of 56 variants are linked to Square.** Apparel, plush and flowers have
   no Square counterpart at all. Anything unlinked can still be oversold.
 - **Refunds are recorded, not initiated.** The webhook writes `refunded_cents`
