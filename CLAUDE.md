@@ -90,7 +90,7 @@ Validate cron header →
 - Env vars for GA4 (optional): `GOOGLE_SA_EMAIL`, `GOOGLE_SA_PRIVATE_KEY`
 
 ## Database Tables (Supabase)
-- `shop_inventory` / `shop_orders` / `shop_order_items` / `shop_webhook_events` / `shop_stock_counts` — farm store (DDL: `supabase-shop*.sql`; RLS on, service-role only)
+- `shop_inventory` / `shop_orders` / `shop_order_items` / `shop_webhook_events` / `shop_stock_counts` / `shop_waitlist` / `shop_abandoned_carts` — farm store (DDL: `supabase-shop*.sql`; RLS on, service-role only)
 - `event_inquiries` — contact form submissions
 - `email_subscribers` — newsletter popup signups
 - `meta_leads` — Meta instant form leads (synced to BookedIQ + HubSpot)

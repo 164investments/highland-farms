@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Lock, MapPin, Minus, Plus, Plus as PlusIcon, Star, X } from "lucide-react";
@@ -20,6 +21,34 @@ export interface AddOn {
 
 export function CartBody({ addOns }: { addOns: AddOn[] }) {
   const { detailed, subtotalCents, setQuantity, remove, add, ready } = useCart();
+  const [restored, setRestored] = useState(false);
+
+  // ?recover=<token> from a cart reminder. Rebuilds the cart from variant ids,
+  // never from anything the email carried, so prices are always today's.
+  const recoveryDone = useRef(false);
+  useEffect(() => {
+    if (!ready || recoveryDone.current) return;
+    const token = new URLSearchParams(window.location.search).get("recover");
+    if (!token) return;
+    recoveryDone.current = true;
+
+    void (async () => {
+      try {
+        const res = await fetch(`/api/shop/cart/recover?token=${encodeURIComponent(token)}`);
+        const body = (await res.json()) as { items?: { variantId: string; quantity: number }[] };
+        let added = 0;
+        for (const item of body.items ?? []) {
+          add(item.variantId, item.quantity);
+          added += 1;
+        }
+        if (added > 0) setRestored(true);
+      } catch {
+        // The cart page still works; they just have to re-add.
+      } finally {
+        window.history.replaceState({}, "", "/shop/cart");
+      }
+    })();
+  }, [ready, add]);
   const inCart = new Set(detailed.map((l) => l.variantId));
   const offers = addOns.filter((a) => !inCart.has(a.variantId)).slice(0, 3);
 
@@ -37,6 +66,12 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
         <h1 className="font-display text-3xl font-light tracking-tight text-charcoal sm:text-4xl">
           Your cart
         </h1>
+
+        {restored && (
+          <p className="mt-4 rounded-xl bg-white px-4 py-3 text-sm text-charcoal shadow-sm font-sans">
+            Picked up where you left off. Prices are today&apos;s.
+          </p>
+        )}
 
         {/* Until localStorage is read, render nothing rather than a wrong empty state. */}
         {!ready ? (

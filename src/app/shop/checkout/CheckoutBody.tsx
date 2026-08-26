@@ -178,6 +178,44 @@ export function CheckoutBody({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cartReady]);
 
+  // Capture the in-progress cart once a valid email exists, so leaving here is
+  // recoverable. Debounced, fire-and-forget, and never surfaced: this runs while
+  // someone is mid-typing and must not interrupt anything.
+  const savedSignature = useRef("");
+  useEffect(() => {
+    const email = form.email.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || detailed.length === 0) return;
+
+    const signature = JSON.stringify([
+      email,
+      fulfillment,
+      detailed.map((l) => [l.variantId, l.quantity]),
+    ]);
+    if (signature === savedSignature.current) return;
+
+    const timer = window.setTimeout(() => {
+      savedSignature.current = signature;
+      void fetch("/api/shop/cart/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          name: form.name || undefined,
+          phone: form.phone || undefined,
+          fulfillment,
+          items: detailed.map((l) => ({
+            variantId: l.variantId,
+            quantity: l.quantity,
+          })),
+        }),
+      }).catch(() => {
+        // Best effort. A failed capture must never affect checkout.
+        savedSignature.current = "";
+      });
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, [form.email, form.name, form.phone, fulfillment, detailed]);
+
   const set = useCallback(
     (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((f) => ({ ...f, [key]: e.target.value }));
