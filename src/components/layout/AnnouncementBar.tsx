@@ -49,7 +49,7 @@ const SHOP: Variant = {
         Free farm pickup in Brightwood, Oregon
       </span>
       <span aria-hidden className="hidden sm:inline opacity-50">·</span>
-      <span className="hidden sm:inline">Insulated shipping available</span>
+      <span className="hidden sm:inline">Local delivery available</span>
       <span aria-hidden className="hidden sm:inline opacity-50">·</span>
       <span className="hidden sm:inline">Pasture-raised &amp; family-run since 2019</span>
       <Link
