@@ -53,7 +53,7 @@ const SHOP: Variant = {
       <span aria-hidden className="hidden sm:inline opacity-50">·</span>
       <span className="hidden sm:inline">Pasture-raised &amp; family-run since 2019</span>
       <Link
-        href="#cat-featured"
+        href="/shop#cat-featured"
         className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors"
       >
         Shop Bestsellers
@@ -197,6 +197,11 @@ export function AnnouncementBar() {
     setVisible(false);
     localStorage.setItem(variant.id, "true");
   }
+
+  // Checkout and cart get no announcement bar: its CTA is a competing link out
+  // of the one page whose only job is finishing the order. Same reasoning the
+  // floating cart button uses to hide itself there.
+  if (pathname === "/shop/checkout" || pathname === "/shop/cart") return null;
 
   if (!visible) return null;
 

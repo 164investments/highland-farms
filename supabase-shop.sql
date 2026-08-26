@@ -115,7 +115,14 @@ begin
 end;
 $$;
 
-revoke all on function claim_shop_stock(jsonb) from anon, authenticated;
+-- ⛔ REVOKE FROM **PUBLIC**, not just anon/authenticated.
+-- Postgres grants EXECUTE on a new function to PUBLIC by default, and grants are
+-- additive: revoking from `anon` does NOT remove the PUBLIC grant that `anon`
+-- inherits. Unlike the tables (RLS-on with zero policies = deny-all), a function
+-- has no RLS gate — EXECUTE is the only gate. Getting this wrong left both stock
+-- RPCs callable by anyone holding the public anon key, which is public by design.
+revoke all on function claim_shop_stock(jsonb) from public, anon, authenticated;
+grant execute on function claim_shop_stock(jsonb) to service_role;
 
 -- Give stock back when a charge fails after we reserved it.
 --
@@ -143,4 +150,63 @@ begin
 end;
 $$;
 
-revoke all on function release_shop_stock(jsonb) from anon, authenticated;
+revoke all on function release_shop_stock(jsonb) from public, anon, authenticated;
+grant execute on function release_shop_stock(jsonb) to service_role;
+
+-- Record a paid order and its lines in ONE transaction.
+--
+-- Two separate inserts could leave an order row with no line items — an order
+-- the farm can see but cannot pick. A plpgsql function runs in a single
+-- transaction, so either both land or neither does.
+create or replace function record_shop_order(order_row jsonb, order_items jsonb)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  new_id uuid;
+begin
+  insert into shop_orders (
+    order_number, status, fulfillment, customer_name, customer_email,
+    customer_phone, delivery_address, delivery_city, delivery_zip, notes,
+    subtotal_cents, delivery_fee_cents, total_cents, square_payment_id
+  )
+  values (
+    order_row ->> 'order_number',
+    coalesce(order_row ->> 'status', 'paid'),
+    order_row ->> 'fulfillment',
+    order_row ->> 'customer_name',
+    order_row ->> 'customer_email',
+    order_row ->> 'customer_phone',
+    order_row ->> 'delivery_address',
+    order_row ->> 'delivery_city',
+    order_row ->> 'delivery_zip',
+    order_row ->> 'notes',
+    (order_row ->> 'subtotal_cents')::integer,
+    (order_row ->> 'delivery_fee_cents')::integer,
+    (order_row ->> 'total_cents')::integer,
+    order_row ->> 'square_payment_id'
+  )
+  returning id into new_id;
+
+  insert into shop_order_items (
+    order_id, variant_id, product_slug, product_name,
+    variant_label, unit_price_cents, quantity
+  )
+  select
+    new_id,
+    e ->> 'variant_id',
+    e ->> 'product_slug',
+    e ->> 'product_name',
+    e ->> 'variant_label',
+    (e ->> 'unit_price_cents')::integer,
+    (e ->> 'quantity')::integer
+  from jsonb_array_elements(order_items) as e;
+
+  return new_id;
+end;
+$$;
+
+revoke all on function record_shop_order(jsonb, jsonb) from public, anon, authenticated;
+grant execute on function record_shop_order(jsonb, jsonb) to service_role;

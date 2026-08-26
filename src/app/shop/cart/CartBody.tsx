@@ -6,6 +6,7 @@ import { ArrowLeft, Minus, Plus, X } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents } from "@/lib/shop/money";
+import { DELIVERY_MINIMUM_CENTS } from "@/lib/shop/fulfillment";
 
 export function CartBody() {
   const { detailed, subtotalCents, setQuantity, remove, ready } = useCart();
@@ -124,8 +125,18 @@ export function CartBody() {
                 </span>
               </div>
               <p className="mt-1.5 text-xs text-muted font-sans">
-                Pickup or delivery is chosen at checkout.
+                Free pickup at the farm in Brightwood, or $15 delivery around Mt.
+                Hood and east Portland. We don&apos;t ship.
               </p>
+              {/* Goal-gradient: name the actual gap instead of a static rule the
+                  shopper has to do arithmetic on. Only shown when it's reachable
+                  and true — pickup stays free either way. */}
+              {subtotalCents < DELIVERY_MINIMUM_CENTS && (
+                <p className="mt-2 text-xs font-medium text-forest font-sans">
+                  You&apos;re {formatCents(DELIVERY_MINIMUM_CENTS - subtotalCents)}{" "}
+                  from qualifying for local delivery — pickup is always free.
+                </p>
+              )}
               <Link
                 href="/shop/checkout"
                 className="mt-5 flex min-h-[54px] w-full items-center justify-center rounded-full bg-forest text-sm uppercase tracking-[0.12em] text-white shadow-sm transition-shadow hover:shadow-md font-sans"

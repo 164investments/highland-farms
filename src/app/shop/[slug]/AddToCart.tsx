@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/shop/cart";
@@ -45,6 +45,30 @@ export function AddToCart({
   const [justAdded, setJustAdded] = useState(false);
 
   const selected = variants.find((v) => v.id === selectedId) ?? firstAvailable;
+
+  // view_item completes the GA4 item funnel. Without it there is no measurable
+  // step between the grid and add-to-cart, which is exactly where the sold-out
+  // and variant-choice questions get answered.
+  const viewLogged = useRef(false);
+  useEffect(() => {
+    if (viewLogged.current) return;
+    viewLogged.current = true;
+    pushEvent("view_item", {
+      ecommerce: {
+        currency: "USD",
+        value: firstAvailable.priceCents / 100,
+        items: [
+          {
+            item_id: slug,
+            item_name: productName,
+            item_category: category,
+            price: firstAvailable.priceCents / 100,
+            quantity: 1,
+          },
+        ],
+      },
+    });
+  }, [slug, productName, category, firstAvailable.priceCents]);
   const soldOut = selected.stock === 0;
   const allSoldOut = variants.every((v) => v.stock === 0);
   const scarcity = scarcityLabel(selected.stock);

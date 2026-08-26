@@ -295,7 +295,14 @@ export function ShopBody({ stock }: { stock: StockRecord }) {
       {/* Categorized sections */}
       <div className="bg-background">
         {CATEGORIES.map((cat, catIdx) => {
-          const inCategory = PRODUCTS.filter((p) => p.category === cat.key);
+          // In-stock first, catalog order preserved within each group. Sold-out
+          // items stay visible (breadth is real provenance signal) but must not
+          // hold the anchor slots — the first cards get the attention, and
+          // Mangalitsa was opening with two SOLD OUT bacon cards.
+          const inCategory = PRODUCTS.filter((p) => p.category === cat.key)
+            .map((p, i) => ({ p, i, out: isSoldOut(stock, p) }))
+            .sort((a, b) => Number(a.out) - Number(b.out) || a.i - b.i)
+            .map((x) => x.p);
           if (inCategory.length === 0) return null;
           return (
             <section
