@@ -76,6 +76,10 @@ src/lib/shop/
   orders.ts            order writes + atomic stock claim/release
   order-email.ts       customer receipt + farm pick list
 src/app/api/shop/checkout/route.ts   the one transactional endpoint
+src/app/api/square/webhook/route.ts  Square -> website (POS sales, refunds, orphan payments)
+src/app/api/shop/admin/inventory/    admin writes
+src/app/shop/admin/                  stock, orders, Square link status
+src/lib/shop/admin-auth.ts           shared-token gate (+ admin-cookie.ts for the client)
 ```
 
 ### The rules that keep this honest
@@ -117,17 +121,42 @@ src/app/api/shop/checkout/route.ts   the one transactional endpoint
    gate — EXECUTE is the only gate. This was shipped wrong on 2026-08-26 and left
    both stock RPCs callable by anyone holding the (publicly-known) anon key.
 
+### The Square link (added 2026-08-26)
+
+The farm rings sales up on Square. Without a link, the same physical plush can be
+sold at the register and on the website, because the two count separately.
+
+**Both directions, and why each is built the way it is:**
+
+- **Register → website.** Square's `inventory.count.updated` webhook writes the
+  new count into `shop_inventory` via `sync_square_stock`. Only variants that
+  carry a `square_variation_id` are touched; a Square event for something the
+  website doesn't sell (wedding deposits, pumpkins) is a no-op by design.
+- **Website → register.** After a paid order, `adjustInventory()` posts an
+  ADJUSTMENT to Square for the mapped lines.
+
+⛔ **The Square order is built from ad-hoc line items at OUR prices, never
+`catalog_object_id`.** A catalog line is priced from Square's catalog, and
+Square's prices disagree with the website's (Beef Tenderloin $22 vs $29,
+Boneless Pork Chop $9 vs $15). Referencing the catalog would make the Square
+order total diverge from the amount charged. Pricing and stock are therefore
+moved by two separate calls, on purpose.
+
+⛔ **Mapping is one-to-one and must stay that way.** A unique index enforces it.
+The website sells Pork Shoulder Roast in three weight tiers against Square's
+single "Pork Shoulder Roast" — linking all three would decrement one count for
+three different products. `scripts/square-catalog-match.mjs` demotes any
+contested match to "needs a human" rather than guessing.
+
+⚠️ **A mapping only does something once the item has inventory tracking ON in
+Square.** At the time of writing only 4 of 53 Square variations track stock, and
+none of them are the mapped ones — so the plumbing is live but mostly idle until
+the farm switches tracking on.
+
 ### Known gaps
 
-Ranked. The first is the one that can lose money silently.
+Ranked.
 
-- ⚠️ **No payment↔order reconciliation.** There is no Square webhook. The charge
-  is the only thing that must succeed; the order insert and emails run after it
-  and are best-effort. If the order write fails AND the emails fail, the customer
-  is charged and the farm never learns the order exists — the only trace is a
-  `console.error` in the Vercel log carrying the Square payment id. A
-  `payment.created` webhook that reconciles into `shop_orders` is the fix, and it
-  also heals the next gap.
 - ⚠️ **Stock reservation has no TTL.** `claim_shop_stock` decrements outright;
   there is no `reserved` column. Release only happens on the in-request decline
   path, so if the function dies between claim and release the unit is decremented
@@ -138,13 +167,13 @@ Ranked. The first is the one that can lose money silently.
   resets it. Since every attempt calls Square, this endpoint is a card-testing
   oracle with a weak brake. Wants a shared store (Redis/Supabase) and/or the
   Turnstile challenge the repo already uses on the contact form.
-- **Inventory has no admin UI.** The farm edits `shop_inventory` in Supabase
-  Studio.
-- **In-person Square POS sales do not decrement `shop_inventory`.** The POS
-  catalog shares no SKUs with the website, so the same physical plush can be sold
-  twice.
-- **No refund/cancel flow.** Refunds happen in the Square dashboard and are not
-  reflected back into `shop_orders.status`.
+- **Admin auth is a single shared token**, and its cookie is set client-side so
+  it is not httpOnly. Adequate for one farm team; not real accounts.
+- **Only 7 of 56 variants are linked to Square.** Apparel, plush and flowers have
+  no Square counterpart at all. Anything unlinked can still be oversold.
+- **Refunds are recorded, not initiated.** The webhook writes `refunded_cents`
+  and flips status when a refund happens in the Square dashboard; there is no
+  refund button on our side.
 - **No CSP.** Not required for the wallets (Square is allowed by default when no
   CSP exists), but a checkout page with no script-integrity control is the one
   gap an assessor would flag under SAQ A-EP. If a CSP is ever added it MUST

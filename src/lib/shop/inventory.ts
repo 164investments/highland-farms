@@ -55,6 +55,30 @@ export async function getStockMap(): Promise<StockMap> {
   }
 }
 
+/**
+ * variant id -> Square catalog variation id, for variants the farm has linked.
+ * Used to build itemised Square orders so an online sale moves the same count
+ * the POS reads.
+ */
+export async function getSquareVariationMap(): Promise<Map<string, string>> {
+  try {
+    const { data, error } = await db()
+      .from("shop_inventory")
+      .select("variant_id, square_variation_id")
+      .not("square_variation_id", "is", null);
+    if (error) {
+      console.error("[shop] square mapping read failed:", error.message);
+      return new Map();
+    }
+    return new Map(
+      (data ?? []).map((r) => [r.variant_id as string, r.square_variation_id as string]),
+    );
+  } catch (err) {
+    console.error("[shop] square mapping read threw:", err);
+    return new Map();
+  }
+}
+
 /** Units left for a variant. Unknown variants read as unlimited, matching getStockMap's fail-soft. */
 export function stockFor(stock: StockMap, variantId: string): number | null {
   return stock.has(variantId) ? stock.get(variantId)! : null;

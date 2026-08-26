@@ -11,49 +11,58 @@ User-agent: *
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 # ── OpenAI ──
 User-agent: GPTBot
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 User-agent: OAI-SearchBot
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 User-agent: ChatGPT-User
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 # ── Anthropic ──
 User-agent: ClaudeBot
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 User-agent: Claude-User
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 User-agent: Claude-SearchBot
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 # ── Perplexity ──
 User-agent: PerplexityBot
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 User-agent: Perplexity-User
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 # ── Google (Gemini) & Apple training-consent tokens ──
 User-agent: Google-Extended
@@ -69,10 +78,12 @@ User-agent: Meta-ExternalAgent
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 # ── Search engines ──
 User-agent: Bingbot
 Allow: /
 Disallow: /api/
+Disallow: /shop/admin
 
 Sitemap: https://highlandfarmsoregon.com/sitemap.xml

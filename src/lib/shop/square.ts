@@ -22,6 +22,8 @@ export interface ChargeInput {
   orderNumber: string;
   buyerEmail: string;
   note: string;
+  /** Links the payment to an itemised Square order when one was created. */
+  orderId?: string;
 }
 
 export interface ChargeResult {
@@ -112,6 +114,7 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
         buyer_email_address: input.buyerEmail,
         reference_id: input.orderNumber,
         note: input.note.slice(0, 500),
+        ...(input.orderId && { order_id: input.orderId }),
       }),
     });
   } catch (err) {
@@ -161,4 +164,203 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
     paymentId: payment.id,
     amountCents: payment.amount_money?.amount,
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Orders, inventory and webhooks — the POS link
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface OrderLineInput {
+  name: string;
+  variantLabel?: string;
+  quantity: number;
+  unitPriceCents: number;
+  /** Square catalog variation id, when this variant has been mapped. */
+  squareVariationId?: string;
+}
+
+/**
+ * Create a Square Order for a website sale.
+ *
+ * Two reasons this matters beyond the charge itself:
+ *  1. The farm sees itemised online sales in the same Square reporting they
+ *     already use for the POS, instead of an opaque lump payment.
+ *  2. For a mapped variation that Square is tracking, paying the order makes
+ *     Square decrement its own inventory — which is what actually links an
+ *     online sale to the count the POS reads.
+ *
+ * Unmapped variants fall back to an ad-hoc line (name + price). Those still
+ * itemise correctly; they just can't move Square's stock, because Square has
+ * nothing to move.
+ *
+ * Returns null on failure — an order is a reporting nicety, and must never
+ * block a sale.
+ */
+export async function createOrder(
+  lines: OrderLineInput[],
+  opts: { orderNumber: string; deliveryFeeCents: number; idempotencyKey: string },
+): Promise<string | null> {
+  const { accessToken, locationId } = config();
+
+  // Deliberately ad-hoc lines (name + OUR price), never catalog_object_id.
+  // A catalog line is priced from Square's catalog, and Square's prices
+  // disagree with the website's (Beef Tenderloin $22 vs $29, Boneless Pork Chop
+  // $9 vs $15). Referencing the catalog here would make the Square order total
+  // diverge from the amount we actually charge. Inventory is moved separately
+  // by adjustInventory(), which keeps pricing and stock independent.
+  const lineItems = lines.map((l) => ({
+    quantity: String(l.quantity),
+    name: [l.name, l.variantLabel].filter(Boolean).join(" — ").slice(0, 512),
+    base_price_money: { amount: l.unitPriceCents, currency: "USD" },
+  }));
+
+  if (opts.deliveryFeeCents > 0) {
+    lineItems.push({
+      quantity: "1",
+      name: "Local delivery",
+      base_price_money: { amount: opts.deliveryFeeCents, currency: "USD" },
+    });
+  }
+
+  try {
+    const response = await fetch(`${SQUARE_API}/orders`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Square-Version": SQUARE_VERSION,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idempotency_key: `${opts.idempotencyKey}-order`.slice(0, 192),
+        order: {
+          location_id: locationId,
+          reference_id: opts.orderNumber,
+          source: { name: "Farm Store (website)" },
+          line_items: lineItems,
+        },
+      }),
+    });
+
+    const body = (await response.json().catch(() => ({}))) as {
+      order?: { id?: string };
+      errors?: SquareError[];
+    };
+
+    if (!response.ok || !body.order?.id) {
+      console.error(
+        "[shop] Square order create failed:",
+        response.status,
+        JSON.stringify(body.errors ?? {}),
+      );
+      return null;
+    }
+    return body.order.id;
+  } catch (err) {
+    console.error("[shop] Square order create threw:", err);
+    return null;
+  }
+}
+
+/** Current Square counts for the given variation ids. Empty map on failure. */
+export async function getInventoryCounts(
+  variationIds: string[],
+): Promise<Map<string, number>> {
+  const counts = new Map<string, number>();
+  if (variationIds.length === 0) return counts;
+
+  const { accessToken, locationId } = config();
+  try {
+    const response = await fetch(`${SQUARE_API}/inventory/counts/batch-retrieve`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Square-Version": SQUARE_VERSION,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        catalog_object_ids: variationIds.slice(0, 500),
+        location_ids: [locationId],
+      }),
+    });
+    const body = (await response.json().catch(() => ({}))) as {
+      counts?: { catalog_object_id?: string; state?: string; quantity?: string }[];
+      errors?: SquareError[];
+    };
+    if (!response.ok) {
+      console.error("[shop] inventory batch-retrieve failed:", JSON.stringify(body.errors ?? {}));
+      return counts;
+    }
+    for (const c of body.counts ?? []) {
+      // IN_STOCK is the only state that represents sellable units.
+      if (c.state === "IN_STOCK" && c.catalog_object_id) {
+        counts.set(c.catalog_object_id, Math.max(0, Math.floor(Number(c.quantity ?? 0))));
+      }
+    }
+    return counts;
+  } catch (err) {
+    console.error("[shop] inventory batch-retrieve threw:", err);
+    return counts;
+  }
+}
+
+/**
+ * Decrement Square's own stock for the mapped variations in a completed sale.
+ *
+ * This is what actually closes the POS loop from the website side: without it,
+ * an online sale is invisible to the count the farm reads on the register.
+ * The reverse direction (a POS sale reaching the website) arrives over the
+ * inventory.count.updated webhook.
+ *
+ * Only variations Square is actually tracking will move; an adjustment against
+ * an untracked variation is rejected, which is why unmapped/untracked items are
+ * simply skipped rather than treated as an error.
+ *
+ * Best-effort: the money is already taken by the time this runs, so it logs and
+ * never throws.
+ */
+export async function adjustInventory(
+  changes: { squareVariationId: string; quantity: number }[],
+  idempotencyKey: string,
+): Promise<void> {
+  if (changes.length === 0) return;
+  const { accessToken, locationId } = config();
+
+  // RFC 3339, and Square rejects a future timestamp.
+  const occurredAt = new Date(Date.now() - 1000).toISOString();
+
+  try {
+    const response = await fetch(`${SQUARE_API}/inventory/changes/batch-create`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Square-Version": SQUARE_VERSION,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idempotency_key: `${idempotencyKey}-inv`.slice(0, 128),
+        changes: changes.map((c) => ({
+          type: "ADJUSTMENT",
+          adjustment: {
+            catalog_object_id: c.squareVariationId,
+            location_id: locationId,
+            from_state: "IN_STOCK",
+            to_state: "SOLD",
+            quantity: String(c.quantity),
+            occurred_at: occurredAt,
+          },
+        })),
+      }),
+    });
+
+    if (!response.ok) {
+      const body = (await response.json().catch(() => ({}))) as { errors?: SquareError[] };
+      console.error(
+        "[shop] Square inventory adjust failed:",
+        response.status,
+        JSON.stringify(body.errors ?? {}),
+      );
+    }
+  } catch (err) {
+    console.error("[shop] Square inventory adjust threw:", err);
+  }
 }
