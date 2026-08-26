@@ -4,9 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, MapPin, Truck } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { PRODUCTS, getProduct, fromPrice } from "../data";
-import { getStockMap } from "@/lib/shop/inventory";
-import { toCents, formatCents } from "@/lib/shop/money";
+import { PRODUCTS, getProduct, fromPrice, type Product } from "../data";
+import { getStockMap, allSoldOut, type StockMap } from "@/lib/shop/inventory";
+import { toCents, formatCents, formatCentsShort } from "@/lib/shop/money";
 import { DELIVERY_FEE_CENTS, PICKUP_LOCATION } from "@/lib/shop/fulfillment";
 import { AddToCart } from "./AddToCart";
 
@@ -162,7 +162,74 @@ export default async function ProductPage({
             </dl>
           </div>
         </div>
+        <GoesWellWith product={product} stock={stock} />
       </Container>
     </main>
+  );
+}
+
+/**
+ * "Goes well with".
+ *
+ * Sits BELOW the fulfillment block, never above Add to Cart — AOV comes after
+ * the core conversion is won, not in front of it. Pairs across categories where
+ * that makes sense (a cut of meat next to eggs and firewood reads like a
+ * shopping trip; next to another cut it reads like a substitute, which competes
+ * with the decision the customer just made).
+ */
+function GoesWellWith({ product, stock }: { product: Product; stock: StockMap }) {
+  const PAIRS: Partial<Record<Product["category"], Product["category"][]>> = {
+    mangalitsa: ["pantry", "beef"],
+    beef: ["pantry", "mangalitsa"],
+    pantry: ["mangalitsa", "beef"],
+    plush: ["apparel", "pantry"],
+    apparel: ["plush", "pantry"],
+  };
+  const wanted = PAIRS[product.category] ?? ["pantry"];
+
+  const picks = PRODUCTS.filter(
+    (p) =>
+      p.slug !== product.slug &&
+      wanted.includes(p.category) &&
+      !allSoldOut(stock, p.variants.map((v) => v.id)),
+  )
+    .sort(
+      (a, b) =>
+        wanted.indexOf(a.category) - wanted.indexOf(b.category) ||
+        fromPrice(a) - fromPrice(b),
+    )
+    .slice(0, 3);
+
+  if (picks.length === 0) return null;
+
+  return (
+    <section className="mt-14 border-t border-cream-dark/60 pt-10">
+      <h2 className="mb-5 text-xs uppercase tracking-[0.12em] text-muted font-sans">
+        Goes well with
+      </h2>
+      <ul className="grid grid-cols-3 gap-4 sm:gap-5">
+        {picks.map((p) => (
+          <li key={p.slug}>
+            <Link href={`/shop/${p.slug}`} className="group block">
+              <span className="relative block aspect-square overflow-hidden rounded-2xl bg-white shadow-sm">
+                <Image
+                  src={p.image}
+                  alt={p.name}
+                  fill
+                  sizes="(max-width: 640px) 33vw, 20vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </span>
+              <span className="mt-2.5 block truncate text-[0.8125rem] text-charcoal font-sans">
+                {p.name}
+              </span>
+              <span className="block text-[0.8125rem] font-medium text-forest font-sans">
+                {formatCentsShort(toCents(fromPrice(p)))}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
