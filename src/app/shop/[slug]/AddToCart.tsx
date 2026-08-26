@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Check, ShoppingBag } from "lucide-react";
+import { Bell, Check, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents } from "@/lib/shop/money";
 
@@ -172,15 +172,100 @@ export function AddToCart({
         )}
       </div>
 
-      {allSoldOut && (
-        <p className="mt-4 text-sm text-muted font-sans">
-          We&apos;re out right now — more comes back as the farm restocks.{" "}
-          <Link href="/shop" className="text-forest underline underline-offset-4">
-            See what else is in
-          </Link>
-          .
+      {allSoldOut && <BackInStock variantId={selected.id} />}
+    </div>
+  );
+}
+
+/**
+ * Sold-out capture.
+ *
+ * Without this the page is a dead end: it says stock comes back and gives the
+ * customer no way to hear about it. Seven products sit here at any time.
+ */
+function BackInStock({ variantId }: { variantId: string }) {
+  const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
+  const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle");
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setState("saving");
+    try {
+      const res = await fetch("/api/shop/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ variantId, email, website: website || undefined }),
+      });
+      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setMessage(body.error ?? "Couldn't save that. Try again?");
+        setState("error");
+        return;
+      }
+      setState("done");
+    } catch {
+      setMessage("Couldn't reach the farm. Try again?");
+      setState("error");
+    }
+  }
+
+  if (state === "done") {
+    return (
+      <p className="mt-5 flex items-center gap-2 rounded-xl bg-white p-4 text-sm text-charcoal font-sans">
+        <Check className="h-4 w-4 shrink-0 text-forest" />
+        We&apos;ll email you the day it&apos;s back.
+      </p>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} className="mt-5 rounded-xl bg-white p-4">
+      <p className="flex items-center gap-2 text-sm text-charcoal font-sans">
+        <Bell className="h-4 w-4 shrink-0 text-sage" />
+        Out right now. Want to know when it&apos;s back?
+      </p>
+      <div className="mt-3 flex gap-2">
+        <label className="sr-only" htmlFor={`wl-${variantId}`}>
+          Email address
+        </label>
+        <input
+          id={`wl-${variantId}`}
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@email.com"
+          autoComplete="email"
+          className="min-w-0 flex-1 rounded-full border border-cream-dark px-4 py-2.5 text-sm outline-none focus:border-forest font-sans"
+        />
+        <button
+          type="submit"
+          disabled={state === "saving"}
+          className="shrink-0 rounded-full bg-forest px-5 text-xs uppercase tracking-[0.1em] text-white transition-shadow hover:shadow-md disabled:opacity-60 font-sans"
+        >
+          {state === "saving" ? "…" : "Tell me"}
+        </button>
+      </div>
+      <input
+        type="text"
+        tabIndex={-1}
+        aria-hidden="true"
+        autoComplete="off"
+        value={website}
+        onChange={(e) => setWebsite(e.target.value)}
+        className="absolute left-[-9999px] h-0 w-0 opacity-0"
+      />
+      {message && (
+        <p role="alert" className="mt-2 text-xs text-charcoal font-sans">
+          {message}
         </p>
       )}
-    </div>
+      <p className="mt-2.5 text-xs text-muted font-sans">
+        Or <Link href="/shop" className="text-forest underline underline-offset-4">see what else is in</Link>.
+      </p>
+    </form>
   );
 }

@@ -59,6 +59,7 @@ Added Aug 2026 after the Squarespace store was cancelled and went dark. The old
 ```
 src/app/shop/
   data.ts              THE CATALOG — products, variants, prices. Static.
+  checkout/ExpressPay.tsx  Apple Pay + Google Pay (same source_id, no server change)
   page.tsx             collection page (ISR, revalidate 60)
   ShopBody.tsx         collection UI (client)
   [slug]/              product detail + AddToCart
@@ -198,7 +199,11 @@ Ranked.
   gap an assessor would flag under SAQ A-EP. If a CSP is ever added it MUST
   allowlist `web.squarecdn.com` and Square's PCI-connect origin, or card entry
   breaks silently.
-- **Digital wallets are off.** Apple/Google Pay run through the same
+- **Cash App Pay, ACH and Afterpay are still off.** Apple Pay and Google Pay
+  are live. ACH is worth adding only for large tickets (1% capped at $5 vs
+  2.9%+30c) and settles in 2-3 days, so an order can't be treated as paid on
+  response.
+- **(historical) Digital wallets were off.** Apple/Google Pay run through the same
   `POST /v2/payments` call and need no server change; Apple Pay needs the
   `.well-known/apple-developer-merchantid-domain-association` file plus domain
   registration. The current `Permissions-Policy` header omits `payment`, which
