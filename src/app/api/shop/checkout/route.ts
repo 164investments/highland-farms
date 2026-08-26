@@ -18,6 +18,7 @@ import {
   type PricedLine,
 } from "@/lib/shop/orders";
 import { sendOrderEmails } from "@/lib/shop/order-email";
+import { markCartRecovered } from "@/lib/shop/orders";
 
 /**
  * Farm store checkout.
@@ -303,6 +304,13 @@ export async function POST(request: Request) {
     }
 
     after(async () => {
+      // This person bought. Any open cart reminder for them must never fire.
+      try {
+        await markCartRecovered(body.customer.email);
+      } catch (err) {
+        console.error("[shop] mark_cart_recovered threw:", err);
+      }
+
       // Move Square's own stock for anything the farm has mapped, so the
       // register sees this sale. Runs after the response for the same reason
       // the emails do: the money is already taken.

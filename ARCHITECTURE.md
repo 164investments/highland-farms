@@ -77,6 +77,9 @@ src/lib/shop/
   orders.ts            order writes + atomic stock claim/release
   order-email.ts       customer receipt + farm pick list
 src/app/api/shop/checkout/route.ts   the one transactional endpoint
+src/app/api/shop/cart/save|recover/   abandoned-cart capture + restore
+src/app/api/cron/abandoned-carts/     hourly reminder job
+src/lib/shop/abandoned-cart-email.ts  the reminder template
 src/app/api/square/webhook/route.ts  Square -> website (POS sales, refunds, orphan payments)
 src/app/api/shop/admin/inventory/    admin writes
 src/app/shop/admin/                  stock, count, orders, Square matching
@@ -170,6 +173,30 @@ contested match to "needs a human" rather than guessing.
 Square.** At the time of writing only 4 of 53 Square variations track stock, and
 none of them are the mapped ones — so the plumbing is live but mostly idle until
 the farm switches tracking on.
+
+### Abandoned cart recovery (added 2026-08-26)
+
+Email is captured on the checkout page as soon as a valid address is typed, and
+the cart is snapshotted against it. Two reminders then stop: ~1h and ~24h.
+
+⛔ **The snapshot stores variant ids and quantities, never prices.** Same rule as
+the checkout: a two-day-old email must not be able to check out at a price we no
+longer charge, and Square moves prices without us. `subtotal_cents` is stored for
+the email and reporting only, recomputed server-side, never used to charge.
+
+The rules that stop it embarrassing the farm, all enforced in the cron:
+never mail a cart that has since been ordered (the checkout calls
+`mark_cart_recovered`); never mail an unsubscribed address; never mail the same
+step twice (the timestamp is written **before** the send, so a crash costs one
+reminder rather than sending two); drop sold-out lines and skip the cart entirely
+if nothing is left; ignore carts older than a week; and cap sends per run.
+
+⭐ Editing a cart refreshes `updated_at`, which restarts the idle clock — someone
+actively shopping has not abandoned anything.
+
+CAN-SPAM is built into the template shell, not left to the caller: every send
+carries a working unsubscribe plus the farm's physical address, and the job sets
+`List-Unsubscribe` / `List-Unsubscribe-Post` for native one-click in Gmail.
 
 ### Known gaps
 
