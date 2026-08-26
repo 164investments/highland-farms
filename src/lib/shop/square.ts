@@ -27,8 +27,21 @@ export interface ChargeInput {
 export interface ChargeResult {
   ok: boolean;
   paymentId?: string;
+  /** Cents Square actually captured. Asserted against the order total by the caller. */
+  amountCents?: number;
   /** Safe to show a customer. Square's raw detail is logged, not surfaced. */
   error?: string;
+  /**
+   * Whether Square gave us a definitive answer.
+   *
+   * "declined" — Square replied and refused. The idempotency key is spent, so a
+   *   retry MUST use a fresh one or Square rejects it as a reused key.
+   * "unknown" — we never got a usable reply (network error, timeout, surprise
+   *   status). The charge may well have succeeded. A retry MUST reuse the SAME
+   *   idempotency key so Square returns the original payment instead of
+   *   charging the card a second time.
+   */
+  outcome?: "declined" | "unknown";
 }
 
 function config() {
@@ -103,11 +116,20 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
     });
   } catch (err) {
     console.error("[shop] Square request failed:", err);
-    return { ok: false, error: "We couldn't reach our payment processor. Please try again." };
+    // We do not know whether the card was charged. Keep the key.
+    return {
+      ok: false,
+      outcome: "unknown",
+      error: "We couldn't reach our payment processor. Please try again.",
+    };
   }
 
   const body = (await response.json().catch(() => ({}))) as {
-    payment?: { id?: string; status?: string };
+    payment?: {
+      id?: string;
+      status?: string;
+      amount_money?: { amount?: number };
+    };
     errors?: SquareError[];
   };
 
@@ -117,7 +139,7 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
       response.status,
       JSON.stringify(body.errors ?? {}),
     );
-    return { ok: false, error: customerMessage(body.errors) };
+    return { ok: false, outcome: "declined", error: customerMessage(body.errors) };
   }
 
   const payment = body.payment;
@@ -126,8 +148,17 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
   // so anything else is unexpected and must not be sold against.
   if (!payment?.id || payment.status !== "COMPLETED") {
     console.error("[shop] Unexpected Square payment status:", payment?.status);
-    return { ok: false, error: "That payment didn't complete. Please try again." };
+    // A surprise status is not a confirmed refusal — treat it as unknown.
+    return {
+      ok: false,
+      outcome: "unknown",
+      error: "That payment didn't complete. Please try again.",
+    };
   }
 
-  return { ok: true, paymentId: payment.id };
+  return {
+    ok: true,
+    paymentId: payment.id,
+    amountCents: payment.amount_money?.amount,
+  };
 }

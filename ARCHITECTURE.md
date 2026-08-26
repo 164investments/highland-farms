@@ -109,19 +109,52 @@ src/app/api/shop/checkout/route.ts   the one transactional endpoint
    has different SKUs *and different prices* from the website. Never sync one to
    the other without a human decision.
 
-7. **Shop tables are service-role only.** `shop_inventory`, `shop_orders` and
-   `shop_order_items` have RLS on with no anon grants. The browser never reads
-   them. This follows the Aug 2026 remediation where ten `sc_*` tables shipped
-   with RLS off and full anon CRUD.
+7. **Shop tables AND functions are service-role only.** The tables have RLS on
+   with zero policies, which is deny-all. The functions need separate care:
+   ⛔ **revoke from `PUBLIC`, not just `anon`/`authenticated`.** Postgres grants
+   EXECUTE to PUBLIC by default and grants are additive, so revoking from `anon`
+   leaves the PUBLIC grant it inherits. A `SECURITY DEFINER` function has no RLS
+   gate — EXECUTE is the only gate. This was shipped wrong on 2026-08-26 and left
+   both stock RPCs callable by anyone holding the (publicly-known) anon key.
 
 ### Known gaps
 
+Ranked. The first is the one that can lose money silently.
+
+- ⚠️ **No payment↔order reconciliation.** There is no Square webhook. The charge
+  is the only thing that must succeed; the order insert and emails run after it
+  and are best-effort. If the order write fails AND the emails fail, the customer
+  is charged and the farm never learns the order exists — the only trace is a
+  `console.error` in the Vercel log carrying the Square payment id. A
+  `payment.created` webhook that reconciles into `shop_orders` is the fix, and it
+  also heals the next gap.
+- ⚠️ **Stock reservation has no TTL.** `claim_shop_stock` decrements outright;
+  there is no `reserved` column. Release only happens on the in-request decline
+  path, so if the function dies between claim and release the unit is decremented
+  forever (phantom sold-out). Needs either a reserved-with-expiry model or the
+  webhook above plus a sweeper.
+- ⚠️ **Rate limiting is per-instance, in-memory.** Each warm serverless instance
+  keeps its own counter, so the "12 per 15 min" is not global, and a cold start
+  resets it. Since every attempt calls Square, this endpoint is a card-testing
+  oracle with a weak brake. Wants a shared store (Redis/Supabase) and/or the
+  Turnstile challenge the repo already uses on the contact form.
 - **Inventory has no admin UI.** The farm edits `shop_inventory` in Supabase
-  Studio. A small authenticated admin page is the obvious next step.
+  Studio.
+- **In-person Square POS sales do not decrement `shop_inventory`.** The POS
+  catalog shares no SKUs with the website, so the same physical plush can be sold
+  twice.
 - **No refund/cancel flow.** Refunds happen in the Square dashboard and are not
   reflected back into `shop_orders.status`.
-- **Digital wallets are off.** Apple/Google Pay would need `payment=*` added to
-  the `Permissions-Policy` header in `next.config.ts`.
+- **No CSP.** Not required for the wallets (Square is allowed by default when no
+  CSP exists), but a checkout page with no script-integrity control is the one
+  gap an assessor would flag under SAQ A-EP. If a CSP is ever added it MUST
+  allowlist `web.squarecdn.com` and Square's PCI-connect origin, or card entry
+  breaks silently.
+- **Digital wallets are off.** Apple/Google Pay run through the same
+  `POST /v2/payments` call and need no server change; Apple Pay needs the
+  `.well-known/apple-developer-merchantid-domain-association` file plus domain
+  registration. The current `Permissions-Policy` header omits `payment`, which
+  leaves it at its `self` default — that does NOT block wallets.
 
 ## Conventions worth keeping
 

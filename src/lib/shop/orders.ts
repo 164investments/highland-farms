@@ -111,11 +111,13 @@ export async function releaseStock(lines: PricedLine[]): Promise<void> {
  * Called after the money is taken, so a failure here must never look like a
  * failed purchase to the customer — the caller reports success and this throws
  * loudly for the farm to reconcile against Square.
+ *
+ * The order and its lines are written by one transactional RPC: two separate
+ * inserts could strand an order row with no items, which the farm cannot pick.
  */
 export async function recordOrder(input: OrderInput): Promise<string> {
-  const { data, error } = await db()
-    .from("shop_orders")
-    .insert({
+  const { data, error } = await db().rpc("record_shop_order", {
+    order_row: {
       order_number: input.orderNumber,
       status: "paid",
       fulfillment: input.fulfillment,
@@ -130,31 +132,20 @@ export async function recordOrder(input: OrderInput): Promise<string> {
       delivery_fee_cents: input.deliveryFeeCents,
       total_cents: input.totalCents,
       square_payment_id: input.squarePaymentId,
-    })
-    .select("id")
-    .single();
+    },
+    order_items: input.lines.map((l) => ({
+      variant_id: l.variantId,
+      product_slug: l.productSlug,
+      product_name: l.productName,
+      variant_label: l.variantLabel ?? null,
+      unit_price_cents: l.unitPriceCents,
+      quantity: l.quantity,
+    })),
+  });
 
   if (error || !data) {
-    throw new Error(`order insert failed: ${error?.message ?? "no row returned"}`);
+    throw new Error(`order insert failed: ${error?.message ?? "no id returned"}`);
   }
 
-  const { error: itemsError } = await db()
-    .from("shop_order_items")
-    .insert(
-      input.lines.map((l) => ({
-        order_id: data.id,
-        variant_id: l.variantId,
-        product_slug: l.productSlug,
-        product_name: l.productName,
-        variant_label: l.variantLabel ?? null,
-        unit_price_cents: l.unitPriceCents,
-        quantity: l.quantity,
-      })),
-    );
-
-  if (itemsError) {
-    throw new Error(`order items insert failed: ${itemsError.message}`);
-  }
-
-  return data.id as string;
+  return data as string;
 }

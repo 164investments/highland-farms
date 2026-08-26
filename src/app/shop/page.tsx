@@ -9,6 +9,7 @@ import {
   Sparkles,
   Leaf,
   Home,
+  MapPin,
   Truck,
   Star,
   Package,
@@ -171,7 +172,7 @@ export default async function ShopPage() {
                   strokeWidth={1.4}
                 />
                 <span className="flex-1 text-left font-sans text-[0.78rem] font-medium uppercase tracking-[0.13em] leading-[1.15] sm:text-[0.82rem]">
-                  Shop Meat Boxes
+                  Shop Mangalitsa Pork
                 </span>
                 <ChevronRight
                   className="h-4 w-4 shrink-0 text-forest transition-transform group-hover:translate-x-0.5 sm:h-5 sm:w-5"
@@ -230,7 +231,7 @@ export default async function ShopPage() {
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <Truck
+                <MapPin
                   className="mt-0.5 h-4 w-4 text-forest shrink-0"
                   strokeWidth={1.5}
                 />
@@ -239,7 +240,7 @@ export default async function ShopPage() {
                     Farm pickup
                   </dt>
                   <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
-                    &amp; Shipping
+                    Always free
                   </dd>
                 </div>
               </div>
@@ -250,10 +251,10 @@ export default async function ShopPage() {
                 />
                 <div className="font-sans">
                   <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
-                    Local
+                    Local delivery
                   </dt>
                   <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
-                    Delivery
+                    $15 nearby
                   </dd>
                 </div>
               </div>

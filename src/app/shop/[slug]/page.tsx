@@ -154,7 +154,8 @@ export default async function ProductPage({
                     Local delivery {formatCents(DELIVERY_FEE_CENTS)}
                   </dt>
                   <dd className="text-muted">
-                    Mt. Hood corridor and east Portland — we check your ZIP at checkout.
+                    Mt. Hood corridor and east Portland — we check your ZIP at
+                    checkout. We don&apos;t ship.
                   </dd>
                 </div>
               </div>

@@ -92,24 +92,40 @@ const checkoutSchema = z.object({
   website: z.string().max(200).optional(),
 });
 
-function bad(message: string, status = 400) {
-  return NextResponse.json({ error: message }, { status });
+function bad(message: string, status = 400, extra?: Record<string, unknown>) {
+  return NextResponse.json({ error: message, ...extra }, { status });
+}
+
+/** Exact origin match on the parsed URL origin, so a suffix can't spoof it. */
+function isAllowedOrigin(value: string | null): boolean {
+  if (!value) return false;
+  try {
+    return ALLOWED_ORIGINS.includes(new URL(value).origin);
+  } catch {
+    return false;
+  }
 }
 
 export async function POST(request: Request) {
   try {
     cleanupRateLimit();
 
-    const origin = request.headers.get("origin");
-    const referer = request.headers.get("referer");
-    const originOk = origin && ALLOWED_ORIGINS.some((o) => origin.startsWith(o));
-    const refererOk = referer && ALLOWED_ORIGINS.some((o) => referer.startsWith(o));
+    // Compare parsed origins, never startsWith — "https://highlandfarmsoregon.com"
+    // is a prefix of "https://highlandfarmsoregon.com.evil.com".
+    const originOk = isAllowedOrigin(request.headers.get("origin"));
+    const refererOk = isAllowedOrigin(request.headers.get("referer"));
     if (!originOk && !refererOk) {
       return bad("Unauthorized request origin.", 403);
     }
 
+    // Vercel sets x-vercel-forwarded-for itself; the leftmost value of the
+    // plain x-forwarded-for is client-supplied and trivially spoofed, which
+    // would let one attacker rotate past the limiter at will.
     const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+      request.headers.get("x-vercel-forwarded-for")?.trim() ||
+      request.headers.get("x-real-ip")?.trim() ||
+      request.headers.get("x-forwarded-for")?.split(",").pop()?.trim() ||
+      "unknown";
     if (isRateLimited(ip)) {
       return bad("Too many attempts. Please wait a few minutes, or call the farm.", 429);
     }
@@ -204,7 +220,23 @@ export async function POST(request: Request) {
 
     if (!charge.ok || !charge.paymentId) {
       await releaseStock(finalLines);
-      return bad(charge.error ?? "That payment didn't go through.", 402);
+      // On an "unknown" outcome the card may in fact have been charged, so the
+      // browser must retry with the SAME idempotency key — that is what makes
+      // Square return the original payment instead of charging twice.
+      return bad(charge.error ?? "That payment didn't go through.", 402, {
+        reuseIdempotencyKey: charge.outcome === "unknown",
+      });
+    }
+
+    // Square should never capture an amount we didn't ask for, but never ship
+    // goods against an unverified number.
+    if (
+      typeof charge.amountCents === "number" &&
+      charge.amountCents !== totalCents
+    ) {
+      console.error(
+        `[shop] AMOUNT MISMATCH order=${orderNumber} square_payment=${charge.paymentId} expected=${totalCents} captured=${charge.amountCents}`,
+      );
     }
 
     // ---- Money is taken. Nothing below may fail the request. ----
