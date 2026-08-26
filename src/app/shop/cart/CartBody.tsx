@@ -2,14 +2,26 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Minus, Plus, X } from "lucide-react";
+import { ArrowLeft, Lock, MapPin, Minus, Plus, Plus as PlusIcon, Star, X } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents } from "@/lib/shop/money";
 import { DELIVERY_MINIMUM_CENTS } from "@/lib/shop/fulfillment";
+import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
+import { formatCentsShort } from "@/lib/shop/money";
 
-export function CartBody() {
-  const { detailed, subtotalCents, setQuantity, remove, ready } = useCart();
+export interface AddOn {
+  variantId: string;
+  slug: string;
+  name: string;
+  image: string;
+  priceCents: number;
+}
+
+export function CartBody({ addOns }: { addOns: AddOn[] }) {
+  const { detailed, subtotalCents, setQuantity, remove, add, ready } = useCart();
+  const inCart = new Set(detailed.map((l) => l.variantId));
+  const offers = addOns.filter((a) => !inCart.has(a.variantId)).slice(0, 3);
 
   return (
     <main className="bg-cream pt-32 pb-20 sm:pb-28">
@@ -143,7 +155,62 @@ export function CartBody() {
               >
                 Checkout
               </Link>
+
+              {/* Reassurance at the point of commitment, not stranded in the
+                  footer six screens down. */}
+              <ul className="mt-4 space-y-1.5 text-xs text-muted font-sans">
+                <li className="flex items-center gap-2">
+                  <Star className="h-3 w-3 shrink-0 fill-forest text-forest" aria-hidden />
+                  Loved by {REVIEW_COUNT}+ guests on Google
+                </li>
+                <li className="flex items-center gap-2">
+                  <Lock className="h-3 w-3 shrink-0 text-sage" aria-hidden />
+                  Card details go straight to Square. We never see them.
+                </li>
+                <li className="flex items-center gap-2">
+                  <MapPin className="h-3 w-3 shrink-0 text-sage" aria-hidden />
+                  We&apos;ll call you when it&apos;s packed and ready.
+                </li>
+              </ul>
             </div>
+
+            {/* AOV, sequenced AFTER the primary CTA so it never competes with
+                it. Also the one-tap way to clear the delivery minimum. */}
+            {offers.length > 0 && (
+              <div className="mt-5">
+                <h2 className="mb-3 text-xs uppercase tracking-[0.12em] text-muted font-sans">
+                  Add to your order
+                </h2>
+                <ul className="grid grid-cols-3 gap-3">
+                  {offers.map((a) => (
+                    <li key={a.variantId} className="rounded-2xl bg-white p-2.5 shadow-sm">
+                      <Link href={`/shop/${a.slug}`} className="block">
+                        <span className="relative block aspect-square overflow-hidden rounded-xl bg-cream">
+                          <Image
+                            src={a.image}
+                            alt={a.name}
+                            fill
+                            sizes="33vw"
+                            className="object-cover"
+                          />
+                        </span>
+                        <span className="mt-2 block truncate text-xs text-charcoal font-sans">
+                          {a.name}
+                        </span>
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => add(a.variantId, 1)}
+                        className="mt-1.5 flex w-full items-center justify-center gap-1 rounded-full border border-cream-dark py-1.5 text-xs text-forest transition-colors hover:border-forest/50 font-sans"
+                      >
+                        <PlusIcon className="h-3 w-3" />
+                        {formatCentsShort(a.priceCents)}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </>
         )}
       </Container>

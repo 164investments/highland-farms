@@ -17,6 +17,7 @@ import {
 import { CONTACT } from "@/lib/constants";
 import { Star } from "lucide-react";
 import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
+import { ExpressPay } from "./ExpressPay";
 
 /**
  * Checkout.
@@ -36,6 +37,16 @@ interface SquareCard {
 }
 interface SquarePayments {
   card: () => Promise<SquareCard>;
+  paymentRequest: (req: unknown) => unknown;
+  applePay: (req: unknown) => Promise<{
+    tokenize: () => Promise<{ status: string; token?: string; errors?: { message: string }[] }>;
+    destroy?: () => void;
+  }>;
+  googlePay: (req: unknown) => Promise<{
+    tokenize: () => Promise<{ status: string; token?: string; errors?: { message: string }[] }>;
+    attach?: (selector: string) => Promise<void>;
+    destroy?: () => void;
+  }>;
 }
 declare global {
   interface Window {
@@ -78,6 +89,7 @@ export function CheckoutBody({
   });
 
   const cardRef = useRef<SquareCard | null>(null);
+  const [payments, setPayments] = useState<SquarePayments | null>(null);
   const attachedRef = useRef(false);
   // Stable per checkout attempt — this is what prevents a double-charge on a
   // double-click or a retried request.
@@ -124,8 +136,9 @@ export function CheckoutBody({
         }
         if (cancelled || !window.Square) return;
 
-        const payments = window.Square.payments(applicationId, locationId);
-        const card = await payments.card();
+        const paymentsInstance = window.Square.payments(applicationId, locationId);
+        setPayments(paymentsInstance);
+        const card = await paymentsInstance.card();
         await card.attach("#square-card");
         if (cancelled) {
           card.destroy?.();
@@ -186,33 +199,33 @@ export function CheckoutBody({
       ? blocking
       : null;
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  /** True when the order is ready to send. Wallets check this before opening. */
+  function readyToPay(): boolean {
     setError(null);
-
-    if (!cardRef.current || status !== "ready") return;
     if (blocking) {
       setError(blocking);
-      return;
+      return false;
     }
+    if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
+      setError("Add your name, email and phone first, then pay.");
+      return false;
+    }
+    if (fulfillment === "delivery" && (!form.address.trim() || !form.city.trim())) {
+      setError("Add your delivery address first, then pay.");
+      return false;
+    }
+    return true;
+  }
 
+  /** Everything after a token exists, shared by the card form and the wallets. */
+  async function submitWithToken(sourceId: string) {
     setStatus("submitting");
     try {
-      const result = await cardRef.current.tokenize();
-      if (result.status !== "OK" || !result.token) {
-        setError(
-          result.errors?.[0]?.message ??
-            "Please check your card details and try again.",
-        );
-        setStatus("ready");
-        return;
-      }
-
       const response = await fetch("/api/shop/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sourceId: result.token,
+          sourceId,
           idempotencyKey: idempotencyKeyRef.current,
           fulfillment,
           customer: { name: form.name, email: form.email, phone: form.phone },
@@ -273,6 +286,23 @@ export function CheckoutBody({
       setError("We couldn't reach the farm. Please try again.");
       setStatus("ready");
     }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!cardRef.current || status !== "ready") return;
+    if (!readyToPay()) return;
+
+    setStatus("submitting");
+    const result = await cardRef.current.tokenize();
+    if (result.status !== "OK" || !result.token) {
+      setError(
+        result.errors?.[0]?.message ?? "Please check your card details and try again.",
+      );
+      setStatus("ready");
+      return;
+    }
+    await submitWithToken(result.token);
   }
 
   if (cartReady && count === 0) {
@@ -425,6 +455,16 @@ export function CheckoutBody({
               </div>
             ) : (
               <>
+                <ExpressPay
+                  payments={payments}
+                  totalCents={totalCents}
+                  disabled={busy || status !== "ready"}
+                  onToken={(t) => {
+                    if (!readyToPay()) return;
+                    void submitWithToken(t);
+                  }}
+                  onError={setError}
+                />
                 <div id="square-card" className="mt-3 min-h-[90px]" />
                 {status === "loading" && (
                   <p className="flex items-center gap-2 text-sm text-muted font-sans">
