@@ -1,6 +1,22 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // admin.highlandfarmsoregon.com serves the farm-store admin at its root.
+  //
+  // Only the root path is rewritten, deliberately. Rewriting /:path* would also
+  // capture /api/*, and the admin screens post to /api/shop/admin/* on whatever
+  // host they were loaded from — so a blanket rewrite would break every save.
+  async rewrites() {
+    const ADMIN_HOST = "admin.highlandfarmsoregon.com";
+    return [
+      {
+        source: "/",
+        has: [{ type: "host" as const, value: ADMIN_HOST }],
+        destination: "/shop/admin",
+      },
+    ];
+  },
+
   async redirects() {
     return [
       // Old Squarespace URL redirects

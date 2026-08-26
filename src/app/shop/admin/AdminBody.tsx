@@ -51,11 +51,14 @@ export function AdminBody({
   const [rows, setRows] = useState(inventory);
 
   // Move the token out of the address bar and into a cookie, so a shared or
-  // bookmarked URL doesn't carry the key around.
+  // bookmarked URL doesn't carry the key around. The admin answers on two
+  // hosts (admin.highlandfarmsoregon.com at "/" and the main site at
+  // "/shop/admin"), so clean the URL back to whichever one we came in on.
   useEffect(() => {
     if (!setCookie || !token) return;
     document.cookie = `${ADMIN_COOKIE}=${encodeURIComponent(token)}; path=/; max-age=2592000; samesite=lax`;
-    window.history.replaceState({}, "", "/shop/admin");
+    const onAdminHost = window.location.hostname.startsWith("admin.");
+    window.history.replaceState({}, "", onAdminHost ? "/" : "/shop/admin");
   }, [setCookie, token]);
 
   const lowStock = useMemo(
