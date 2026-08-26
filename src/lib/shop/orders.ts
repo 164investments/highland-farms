@@ -24,6 +24,8 @@ function db(): SupabaseClient {
 
 export interface PricedLine {
   variantId: string;
+  /** Square catalog variation this maps to, when the farm has linked it. */
+  squareVariationId?: string;
   productSlug: string;
   productName: string;
   variantLabel?: string;
@@ -33,6 +35,7 @@ export interface PricedLine {
 
 export interface OrderInput {
   orderNumber: string;
+  squareOrderId?: string;
   fulfillment: Fulfillment;
   customerName: string;
   customerEmail: string;
@@ -132,6 +135,8 @@ export async function recordOrder(input: OrderInput): Promise<string> {
       delivery_fee_cents: input.deliveryFeeCents,
       total_cents: input.totalCents,
       square_payment_id: input.squarePaymentId,
+      square_order_id: input.squareOrderId ?? null,
+      channel: "online",
     },
     order_items: input.lines.map((l) => ({
       variant_id: l.variantId,

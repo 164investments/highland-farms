@@ -3,7 +3,13 @@ import { z } from "zod";
 import { getVariant } from "@/app/shop/data";
 import { toCents } from "@/lib/shop/money";
 import { deliveryFeeCents, deliveryProblem } from "@/lib/shop/fulfillment";
-import { chargeCard, isSquareConfigured } from "@/lib/shop/square";
+import {
+  adjustInventory,
+  chargeCard,
+  createOrder,
+  isSquareConfigured,
+} from "@/lib/shop/square";
+import { getSquareVariationMap } from "@/lib/shop/inventory";
 import {
   claimStock,
   generateOrderNumber,
@@ -207,8 +213,32 @@ export async function POST(request: Request) {
       return bad(claim.message, claim.reason === "out_of_stock" ? 409 : 503);
     }
 
-    // ---- Charge ----
+    // ---- Build the Square order first, so the sale is itemised in the same
+    // reporting the farm reads for the POS, and so a mapped+tracked variation
+    // has its Square count moved by this sale. Never allowed to block a charge.
     const orderNumber = generateOrderNumber();
+    const squareMap = await getSquareVariationMap();
+    const linesWithSquare = finalLines.map((l) => ({
+      ...l,
+      squareVariationId: squareMap.get(l.variantId),
+    }));
+
+    const squareOrderId = await createOrder(
+      linesWithSquare.map((l) => ({
+        name: l.productName,
+        variantLabel: l.variantLabel,
+        quantity: l.quantity,
+        unitPriceCents: l.unitPriceCents,
+        squareVariationId: l.squareVariationId,
+      })),
+      {
+        orderNumber,
+        deliveryFeeCents: feeCents,
+        idempotencyKey: body.idempotencyKey,
+      },
+    );
+
+    // ---- Charge ----
     const charge = await chargeCard({
       sourceId: body.sourceId,
       amountCents: totalCents,
@@ -216,6 +246,7 @@ export async function POST(request: Request) {
       orderNumber,
       buyerEmail: body.customer.email,
       note: `Highland Farms order ${orderNumber} (${body.fulfillment})`,
+      orderId: squareOrderId ?? undefined,
     });
 
     if (!charge.ok || !charge.paymentId) {
@@ -257,7 +288,11 @@ export async function POST(request: Request) {
     };
 
     try {
-      await recordOrder({ ...emailData, squarePaymentId: charge.paymentId });
+      await recordOrder({
+        ...emailData,
+        squarePaymentId: charge.paymentId,
+        squareOrderId: squareOrderId ?? undefined,
+      });
     } catch (err) {
       // The customer has paid. Do not show them an error — surface it for the
       // farm to reconcile against the Square payment id.
@@ -268,6 +303,23 @@ export async function POST(request: Request) {
     }
 
     after(async () => {
+      // Move Square's own stock for anything the farm has mapped, so the
+      // register sees this sale. Runs after the response for the same reason
+      // the emails do: the money is already taken.
+      try {
+        await adjustInventory(
+          linesWithSquare
+            .filter((l) => l.squareVariationId)
+            .map((l) => ({
+              squareVariationId: l.squareVariationId!,
+              quantity: l.quantity,
+            })),
+          body.idempotencyKey,
+        );
+      } catch (err) {
+        console.error("[shop] square inventory adjust threw:", err);
+      }
+
       try {
         await sendOrderEmails(emailData);
       } catch (err) {
