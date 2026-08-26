@@ -103,5 +103,5 @@ Validate cron header →
 - Properties defined statically in `src/data/properties.ts` (whole-farm, lodge, cottage, camp)
 - Framer Motion animations via `FadeIn` and `StaggerChildren` components
 - Image galleries use Embla Carousel
-- Shop redirects to external `shop.highlandfarmsoregon.com` (Squarespace)
+- Shop: the Squarespace store (`shop.highlandfarmsoregon.com`) was cancelled Aug 2026 and now returns "Website Expired". `/shop` is a first-party catalog; product cards route to `/shop/order` pending the native Square checkout. Fulfillment is farm pickup + local delivery — the site must NOT promise shipping.
 - robots.txt is a STATIC file at `public/robots.txt` (NOT `src/app/robots.ts` — a typed robots route can't emit the Cloudflare `Content-Signal` line; do not re-add robots.ts or the build conflicts). llms.txt is `public/llms.txt` — bump its `Last-Updated` on edits.

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { MapPin, Check } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -41,10 +42,8 @@ function toGA4Item(p: Product, index: number) {
 
 function ProductCard({ product, index }: { product: Product; index: number }) {
   return (
-    <a
-      href={product.url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href="/shop/order"
       onClick={() =>
         pushEvent("select_item", {
           ecommerce: { items: [toGA4Item(product, index)] },
@@ -101,7 +100,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           )}
         </div>
       </div>
-    </a>
+    </Link>
   );
 }
 

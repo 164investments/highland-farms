@@ -10,7 +10,6 @@ import {
   Leaf,
   Home,
   Truck,
-  Snowflake,
   Star,
   Package,
   ChevronRight,
@@ -129,7 +128,7 @@ export default function ShopPage() {
             <p className="mt-5 max-w-md text-base leading-relaxed text-charcoal/80 font-sans sm:text-[1.0625rem]">
               Pasture-raised Highland beef, heritage Mangalitsa pork, farm
               eggs, apparel, and gifts from our Brightwood farm. Order online
-              for farm pickup or insulated shipping.
+              for farm pickup or local delivery.
             </p>
 
             {/* CTAs — icon-pill design: primary green w/ circled star, white secondaries; stack mobile / 3-col desktop */}
@@ -235,16 +234,16 @@ export default function ShopPage() {
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <Snowflake
+                <Truck
                   className="mt-0.5 h-4 w-4 text-forest shrink-0"
                   strokeWidth={1.5}
                 />
                 <div className="font-sans">
                   <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
-                    Insulated
+                    Local
                   </dt>
                   <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
-                    Shipping
+                    Delivery
                   </dd>
                 </div>
               </div>
