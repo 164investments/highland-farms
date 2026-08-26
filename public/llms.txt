@@ -4,7 +4,7 @@
 
 Name: Highland Farms Oregon
 Base: https://highlandfarmsoregon.com
-Last-Updated: 2026-07-21
+Last-Updated: 2026-08-26
 Contact: events@highlandfarms-oregon.com | +1 (831) 214-2053
 Sitemap: https://highlandfarmsoregon.com/sitemap.xml
 
@@ -43,7 +43,7 @@ Highland Farms was featured on LivePDX, Portland's popular local guide, and has 
 
 ## Farm Store
 
-- [Shop](https://highlandfarmsoregon.com/shop): Highland Farms merchandise including apparel, weighted Highland Cow plushies, fresh farm eggs, Highland beef, Mangalitsa pork, s'mores kits, and firewood.
+- [Shop](https://highlandfarmsoregon.com/shop): Highland Farms merchandise including apparel, weighted Highland Cow plushies, fresh farm eggs, Highland beef, Mangalitsa pork, and firewood. Orders are placed and paid for on this site. Fulfillment is free pickup at the farm in Brightwood, or local delivery ($15) within the Mt. Hood corridor and east Portland metro. Highland Farms does not ship.
 
 ## Contact & Location
 

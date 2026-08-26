@@ -35,8 +35,10 @@ npm run indexnow # submit pages to Bing
 - `NEXT_PUBLIC_GTM_ID` — GTM-MBH36BJH
 - `NEXT_PUBLIC_CLARITY_PROJECT_ID` — Microsoft Clarity (optional)
 - `NEXT_PUBLIC_BOOKEDIQ_LOCATION_ID` — BookedIQ chat widget
+- `NEXT_PUBLIC_SQUARE_APPLICATION_ID` / `NEXT_PUBLIC_SQUARE_LOCATION_ID` — Square Web Payments SDK
 
 ### Private (server-only, set in Vercel)
+- `SQUARE_ACCESS_TOKEN` / `SQUARE_LOCATION_ID` — farm store payments
 - `SUPABASE_SERVICE_ROLE_KEY` — Meta webhook writes
 - `RESEND_API_KEY` — email notifications
 - `HUBSPOT_ACCESS_TOKEN` / `HUBSPOT_PIPELINE_ID` / `HUBSPOT_DEAL_STAGE_NEW_LEAD`
@@ -86,6 +88,7 @@ Validate cron header →
 - Env vars for GA4 (optional): `GOOGLE_SA_EMAIL`, `GOOGLE_SA_PRIVATE_KEY`
 
 ## Database Tables (Supabase)
+- `shop_inventory` / `shop_orders` / `shop_order_items` — farm store (DDL: `supabase-shop.sql`; RLS on, service-role only)
 - `event_inquiries` — contact form submissions
 - `email_subscribers` — newsletter popup signups
 - `meta_leads` — Meta instant form leads (synced to BookedIQ + HubSpot)
@@ -103,5 +106,7 @@ Validate cron header →
 - Properties defined statically in `src/data/properties.ts` (whole-farm, lodge, cottage, camp)
 - Framer Motion animations via `FadeIn` and `StaggerChildren` components
 - Image galleries use Embla Carousel
-- Shop: the Squarespace store (`shop.highlandfarmsoregon.com`) was cancelled Aug 2026 and now returns "Website Expired". `/shop` is a first-party catalog; product cards route to `/shop/order` pending the native Square checkout. Fulfillment is farm pickup + local delivery — the site must NOT promise shipping.
+- Shop: native commerce, built Aug 2026 after the Squarespace store was cancelled and went dark. Catalog is static in `src/app/shop/data.ts`; stock is live in Supabase `shop_inventory`. Payment is **Square** (`src/lib/shop/square.ts`). Fulfillment is farm pickup + local delivery — **the site must NOT promise shipping**. Structure and the rules that keep it correct: `ARCHITECTURE.md`.
+- ⛔ The server re-prices every checkout line from `data.ts`; the browser never sends prices. Don't "optimise" that away.
+- ⛔ The Square POS catalog has DIFFERENT prices and SKUs from the website. Square is the payment rail, not the price source.
 - robots.txt is a STATIC file at `public/robots.txt` (NOT `src/app/robots.ts` — a typed robots route can't emit the Cloudflare `Content-Signal` line; do not re-add robots.ts or the build conflicts). llms.txt is `public/llms.txt` — bump its `Last-Updated` on edits.

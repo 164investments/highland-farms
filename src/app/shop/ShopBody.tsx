@@ -8,7 +8,15 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { BOOKING_LINKS } from "@/lib/constants";
 import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
-import { CATEGORIES, PRODUCTS, type CategoryKey, type Product } from "./data";
+import {
+  CATEGORIES,
+  PRODUCTS,
+  fromPrice,
+  hasChoices,
+  type CategoryKey,
+  type Product,
+} from "./data";
+import { formatCentsShort, toCents } from "@/lib/shop/money";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 
@@ -30,20 +38,36 @@ function trackedAcuityUrl(href: string) {
   return appendAttributionToUrl(href, getClientAttribution());
 }
 
+/** variant id -> units left; null means unlimited. Serialised from the server. */
+type StockRecord = Record<string, number | null>;
+
+function isSoldOut(stock: StockRecord, product: Product): boolean {
+  return product.variants.every((v) => stock[v.id] === 0);
+}
+
 function toGA4Item(p: Product, index: number) {
   return {
-    item_id: p.url.split("/").pop(),
+    item_id: p.slug,
     item_name: p.name,
     item_category: p.category,
-    price: p.price ?? 0,
+    price: fromPrice(p),
     index,
   };
 }
 
-function ProductCard({ product, index }: { product: Product; index: number }) {
+function ProductCard({
+  product,
+  index,
+  stock,
+}: {
+  product: Product;
+  index: number;
+  stock: StockRecord;
+}) {
+  const soldOut = isSoldOut(stock, product);
   return (
     <Link
-      href="/shop/order"
+      href={`/shop/${product.slug}`}
       onClick={() =>
         pushEvent("select_item", {
           ecommerce: { items: [toGA4Item(product, index)] },
@@ -58,10 +82,10 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
-            product.soldOut ? "opacity-60" : ""
+            soldOut ? "opacity-60" : ""
           }`}
         />
-        {product.badges && product.badges.length > 0 && !product.soldOut && (
+        {product.badges && product.badges.length > 0 && !soldOut && (
           <div className="absolute left-2.5 top-2.5 flex flex-col gap-1.5">
             {product.badges.map((badge) => (
               <span
@@ -73,7 +97,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
             ))}
           </div>
         )}
-        {product.soldOut && (
+        {soldOut && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="rounded-full bg-charcoal/90 px-4 py-1.5 text-xs font-normal uppercase tracking-[0.15em] text-white font-sans">
               Sold Out
@@ -86,18 +110,19 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           {product.name}
         </h3>
         <div className="mt-auto pt-2.5">
-          {product.price !== null ? (
-            <p className="text-[1.0625rem] font-medium text-forest font-sans">
-              ${product.price.toFixed(2)}
-              {product.priceNote && (
-                <span className="ml-1.5 text-[0.6875rem] font-normal uppercase tracking-wider text-muted">
-                  {product.priceNote}
-                </span>
-              )}
-            </p>
-          ) : (
-            <p className="text-sm text-muted font-sans">Inquire</p>
-          )}
+          <p className="text-[1.0625rem] font-medium text-forest font-sans">
+            {hasChoices(product) && (
+              <span className="mr-1 text-[0.6875rem] font-normal uppercase tracking-wider text-muted">
+                from
+              </span>
+            )}
+            {formatCentsShort(toCents(fromPrice(product)))}
+            {product.priceNote && (
+              <span className="ml-1.5 text-[0.6875rem] font-normal uppercase tracking-wider text-muted">
+                {product.priceNote}
+              </span>
+            )}
+          </p>
         </div>
       </div>
     </Link>
@@ -152,7 +177,7 @@ function CategoryNav({
   );
 }
 
-export function ShopBody() {
+export function ShopBody({ stock }: { stock: StockRecord }) {
   const [active, setActive] = useState<NavKey | null>("featured");
   const sectionRefs = useRef<Record<NavKey, HTMLElement | null>>({
     featured: null,
@@ -164,7 +189,7 @@ export function ShopBody() {
   });
   const viewLogged = useRef(false);
 
-  const featured = PRODUCTS.filter((p) => p.featured && !p.soldOut);
+  const featured = PRODUCTS.filter((p) => p.featured && !isSoldOut(stock, p));
   const totalCount = PRODUCTS.length;
 
   const pills: PillSpec[] = [
@@ -260,7 +285,8 @@ export function ShopBody() {
           </div>
           <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
             {featured.map((p, i) => (
-              <ProductCard key={p.name} product={p} index={i} />
+              <ProductCard key={p.name} product={p} index={i}
+                  stock={stock} />
             ))}
           </div>
         </Container>
@@ -299,7 +325,8 @@ export function ShopBody() {
                 </div>
                 <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
                   {inCategory.map((p, i) => (
-                    <ProductCard key={p.name} product={p} index={i} />
+                    <ProductCard key={p.name} product={p} index={i}
+                  stock={stock} />
                   ))}
                 </div>
               </Container>

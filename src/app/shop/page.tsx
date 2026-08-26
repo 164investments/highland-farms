@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ShopBody } from "./ShopBody";
-import { PRODUCTS } from "./data";
+import { PRODUCTS, fromPrice } from "./data";
+import { getStockMap, allSoldOut, type StockMap } from "@/lib/shop/inventory";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 
 function BarnIcon({ className }: { className?: string }) {
@@ -60,35 +61,39 @@ export const metadata: Metadata = {
   },
 };
 
-function StructuredData() {
+function StructuredData({ stock }: { stock: StockMap }) {
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Highland Farms Farm Store",
-    itemListElement: PRODUCTS.map((p, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      item: {
-        "@type": "Product",
-        name: p.name,
-        image: `https://highlandfarmsoregon.com${p.image}`,
-        url: p.url,
-        category: p.category,
-        ...(p.price !== null && {
+    itemListElement: PRODUCTS.map((p, i) => {
+      const url = `https://highlandfarmsoregon.com/shop/${p.slug}`;
+      const soldOut = allSoldOut(
+        stock,
+        p.variants.map((v) => v.id),
+      );
+      return {
+        "@type": "ListItem",
+        position: i + 1,
+        item: {
+          "@type": "Product",
+          name: p.name,
+          image: `https://highlandfarmsoregon.com${p.image}`,
+          url,
+          category: p.category,
           offers: {
             "@type": "Offer",
-            price: p.price,
+            price: fromPrice(p),
             priceCurrency: "USD",
-            availability: p.soldOut
+            availability: soldOut
               ? "https://schema.org/OutOfStock"
               : "https://schema.org/InStock",
-            url: p.url,
+            url,
           },
-        }),
-      },
-    })),
+        },
+      };
+    }),
   };
-
   return (
     <script
       type="application/ld+json"
@@ -97,10 +102,15 @@ function StructuredData() {
   );
 }
 
-export default function ShopPage() {
+// Availability comes from Supabase, so the page revalidates rather than
+// baking stock in at build time.
+export const revalidate = 60;
+
+export default async function ShopPage() {
+  const stock = await getStockMap();
   return (
     <>
-      <StructuredData />
+      <StructuredData stock={stock} />
 
       {/* Hero — cow as top photo band on mobile (under header), right portrait on desktop */}
       <section className="relative isolate overflow-hidden bg-cream pb-8 sm:pb-16 md:pt-[calc(var(--header-h,100px)+2.5rem)] lg:pb-20">
@@ -328,7 +338,7 @@ export default function ShopPage() {
       </section>
 
       {/* Everything else (client) */}
-      <ShopBody />
+      <ShopBody stock={Object.fromEntries(stock)} />
     </>
   );
 }
