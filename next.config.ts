@@ -6,15 +6,22 @@ const nextConfig: NextConfig = {
   // Only the root path is rewritten, deliberately. Rewriting /:path* would also
   // capture /api/*, and the admin screens post to /api/shop/admin/* on whatever
   // host they were loaded from — so a blanket rewrite would break every save.
+  // MUST be beforeFiles. A bare array (or afterFiles) only runs once the
+  // filesystem routes have been checked, and "/" already exists as a page, so
+  // the rewrite would never fire and the subdomain would serve the homepage.
   async rewrites() {
     const ADMIN_HOST = "admin.highlandfarmsoregon.com";
-    return [
-      {
-        source: "/",
-        has: [{ type: "host" as const, value: ADMIN_HOST }],
-        destination: "/shop/admin",
-      },
-    ];
+    return {
+      beforeFiles: [
+        {
+          source: "/",
+          has: [{ type: "host" as const, value: ADMIN_HOST }],
+          destination: "/shop/admin",
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
   },
 
   async redirects() {
