@@ -13,7 +13,7 @@ const RECIPIENTS = [
   "mcwilliamscc2@gmail.com",
   "egbert.jordan@gmail.com",
   "events@highlandfarms-oregon.com",
-  "mckenna@highlandfarms-oregon.com",
+  "sales@highlandfarms-oregon.com",
 ];
 
 const WEDDING_EVENT_TYPES = ["wedding", "elopement", "engagement-party", "rehearsal-dinner"];
