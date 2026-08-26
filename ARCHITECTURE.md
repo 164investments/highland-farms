@@ -198,6 +198,25 @@ CAN-SPAM is built into the template shell, not left to the caller: every send
 carries a working unsubscribe plus the farm's physical address, and the job sets
 `List-Unsubscribe` / `List-Unsubscribe-Post` for native one-click in Gmail.
 
+### The cart-reminder A/B test
+
+⛔ **Two independent randomisations, not a six-cell grid.** Three variants times
+two senders would need roughly six times the traffic to resolve, and this store
+will not produce it. `variant` and `sender` are assigned independently and read
+as two separate questions: which argument works (~1/3 each) and who should sign
+it (~1/2 each). Same traffic, two answerable questions.
+
+Assignment happens once, on first save, and `coalesce` keeps it — a shopper who
+gets Connor at 1h must not get Jalene at 24h. Read results from the
+`shop_cart_test_results` view, which counts only carts that were actually
+MAILED; including carts that never reached the 1h threshold would dilute every
+rate.
+
+⛔ **A sender's `photo` must be a REAL photograph or null.** Never generate a
+likeness: a fabricated headshot of a real employee is a worse version of the
+fake-provenance-imagery problem, because it puts a face and words on someone who
+consented to neither. Jalene has no photo on file and signs without one.
+
 ### Known gaps
 
 Ranked.
