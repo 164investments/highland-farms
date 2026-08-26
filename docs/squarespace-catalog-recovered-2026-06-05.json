@@ -1,0 +1,2033 @@
+{
+ "a-dozen-eggs": {
+  "ts": "20260605225512",
+  "title": "A Dozen Eggs",
+  "variants": [
+   {
+    "id": "8046a477-317b-4502-a924-a1b5b3464db0",
+    "sku": "SQ9271455",
+    "price": {
+     "currencyCode": "USD",
+     "value": 800,
+     "decimalValue": "8.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 9
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "dried-flower-bouquet": {
+  "ts": "20260605225513",
+  "title": "Dried Flower Bouquet",
+  "variants": [
+   {
+    "id": "8679e7fd-aed1-423f-8423-cfc40b3407cb",
+    "sku": "SQ1943823",
+    "price": {
+     "currencyCode": "USD",
+     "value": 1500,
+     "decimalValue": "15.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": true
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "firewood": {
+  "ts": "20260605225513",
+  "title": "Firewood and Kindling",
+  "variants": [
+   {
+    "id": "bf093027-e305-4518-82e5-e72c5476f406",
+    "sku": "SQ0100237",
+    "price": {
+     "currencyCode": "USD",
+     "value": 900,
+     "decimalValue": "9.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": true
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "fresh-flower-bouquet": {
+  "ts": "20260605225513",
+  "title": "Fresh Flower Bouquet",
+  "variants": [
+   {
+    "id": "68950ae7-9a8a-437d-b9a5-a7ccbe75e7dd",
+    "sku": "SQ9810417",
+    "price": {
+     "currencyCode": "USD",
+     "value": 2500,
+     "decimalValue": "25.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "ground-beef": {
+  "ts": "20260605225512",
+  "title": "Highland Top Sirloin Ground Beef- 1 LB",
+  "variants": [
+   {
+    "id": "7992bedd-d6ab-4c04-b9bb-a1eb16a1bab6",
+    "sku": "SQ6898162",
+    "price": {
+     "currencyCode": "USD",
+     "value": 900,
+     "decimalValue": "9.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 77
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "highland-beef-new-york-steak": {
+  "ts": "20260605225512",
+  "title": "Highland Beef New York Steak",
+  "variants": [
+   {
+    "id": "a5456f00-0eb0-47e2-968d-caf7c62d9ab5",
+    "sku": "SQ3825234",
+    "price": {
+     "currencyCode": "USD",
+     "value": 2100,
+     "decimalValue": "21.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "highland-beef-tenderloin-steak": {
+  "ts": "20260605225512",
+  "title": "Highland Beef Tenderloin Steak",
+  "variants": [
+   {
+    "id": "40c9feb8-c3b1-42ab-89b6-474e74a13e87",
+    "sku": "SQ4270922",
+    "price": {
+     "currencyCode": "USD",
+     "value": 2900,
+     "decimalValue": "29.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "highland-farm-the-dream-hoodie-olive-green": {
+  "ts": "20260605225510",
+  "title": "Highland Farm - The Dream Hoodie Olive Green",
+  "variants": [
+   {
+    "id": "007fe512-1b5f-4970-b32e-b26d333ff61b",
+    "sku": "SQ8737508",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 2
+    },
+    "attributes": {
+     "Size": "Small"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "3650b241-6d90-4f70-9ad1-07160b27dad7",
+    "sku": "SQ0894230",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 5
+    },
+    "attributes": {
+     "Size": "Medium"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "36af0085-b6e7-423a-832f-a4ce89da68e7",
+    "sku": "SQ8434806",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 5
+    },
+    "attributes": {
+     "Size": "Large"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "8d9a299e-6025-480f-bf2e-5ed13bc04fc6",
+    "sku": "SQ5091399",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 7
+    },
+    "attributes": {
+     "Size": "XLarge"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "73e493a7-935e-4f9a-935b-30f3e3473a1b",
+    "sku": "SQ2417859",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 1
+    },
+    "attributes": {
+     "Size": "XXLarge"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "9a800187-bdd6-4737-8816-a28687f55122",
+    "sku": "SQ7574307",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 2
+    },
+    "attributes": {
+     "Size": "XXXLarge"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "highland-farms-camo-trucker-hat": {
+  "ts": "20260605225510",
+  "title": "Highland Farms Camo Trucker Hat",
+  "variants": [
+   {
+    "id": "eb7a38b0-01f5-4d46-886d-c58ef3b5c458",
+    "sku": "SQ0051228",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3500,
+     "decimalValue": "35.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 51
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "highland-farms-logo-keychain-leather-branded": {
+  "ts": "20260605225511",
+  "title": "Highland Farms - HF Logo Leather Branded Keychain",
+  "variants": [
+   {
+    "id": "d7b7802c-d63c-47c0-b872-1e2062b2167c",
+    "sku": "SQ7366113",
+    "price": {
+     "currencyCode": "USD",
+     "value": 1000,
+     "decimalValue": "10.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": true
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "highland-farms-the-dream-hoodie": {
+  "ts": "20260605225510",
+  "title": "Highland Farms - The Dream Hoodie Coyote Brown",
+  "variants": [
+   {
+    "id": "dede86f3-6e13-4f12-88fe-41057ab18281",
+    "sku": "SQ1839677",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {
+     "Size": "Small"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "703cc440-6423-49b0-94bd-722a05dbd1d8",
+    "sku": "SQ2746339",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 7
+    },
+    "attributes": {
+     "Size": "Medium"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "86d823d4-0efa-4dc7-96f6-f2f42c7b7757",
+    "sku": "SQ5331094",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 10
+    },
+    "attributes": {
+     "Size": "Large"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "833a54ec-a6f0-429f-adf8-f47cb249ae44",
+    "sku": "SQ1674460",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 10
+    },
+    "attributes": {
+     "Size": "XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "991f9ff9-e499-4326-93a9-617e09be24b6",
+    "sku": "SQ7658000",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 1
+    },
+    "attributes": {
+     "Size": "2XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "b83e4e9f-a006-4d19-904b-e70814ac4fa4",
+    "sku": "SQ9792468",
+    "price": {
+     "currencyCode": "USD",
+     "value": 5500,
+     "decimalValue": "55.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {
+     "Size": "3XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "highland-farms-the-dream-t-shirt": {
+  "ts": "20260605225510",
+  "title": "Highland Farms - The Dream T-shirt Olive Green",
+  "variants": [
+   {
+    "id": "7b77789c-a821-4669-bd75-c3ac3ad5f18c",
+    "sku": "SQ7516247",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 4
+    },
+    "attributes": {
+     "Size": "Small"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "55731ce5-a181-46de-bd5d-7a69764bc365",
+    "sku": "SQ7590925",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 6
+    },
+    "attributes": {
+     "Size": "Medium"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "f18ef9cf-bc12-4617-b772-036937e36315",
+    "sku": "SQ7458216",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 2
+    },
+    "attributes": {
+     "Size": "Large"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "8131a314-c2c0-489d-9f06-970a5563ccee",
+    "sku": "SQ8962675",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 1
+    },
+    "attributes": {
+     "Size": "XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "0d5c40b2-55a7-46c4-878f-d834a531fccc",
+    "sku": "SQ1487794",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 2
+    },
+    "attributes": {
+     "Size": "2XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "ea832a84-cbd6-4f3c-ac70-1d6cf1343c22",
+    "sku": "SQ8073997",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 1
+    },
+    "attributes": {
+     "Size": "3XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "highland-farms-the-dream-t-shirt-j7bx6": {
+  "ts": "20260605225510",
+  "title": "Highland Farms - The Dream T-shirt Cream",
+  "variants": [
+   {
+    "id": "c7efc61b-6b4e-4d9c-89a3-6790ab64942f",
+    "sku": "SQ7470781",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 1
+    },
+    "attributes": {
+     "Size": "Small"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "f083a34a-5117-4d2e-9b59-fba9e73d29e1",
+    "sku": "SQ0726058",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 4
+    },
+    "attributes": {
+     "Size": "Medium"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "31cd4f76-4ed7-4b81-a4fa-ba825d75a2c0",
+    "sku": "SQ7081230",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 2
+    },
+    "attributes": {
+     "Size": "Large"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "c161ddeb-8b9d-4187-9dca-003d5bbba026",
+    "sku": "SQ3701583",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 5
+    },
+    "attributes": {
+     "Size": "XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "e9334661-a8f1-4afd-913e-5ca6daa5eeea",
+    "sku": "SQ1820831",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 5
+    },
+    "attributes": {
+     "Size": "2XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "f7ed413b-2894-4b6b-8476-05b299f760c2",
+    "sku": "SQ1235533",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 2
+    },
+    "attributes": {
+     "Size": "3XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "highland-farms-the-dream-t-shirt-j7bx6-appl6": {
+  "ts": "20260605225510",
+  "title": "Highland Farms - The Farm T-shirt Cream",
+  "variants": [
+   {
+    "id": "27e78845-2b05-45ca-8122-4f3dd2eebcb7",
+    "sku": "SQ4164705",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 1
+    },
+    "attributes": {
+     "Size": "Small"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "112cf3bc-fecb-4f88-a1a2-8884061a7240",
+    "sku": "SQ6383282",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 4
+    },
+    "attributes": {
+     "Size": "Medium"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "e6dbcde8-464d-4082-b2b1-f410a45c57ac",
+    "sku": "SQ6055414",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {
+     "Size": "Large"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "e684981c-71ee-43c2-b975-7c0bc2f257be",
+    "sku": "SQ0233177",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 3
+    },
+    "attributes": {
+     "Size": "XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "83d2c39b-5f4d-42fc-b35c-c5f566606fc9",
+    "sku": "SQ4181656",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 3
+    },
+    "attributes": {
+     "Size": "2XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "27879aba-a9b7-4320-9c37-4ba2a704e82e",
+    "sku": "SQ8240622",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {
+     "Size": "3XL"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-baby-back-ribs": {
+  "ts": "20260605225511",
+  "title": "Mangalitsa - Baby Back Ribs",
+  "variants": [
+   {
+    "id": "ccbf71d3-915b-4319-adac-7c8c42eaf647",
+    "sku": "SQ1200159",
+    "price": {
+     "currencyCode": "USD",
+     "value": 1900,
+     "decimalValue": "19.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 3
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-breakfast-sausage": {
+  "ts": "20260605225512",
+  "title": "Mangalitsa - Breakfast Sausage Ground - 1lb",
+  "variants": [
+   {
+    "id": "bf1543e6-0009-4405-9eb1-9e26da5a1219",
+    "sku": "SQ7630475",
+    "price": {
+     "currencyCode": "USD",
+     "value": 800,
+     "decimalValue": "8.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 800,
+     "decimalValue": "8.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 43
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-cured-hams": {
+  "ts": "20260605225511",
+  "title": "Mangalitsa - Cured Ham",
+  "variants": [
+   {
+    "id": "66dd699c-554d-4527-9f2d-312868117f2f",
+    "sku": "SQ3229689",
+    "price": {
+     "currencyCode": "USD",
+     "value": 4000,
+     "decimalValue": "40.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 7
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-pork-chop-bone-in": {
+  "ts": "20260605225512",
+  "title": "Mangalitsa - Pork Chop Bone In",
+  "variants": [
+   {
+    "id": "c49a6f0c-4434-4297-9639-1a014b3fc431",
+    "sku": "SQ5409224",
+    "price": {
+     "currencyCode": "USD",
+     "value": 1400,
+     "decimalValue": "14.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 5
+    },
+    "attributes": {
+     "Weight": ".75"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-pork-chop-boneless": {
+  "ts": "20260605225512",
+  "title": "Mangalitsa - Pork Chop Boneless",
+  "variants": [
+   {
+    "id": "43a81f41-0608-4186-9282-b48717bb7c03",
+    "sku": "SQ6702037",
+    "price": {
+     "currencyCode": "USD",
+     "value": 1500,
+     "decimalValue": "15.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 4
+    },
+    "attributes": {
+     "Weight": "1 lb"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-pork-roast": {
+  "ts": "20260605225511",
+  "title": "Mangalitsa - Pork  Shoulder Roast",
+  "variants": [
+   {
+    "id": "a57fc9b7-6031-4135-ab83-3ac417bf7002",
+    "sku": "SQ5617290",
+    "price": {
+     "currencyCode": "USD",
+     "value": 2900,
+     "decimalValue": "29.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 5
+    },
+    "attributes": {
+     "Weight": "2 LB"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "a38e47c0-1b35-48dc-8f0b-1e6a0239bc0c",
+    "sku": "SQ1821898",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3800,
+     "decimalValue": "38.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 5
+    },
+    "attributes": {
+     "Weight": "2.6 Lb"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "d1931736-5522-4f35-b60f-626ce7a4c75d",
+    "sku": "SQ5153405",
+    "price": {
+     "currencyCode": "USD",
+     "value": 4300,
+     "decimalValue": "43.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 2
+    },
+    "attributes": {
+     "Weight": "3LB"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-pork-tenderloin": {
+  "ts": "20260605225512",
+  "title": "Mangalitsa - Pork Tenderloin",
+  "variants": [
+   {
+    "id": "ebf5d7cc-4fc0-478e-b1a2-ae8cded94c54",
+    "sku": "SQ5330366",
+    "price": {
+     "currencyCode": "USD",
+     "value": 1600,
+     "decimalValue": "16.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-sirloin-roast-213-lb": {
+  "ts": "20260605225511",
+  "title": "Mangalitsa - Sirloin Roast  - 2 LB +",
+  "variants": [
+   {
+    "id": "939dc8f0-2939-44fd-8930-1ddebe2f38cd",
+    "sku": "SQ3031508",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3000,
+     "decimalValue": "30.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 3
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-spare-ribs": {
+  "ts": "20260605225511",
+  "title": "Mangalitsa - Spare Ribs",
+  "variants": [
+   {
+    "id": "77d73615-c204-4672-a746-5adbce3458c5",
+    "sku": "SQ0060631",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3200,
+     "decimalValue": "32.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {
+     "Weight": "Large"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   },
+   {
+    "id": "a24962c7-391d-4bec-ba76-b9500b028ffd",
+    "sku": "SQ3961613",
+    "price": {
+     "currencyCode": "USD",
+     "value": 3000,
+     "decimalValue": "30.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {
+     "Weight": "Medium"
+    },
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-special-blend-sausage": {
+  "ts": "20260605225512",
+  "title": "Mangalitsa-Special Blend Sausage links - 1 LB",
+  "variants": [
+   {
+    "id": "a5668a20-f5b8-4dbf-aa98-c65172e72086",
+    "sku": "SQ7586746",
+    "price": {
+     "currencyCode": "USD",
+     "value": 800,
+     "decimalValue": "8.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 800,
+     "decimalValue": "8.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 47
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-thick-cut-bacon": {
+  "ts": "20260605225511",
+  "title": "Mangalitsa-Thick Cut Bacon",
+  "variants": [
+   {
+    "id": "61fa8d8b-bbfc-4637-b233-1c822dc79dbc",
+    "sku": "SQ4635265",
+    "price": {
+     "currencyCode": "USD",
+     "value": 1600,
+     "decimalValue": "16.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "mangalitsa-thick-cut-peppered-bacon": {
+  "ts": "20260605225511",
+  "title": "Mangalitsa-Thick Cut Peppered Bacon",
+  "variants": [
+   {
+    "id": "6c4b81ec-b841-4e88-8ad6-24d5381dd7f5",
+    "sku": "SQ7558508",
+    "price": {
+     "currencyCode": "USD",
+     "value": 1600,
+     "decimalValue": "16.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 0
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 0.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 0.0,
+     "height": 0.0,
+     "len": 0.0
+    }
+   }
+  ]
+ },
+ "weighted-microwavable-highland-cow-plush-white": {
+  "ts": "20260605225510",
+  "title": "Princess Fiona - Weighted Microwavable Highland Cow Plush\u00a0- White",
+  "variants": [
+   {
+    "id": "eacfc391-4af8-45ed-8874-19c4995db2fe",
+    "sku": "SQ2659367",
+    "price": {
+     "currencyCode": "USD",
+     "value": 6500,
+     "decimalValue": "65.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 10
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 2.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 6.0,
+     "height": 7.0,
+     "len": 15.0
+    }
+   }
+  ]
+ },
+ "weighted-mircrowavable-highland-cow-plush": {
+  "ts": "20260605225510",
+  "title": "Mr. Finley - Weighted Mircrowavable Highland Cow Plush (red)",
+  "variants": [
+   {
+    "id": "db2008da-9547-4760-b509-670a1df688ec",
+    "sku": "SQ3765891",
+    "price": {
+     "currencyCode": "USD",
+     "value": 6500,
+     "decimalValue": "65.00",
+     "fractionalDigits": 2
+    },
+    "salePrice": {
+     "currencyCode": "USD",
+     "value": 0,
+     "decimalValue": "0.00",
+     "fractionalDigits": 2
+    },
+    "onSale": false,
+    "stock": {
+     "unlimited": false,
+     "quantity": 21
+    },
+    "attributes": {},
+    "shippingWeight": {
+     "value": 2.0,
+     "unit": "POUND"
+    },
+    "shippingSize": {
+     "unit": "INCH",
+     "width": 6.0,
+     "height": 5.0,
+     "len": 15.0
+    }
+   }
+  ]
+ }
+}

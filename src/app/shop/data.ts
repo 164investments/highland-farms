@@ -1,4 +1,21 @@
-const SQUARESPACE = "https://highlandfarms-oregon.squarespace.com";
+// Highland Farms farm-store catalog.
+//
+// PROVENANCE: seeded from the Squarespace store that was cancelled in Aug 2026.
+// The store went dark ("Website Expired") before it could be exported, so the
+// variants, prices and stock below were recovered from the 2026-06-05 Wayback
+// snapshots of all 28 product pages. The raw recovery is kept at
+// `docs/squarespace-catalog-recovered-2026-06-05.json`.
+//
+// PRICES here match what the site has always advertised. They deliberately do
+// NOT match the Square POS catalog, which carries different numbers for some
+// cuts (Beef Tenderloin $22 vs $29, Boneless Pork Chop $9 vs $15, Cured Ham $36
+// vs $40). Square is the payment rail, not the price source — do not "reconcile"
+// these to Square without asking Hayden which is correct.
+//
+// STOCK here is only the SEED for the `shop_inventory` table. Live availability
+// is read from Supabase at request time (see `src/lib/shop/inventory.ts`), so
+// selling out does not require a deploy. The seed counts are from 2026-06-05
+// and must be re-counted by the farm before launch.
 
 export type CategoryKey =
   | "plush"
@@ -52,267 +69,383 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
+/** One buyable SKU. `stock: null` means unlimited (made to order). */
+export interface Variant {
+  id: string;
+  /** Option value, e.g. "Large" or "2.6 Lb". Absent on single-variant products. */
+  label?: string;
+  price: number;
+  stock: number | null;
+}
+
 export interface Product {
+  slug: string;
   name: string;
-  price: number | null;
-  priceNote?: string;
   category: CategoryKey;
   image: string;
-  url: string;
+  priceNote?: string;
   badges?: string[];
   featured?: boolean;
-  soldOut?: boolean;
+  /** What the variant options represent, e.g. "Size" | "Weight". */
+  optionName?: string;
+  variants: Variant[];
 }
 
 export const PRODUCTS: Product[] = [
-  // Plush
   {
+    slug: "weighted-microwavable-highland-cow-plush-white",
     name: "Princess Fiona — White Highland Cow Plush",
-    price: 65.0,
     category: "plush",
     image: "/images/shop/princess-fiona-plush.jpg",
-    url: `${SQUARESPACE}/shop/p/weighted-microwavable-highland-cow-plush-white`,
     badges: ["Best Seller", "Microwavable"],
     featured: true,
+    variants: [
+      { id: "SQ2659367", price: 65, stock: 10 },
+    ],
   },
   {
+    slug: "weighted-mircrowavable-highland-cow-plush",
     name: "Mr. Finley — Red Highland Cow Plush",
-    price: 65.0,
     category: "plush",
     image: "/images/shop/mr-finley-plush.jpg",
-    url: `${SQUARESPACE}/shop/p/weighted-mircrowavable-highland-cow-plush`,
     badges: ["Microwavable"],
     featured: true,
+    variants: [
+      { id: "SQ3765891", price: 65, stock: 21 },
+    ],
   },
-
-  // Apparel
   {
+    slug: "highland-farms-the-dream-hoodie",
     name: "The Dream Hoodie — Coyote Brown",
-    price: 55.0,
     category: "apparel",
     image: "/images/shop/dream-hoodie.png",
-    url: `${SQUARESPACE}/shop/p/highland-farms-the-dream-hoodie`,
     badges: ["Best Seller"],
     featured: true,
+    optionName: "Size",
+    variants: [
+      { id: "SQ1839677", label: "Small", price: 55, stock: 0 },
+      { id: "SQ2746339", label: "Medium", price: 55, stock: 7 },
+      { id: "SQ5331094", label: "Large", price: 55, stock: 10 },
+      { id: "SQ1674460", label: "XL", price: 55, stock: 10 },
+      { id: "SQ7658000", label: "2XL", price: 55, stock: 1 },
+      { id: "SQ9792468", label: "3XL", price: 55, stock: 0 },
+    ],
   },
   {
+    slug: "highland-farm-the-dream-hoodie-olive-green",
     name: "The Dream Hoodie — Olive Green",
-    price: 55.0,
     category: "apparel",
     image: "/images/shop/dream-hoodie-olive.jpg",
-    url: `${SQUARESPACE}/shop/p/highland-farm-the-dream-hoodie-olive-green`,
+    optionName: "Size",
+    variants: [
+      { id: "SQ8737508", label: "Small", price: 55, stock: 2 },
+      { id: "SQ0894230", label: "Medium", price: 55, stock: 5 },
+      { id: "SQ8434806", label: "Large", price: 55, stock: 5 },
+      { id: "SQ5091399", label: "XLarge", price: 55, stock: 7 },
+      { id: "SQ2417859", label: "XXLarge", price: 55, stock: 1 },
+      { id: "SQ7574307", label: "XXXLarge", price: 55, stock: 2 },
+    ],
   },
   {
+    slug: "highland-farms-the-dream-t-shirt",
     name: "The Dream T-Shirt — Olive Green",
-    price: 32.0,
     category: "apparel",
     image: "/images/shop/dream-tshirt.png",
-    url: `${SQUARESPACE}/shop/p/highland-farms-the-dream-t-shirt`,
+    optionName: "Size",
+    variants: [
+      { id: "SQ7516247", label: "Small", price: 32, stock: 4 },
+      { id: "SQ7590925", label: "Medium", price: 32, stock: 6 },
+      { id: "SQ7458216", label: "Large", price: 32, stock: 2 },
+      { id: "SQ8962675", label: "XL", price: 32, stock: 1 },
+      { id: "SQ1487794", label: "2XL", price: 32, stock: 2 },
+      { id: "SQ8073997", label: "3XL", price: 32, stock: 1 },
+    ],
   },
   {
+    slug: "highland-farms-the-dream-t-shirt-j7bx6",
     name: "The Dream T-Shirt — Cream",
-    price: 32.0,
     category: "apparel",
     image: "/images/shop/dream-tshirt-cream.jpg",
-    url: `${SQUARESPACE}/shop/p/highland-farms-the-dream-t-shirt-j7bx6`,
+    optionName: "Size",
+    variants: [
+      { id: "SQ7470781", label: "Small", price: 32, stock: 1 },
+      { id: "SQ0726058", label: "Medium", price: 32, stock: 4 },
+      { id: "SQ7081230", label: "Large", price: 32, stock: 2 },
+      { id: "SQ3701583", label: "XL", price: 32, stock: 5 },
+      { id: "SQ1820831", label: "2XL", price: 32, stock: 5 },
+      { id: "SQ1235533", label: "3XL", price: 32, stock: 2 },
+    ],
   },
   {
+    slug: "highland-farms-the-dream-t-shirt-j7bx6-appl6",
     name: "The Farm T-Shirt — Cream",
-    price: 32.0,
     category: "apparel",
     image: "/images/shop/farm-tshirt-cream.jpg",
-    url: `${SQUARESPACE}/shop/p/highland-farms-the-dream-t-shirt-j7bx6-appl6`,
+    optionName: "Size",
+    variants: [
+      { id: "SQ4164705", label: "Small", price: 32, stock: 1 },
+      { id: "SQ6383282", label: "Medium", price: 32, stock: 4 },
+      { id: "SQ6055414", label: "Large", price: 32, stock: 0 },
+      { id: "SQ0233177", label: "XL", price: 32, stock: 3 },
+      { id: "SQ4181656", label: "2XL", price: 32, stock: 3 },
+      { id: "SQ8240622", label: "3XL", price: 32, stock: 0 },
+    ],
   },
   {
+    slug: "highland-farms-camo-trucker-hat",
     name: "Highland Farms Camo Trucker Hat",
-    price: 35.0,
     category: "apparel",
     image: "/images/shop/camo-trucker-hat.jpg",
-    url: `${SQUARESPACE}/shop/p/highland-farms-camo-trucker-hat`,
+    variants: [
+      { id: "SQ0051228", price: 35, stock: 51 },
+    ],
   },
   {
+    slug: "highland-farms-logo-keychain-leather-branded",
     name: "Logo Leather Keychain",
-    price: 10.0,
     category: "apparel",
     image: "/images/shop/keychain.jpg",
-    url: `${SQUARESPACE}/shop/p/highland-farms-logo-keychain-leather-branded`,
     badges: ["Genuine Leather"],
+    variants: [
+      { id: "SQ7366113", price: 10, stock: null },
+    ],
   },
-
-  // Mangalitsa Pork (12)
   {
+    slug: "mangalitsa-thick-cut-peppered-bacon",
     name: "Thick Cut Peppered Bacon",
-    price: 16.0,
-    priceNote: "1 lb pack",
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-peppered-bacon.jpg",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-thick-cut-peppered-bacon`,
+    priceNote: "1 lb pack",
     badges: ["Heritage Breed"],
-    soldOut: true,
+    variants: [
+      { id: "SQ7558508", price: 16, stock: 0 },
+    ],
   },
   {
+    slug: "mangalitsa-thick-cut-bacon",
     name: "Thick Cut Bacon",
-    price: 16.0,
-    priceNote: "1 lb pack",
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-thick-cut-bacon.jpg",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-thick-cut-bacon`,
+    priceNote: "1 lb pack",
     badges: ["Heritage Breed"],
-    soldOut: true,
+    variants: [
+      { id: "SQ4635265", price: 16, stock: 0 },
+    ],
   },
   {
+    slug: "mangalitsa-cured-hams",
     name: "Cured Ham",
-    price: 40.0,
-    priceNote: "2.6 – 3 lbs",
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-cured-ham.png",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-cured-hams`,
+    priceNote: "2.6 – 3 lbs",
     badges: ["Heritage Breed"],
+    variants: [
+      { id: "SQ3229689", price: 40, stock: 7 },
+    ],
   },
   {
+    slug: "mangalitsa-sirloin-roast-213-lb",
     name: "Sirloin Roast",
-    price: 30.0,
-    priceNote: "2.13 lb",
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-sirloin-roast.jpg",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-sirloin-roast-213-lb`,
+    priceNote: "2.13 lb",
     badges: ["Heritage Breed"],
+    variants: [
+      { id: "SQ3031508", price: 30, stock: 3 },
+    ],
   },
   {
+    slug: "mangalitsa-pork-roast",
     name: "Pork Shoulder Roast",
-    price: 29.0,
-    priceNote: "from · choose size",
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-shoulder-roast.png",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-pork-roast`,
+    priceNote: "from · choose size",
     badges: ["Heritage Breed"],
+    optionName: "Weight",
+    variants: [
+      { id: "SQ5617290", label: "2 LB", price: 29, stock: 5 },
+      { id: "SQ1821898", label: "2.6 Lb", price: 38, stock: 5 },
+      { id: "SQ5153405", label: "3LB", price: 43, stock: 2 },
+    ],
   },
   {
+    slug: "mangalitsa-baby-back-ribs",
     name: "Baby Back Ribs",
-    price: 19.0,
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-baby-back-ribs.jpg",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-baby-back-ribs`,
     badges: ["Heritage Breed"],
+    variants: [
+      { id: "SQ1200159", price: 19, stock: 3 },
+    ],
   },
   {
+    slug: "mangalitsa-spare-ribs",
     name: "Spare Ribs",
-    price: 30.0,
-    priceNote: "from · choose size",
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-spare-ribs.jpg",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-spare-ribs`,
+    priceNote: "from · choose size",
     badges: ["Heritage Breed"],
-    soldOut: true,
+    optionName: "Weight",
+    variants: [
+      { id: "SQ0060631", label: "Large", price: 32, stock: 0 },
+      { id: "SQ3961613", label: "Medium", price: 30, stock: 0 },
+    ],
   },
   {
+    slug: "mangalitsa-pork-tenderloin",
     name: "Pork Tenderloin",
-    price: 16.0,
-    priceNote: "0.95 lb",
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-tenderloin.jpg",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-pork-tenderloin`,
+    priceNote: "0.95 lb",
     badges: ["Heritage Breed"],
-    soldOut: true,
+    variants: [
+      { id: "SQ5330366", price: 16, stock: 0 },
+    ],
   },
   {
+    slug: "mangalitsa-pork-chop-boneless",
     name: "Pork Chop — Boneless",
-    price: 15.0,
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-chop-boneless.jpg",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-pork-chop-boneless`,
     badges: ["Heritage Breed"],
+    optionName: "Weight",
+    variants: [
+      { id: "SQ6702037", label: "1 lb", price: 15, stock: 4 },
+    ],
   },
   {
+    slug: "mangalitsa-pork-chop-bone-in",
     name: "Pork Chop — Bone-In",
-    price: 14.0,
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-chop-bone-in.jpg",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-pork-chop-bone-in`,
     badges: ["Heritage Breed"],
+    optionName: "Weight",
+    variants: [
+      { id: "SQ5409224", label: ".75", price: 14, stock: 5 },
+    ],
   },
   {
+    slug: "mangalitsa-special-blend-sausage",
     name: "Sausage Links",
-    price: 8.0,
-    priceNote: "1 lb pack",
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-sausage-links.png",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-special-blend-sausage`,
+    priceNote: "1 lb pack",
     badges: ["Heritage Breed"],
+    variants: [
+      { id: "SQ7586746", price: 8, stock: 47 },
+    ],
   },
   {
+    slug: "mangalitsa-breakfast-sausage",
     name: "Breakfast Sausage — Ground",
-    price: 8.0,
-    priceNote: "1 lb pack",
     category: "mangalitsa",
     image: "/images/shop/mangalitsa-breakfast-sausage.jpg",
-    url: `${SQUARESPACE}/shop/p/mangalitsa-breakfast-sausage`,
+    priceNote: "1 lb pack",
     badges: ["Heritage Breed"],
+    variants: [
+      { id: "SQ7630475", price: 8, stock: 43 },
+    ],
   },
-
-  // Highland Beef
   {
+    slug: "ground-beef",
     name: "Top Sirloin Ground Beef",
-    price: 9.0,
-    priceNote: "1 lb",
     category: "beef",
     image: "/images/shop/ground-beef.jpg",
-    url: `${SQUARESPACE}/shop/p/ground-beef`,
+    priceNote: "1 lb",
     badges: ["From Our Herd"],
+    variants: [
+      { id: "SQ6898162", price: 9, stock: 77 },
+    ],
   },
   {
+    slug: "highland-beef-new-york-steak",
     name: "New York Steak",
-    price: 21.0,
     category: "beef",
     image: "/images/shop/ny-steak.jpg",
-    url: `${SQUARESPACE}/shop/p/highland-beef-new-york-steak`,
     badges: ["From Our Herd"],
-    soldOut: true,
+    variants: [
+      { id: "SQ3825234", price: 21, stock: 0 },
+    ],
   },
   {
+    slug: "highland-beef-tenderloin-steak",
     name: "Tenderloin Steak",
-    price: 29.0,
     category: "beef",
     image: "/images/shop/tenderloin-steak.jpg",
-    url: `${SQUARESPACE}/shop/p/highland-beef-tenderloin-steak`,
     badges: ["From Our Herd"],
-    soldOut: true,
+    variants: [
+      { id: "SQ4270922", price: 29, stock: 0 },
+    ],
   },
-
-  // Pantry
   {
+    slug: "a-dozen-eggs",
     name: "Farm Fresh Eggs",
-    price: 8.0,
-    priceNote: "dozen",
     category: "pantry",
     image: "/images/shop/eggs.jpg",
-    url: `${SQUARESPACE}/shop/p/a-dozen-eggs`,
+    priceNote: "dozen",
     badges: ["Laid This Week"],
     featured: true,
+    variants: [
+      { id: "SQ9271455", price: 8, stock: 9 },
+    ],
   },
   {
+    slug: "fresh-flower-bouquet",
     name: "Fresh Flower Bouquet",
-    price: 25.0,
     category: "pantry",
     image: "/images/shop/fresh-flower-bouquet.jpg",
-    url: `${SQUARESPACE}/shop/p/fresh-flower-bouquet`,
     badges: ["Farm Garden"],
-    soldOut: true,
+    variants: [
+      { id: "SQ9810417", price: 25, stock: 0 },
+    ],
   },
   {
+    slug: "dried-flower-bouquet",
     name: "Dried Flower Bouquet",
-    price: 15.0,
     category: "pantry",
     image: "/images/shop/dried-flower-bouquet.jpg",
-    url: `${SQUARESPACE}/shop/p/dried-flower-bouquet`,
     badges: ["Farm Garden"],
+    variants: [
+      { id: "SQ1943823", price: 15, stock: null },
+    ],
   },
   {
+    slug: "firewood",
     name: "Firewood & Kindling",
-    price: 9.0,
     category: "pantry",
     image: "/images/shop/firewood.jpg",
-    url: `${SQUARESPACE}/shop/p/firewood`,
     badges: ["For Farm Stays"],
+    variants: [
+      { id: "SQ0100237", price: 9, stock: null },
+    ],
   },
 ];
+
+const BY_SLUG = new Map(PRODUCTS.map((p) => [p.slug, p]));
+const BY_VARIANT = new Map(
+  PRODUCTS.flatMap((p) => p.variants.map((v) => [v.id, { product: p, variant: v }] as const)),
+);
+
+export function getProduct(slug: string): Product | undefined {
+  return BY_SLUG.get(slug);
+}
+
+/**
+ * Resolve a variant id to its product + variant. This is the server's price
+ * authority: checkout recomputes every line from here and never trusts a
+ * price sent by the browser.
+ */
+export function getVariant(
+  variantId: string,
+): { product: Product; variant: Variant } | undefined {
+  return BY_VARIANT.get(variantId);
+}
+
+/** Lowest price across variants — what the collection card shows. */
+export function fromPrice(product: Product): number {
+  return Math.min(...product.variants.map((v) => v.price));
+}
+
+export function hasChoices(product: Product): boolean {
+  return product.variants.length > 1;
+}

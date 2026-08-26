@@ -13,6 +13,8 @@ import { EmailPopup } from "@/components/layout/EmailPopup";
 import { MicrosoftClarity } from "@/components/layout/MicrosoftClarity";
 import { BookedIQWidget } from "@/components/layout/BookedIQWidget";
 import { AttributionTracker } from "@/components/layout/AttributionTracker";
+import { CartProvider } from "@/lib/shop/cart";
+import { CartButton } from "@/components/shop/CartButton";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -136,9 +138,12 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
         <SkipLink />
-        <Header />
-        <main id="main-content">{children}</main>
-        <Footer />
+        <CartProvider>
+          <Header />
+          <main id="main-content">{children}</main>
+          <CartButton />
+          <Footer />
+        </CartProvider>
         <EmailPopup />
         {process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID && (
           <MicrosoftClarity
