@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Container } from "@/components/ui/Container";
 import { PRODUCTS } from "../data";
 import { ADMIN_COOKIE, adminTokenConfigured, isValidToken } from "@/lib/shop/admin-auth";
+import { isSquareConfigured, listCatalogVariations } from "@/lib/shop/square";
 import { AdminBody, type InventoryRow, type OrderRow } from "./AdminBody";
 
 export const metadata: Metadata = {
@@ -27,12 +28,13 @@ function variantNames(): Map<string, { name: string; label?: string; slug: strin
 async function loadData() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return { inventory: [], orders: [], error: "Supabase is not configured." };
+  if (!url || !key)
+    return { inventory: [], orders: [], candidates: [], error: "Supabase is not configured." };
 
   const db = createClient(url, key, { auth: { persistSession: false } });
   const names = variantNames();
 
-  const [inv, ord] = await Promise.all([
+  const [inv, ord, candidates] = await Promise.all([
     db
       .from("shop_inventory")
       .select(
@@ -45,6 +47,7 @@ async function loadData() {
       )
       .order("created_at", { ascending: false })
       .limit(50),
+    isSquareConfigured() ? listCatalogVariations() : Promise.resolve([]),
   ]);
 
   if (inv.error) console.error("[shop-admin] inventory read:", inv.error.message);
@@ -80,7 +83,7 @@ async function loadData() {
     createdAt: r.created_at as string,
   }));
 
-  return { inventory, orders, error: null as string | null };
+  return { inventory, orders, candidates, error: null as string | null };
 }
 
 export default async function AdminPage({
@@ -115,7 +118,7 @@ export default async function AdminPage({
     );
   }
 
-  const { inventory, orders, error } = await loadData();
+  const { inventory, orders, candidates, error } = await loadData();
 
   return (
     <main className="bg-cream pt-28 pb-20">
@@ -134,6 +137,7 @@ export default async function AdminPage({
           <AdminBody
             inventory={inventory}
             orders={orders}
+            candidates={candidates}
             // Passed so the browser can authorise its own writes; it is the
             // same token already in this viewer's cookie.
             token={token ?? store.get(ADMIN_COOKIE)?.value ?? ""}

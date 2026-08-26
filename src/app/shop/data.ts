@@ -6,11 +6,13 @@
 // snapshots of all 28 product pages. The raw recovery is kept at
 // `docs/squarespace-catalog-recovered-2026-06-05.json`.
 //
-// PRICES here match what the site has always advertised. They deliberately do
-// NOT match the Square POS catalog, which carries different numbers for some
-// cuts (Beef Tenderloin $22 vs $29, Boneless Pork Chop $9 vs $15, Cured Ham $36
-// vs $40). Square is the payment rail, not the price source — do not "reconcile"
-// these to Square without asking Hayden which is correct.
+// PRICES: ⛔ SQUARE IS THE SOURCE OF TRUTH (Hayden, 2026-08-26). Where a variant
+// is linked to a Square variation, the price here is Square's price, and Square
+// wins on any future disagreement. Re-sync with
+// `node scripts/sync-square-prices.mjs --apply`.
+//
+// Variants with no Square counterpart (all apparel, both plush, the bouquets)
+// keep their own price because Square has no opinion on them.
 //
 // STOCK here is only the SEED for the `shop_inventory` table. Live availability
 // is read from Supabase at request time (see `src/lib/shop/inventory.ts`), so
@@ -240,7 +242,7 @@ export const PRODUCTS: Product[] = [
     priceNote: "2.6 – 3 lbs",
     badges: ["Heritage Breed"],
     variants: [
-      { id: "SQ3229689", price: 40, stock: 7 },
+      { id: "SQ3229689", price: 36, stock: 7 },
     ],
   },
   {
@@ -251,7 +253,7 @@ export const PRODUCTS: Product[] = [
     priceNote: "2.13 lb",
     badges: ["Heritage Breed"],
     variants: [
-      { id: "SQ3031508", price: 30, stock: 3 },
+      { id: "SQ3031508", price: 31, stock: 3 },
     ],
   },
   {
@@ -299,7 +301,7 @@ export const PRODUCTS: Product[] = [
     priceNote: "0.95 lb",
     badges: ["Heritage Breed"],
     variants: [
-      { id: "SQ5330366", price: 16, stock: 0 },
+      { id: "SQ5330366", price: 17, stock: 0 },
     ],
   },
   {
@@ -310,7 +312,7 @@ export const PRODUCTS: Product[] = [
     badges: ["Heritage Breed"],
     optionName: "Weight",
     variants: [
-      { id: "SQ6702037", label: "1 lb", price: 15, stock: 4 },
+      { id: "SQ6702037", label: "1 lb", price: 9, stock: 4 },
     ],
   },
   {
@@ -321,7 +323,7 @@ export const PRODUCTS: Product[] = [
     badges: ["Heritage Breed"],
     optionName: "Weight",
     variants: [
-      { id: "SQ5409224", label: ".75", price: 14, stock: 5 },
+      { id: "SQ5409224", label: ".75", price: 9, stock: 5 },
     ],
   },
   {
@@ -332,7 +334,7 @@ export const PRODUCTS: Product[] = [
     priceNote: "1 lb pack",
     badges: ["Heritage Breed"],
     variants: [
-      { id: "SQ7586746", price: 8, stock: 47 },
+      { id: "SQ7586746", price: 9, stock: 47 },
     ],
   },
   {
@@ -343,7 +345,7 @@ export const PRODUCTS: Product[] = [
     priceNote: "1 lb pack",
     badges: ["Heritage Breed"],
     variants: [
-      { id: "SQ7630475", price: 8, stock: 43 },
+      { id: "SQ7630475", price: 9, stock: 43 },
     ],
   },
   {
@@ -364,7 +366,7 @@ export const PRODUCTS: Product[] = [
     image: "/images/shop/ny-steak.jpg",
     badges: ["From Our Herd"],
     variants: [
-      { id: "SQ3825234", price: 21, stock: 0 },
+      { id: "SQ3825234", price: 20, stock: 0 },
     ],
   },
   {
@@ -374,7 +376,7 @@ export const PRODUCTS: Product[] = [
     image: "/images/shop/tenderloin-steak.jpg",
     badges: ["From Our Herd"],
     variants: [
-      { id: "SQ4270922", price: 29, stock: 0 },
+      { id: "SQ4270922", price: 22, stock: 0 },
     ],
   },
   {
