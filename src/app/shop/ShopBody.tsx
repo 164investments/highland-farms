@@ -7,6 +7,7 @@ import { MapPin, Check } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { BOOKING_LINKS } from "@/lib/constants";
+import { giftCertificatesHref, nativeCalendarEnabled } from "@/lib/booking/flag";
 import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
 import {
   CATEGORIES,
@@ -178,6 +179,8 @@ function CategoryNav({
 }
 
 export function ShopBody({ stock }: { stock: StockRecord }) {
+  const nativeOn = nativeCalendarEnabled();
+  const giftHref = giftCertificatesHref();
   const [active, setActive] = useState<NavKey | null>("featured");
   const sectionRefs = useRef<Record<NavKey, HTMLElement | null>>({
     featured: null,
@@ -386,11 +389,16 @@ export function ShopBody({ stock }: { stock: StockRecord }) {
             ].map((card) => (
               <a
                 key={card.title}
-                href={`${BOOKING_LINKS.giftCertificates}?utm_source=hf_site&utm_medium=shop&utm_content=gift-${card.utm}`}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={
+                  nativeOn
+                    ? giftHref
+                    : `${BOOKING_LINKS.giftCertificates}?utm_source=hf_site&utm_medium=shop&utm_content=gift-${card.utm}`
+                }
+                {...(!nativeOn && { target: "_blank", rel: "noopener noreferrer" })}
                 onClick={(event) => {
-                  event.currentTarget.href = trackedAcuityUrl(event.currentTarget.href);
+                  if (!nativeOn) {
+                    event.currentTarget.href = trackedAcuityUrl(event.currentTarget.href);
+                  }
                   pushEvent("select_promotion", {
                     promotion_id: `gift-${card.utm}`,
                     promotion_name: `Gift Certificate - ${card.title}`,
@@ -452,11 +460,12 @@ export function ShopBody({ stock }: { stock: StockRecord }) {
           </ul>
           <div className="mt-8 flex flex-col items-center gap-3 text-center">
             <a
-              href={BOOKING_LINKS.giftCertificates}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={giftHref}
+              {...(!nativeOn && { target: "_blank", rel: "noopener noreferrer" })}
               onClick={(event) => {
-                event.currentTarget.href = trackedAcuityUrl(BOOKING_LINKS.giftCertificates);
+                if (!nativeOn) {
+                  event.currentTarget.href = trackedAcuityUrl(BOOKING_LINKS.giftCertificates);
+                }
                 pushEvent("booking_start", {
                   booking_type: "gift_certificate",
                   booking_url: event.currentTarget.href,

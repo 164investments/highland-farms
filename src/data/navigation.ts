@@ -1,5 +1,5 @@
 import type { NavItem } from "@/lib/types";
-import { BOOKING_LINKS } from "@/lib/constants";
+import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
 
 export const mainNavItems: NavItem[] = [
   {
@@ -20,7 +20,11 @@ export const mainNavItems: NavItem[] = [
     href: "/shop",
     children: [
       { label: "Farm Store", href: "/shop" },
-      { label: "Gift Certificates", href: BOOKING_LINKS.giftCertificates, external: true },
+      {
+        label: "Gift Certificates",
+        href: giftCertificatesHref(),
+        external: !nativeCalendarEnabled(),
+      },
     ],
   },
 ];

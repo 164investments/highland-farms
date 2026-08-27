@@ -17,10 +17,12 @@ import { TourSpaCombo } from "@/components/shared/TourSpaCombo";
 import { NextAvailability } from "@/components/shared/NextAvailability";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
+import { Button } from "@/components/ui/Button";
 import { farmTourFAQ } from "@/data/farm-tours";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
-import { nativeCalendarEnabled } from "@/lib/booking/flag";
+import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
+import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
 
 const GROUP_PRICING = [
   { guests: 2, total: 150 },
@@ -307,12 +309,18 @@ export default function FarmToursPage() {
             gift certificate for someone special.
           </p>
           <div className="mt-8">
-            <BookingButton
-              href={bookingUrl(BOOKING_LINKS.giftCertificates, "farm-tours-gift")}
-              label="Purchase Gift Certificates"
-              variant="outline"
-              title="Purchase a gift certificate"
-            />
+            {nativeCalendarEnabled() ? (
+              <Button href={giftCertificatesHref()} variant="outline">
+                Purchase Gift Certificates
+              </Button>
+            ) : (
+              <BookingButton
+                href={bookingUrl(BOOKING_LINKS.giftCertificates, "farm-tours-gift")}
+                label="Purchase Gift Certificates"
+                variant="outline"
+                title="Purchase a gift certificate"
+              />
+            )}
           </div>
         </Container>
       </section>
@@ -352,7 +360,9 @@ export default function FarmToursPage() {
       <EventCategoryCards />
 
       {/* Sticky Mobile CTA */}
-      {!nativeCalendarEnabled() && (
+      {nativeCalendarEnabled() ? (
+        <NativeStickyCTA />
+      ) : (
         <BookingStickyCTA
           label="Book Your Farm Tour"
           href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-sticky-mobile")}
