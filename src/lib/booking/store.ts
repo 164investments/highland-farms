@@ -41,7 +41,7 @@ export interface ClaimCustomer {
 
 export type ClaimSlotsResult =
   | { ok: true; ids: string[] }
-  | { ok: false; reason: "slot_full" | "error"; message: string };
+  | { ok: false; reason: "slot_full" | "number_collision" | "error"; message: string };
 
 export async function claimSlots(
   legs: ClaimLeg[],
@@ -79,6 +79,10 @@ export async function claimSlots(
         "That time was just booked by someone else. Your card has not been charged — pick another time.",
     };
   }
+  if (error?.code === "23505") {
+    // booking_number unique collision (4-digit suffix); caller regenerates once.
+    return { ok: false, reason: "number_collision", message: "" };
+  }
   console.error("[booking] claim_booking_slots failed:", error?.code, error?.message);
   return {
     ok: false,
@@ -104,6 +108,52 @@ export async function confirmBookings(
     console.error("[booking] confirm_bookings FAILED:", ids, error.message);
     throw new Error(`confirm_bookings failed: ${error.message}`);
   }
+}
+
+/**
+ * Direct-update fallback for confirm_bookings. Used only when the RPC throws
+ * AFTER a successful charge: at that point the customer has paid, the pending
+ * rows are on a 10-minute fuse before the sweep deletes them, and one more
+ * RPC attempt is not a plan. Same effect as the RPC (gift stamped on the
+ * first id only).
+ */
+export async function forceConfirmBookings(
+  ids: string[],
+  paymentId: string | null,
+  giftCode: string | null,
+  giftCents: number,
+): Promise<void> {
+  const supa = db();
+  for (let i = 0; i < ids.length; i++) {
+    const { error } = await supa
+      .from("bookings")
+      .update({
+        status: "confirmed",
+        hold_expires_at: null,
+        square_payment_id: paymentId,
+        gift_certificate_code: i === 0 ? giftCode : null,
+        gift_amount_cents: i === 0 ? giftCents : 0,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", ids[i])
+      .eq("status", "pending");
+    if (error) throw new Error(`forceConfirm failed on ${ids[i]}: ${error.message}`);
+  }
+}
+
+/** Best-effort audit write. Never throws — auditing must not break a booking. */
+export async function auditBooking(
+  action: string,
+  bookingId: string | null,
+  detail: Record<string, unknown>,
+): Promise<void> {
+  const { error } = await db().from("booking_audit").insert({
+    actor: "system",
+    action,
+    booking_id: bookingId,
+    detail,
+  });
+  if (error) console.error("[booking] audit write failed:", action, error.message);
 }
 
 export async function releaseBookings(ids: string[]): Promise<void> {

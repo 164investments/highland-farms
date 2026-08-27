@@ -2,8 +2,9 @@
 
 Kept for re-runs at cutover (Phase 3) and after any change to
 `src/lib/booking/*`, `src/app/api/booking/*`, or `src/app/api/cron/booking-reminders`.
-Last executed against the real stack: **2026-08-27** (Task 10, Phase 1). Items
-4, 7, and 7b failed on that first run, were fixed in `cffe1d8`, and were
+Last executed against the real stack: **2026-08-27** (Task 10, Phase 1; items
+12-13 added and live-checked **2026-08-27** for Phase 2 Task 3). Items 4, 7,
+and 7b failed on the Phase 1 run, were fixed in `cffe1d8`, and were
 re-verified the same day — see those items below. This document reflects the
 final, post-fix state; there are no known live bugs in this matrix.
 
@@ -245,6 +246,74 @@ delete from booking_schedules where product_slug in ('farm-tour','nordic-spa','w
 ```
 Post-cleanup counts (all tables): `schedules:0, exceptions:0, blackouts:0, bookings:0, reminders:0, certs:0`. **PASS.**
 
+### 12. Number collision — retry (Task 3, code-inspected)
+Not exercised live: forcing a real `23505` on `bookings.booking_number` needs
+a second in-flight request racing the exact same 4-digit random suffix inside
+the same UTC day, which isn't reliably reproducible outside a fuzzed harness.
+Verified instead by unit reasoning against the actual code:
+- `claim_booking_slots` inserts a row keyed by `booking_number`, which carries
+  a unique index (see `supabase-booking.sql`); a same-day suffix repeat raises
+  Postgres `23505`.
+- `store.ts` `claimSlots()` maps `error?.code === "23505"` to
+  `{ ok: false, reason: "number_collision", message: "" }` — added *before*
+  the generic `error` branch, so it can't be shadowed by the catch-all.
+- `checkout/route.ts` wraps the claim in a two-attempt loop: `bookingNumber`
+  and `claim` are both `let`; on `reason === "number_collision"` a fresh
+  `generateBookingNumber()` is drawn and `claimSlots` is retried exactly once
+  with `buildCustomer(bookingNumber)` re-evaluated against the new number.
+  A second collision (astronomically unlikely — the retry itself would need
+  to hit yet another 4-digit clash the same day) falls through to the normal
+  `if (!claim.ok)` 503/409 handling, so the request still fails safely rather
+  than looping. **PASS (code-inspected).**
+
+### 13. Free wedding-call → GA4 conversion event path taken
+The GA4 gate used to be `dueCents > 0`, which never fires for a free
+wedding-call consult (Acuity's webhook equivalent is `book_wedding_call`,
+which the wedding pipeline report reads). Task 3 changed the gate to
+`dueCents > 0 || isConsult`. `sendBookingPurchase()` logs nothing on success
+(only `console.error` on a non-OK response or a thrown fetch), so a plain
+"no error in the log" isn't proof the branch executed — it's also what a
+skipped branch looks like. To get an unambiguous signal without sending a
+fake conversion to the farm's live GA4 property (its wedding/book_wedding_call
+events feed real Google Ads smart-bidding conversion actions — see
+`README.md`'s Integration Architecture), the live check below blanked
+`GA4_MEASUREMENT_ID`/`GA4_API_SECRET` for the dev-server process only
+(`.env.local` untouched) and added a one-line temporary
+`console.log` immediately inside the `if (fresh && (dueCents > 0 ||
+isConsult))` block, reverted immediately after capturing the log line (not
+part of the committed diff — confirmed via `git diff --stat` before/after).
+
+Setup: flag-on dev server on port 3000 (3099 was occupied by an unrelated
+project's server, left untouched), Resend disabled, GA4 secrets blanked:
+```bash
+GA4_MEASUREMENT_ID= GA4_API_SECRET= RESEND_API_KEY=disabled-for-e2e \
+  NEXT_PUBLIC_NATIVE_CALENDAR=true PORT=3000 npm run dev
+```
+Seeded one wedding-call Saturday schedule (`booking_schedules` id 9,
+weekday 6, `start_times:['09:00']`, capacity 1, effective_from 2026-01-01),
+booked the next Saturday (2026-08-29 09:00, party 2, free):
+```
+POST /api/booking/checkout
+{ product:"wedding-call", date:"2026-08-29", time:"09:00", partySize:2, ... }
+-> 200 {"success":true,"bookingNumber":"HFB-260827-1750","amountCents":0}
+```
+Dev-server log:
+```
+[e2e-temp] GA4 gate OPENED booking=HFB-260827-1750 isConsult=true dueCents=0
+```
+No `GA4 MP booking error` line followed — with the secrets blanked,
+`sendBookingPurchase()` hit its `if (!measurementId || !apiSecret) return;`
+guard and no-opped internally, so nothing reached the live property. DB
+confirms the full path completed: `bookings` row `status:confirmed,
+amount_cents:0`; `tracking_events` row `native_HFB-260827-1750` present
+(`event_name:purchase, source:native-booking`). **PASS.**
+
+Cleanup: deleted the booking row, the `tracking_events` row, and schedule id
+9. Verified via a `count(*)` query on all three keyed to this run's ids —
+`bookings:0, tracking:0, schedule:0`. Dev server stopped; the temporary log
+line was removed from `checkout/route.ts` before commit (`git diff --stat`
+shows only the Task 3 brief's intended edits).
+
 ## Summary
 
 | # | Item | Result |
@@ -261,15 +330,22 @@ Post-cleanup counts (all tables): `schedules:0, exceptions:0, blackouts:0, booki
 | 9 | Foreign origin → 403 | PASS |
 | 10 | Expired-hold sweep | PASS |
 | 11 | Cleanup | PASS |
+| 12 | Number-collision retry (Task 3) | PASS (code-inspected) |
+| 13 | Free wedding-call → GA4 conversion event (Task 3) | PASS |
 
-**11/11 PASS.** The first run of this matrix (2026-08-27) found two real
+**13/13 PASS** (11 exercised live end-to-end, item 12 verified by code
+inspection since forcing a real `23505` isn't reliably reproducible outside
+a fuzzed harness). The first run of this matrix (2026-08-27) found two real
 bugs: items 4 (Resend never rejects, so send failures were silently
 unlogged) and 7/7b (the Square-configured gate checked the pre-gift total
 instead of the post-gift due amount, 503ing on bookings a gift certificate
 would have fully covered). Both were fixed same-day in `cffe1d8`
 (`src/lib/booking/confirmation-email.ts`, `src/lib/booking/reminder-email.ts`,
 `src/app/api/booking/checkout/route.ts`) and re-verified against a flag-on
-dev server per the results recorded in items 4, 7, and 7b above. There are
-no known live bugs in this matrix as of `cffe1d8`; a future re-run that
-finds a regression should update the affected item and this table in place,
-the same way this pass did.
+dev server per the results recorded in items 4, 7, and 7b above. Task 3
+(same day) added durability for the paid-confirm path (RPC failure fallback
++ audit trail), a number-collision retry on `booking_number`, and fixed the
+free wedding-call GA4 gate (items 12-13 above); no known live bugs in this
+matrix as of that pass. A future re-run that finds a regression should
+update the affected item and this table in place, the same way this pass
+did.

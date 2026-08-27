@@ -7,9 +7,9 @@ import {
 import { slotCapacity } from "@/lib/booking/engine";
 import { slotToUtc } from "@/lib/booking/time";
 import {
-  claimSlots, confirmBookings, releaseBookings,
+  claimSlots, confirmBookings, forceConfirmBookings, auditBooking, releaseBookings,
   getGiftCertificate, redeemGiftCertificate, restoreGiftCertificate,
-  getScheduleData, type ClaimLeg,
+  getScheduleData, type ClaimLeg, type ClaimCustomer,
 } from "@/lib/booking/store";
 import { generateBookingNumber } from "@/lib/booking/booking-number";
 import { chargeCard, isSquareConfigured } from "@/lib/shop/square";
@@ -193,9 +193,8 @@ export async function POST(request: Request) {
     const totalCents = legs.reduce((sum, l) => sum + l.amountCents, 0);
 
     // ---- Hold the slot(s) BEFORE money moves ----
-    const bookingNumber = generateBookingNumber();
-    const claim = await claimSlots(legs, {
-      bookingNumber,
+    const buildCustomer = (num: string): ClaimCustomer => ({
+      bookingNumber: num,
       firstName: body.customer.firstName,
       lastName: body.customer.lastName,
       email: body.customer.email,
@@ -204,7 +203,18 @@ export async function POST(request: Request) {
       policyAgreedAt: new Date().toISOString(),
       locationChoice: body.locationChoice ?? null,
     });
-    if (!claim.ok) return bad(claim.message, claim.reason === "slot_full" ? 409 : 503);
+    let bookingNumber = generateBookingNumber();
+    let claim = await claimSlots(legs, buildCustomer(bookingNumber));
+    if (!claim.ok && claim.reason === "number_collision") {
+      bookingNumber = generateBookingNumber();
+      claim = await claimSlots(legs, buildCustomer(bookingNumber));
+    }
+    if (!claim.ok) {
+      return bad(
+        claim.message || "We couldn't confirm that time. Your card has not been charged.",
+        claim.reason === "slot_full" ? 409 : 503,
+      );
+    }
 
     // ---- Gift certificate ----
     // `value` certs hold cents; `visits` certs (the Spa 3-Visit Pack) hold
@@ -293,9 +303,21 @@ export async function POST(request: Request) {
     try {
       await confirmBookings(claim.ids, paymentId, giftApplied > 0 ? giftCode : null, giftApplied);
     } catch {
-      console.error(
-        `[booking] CONFIRM FAILED after payment. booking=${bookingNumber} payment=${paymentId} ids=${claim.ids.join(",")}`,
-      );
+      try {
+        await forceConfirmBookings(claim.ids, paymentId, giftApplied > 0 ? giftCode : null, giftApplied);
+        await auditBooking("confirm_rpc_failed_fallback_applied", claim.ids[0], {
+          booking_number: bookingNumber, payment_id: paymentId, ids: claim.ids,
+        });
+      } catch (err2) {
+        // Paid booking is now on the sweep's fuse. Loudest possible trace.
+        console.error(
+          `[booking] CRITICAL: confirm AND fallback failed. PAID booking pending deletion by sweep. booking=${bookingNumber} payment=${paymentId} ids=${claim.ids.join(",")}`,
+          err2,
+        );
+        await auditBooking("confirm_failed_paid_booking_at_risk", claim.ids[0], {
+          booking_number: bookingNumber, payment_id: paymentId, ids: claim.ids,
+        });
+      }
     }
 
     const emailData = {
@@ -327,7 +349,8 @@ export async function POST(request: Request) {
         // revenue is tracked when the certificate is sold — counting it again
         // at redemption would double-count and inflate ad ROAS.
         const fresh = await claimTrackingEvent(`native_${bookingNumber}`, "purchase", "native-booking");
-        if (fresh && dueCents > 0) {
+        const isConsult = body.product === "wedding-call";
+        if (fresh && (dueCents > 0 || isConsult)) {
           await sendBookingPurchase({
             transaction_id: bookingNumber,
             value: dueCents / 100,
@@ -342,17 +365,19 @@ export async function POST(request: Request) {
             attribution: body.attribution,
             client_id: body.clientId,
           });
-          await sendMetaPurchase({
-            transaction_id: `native_${bookingNumber}`,
-            value: dueCents / 100,
-            content_name: emailData.legs.map((l) => l.productSlug).join("+"),
-            content_category: "booking",
-            email: body.customer.email,
-            phone: body.customer.phone,
-            fbc: body.fbc,
-            fbp: body.fbp,
-            referral_source: body.referralSource,
-          });
+          if (dueCents > 0) {
+            await sendMetaPurchase({
+              transaction_id: `native_${bookingNumber}`,
+              value: dueCents / 100,
+              content_name: emailData.legs.map((l) => l.productSlug).join("+"),
+              content_category: "booking",
+              email: body.customer.email,
+              phone: body.customer.phone,
+              fbc: body.fbc,
+              fbp: body.fbp,
+              referral_source: body.referralSource,
+            });
+          }
         }
       } catch (err) {
         console.error("[booking] tracking threw:", err);
