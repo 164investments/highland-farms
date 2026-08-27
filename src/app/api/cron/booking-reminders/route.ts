@@ -29,7 +29,7 @@ export async function GET(request: Request) {
 
   const { data: candidates, error } = await db
     .from("bookings")
-    .select("id, booking_number, product_slug, starts_at, party_size, first_name, email")
+    .select("id, booking_number, product_slug, starts_at, party_size, first_name, email, source")
     .eq("status", "confirmed")
     .gte("starts_at", now.toISOString())
     .lte("starts_at", in54h);
@@ -37,6 +37,14 @@ export async function GET(request: Request) {
     console.error("[booking] reminder query failed:", error.message);
     return NextResponse.json({ error: "query failed" }, { status: 500 });
   }
+
+  // Acuity still sends its own reminders for appointments it booked; ours
+  // would double up. This env var dies when the Acuity subscription is
+  // cancelled — after that, imported bookings get OUR reminders.
+  const eligible =
+    process.env.ACUITY_ACTIVE === "true"
+      ? (candidates ?? []).filter((b) => b.source !== "acuity_import")
+      : (candidates ?? []);
 
   const today = pacificDateStr(now);
   const pacificHour = Number(
@@ -46,7 +54,7 @@ export async function GET(request: Request) {
   );
 
   let sent = 0;
-  for (const b of (candidates ?? []) as ReminderBooking[]) {
+  for (const b of eligible as ReminderBooking[]) {
     // Date.parse both sides — Supabase returns "+00:00" offsets, our window
     // strings end in "Z"; comparing those lexicographically is wrong.
     const kind: "48h" | "morning_of" | null =
