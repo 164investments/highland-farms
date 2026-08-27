@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { getAllAppointments, getOrders } from "@/lib/acuity";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { getAllAppointments, getOrders, type AcuityAppointment, type AcuityOrder } from "@/lib/acuity";
 import {
   buildDailyReport,
   getDailyReportDateLabel,
   getDailyReportDateRanges,
+  mapArchiveToAppointment,
+  mapBookingToAppointment,
+  mergeArchiveWithCurrent,
+  resolveGiftCertValueCents,
+  toPacificDateKey,
 } from "@/lib/daily-report";
+import { getBookingProduct } from "@/lib/booking/products";
+import { GIFT_PRODUCTS } from "@/lib/booking/gift";
 
 const RECIPIENTS = [
   "hayden.laverty@gmail.com",
@@ -13,6 +21,82 @@ const RECIPIENTS = [
   "mcwilliamscc2@gmail.com",
   "egbert.jordan@gmail.com",
 ];
+
+const GIFT_CATALOG = GIFT_PRODUCTS.map((product) => ({
+  kind: product.kind,
+  productScope: product.productScope,
+  units: product.units,
+  amountCents: product.amountCents,
+}));
+
+type DateRange = { start: string; end: string };
+
+function inWindow(dateKey: string, range: DateRange): boolean {
+  return dateKey >= range.start && dateKey <= range.end;
+}
+
+function bookingDb(): SupabaseClient {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } },
+  );
+}
+
+interface BookingRow {
+  id: string;
+  acuity_id: number | null;
+  starts_at: string;
+  created_at: string;
+  first_name: string | null;
+  last_name: string | null;
+  amount_cents: number | null;
+  status: string;
+  product_slug: string;
+  source: string;
+}
+
+function bookingRowToAppointment(row: BookingRow): AcuityAppointment {
+  return mapBookingToAppointment({
+    id: row.id,
+    acuityId: row.acuity_id,
+    startsAt: row.starts_at,
+    createdAt: row.created_at,
+    firstName: row.first_name ?? "",
+    lastName: row.last_name ?? "",
+    amountCents: row.amount_cents ?? 0,
+    canceled: row.status === "cancelled" || row.status === "no_show",
+    type: getBookingProduct(row.product_slug)?.name ?? row.product_slug,
+  });
+}
+
+interface GiftCertRow {
+  kind: "value" | "visits";
+  product_scope: string | null;
+  initial_units: number;
+  square_payment_id: string | null;
+}
+
+/** Native gift-cert sales (`square_payment_id is not null`), scoped to the
+ *  report year (purchase date) — same convention as `yearOrders`. */
+async function fetchNativeGiftCertValueCents(
+  db: SupabaseClient,
+  range: DateRange,
+): Promise<number[]> {
+  const { data, error } = await db
+    .from("gift_certificates")
+    .select("kind, product_scope, initial_units, square_payment_id")
+    .not("square_payment_id", "is", null)
+    .gte("created_at", `${range.start}T00:00:00Z`)
+    .lte("created_at", `${range.end}T23:59:59Z`);
+  if (error) throw new Error(`gift_certificates fetch failed: ${error.message}`);
+  return ((data ?? []) as GiftCertRow[]).map((row) =>
+    resolveGiftCertValueCents(
+      { kind: row.kind, productScope: row.product_scope ?? "", units: row.initial_units },
+      GIFT_CATALOG,
+    ),
+  );
+}
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
@@ -23,41 +107,154 @@ export async function GET(request: Request) {
   try {
     const now = new Date();
     const ranges = getDailyReportDateRanges(now);
+    const db = bookingDb();
 
-    // Current-year and next-year reads are independent. `showall=true` gives us
-    // both active and canceled records in one pass for each year, which keeps
-    // the wider new-booking window from increasing Acuity request latency.
-    const [reportYearAppointments, nextYearAppointments, priorMonthAppointments, orders] = await Promise.all([
-      getAllAppointments(ranges.reportYear.start, ranges.reportYear.end),
-      getAllAppointments(ranges.nextYear.start, ranges.nextYear.end),
-      ranges.fetchPriorMonthSeparately
-        ? getAllAppointments(ranges.priorMonth.start, ranges.priorMonth.end)
-        : Promise.resolve([]),
-      getOrders(),
-    ]);
+    // MODE B: Acuity is cancelled (flag on, ACUITY_ACTIVE not "true"). The
+    // live Acuity API is dead — history/YTD comes from the frozen
+    // `acuity_archive_appointments` snapshot, current activity from
+    // `bookings` (both 'native' and 'acuity_import' rows). MODE A (today,
+    // and post-flip while Acuity is still live) is everything else.
+    const modeB =
+      process.env.NEXT_PUBLIC_NATIVE_CALENDAR === "true" &&
+      process.env.ACUITY_ACTIVE !== "true";
 
-    const active = reportYearAppointments.filter((appointment) => !appointment.canceled);
-    const canceled = reportYearAppointments.filter((appointment) => appointment.canceled);
-    const analysisCandidates = [
-      ...reportYearAppointments,
-      ...priorMonthAppointments,
-    ].filter((appointment) => !appointment.canceled);
+    let active: AcuityAppointment[];
+    let canceled: AcuityAppointment[];
+    let analysisCandidates: AcuityAppointment[];
+    let scheduleCandidates: AcuityAppointment[];
+    let bookingCandidates: AcuityAppointment[];
+    let orders: AcuityOrder[];
+    let nativeBookings: AcuityAppointment[] = [];
+
+    if (modeB) {
+      const [{ data: archiveRows, error: archiveErr }, { data: bookingRows, error: bookingErr }] =
+        await Promise.all([
+          db
+            .from("acuity_archive_appointments")
+            .select(
+              "id, datetime, datetime_created, first_name, last_name, amount_paid_cents, price_cents, canceled, type",
+            )
+            .eq("canceled", false),
+          db
+            .from("bookings")
+            .select("id, acuity_id, starts_at, created_at, first_name, last_name, amount_cents, status, product_slug, source")
+            .in("source", ["native", "acuity_import"]),
+        ]);
+      if (archiveErr) throw new Error(`acuity_archive_appointments fetch failed: ${archiveErr.message}`);
+      if (bookingErr) throw new Error(`bookings fetch failed: ${bookingErr.message}`);
+
+      const archiveActive = (archiveRows ?? []).map((row) =>
+        mapArchiveToAppointment({
+          id: row.id,
+          datetime: row.datetime,
+          datetimeCreated: row.datetime_created ?? row.datetime,
+          firstName: row.first_name ?? "",
+          lastName: row.last_name ?? "",
+          amountPaidCents: row.amount_paid_cents ?? 0,
+          priceCents: row.price_cents ?? row.amount_paid_cents ?? 0,
+          canceled: false,
+          type: row.type ?? "",
+        }),
+      );
+
+      const allBookingRows = (bookingRows ?? []) as BookingRow[];
+      const currentAppointments = allBookingRows
+        .filter((row) => row.status === "confirmed" || row.status === "completed")
+        .map(bookingRowToAppointment);
+      const canceledAppointments = allBookingRows
+        .filter((row) => row.status === "cancelled")
+        .map(bookingRowToAppointment);
+
+      // A `bookings` row for an appointment Acuity originally created
+      // supersedes its frozen archive counterpart (same id = the original
+      // Acuity id) — it reflects any post-cutover status change the archive
+      // snapshot can't know about. See `mergeArchiveWithCurrent`.
+      const mergedActive = mergeArchiveWithCurrent(archiveActive, currentAppointments);
+
+      active = mergedActive.filter((a) => inWindow(toPacificDateKey(a.datetime), ranges.reportYear));
+      canceled = canceledAppointments.filter((a) =>
+        inWindow(toPacificDateKey(a.datetime), ranges.reportYear),
+      );
+      analysisCandidates = mergedActive.filter((a) => {
+        const key = toPacificDateKey(a.datetime);
+        return (
+          inWindow(key, ranges.reportYear) ||
+          (ranges.fetchPriorMonthSeparately && inWindow(key, ranges.priorMonth))
+        );
+      });
+      scheduleCandidates = mergedActive.filter((a) => {
+        const key = toPacificDateKey(a.datetime);
+        return inWindow(key, ranges.reportYear) || inWindow(key, ranges.nextYear);
+      });
+      bookingCandidates = [...mergedActive, ...canceledAppointments].filter((a) => {
+        const key = toPacificDateKey(a.datetimeCreated);
+        return (
+          inWindow(key, ranges.reportYear) ||
+          inWindow(key, ranges.nextYear) ||
+          (ranges.fetchPriorMonthSeparately && inWindow(key, ranges.priorMonth))
+        );
+      });
+      // No live order source once Acuity is cancelled — the archive's order
+      // snapshot only ever went to the repo's gzipped artifacts, not a
+      // Supabase table (see docs/acuity-archive/orders-*.json.gz).
+      orders = [];
+    } else {
+      // MODE A: unchanged from the single-source report — Acuity live API
+      // exactly as today.
+      // Current-year and next-year reads are independent. `showall=true`
+      // gives us both active and canceled records in one pass for each
+      // year, which keeps the wider new-booking window from increasing
+      // Acuity request latency.
+      const [reportYearAppointments, nextYearAppointments, priorMonthAppointments, acuityOrders] =
+        await Promise.all([
+          getAllAppointments(ranges.reportYear.start, ranges.reportYear.end),
+          getAllAppointments(ranges.nextYear.start, ranges.nextYear.end),
+          ranges.fetchPriorMonthSeparately
+            ? getAllAppointments(ranges.priorMonth.start, ranges.priorMonth.end)
+            : Promise.resolve([]),
+          getOrders(),
+        ]);
+
+      active = reportYearAppointments.filter((appointment) => !appointment.canceled);
+      canceled = reportYearAppointments.filter((appointment) => appointment.canceled);
+      analysisCandidates = [...reportYearAppointments, ...priorMonthAppointments].filter(
+        (appointment) => !appointment.canceled,
+      );
+      scheduleCandidates = [...reportYearAppointments, ...nextYearAppointments].filter(
+        (appointment) => !appointment.canceled,
+      );
+      bookingCandidates = [...reportYearAppointments, ...nextYearAppointments, ...priorMonthAppointments];
+      orders = acuityOrders;
+
+      // Native additions: bookings with source='native' (they have no
+      // Acuity mirror), confirmed/completed, scoped to the report year —
+      // rendered as their own labeled line, never merged into the numbers
+      // above, so the existing Acuity numbers stay byte-identical when
+      // there's no native activity.
+      const { data: nativeRows, error: nativeErr } = await db
+        .from("bookings")
+        .select("id, acuity_id, starts_at, created_at, first_name, last_name, amount_cents, status, product_slug, source")
+        .eq("source", "native")
+        .in("status", ["confirmed", "completed"])
+        .gte("starts_at", `${ranges.reportYear.start}T00:00:00Z`)
+        .lte("starts_at", `${ranges.reportYear.end}T23:59:59Z`);
+      if (nativeErr) throw new Error(`native bookings fetch failed: ${nativeErr.message}`);
+      nativeBookings = ((nativeRows ?? []) as BookingRow[]).map(bookingRowToAppointment);
+    }
+
+    const nativeGiftCertValueCents = await fetchNativeGiftCertValueCents(db, ranges.reportYear);
+
     const html = buildDailyReport({
       now,
       active,
       canceled,
       yesterdayCandidates: analysisCandidates,
       pacingCandidates: analysisCandidates,
-      scheduleCandidates: [
-        ...reportYearAppointments,
-        ...nextYearAppointments,
-      ].filter((appointment) => !appointment.canceled),
-      bookingCandidates: [
-        ...reportYearAppointments,
-        ...nextYearAppointments,
-        ...priorMonthAppointments,
-      ],
+      scheduleCandidates,
+      bookingCandidates,
       orders,
+      nativeBookings,
+      nativeGiftCertValueCents,
     });
 
     const resend = new Resend(process.env.RESEND_API_KEY);

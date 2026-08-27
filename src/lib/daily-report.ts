@@ -24,6 +24,13 @@ export interface DailyReportData {
   scheduleCandidates: AcuityAppointment[];
   bookingCandidates: AcuityAppointment[];
   orders: AcuityOrder[];
+  /** Mode A / Mode B: native bookings and native gift-cert sales, already
+   *  filtered/mapped by the caller. Both default to empty, which keeps the
+   *  report byte-identical to the single-source report (see
+   *  `calculateNativeAdditions` and the "Booked on the site (native)"
+   *  section in `buildDailyReport`). */
+  nativeBookings?: AcuityAppointment[];
+  nativeGiftCertValueCents?: number[];
 }
 
 interface MonthValue {
@@ -73,6 +80,7 @@ export interface DailyReportMetrics {
   cancelRate: number;
   next7: DayValue[];
   pacing: PacingComparison | null;
+  nativeAdditions: NativeAdditions;
 }
 
 export function toPacificDateKey(value: Date | string): string {
@@ -145,6 +153,194 @@ function uniqueAppointments(appointments: AcuityAppointment[]): AcuityAppointmen
 
 function sumAppointmentValue(appointments: AcuityAppointment[]): number {
   return appointments.reduce((sum, appointment) => sum + paid(appointment), 0);
+}
+
+// ---- Dual-source additions (Phase 3a Task 5) ----
+//
+// MODE A (Acuity still live — today, and post-flip while ACUITY_ACTIVE is
+// "true"): the existing Acuity-derived active/canceled/etc. arrays above are
+// untouched. Native activity (bookings with source='native', and native gift
+// certificate sales) is summed SEPARATELY via `calculateNativeAdditions` and
+// rendered as its own labeled line — never merged into the Acuity numbers.
+//
+// MODE B (post-Acuity-cancellation — flag on, ACUITY_ACTIVE not "true"): the
+// live Acuity API is dead. `acuity_archive_appointments` is a frozen,
+// one-time snapshot; `bookings` (both 'native' and 'acuity_import' rows) is
+// the live source of truth going forward. `mapArchiveToAppointment` and
+// `mapBookingToAppointment` normalize each source into the same
+// `AcuityAppointment` shape the rest of this file already knows how to
+// calculate on, and `mergeArchiveWithCurrent` lets a current `bookings` row
+// supersede its frozen archive counterpart (matched by the original Acuity
+// id) so the same underlying appointment is never double-counted.
+
+/** An imported booking (`bookings.source = 'acuity_import'`) carries the
+ *  original Acuity id and can collide with a real one — so its synthetic id
+ *  must be impossible to confuse with a real (always-positive) Acuity id. */
+function syntheticAppointmentId(bookingId: string): number {
+  let hash = 0;
+  for (let index = 0; index < bookingId.length; index += 1) {
+    hash = (hash * 31 + bookingId.charCodeAt(index)) | 0;
+  }
+  return -Math.abs(hash) - 1;
+}
+
+export interface ArchiveAppointmentRow {
+  id: number;
+  datetime: string;
+  datetimeCreated: string;
+  firstName: string;
+  lastName: string;
+  amountPaidCents: number;
+  priceCents: number;
+  canceled: boolean;
+  type: string;
+}
+
+/** Converts a frozen `acuity_archive_appointments` row into the same shape
+ *  the rest of this file's pure calculations already operate on. */
+export function mapArchiveToAppointment(row: ArchiveAppointmentRow): AcuityAppointment {
+  const amountPaid = (row.amountPaidCents / 100).toFixed(2);
+  const price = (row.priceCents / 100).toFixed(2);
+  return {
+    id: row.id,
+    firstName: row.firstName,
+    lastName: row.lastName,
+    email: "",
+    phone: "",
+    date: "",
+    time: "",
+    datetime: row.datetime,
+    datetimeCreated: row.datetimeCreated,
+    price,
+    priceSold: price,
+    amountPaid,
+    paid: row.amountPaidCents > 0 ? "yes" : "no",
+    type: row.type,
+    appointmentTypeID: 0,
+    category: "",
+    duration: "",
+    calendar: "",
+    calendarID: 0,
+    canceled: row.canceled,
+    forms: [],
+  };
+}
+
+export interface BookingReportRow {
+  /** The booking's own uuid — only used to derive a synthetic id when
+   *  `acuityId` is null (a native booking has no Acuity mirror). */
+  id: string;
+  /** Set on rows imported from Acuity (`bookings.acuity_id`); null for
+   *  native-only bookings. */
+  acuityId: number | null;
+  startsAt: string;
+  createdAt: string;
+  firstName: string;
+  lastName: string;
+  amountCents: number;
+  /** Pre-resolved by the caller from `bookings.status` (cancelled/no_show). */
+  canceled: boolean;
+  /** Pre-resolved friendly product name (e.g. via `getBookingProduct`). */
+  type: string;
+}
+
+/** Converts a `bookings` row (either source) into the same
+ *  `AcuityAppointment` shape. An imported row's id is the original Acuity
+ *  id (so it lines up with `mapArchiveToAppointment` for dedupe); a native
+ *  row gets a deterministic synthetic id that can never look like a real
+ *  (positive) Acuity id. */
+export function mapBookingToAppointment(row: BookingReportRow): AcuityAppointment {
+  const amount = (row.amountCents / 100).toFixed(2);
+  return {
+    id: row.acuityId ?? syntheticAppointmentId(row.id),
+    firstName: row.firstName,
+    lastName: row.lastName,
+    email: "",
+    phone: "",
+    date: "",
+    time: "",
+    datetime: row.startsAt,
+    datetimeCreated: row.createdAt,
+    price: amount,
+    priceSold: amount,
+    amountPaid: amount,
+    paid: row.amountCents > 0 ? "yes" : "no",
+    type: row.type,
+    appointmentTypeID: 0,
+    category: "",
+    duration: "",
+    calendar: "",
+    calendarID: 0,
+    canceled: row.canceled,
+    forms: [],
+  };
+}
+
+/** Mode B: a current `bookings` row (native or imported) supersedes its
+ *  frozen archive counterpart when the two share an id (the original Acuity
+ *  id for imports) — the bookings-sourced entry reflects any status change
+ *  (e.g. a post-cutover cancellation) the frozen archive can't know about.
+ *  Reuses the same last-write-wins de-dupe `calculateDailyReport` already
+ *  applies to every candidate array, so no appointment is ever double
+ *  counted between the two sources. */
+export function mergeArchiveWithCurrent(
+  archived: AcuityAppointment[],
+  current: AcuityAppointment[],
+): AcuityAppointment[] {
+  return uniqueAppointments([...archived, ...current]);
+}
+
+export interface GiftCertReportRow {
+  kind: "value" | "visits";
+  productScope: string;
+  units: number;
+}
+
+export interface GiftCatalogEntry {
+  kind: "value" | "visits";
+  productScope: string;
+  units: number;
+  amountCents: number;
+}
+
+/** A 'value' certificate's `initial_units` IS its cents by construction
+ *  (see `src/lib/booking/gift.ts`). A 'visits' certificate's units are a
+ *  visit count, not money — its price has to come from the static product
+ *  catalog, passed in by the caller (never imported here, to keep this file
+ *  free of a dependency on the booking product catalog). */
+export function resolveGiftCertValueCents(
+  row: GiftCertReportRow,
+  catalog: GiftCatalogEntry[],
+): number {
+  if (row.kind === "value") return row.units;
+  const match = catalog.find(
+    (entry) => entry.kind === row.kind
+      && entry.productScope === row.productScope
+      && entry.units === row.units,
+  );
+  return match?.amountCents ?? 0;
+}
+
+export interface NativeAdditions {
+  bookingCount: number;
+  bookingValue: number;
+  giftCount: number;
+  giftValue: number;
+}
+
+/** Mode A: sums native bookings + native gift certificate sales completely
+ *  separately from the Acuity-derived numbers above, so they can be shown
+ *  as their own labeled, auditable line. */
+export function calculateNativeAdditions(
+  nativeBookings: AcuityAppointment[],
+  nativeGiftCertValueCents: number[],
+): NativeAdditions {
+  return {
+    bookingCount: nativeBookings.length,
+    bookingValue: sumAppointmentValue(nativeBookings),
+    giftCount: nativeGiftCertValueCents.length,
+    giftValue: nativeGiftCertValueCents.reduce((sum, cents) => sum + cents, 0) / 100,
+  };
 }
 
 function previousMonth(key: string): string {
@@ -339,6 +535,10 @@ export function calculateDailyReport(data: DailyReportData): DailyReportMetrics 
       : 0,
     next7,
     pacing: calculatePacing(pacingCandidates, todayKey),
+    nativeAdditions: calculateNativeAdditions(
+      data.nativeBookings ?? [],
+      data.nativeGiftCertValueCents ?? [],
+    ),
   };
 }
 
@@ -353,7 +553,7 @@ export function buildDailyReport(data: DailyReportData): string {
   const {
     todayKey, yesterdayKey, year, yesterdayAppointments, newBookings,
     monthlyAppointments, ordersByMonth, yearOrders, byType, dowValue,
-    referralSources, referralAnswerCount, next7, pacing,
+    referralSources, referralAnswerCount, next7, pacing, nativeAdditions,
   } = metrics;
 
   const appointmentRows = yesterdayAppointments.map((appointment) => {
@@ -429,6 +629,12 @@ export function buildDailyReport(data: DailyReportData): string {
   const todayLabel = formatShortDate(todayKey, true);
   const yesterdayLabel = formatDayLabel(yesterdayKey);
 
+  // Additive only: renders nothing when there's no native activity, so the
+  // rest of this report stays byte-identical to the single-source report.
+  const nativeSection = (nativeAdditions.bookingCount > 0 || nativeAdditions.giftCount > 0)
+    ? `<tr><td style='padding:28px 32px 0;'><span style='font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:1px;'>Booked on the site (native)</span><table width='100%' cellspacing='0' style='margin-top:12px;'><tr><td width='48%' style='padding:14px;background:#eaf7ec;border-radius:8px;text-align:center;'><span style='font-size:22px;font-weight:700;color:#3B8344;'>${nativeAdditions.bookingCount}</span><br><span style='font-size:11px;color:#888;font-weight:600;'>NATIVE BOOKINGS</span><br><span style='font-size:13px;color:#1c1d1d;'>${fmtMoney(nativeAdditions.bookingValue)}</span></td><td width='4%'></td><td width='48%' style='padding:14px;background:#eaf7ec;border-radius:8px;text-align:center;'><span style='font-size:22px;font-weight:700;color:#3B8344;'>${nativeAdditions.giftCount}</span><br><span style='font-size:11px;color:#888;font-weight:600;'>NATIVE GIFT CERTS SOLD</span><br><span style='font-size:13px;color:#1c1d1d;'>${fmtMoney(nativeAdditions.giftValue)}</span></td></tr></table></td></tr>`
+    : "";
+
   return `<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'></head><body style='margin:0;padding:0;background:#f8f7f4;font-family:Arial,Helvetica,sans-serif;'><table width='100%' cellpadding='0' cellspacing='0' style='background:#f8f7f4;'><tr><td align='center' style='padding:32px 16px;'><table width='100%' cellpadding='0' cellspacing='0' style='max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);'>` +
     `<tr><td style='background:#1c1d1d;padding:24px 32px;'><table width='100%'><tr><td><span style='font-size:22px;font-weight:700;color:#f2c070;letter-spacing:0.5px;'>Highland Farms</span><br><span style='font-size:13px;color:#aaa;'>Daily Booking &amp; Appointment Report</span></td><td align='right'><span style='font-size:14px;color:#f2c070;font-weight:600;'>${todayLabel}</span><br><span style='font-size:12px;color:#888;'>${DOW_NAMES[dateFromKey(todayKey).getUTCDay()]}</span></td></tr></table></td></tr>` +
     `<tr><td style='padding:28px 32px 0;'><table width='100%' cellspacing='0'><tr><td style='padding-bottom:20px;'><span style='font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:1px;'>Yesterday — ${yesterdayLabel}</span></td></tr><tr><td><table width='100%' cellspacing='0'><tr><td width='33%' style='padding:16px;background:#f8f7f4;border-radius:8px;text-align:center;'><span style='font-size:28px;font-weight:700;color:#1c1d1d;'>${fmtMoney(metrics.yesterdayScheduledValue)}</span><br><span style='font-size:11px;color:#888;font-weight:600;'>SCHEDULED VALUE</span></td><td width='4%'></td><td width='29%' style='padding:16px;background:#f8f7f4;border-radius:8px;text-align:center;'><span style='font-size:28px;font-weight:700;color:#1c1d1d;'>${yesterdayAppointments.length}</span><br><span style='font-size:11px;color:#888;font-weight:600;'>ACTIVE APPOINTMENTS</span></td><td width='4%'></td><td width='30%' style='padding:16px;background:#f8f7f4;border-radius:8px;text-align:center;'><span style='font-size:28px;font-weight:700;color:#3B8344;'>${fmtMoney(metrics.newActiveBookingValue)}</span><br><span style='font-size:11px;color:#888;font-weight:600;'>NEW ACTIVE BOOKINGS</span></td></tr></table></td></tr></table></td></tr>` +
@@ -438,6 +644,7 @@ export function buildDailyReport(data: DailyReportData): string {
     (newBookings.length
       ? `<tr><td style='padding:28px 32px 0;'><span style='font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:1px;'>Bookings Created Yesterday (Pacific Time)</span><table width='100%' cellspacing='0' style='margin-top:12px;'>${bookingRows}</table></td></tr>`
       : "") +
+    nativeSection +
     `<tr><td style='padding:28px 32px 0;'><span style='font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:1px;'>${year} Activity by Service / Sale Month</span><table width='100%' cellspacing='0' style='margin-top:12px;border-collapse:collapse;'><tr style='border-bottom:2px solid #eee;'><td style='padding:8px 0;font-size:12px;font-weight:600;color:#888;'>MONTH</td><td align='center' style='padding:8px 0;font-size:12px;font-weight:600;color:#888;'>ACTIVE APPTS</td><td align='right' style='padding:8px 0;font-size:12px;font-weight:600;color:#888;'>APPT VALUE</td><td align='right' style='padding:8px 0;font-size:12px;font-weight:600;color:#888;'>ORDER SALES</td></tr>${monthRows}` +
     `<tr style='background:#1c1d1d;'><td style='padding:14px 10px;font-size:14px;font-weight:700;color:#f2c070;border-radius:6px 0 0 0;'>${year} active appointment dates</td><td align='center' style='padding:14px 0;font-size:14px;font-weight:700;color:#f2c070;'>${metrics.activeCount}</td><td align='right' style='padding:14px 0;font-size:14px;font-weight:700;color:#f2c070;'>${fmtMoney(metrics.totalActiveValue)}</td><td></td></tr>` +
     `<tr style='background:#f8f7f4;'><td style='padding:10px;font-size:13px;color:#666;'>Past active through ${formatShortDate(yesterdayKey)}</td><td align='center' style='font-size:13px;color:#666;'>${metrics.pastActiveCount}</td><td align='right' style='font-size:13px;font-weight:600;color:#666;'>${fmtMoney(metrics.pastActiveValue)}</td><td></td></tr>` +

@@ -9,7 +9,12 @@ import {
 import {
   buildDailyReport,
   calculateDailyReport,
+  calculateNativeAdditions,
   getDailyReportDateRanges,
+  mapArchiveToAppointment,
+  mapBookingToAppointment,
+  mergeArchiveWithCurrent,
+  resolveGiftCertValueCents,
   toPacificDateKey,
 } from "../src/lib/daily-report.ts";
 
@@ -341,6 +346,174 @@ test("splits a capped Acuity date range instead of silently truncating it", asyn
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+// ---- Task 5: dual-source daily report (native additions + Mode B) ----
+
+test("native-additions summing counts and totals native bookings and gift certs", () => {
+  const nativeBookings = [
+    appointment(500, { amountPaid: "75.00", priceSold: "75.00" }),
+    appointment(501, { amountPaid: "150.00", priceSold: "150.00" }),
+  ];
+  const additions = calculateNativeAdditions(nativeBookings, [15000, 19900]);
+
+  assert.equal(additions.bookingCount, 2);
+  assert.equal(additions.bookingValue, 225);
+  assert.equal(additions.giftCount, 2);
+  assert.equal(additions.giftValue, 349);
+});
+
+test("native-additions summing is zero for no native activity", () => {
+  const additions = calculateNativeAdditions([], []);
+  assert.deepEqual(additions, {
+    bookingCount: 0,
+    bookingValue: 0,
+    giftCount: 0,
+    giftValue: 0,
+  });
+});
+
+test("resolves a value-kind gift certificate's cents directly from its units", () => {
+  assert.equal(
+    resolveGiftCertValueCents({ kind: "value", productScope: "farm-tour", units: 15000 }, []),
+    15000,
+  );
+});
+
+test("resolves a visits-kind gift certificate's cents from the product catalog", () => {
+  const catalog = [
+    { kind: "visits" as const, productScope: "nordic-spa", units: 3, amountCents: 19900 },
+  ];
+  assert.equal(
+    resolveGiftCertValueCents({ kind: "visits", productScope: "nordic-spa", units: 3 }, catalog),
+    19900,
+  );
+  assert.equal(
+    resolveGiftCertValueCents({ kind: "visits", productScope: "nordic-spa", units: 9 }, catalog),
+    0,
+  );
+});
+
+test("mode-B math: maps an archive row's cents to Acuity-shaped dollar strings", () => {
+  const mapped = mapArchiveToAppointment({
+    id: 9001,
+    datetime: "2026-08-10T10:00:00-0700",
+    datetimeCreated: "2026-08-01T09:00:00-0700",
+    firstName: "Archive",
+    lastName: "Guest",
+    amountPaidCents: 15000,
+    priceCents: 15000,
+    canceled: false,
+    type: "Highland Farms Farm Tour",
+  });
+
+  assert.equal(mapped.id, 9001);
+  assert.equal(mapped.amountPaid, "150.00");
+  assert.equal(mapped.canceled, false);
+  assert.equal(mapped.type, "Highland Farms Farm Tour");
+});
+
+test("mode-B math: an imported booking keeps its original Acuity id", () => {
+  const mapped = mapBookingToAppointment({
+    id: "11111111-1111-1111-1111-111111111111",
+    acuityId: 9001,
+    startsAt: "2026-08-10T10:00:00-0700",
+    createdAt: "2026-08-01T09:00:00-0700",
+    firstName: "Import",
+    lastName: "Guest",
+    amountCents: 15000,
+    canceled: false,
+    type: "Private Farm Tour",
+  });
+  assert.equal(mapped.id, 9001);
+  assert.equal(mapped.amountPaid, "150.00");
+});
+
+test("mode-B math: a native booking (no acuity id) gets a stable synthetic id that never collides with a real Acuity id", () => {
+  const row = {
+    id: "22222222-2222-2222-2222-222222222222",
+    acuityId: null,
+    startsAt: "2026-08-11T10:00:00-0700",
+    createdAt: "2026-08-01T09:00:00-0700",
+    firstName: "Native",
+    lastName: "Guest",
+    amountCents: 15000,
+    canceled: false,
+    type: "Private Farm Tour",
+  };
+  const first = mapBookingToAppointment(row);
+  const second = mapBookingToAppointment(row);
+  assert.equal(first.id, second.id, "same input must yield the same synthetic id");
+  assert.ok(first.id < 0, "a synthetic id must never look like a real (positive) Acuity id");
+
+  const other = mapBookingToAppointment({ ...row, id: "33333333-3333-3333-3333-333333333333" });
+  assert.notEqual(first.id, other.id, "different bookings must not collide");
+});
+
+test("mode-B math: a current booking supersedes the frozen archive row for the same Acuity appointment (dedupe is inherent, no double count)", () => {
+  const archived = mapArchiveToAppointment({
+    id: 9001,
+    datetime: "2026-08-10T10:00:00-0700",
+    datetimeCreated: "2026-08-01T09:00:00-0700",
+    firstName: "Archive",
+    lastName: "Guest",
+    amountPaidCents: 15000,
+    priceCents: 15000,
+    canceled: false, // still active as of the frozen snapshot
+    type: "Highland Farms Farm Tour",
+  });
+  const current = mapBookingToAppointment({
+    id: "11111111-1111-1111-1111-111111111111",
+    acuityId: 9001,
+    startsAt: "2026-08-10T10:00:00-0700",
+    createdAt: "2026-08-01T09:00:00-0700",
+    firstName: "Import",
+    lastName: "Guest",
+    amountCents: 15000,
+    canceled: true, // canceled AFTER the archive snapshot was taken
+    type: "Private Farm Tour",
+  });
+
+  const merged = mergeArchiveWithCurrent([archived], [current]);
+  assert.equal(merged.length, 1, "the same underlying appointment must not double count");
+  assert.equal(merged[0].canceled, true, "the live bookings row wins over the frozen archive row");
+});
+
+test("zero native activity renders the daily report section-for-section identical to the single-source report", () => {
+  const active = [appointment(600, { amountPaid: "75.00", priceSold: "75.00" })];
+  const baseline = buildDailyReport(reportData({ active }));
+  const withEmptyNativeFields = buildDailyReport({
+    ...reportData({ active }),
+    nativeBookings: [],
+    nativeGiftCertValueCents: [],
+  });
+
+  assert.equal(withEmptyNativeFields, baseline);
+  assert.doesNotMatch(baseline, /Booked on the site \(native\)/);
+});
+
+test("nonzero native activity adds its own labeled line without touching the Acuity numbers", () => {
+  const active = [appointment(601, { amountPaid: "75.00", priceSold: "75.00" })];
+  const baseline = buildDailyReport(reportData({ active }));
+  const nativeBookings = [appointment(700, { amountPaid: "75.00", priceSold: "75.00" })];
+  const withNative = buildDailyReport({
+    ...reportData({ active }),
+    nativeBookings,
+    nativeGiftCertValueCents: [15000],
+  });
+
+  assert.match(withNative, /Booked on the site \(native\)/);
+  assert.match(withNative, /NATIVE BOOKINGS/);
+  assert.match(withNative, /NATIVE GIFT CERTS SOLD/);
+
+  // The native section is one self-contained block. Cutting exactly that
+  // block back out of the "with native" report must reproduce the baseline
+  // (Acuity-only) report byte for byte — proof the addition is purely
+  // additive and never rewrites an existing Acuity-derived number.
+  const nativeBlockPattern =
+    /<tr><td style='padding:28px 32px 0;'><span style='font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:1px;'>Booked on the site \(native\)<\/span>[\s\S]*?<\/table><\/td><\/tr>/;
+  assert.match(withNative, nativeBlockPattern);
+  assert.equal(withNative.replace(nativeBlockPattern, ""), baseline);
 });
 
 test("fails loudly when a single Acuity day reaches the appointment cap", async () => {
