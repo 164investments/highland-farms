@@ -169,8 +169,11 @@ begin
       raise exception 'malformed leg: %', to_jsonb(leg) using errcode = 'P0002';
     end if;
 
+    -- Epoch, not ::text: timestamptz text rendering follows the session
+    -- TimeZone GUC, so two sessions with different settings could lock
+    -- different keys for the same instant. Epoch is canonical.
     perform pg_advisory_xact_lock(
-      hashtext(leg.product_slug || '|' || leg.starts_at::text)
+      hashtext(leg.product_slug || '|' || extract(epoch from leg.starts_at)::text)
     );
 
     select coalesce(sum(units), 0) into used

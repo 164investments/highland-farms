@@ -21,7 +21,11 @@ import {
   type ScheduleRule,
   type Blackout,
 } from "../src/lib/booking/engine.ts";
-import { renderBookingConfirmation } from "../src/lib/booking/confirmation-email.ts";
+import {
+  renderBookingConfirmation,
+  renderMeetLinkNeededBanner,
+} from "../src/lib/booking/confirmation-email.ts";
+import { buildIcs } from "../src/lib/booking/ics.ts";
 
 test("products: tour is a private slot at $75/person, 2-6 guests", () => {
   const tour = BOOKING_PRODUCTS["farm-tour"];
@@ -207,7 +211,13 @@ test("engine: combo pairs respect the 30-min buffer in either order", () => {
     product: SPA, from: "2026-09-05", to: "2026-09-05",
     schedules: rules, exceptions: [], blackouts: [], booked: [], now: NOW,
   });
-  const combos = comboDays(tourDays, spaDays, 1, 2, 30);
+  const combos = comboDays(tourDays, spaDays, {
+    tourUnitsNeeded: 1,
+    spaUnitsNeeded: 2,
+    bufferMin: 30,
+    tourDurationMin: BOOKING_PRODUCTS["farm-tour"].durationMin,
+    spaDurationMin: BOOKING_PRODUCTS["nordic-spa"].durationMin,
+  });
   assert.equal(combos.length, 1);
   const pairs = combos[0].pairs.map((p) => `${p.tour.time}+${p.spa.time}`);
   // Tour 10:00-11:00 → spa 13:00/15:00 OK (11:00 violates buffer: gap 0).
@@ -216,6 +226,25 @@ test("engine: combo pairs respect the 30-min buffer in either order", () => {
   // Spa-first also allowed: spa 11:00-12:30 → tour 14:00 (gap 90) OK, 12:00 (overlap) not.
   assert.ok(pairs.includes("14:00+11:00"));
   assert.ok(!pairs.includes("12:00+11:00"));
+});
+
+test("engine: comboDays derives overlap from the provided durations", () => {
+  const tourDays = [{ date: "2026-09-05", slots: [
+    { startsAt: "2026-09-05T17:00:00.000Z", time: "10:00", capacity: 1, remainingUnits: 1 },
+  ]}];
+  const spaDays = [{ date: "2026-09-05", slots: [
+    { startsAt: "2026-09-05T18:30:00.000Z", time: "11:30", capacity: 6, remainingUnits: 6 },
+  ]}];
+  // Tour 10:00 + 60min ends 11:00; spa 11:30 → gap 30 = OK at bufferMin 30.
+  assert.equal(comboDays(tourDays, spaDays, {
+    tourUnitsNeeded: 1, spaUnitsNeeded: 1, bufferMin: 30,
+    tourDurationMin: 60, spaDurationMin: 90,
+  })[0]?.pairs.length ?? 0, 1);
+  // With a 90-min tour the same pair overlaps and disappears.
+  assert.equal(comboDays(tourDays, spaDays, {
+    tourUnitsNeeded: 1, spaUnitsNeeded: 1, bufferMin: 30,
+    tourDurationMin: 90, spaDurationMin: 90,
+  }).length, 0);
 });
 
 test("email: confirmation carries the strict policy and the weather promise", () => {
@@ -255,4 +284,126 @@ test("email: gift line renders only when a gift was applied", () => {
     renderBookingConfirmation({ ...base, giftAppliedCents: 5000, paidCents: 10000 }),
     /Gift certificate.*\$50\.00/s,
   );
+});
+
+test("ics: DTSTART/DTEND are correct UTC for a known instant", () => {
+  const ics = buildIcs({
+    uid: "HFB-260905-1234",
+    startIso: "2026-09-05T17:00:00.000Z",
+    durationMin: 45,
+    summary: "Wedding Call: Ada Lovelace + Highland Farms",
+    description: "Booking HFB-260905-1234",
+    location: "Google Meet",
+  });
+  assert.match(ics, /DTSTART:20260905T170000Z/);
+  assert.match(ics, /DTEND:20260905T174500Z/);
+});
+
+test("ics: uses CRLF line endings throughout", () => {
+  const ics = buildIcs({
+    uid: "HFB-260905-1234",
+    startIso: "2026-09-05T17:00:00.000Z",
+    durationMin: 45,
+    summary: "Wedding Call",
+    description: "Booking HFB-260905-1234",
+    location: "Google Meet",
+  });
+  assert.ok(ics.includes("\r\n"));
+  assert.ok(!ics.replace(/\r\n/g, "").includes("\n"), "no bare LF outside CRLF pairs");
+  assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
+  assert.match(ics, /END:VCALENDAR\r\n$/);
+});
+
+test("ics: escapes a comma in the description (and other RFC5545 special chars)", () => {
+  const ics = buildIcs({
+    uid: "HFB-260905-1234",
+    startIso: "2026-09-05T17:00:00.000Z",
+    durationMin: 45,
+    summary: "Wedding Call",
+    description: "Ada + Sam, at the barn; call Hayden\\Jalene for details",
+    location: "Google Meet",
+  });
+  assert.match(ics, /DESCRIPTION:Ada \+ Sam\\, at the barn\\; call Hayden\\\\Jalene for details/);
+});
+
+test("email: consult with a Meet link renders the join line, not the promise", () => {
+  const base = {
+    bookingNumber: "HFB-260830-1111",
+    product: "wedding-call" as const,
+    legs: [{ productSlug: "wedding-call", startsAt: "2026-08-30T21:00:00.000Z", durationMin: 45 }],
+    partySize: 1,
+    customerName: "Ada Lovelace", customerEmail: "ada@example.com", customerPhone: "5550100",
+    totalCents: 0, giftAppliedCents: 0, paidCents: 0,
+    locationChoice: "meet" as const,
+  };
+  const withLink = renderBookingConfirmation({ ...base, meetLink: "https://meet.google.com/abc-defg-hij" });
+  assert.match(withLink, /Join on Google Meet/);
+  assert.match(withLink, /meet\.google\.com\/abc-defg-hij/);
+  assert.doesNotMatch(withLink, /we'll email your google meet link/i);
+});
+
+test("email: consult that chose Meet but has no link yet promises to send it", () => {
+  const html = renderBookingConfirmation({
+    bookingNumber: "HFB-260830-2222",
+    product: "wedding-call",
+    legs: [{ productSlug: "wedding-call", startsAt: "2026-08-30T21:00:00.000Z", durationMin: 45 }],
+    partySize: 1,
+    customerName: "Ada Lovelace", customerEmail: "ada@example.com", customerPhone: "5550100",
+    totalCents: 0, giftAppliedCents: 0, paidCents: 0,
+    locationChoice: "meet", meetLink: null,
+  });
+  assert.match(html, /We'll email your Google Meet link before the call\./);
+  assert.doesNotMatch(html, /—/); // no em dashes in rendered copy
+});
+
+test("email: an in-person consult never shows the Meet fallback line", () => {
+  const html = renderBookingConfirmation({
+    bookingNumber: "HFB-260830-3333",
+    product: "wedding-call",
+    legs: [{ productSlug: "wedding-call", startsAt: "2026-08-30T21:00:00.000Z", durationMin: 45 }],
+    partySize: 1,
+    customerName: "Ada Lovelace", customerEmail: "ada@example.com", customerPhone: "5550100",
+    totalCents: 0, giftAppliedCents: 0, paidCents: 0,
+    locationChoice: "in_person", meetLink: null,
+  });
+  assert.doesNotMatch(html, /google meet/i);
+});
+
+test("email: farm notification flags MEET LINK NEEDED only for a failed/unconfigured Meet consult", () => {
+  const base = {
+    bookingNumber: "HFB-260830-4444",
+    product: "wedding-call" as const,
+    legs: [{ productSlug: "wedding-call", startsAt: "2026-08-30T21:00:00.000Z", durationMin: 45 }],
+    partySize: 1,
+    customerName: "Ada Lovelace", customerEmail: "ada@example.com", customerPhone: "5550100",
+    totalCents: 0, giftAppliedCents: 0, paidCents: 0,
+  };
+  assert.match(
+    renderMeetLinkNeededBanner({ ...base, locationChoice: "meet", meetLink: null }),
+    /MEET LINK NEEDED/,
+  );
+  assert.equal(
+    renderMeetLinkNeededBanner({ ...base, locationChoice: "meet", meetLink: "https://meet.google.com/x" }),
+    "",
+  );
+  assert.equal(
+    renderMeetLinkNeededBanner({ ...base, locationChoice: "in_person", meetLink: null }),
+    "",
+  );
+  assert.equal(
+    renderMeetLinkNeededBanner({ ...base, product: "farm-tour", locationChoice: null, meetLink: null }),
+    "",
+  );
+});
+
+test("ics: UID is namespaced to highlandfarmsoregon.com", () => {
+  const ics = buildIcs({
+    uid: "HFB-260905-1234",
+    startIso: "2026-09-05T17:00:00.000Z",
+    durationMin: 45,
+    summary: "Wedding Call",
+    description: "Booking HFB-260905-1234",
+    location: "Google Meet",
+  });
+  assert.match(ics, /UID:HFB-260905-1234@highlandfarmsoregon\.com\r\n/);
 });

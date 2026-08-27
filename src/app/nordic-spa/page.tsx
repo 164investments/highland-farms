@@ -29,6 +29,8 @@ import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { InlineEmailCapture } from "@/components/shared/InlineEmailCapture";
 import { nordicSpaFAQ } from "@/data/nordic-spa";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
+import { nativeCalendarEnabled } from "@/lib/booking/flag";
+import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 
 export const metadata: Metadata = {
   title: "Sauna & Cold Plunge Near Portland — Mt. Hood Nordic Spa",
@@ -431,20 +433,25 @@ export default function NordicSpaPage() {
             </div>
 
             <div className="mt-6">
-              <BookingButton
-                href={pricingBookingHref}
-                label="Book Your Session"
-                size="lg"
-                className="w-full"
-                title="Book your Nordic Spa session"
-              />
+              <NativeBookingSection product="nordic-spa" />
+              {!nativeCalendarEnabled() && (
+                <BookingButton
+                  href={pricingBookingHref}
+                  label="Book Your Session"
+                  size="lg"
+                  className="w-full"
+                  title="Book your Nordic Spa session"
+                />
+              )}
               <p className="mt-3 text-center text-xs text-muted font-sans">
                 Spa runs Tue / Wed / Fri / Sat / Sun
               </p>
-              <p className="mt-1.5 text-center text-xs text-muted font-sans">
-                Strict cancellation policy: all bookings are final. No refunds
-                or reschedules.
-              </p>
+              {!nativeCalendarEnabled() && (
+                <p className="mt-1.5 text-center text-xs text-muted font-sans">
+                  Strict cancellation policy: all bookings are final. No refunds
+                  or reschedules.
+                </p>
+              )}
             </div>
           </div>
         </Container>
@@ -613,11 +620,13 @@ export default function NordicSpaPage() {
       </section>
 
       {/* Sticky mobile CTA */}
-      <BookingStickyCTA
-        label="Book Now · $75/person"
-        href={stickyBookingHref}
-        title="Book your Nordic Spa session"
-      />
+      {!nativeCalendarEnabled() && (
+        <BookingStickyCTA
+          label="Book Now · $75/person"
+          href={stickyBookingHref}
+          title="Book your Nordic Spa session"
+        />
+      )}
 
       {/* Modal mount — listens for openBookingModal() calls from every CTA */}
       <BookingModalRoot />

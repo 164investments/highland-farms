@@ -7,9 +7,9 @@ import {
 import { slotCapacity } from "@/lib/booking/engine";
 import { slotToUtc } from "@/lib/booking/time";
 import {
-  claimSlots, confirmBookings, releaseBookings,
+  claimSlots, confirmBookings, forceConfirmBookings, auditBooking, releaseBookings,
   getGiftCertificate, redeemGiftCertificate, restoreGiftCertificate,
-  getScheduleData, type ClaimLeg,
+  getScheduleData, setBookingCalendarInfo, type ClaimLeg, type ClaimCustomer,
 } from "@/lib/booking/store";
 import { generateBookingNumber } from "@/lib/booking/booking-number";
 import { chargeCard, isSquareConfigured } from "@/lib/shop/square";
@@ -17,6 +17,7 @@ import { claimTrackingEvent } from "@/lib/tracking-dedupe";
 import { sendBookingPurchase } from "@/lib/ga4";
 import { sendMetaPurchase } from "@/lib/meta";
 import { sendBookingEmails } from "@/lib/booking/confirmation-email";
+import { createWeddingCallEvent, isCalendarConfigured } from "@/lib/booking/google-calendar";
 
 /**
  * Native calendar checkout.
@@ -177,22 +178,24 @@ export async function POST(request: Request) {
       });
     }
 
-    // Combo buffer, either order (mirror of engine.comboDays).
+    // Combo buffer, either order (mirror of engine.comboDays). `legs` is built
+    // from `legDefs` above, which puts the tour leg first for combo — the
+    // destructure below is safe.
     if (isCombo) {
-      const t = Date.parse(legs[0].startsAt);
-      const s = Date.parse(legs[1].startsAt);
+      const [tourLeg, spaLeg] = legs;
+      const t = Date.parse(tourLeg.startsAt);
+      const s = Date.parse(spaLeg.startsAt);
       const ok =
-        s - (t + 60 * 60000) >= COMBO.bufferMin * 60000 ||
-        t - (s + 90 * 60000) >= COMBO.bufferMin * 60000;
+        s - (t + tourLeg.durationMin * 60000) >= COMBO.bufferMin * 60000 ||
+        t - (s + spaLeg.durationMin * 60000) >= COMBO.bufferMin * 60000;
       if (!ok) return bad("Those two times overlap. Leave at least 30 minutes between them.");
     }
 
     const totalCents = legs.reduce((sum, l) => sum + l.amountCents, 0);
 
     // ---- Hold the slot(s) BEFORE money moves ----
-    const bookingNumber = generateBookingNumber();
-    const claim = await claimSlots(legs, {
-      bookingNumber,
+    const buildCustomer = (num: string): ClaimCustomer => ({
+      bookingNumber: num,
       firstName: body.customer.firstName,
       lastName: body.customer.lastName,
       email: body.customer.email,
@@ -201,7 +204,18 @@ export async function POST(request: Request) {
       policyAgreedAt: new Date().toISOString(),
       locationChoice: body.locationChoice ?? null,
     });
-    if (!claim.ok) return bad(claim.message, claim.reason === "slot_full" ? 409 : 503);
+    let bookingNumber = generateBookingNumber();
+    let claim = await claimSlots(legs, buildCustomer(bookingNumber));
+    if (!claim.ok && claim.reason === "number_collision") {
+      bookingNumber = generateBookingNumber();
+      claim = await claimSlots(legs, buildCustomer(bookingNumber));
+    }
+    if (!claim.ok) {
+      return bad(
+        claim.message || "We couldn't confirm that time. Your card has not been charged.",
+        claim.reason === "slot_full" ? 409 : 503,
+      );
+    }
 
     // ---- Gift certificate ----
     // `value` certs hold cents; `visits` certs (the Spa 3-Visit Pack) hold
@@ -290,9 +304,29 @@ export async function POST(request: Request) {
     try {
       await confirmBookings(claim.ids, paymentId, giftApplied > 0 ? giftCode : null, giftApplied);
     } catch {
-      console.error(
-        `[booking] CONFIRM FAILED after payment. booking=${bookingNumber} payment=${paymentId} ids=${claim.ids.join(",")}`,
-      );
+      try {
+        const confirmedIds = await forceConfirmBookings(
+          claim.ids, paymentId, giftApplied > 0 ? giftCode : null, giftApplied,
+        );
+        await auditBooking("confirm_rpc_failed_fallback_applied", claim.ids[0], {
+          booking_number: bookingNumber, payment_id: paymentId, ids: claim.ids,
+          confirmed_ids: confirmedIds,
+        });
+      } catch (err2) {
+        // Paid booking is now on the sweep's fuse. err2's message names any
+        // ids the fallback DID manage to confirm before it threw (a combo's
+        // leg 1 can succeed while leg 2 fails) — that's the difference
+        // between one unconfirmed row and two. Loudest possible trace.
+        const err2Message = err2 instanceof Error ? err2.message : String(err2);
+        console.error(
+          `[booking] CRITICAL: confirm AND fallback failed. PAID booking pending deletion by sweep. booking=${bookingNumber} payment=${paymentId} ids=${claim.ids.join(",")} error=${err2Message}`,
+          err2,
+        );
+        await auditBooking("confirm_failed_paid_booking_at_risk", claim.ids[0], {
+          booking_number: bookingNumber, payment_id: paymentId, ids: claim.ids,
+          error: err2Message,
+        });
+      }
     }
 
     const emailData = {
@@ -311,9 +345,34 @@ export async function POST(request: Request) {
       giftAppliedCents: giftApplied,
       paidCents: dueCents,
       locationChoice: body.locationChoice ?? null,
+      meetLink: null as string | null,
     };
 
     after(async () => {
+      // Consult calendar event, best-effort, before emails go out — a
+      // Meet link that lands after the confirmation email would just get
+      // ignored by the customer, and the whole point is it rides along.
+      if (body.product === "wedding-call" && isCalendarConfigured()) {
+        try {
+          const ev = await createWeddingCallEvent({
+            startIso: legs[0].startsAt,
+            durationMin: legs[0].durationMin,
+            guestEmail: body.customer.email,
+            guestName: emailData.customerName,
+            locationChoice: body.locationChoice ?? "in_person",
+            bookingNumber,
+          });
+          if (ev) {
+            await setBookingCalendarInfo(claim.ids[0], ev.eventId, ev.meetLink);
+            emailData.meetLink = ev.meetLink;
+          }
+        } catch (err) {
+          // createWeddingCallEvent never throws, but keep this belt-and-
+          // suspenders so a bug in it can never fail the booking.
+          console.error("[booking] wedding call calendar step threw:", bookingNumber, err);
+        }
+      }
+
       try {
         await sendBookingEmails(emailData);
       } catch (err) {
@@ -324,7 +383,8 @@ export async function POST(request: Request) {
         // revenue is tracked when the certificate is sold — counting it again
         // at redemption would double-count and inflate ad ROAS.
         const fresh = await claimTrackingEvent(`native_${bookingNumber}`, "purchase", "native-booking");
-        if (fresh && dueCents > 0) {
+        const isConsult = body.product === "wedding-call";
+        if (fresh && (dueCents > 0 || isConsult)) {
           await sendBookingPurchase({
             transaction_id: bookingNumber,
             value: dueCents / 100,
@@ -339,17 +399,19 @@ export async function POST(request: Request) {
             attribution: body.attribution,
             client_id: body.clientId,
           });
-          await sendMetaPurchase({
-            transaction_id: `native_${bookingNumber}`,
-            value: dueCents / 100,
-            content_name: emailData.legs.map((l) => l.productSlug).join("+"),
-            content_category: "booking",
-            email: body.customer.email,
-            phone: body.customer.phone,
-            fbc: body.fbc,
-            fbp: body.fbp,
-            referral_source: body.referralSource,
-          });
+          if (dueCents > 0) {
+            await sendMetaPurchase({
+              transaction_id: `native_${bookingNumber}`,
+              value: dueCents / 100,
+              content_name: emailData.legs.map((l) => l.productSlug).join("+"),
+              content_category: "booking",
+              email: body.customer.email,
+              phone: body.customer.phone,
+              fbc: body.fbc,
+              fbp: body.fbp,
+              referral_source: body.referralSource,
+            });
+          }
         }
       } catch (err) {
         console.error("[booking] tracking threw:", err);

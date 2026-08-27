@@ -6,6 +6,9 @@ import { formatCents } from "@/lib/shop/money";
 import { ADMIN_COOKIE } from "@/lib/shop/admin-cookie";
 import { CountSheet } from "./CountSheet";
 import { MatchPicker, type SquareCandidate } from "./MatchPicker";
+import { CalendarTab } from "./CalendarTab";
+import { SchedulesTab } from "./SchedulesTab";
+import { CertsTab } from "./CertsTab";
 
 export interface InventoryRow {
   variantId: string;
@@ -32,7 +35,7 @@ export interface OrderRow {
   createdAt: string;
 }
 
-type Tab = "stock" | "count" | "orders" | "square";
+type Tab = "stock" | "count" | "orders" | "square" | "calendar" | "schedules" | "certs";
 
 export function AdminBody({
   inventory,
@@ -89,13 +92,16 @@ export function AdminBody({
         />
       </div>
 
-      <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex flex-wrap gap-2">
         {(
           [
             ["stock", "Stock"],
             ["count", "Count"],
             ["orders", `Orders (${orders.length})`],
             ["square", "Square link"],
+            ["calendar", "Calendar"],
+            ["schedules", "Schedules"],
+            ["certs", "Gift certs"],
           ] as [Tab, string][]
         ).map(([key, label]) => (
           <button
@@ -149,6 +155,9 @@ export function AdminBody({
           }
         />
       )}
+      {tab === "calendar" && <CalendarTab token={token} />}
+      {tab === "schedules" && <SchedulesTab token={token} />}
+      {tab === "certs" && <CertsTab token={token} />}
     </div>
   );
 }

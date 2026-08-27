@@ -261,7 +261,9 @@ Ranked.
 
 Added Aug 2026 (Phase 1, behind `NEXT_PUBLIC_NATIVE_CALENDAR`) to replace Acuity
 as the calendar of record for farm tours, the Nordic spa, and wedding calls.
-Acuity remains live in production until the flag flips (Phase 3).
+Acuity remains live in production until the flag flips (Phase 3). Phase 2
+(same month) added the on-page booking widgets, wedding-call scheduling +
+Google Meet, gift certificates, and the farm's admin booking surface.
 
 ```
 src/lib/booking/
@@ -269,17 +271,60 @@ src/lib/booking/
   engine.ts               pure availability math (schedules + exceptions + blackouts
                            + booked units -> offered slots); no I/O
   store.ts                Supabase I/O: schedule reads, claim/confirm/release RPCs,
-                           gift-certificate RPCs
+                           gift-certificate RPCs, gift-certificate insert, the
+                           best-effort booking_audit writer
   time.ts                 the only place America/Los_Angeles <-> UTC conversion happens
-  flag.ts                 the NEXT_PUBLIC_NATIVE_CALENDAR kill switch
+  flag.ts                 the NEXT_PUBLIC_NATIVE_CALENDAR kill switch — GUEST-FACING
+                           surfaces only, see rule 9
+  client.ts               browser-side availability fetch + idempotency-aware submit,
+                           used by every BookingFlow instance
   booking-number.ts       customer-facing booking number generator
-  confirmation-email.ts   customer + farm confirmation emails
+  confirmation-email.ts   customer + farm confirmation emails (composes the
+                           "MEET LINK NEEDED" farm-notification fallback, rule 8)
+  cancel-email.ts         farm-initiated cancellation email (refund and/or
+                           gift-restore composed together when both apply)
   reminder-email.ts       48h / morning-of reminder emails
+  gift.ts                 gift certificate PRODUCTS (fixed price/kind/scope), code
+                           generation, and issuance (insert + one 23505 retry)
+  gift-email.ts           gift certificate purchase + delivery emails
+  google-calendar.ts      wedding-call Meet-link creation via a domain-wide-delegated
+                           service account impersonating events@; NEVER throws (rule 8)
+  ics.ts                  .ics calendar attachment for confirmation/reminder emails
+src/components/booking/
+  BookingFlow.tsx          client widget: date/slot pick -> party -> details -> pay
+  BookingPayment.tsx       Square card + wallet bootstrap, scoped to the widget
+  NativeBookingSection.tsx server wrapper — returns null when the flag is off, so
+                           mounting it on a guest page is always flag-off-safe
 src/app/api/booking/
   availability/route.ts   GET — offered slots per product (or combo pairs)
   checkout/route.ts       POST — the one transactional booking endpoint
+  gift/checkout/route.ts  POST — gift certificate purchase (charge, then issue)
+src/app/gift-certificates/page.tsx + GiftBody.tsx   gift certificate purchase page
+src/app/wedding-call/page.tsx   wedding-call scheduling page (mounts BookingFlow
+                                 directly — no pricing card, the product is free)
 src/app/api/cron/booking-reminders/route.ts   expired-hold sweep + reminder sends
 supabase-booking.sql      schema + RPCs, applied by hand (no migration runner here)
+```
+
+### Admin booking surface
+
+Lives inside the existing farm-store admin (`/shop/admin`, `src/lib/shop/admin-auth.ts`
+shared-token gate) rather than a new admin app — same operator, same login.
+
+```
+src/app/api/shop/admin/booking/
+  route.ts               GET — bookings + blackouts in a date range
+  blackouts/route.ts      POST/DELETE — wedding + closure blackouts
+  schedules/route.ts      POST/DELETE — weekly recurring availability
+  manual/route.ts         POST — phone/walk-in bookings (claims capacity, no charge)
+  cancel/route.ts         POST — farm-initiated cancel + Square refund + gift restore;
+                           detects a combo_group and cancels/refunds/emails the whole
+                           pair atomically, never a single leg of a combo
+  certs/route.ts          GET/POST — gift certificate issue, lookup, void
+src/app/shop/admin/
+  CalendarTab.tsx          bookings + blackout calendar view
+  SchedulesTab.tsx         weekly schedule editor
+  CertsTab.tsx             gift certificate issue/lookup/void UI
 ```
 
 ### The rules that keep this honest
@@ -295,8 +340,41 @@ supabase-booking.sql      schema + RPCs, applied by hand (no migration runner he
    Conversion happens only in `time.ts`.
 5. **A wedding is a blackout** (`booking_blackouts.kind='wedding'`) that blocks
    tours + spa. Weddings are not bookings.
-6. **Everything is behind `NEXT_PUBLIC_NATIVE_CALENDAR`** until cutover
-   (Phase 3). Acuity remains the live calendar of record until then.
+6. **Everything guest-facing is behind `NEXT_PUBLIC_NATIVE_CALENDAR`** until
+   cutover (Phase 3). Acuity remains the live calendar of record until then.
+7. **Every admin mutation writes `booking_audit`.** `auditBooking()` in
+   `store.ts` is a best-effort insert (it never throws — auditing must not
+   break a booking) but every admin route calls it with actor `"admin"` and a
+   detail payload that names exactly what changed: a blackout created, a
+   schedule edited, a manual booking taken, a cancel/refund, a cert issued or
+   voided. The customer-facing checkout/cron paths default to actor
+   `"system"` instead.
+8. **Meet-link creation is best-effort; a wedding-call booking NEVER fails on
+   calendar errors.** `google-calendar.ts`'s `createWeddingCallEvent()` never
+   throws — a missing service-account config, a non-2xx response, or a
+   network error all resolve `null` and log the booking number. When that
+   happens the confirmation email still sends: the customer copy promises the
+   Meet link will follow by email, and the farm notification is flagged
+   `MEET LINK NEEDED` so a human closes the loop by hand. The booking itself
+   confirms regardless — a calendar hiccup is never the reason a wedding
+   couple's call fails to book.
+9. **Admin booking screens are NOT flag-gated by design.** `flag.ts`'s kill
+   switch guards guest-facing surfaces only (rule 6); the admin routes under
+   `/api/shop/admin/booking/*` and their `/shop/admin` tabs have no
+   `nativeCalendarEnabled()` check anywhere in them. This is deliberate:
+   Jalene needs to seed real schedules and blackouts, and the farm needs to
+   take manual bookings and issue gift certificates, before cutover — not
+   after. Guests see none of it until the flag flips; the admin surface is
+   just data entry against tables no guest-facing route reads while the flag
+   is off.
+10. **Gift certificates charge BEFORE they insert** (the opposite order from a
+    booking, which claims capacity first) — there is no capacity to protect,
+    so nothing may be written until money has actually moved. If the insert
+    then fails, there is no row to force-confirm the way a paid booking has:
+    the route logs a `CRITICAL` line with the Square payment id and returns
+    `{ success: true, code: null }` rather than a failure, since the customer
+    was in fact charged. The farm reconciles from that log line and issues
+    the code by hand.
 
 ## Conventions worth keeping
 

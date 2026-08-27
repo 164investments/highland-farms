@@ -24,6 +24,7 @@ npm run indexnow # submit pages to Bing
 - Data: `src/data/` (properties, farm-tours, nordic-spa, navigation, wedding-portfolio)
 - Libs: `src/lib/` (supabase, acuity, daily-report, html, hubspot, bookediq, email, ga4, meta, meta-leads, schemas)
 - Native booking calendar (Phase 1, behind `NEXT_PUBLIC_NATIVE_CALENDAR`): `src/lib/booking/`, `src/app/api/booking/*`, `src/app/api/cron/booking-reminders` — spec: `docs/superpowers/specs/2026-08-27-native-calendar-design.md`, plan: `docs/superpowers/plans/2026-08-27-native-calendar-engine.md`; structure and rules in `ARCHITECTURE.md` under "Booking (native calendar)"
+- Native booking calendar Phase 2 (booking UX, wedding-call + gift certs, admin surface, still behind the same flag except admin): `src/components/booking/` (BookingFlow, BookingPayment, NativeBookingSection), `src/app/wedding-call/`, `src/app/gift-certificates/`, `src/app/api/booking/gift/checkout`, `src/app/api/shop/admin/booking/*` (blackouts, schedules, manual, cancel, certs), `src/app/shop/admin/` (CalendarTab, SchedulesTab, CertsTab), `src/lib/booking/google-calendar.ts` + `ics.ts` + `cancel-email.ts` + `gift-email.ts` — plan: `docs/superpowers/plans/2026-08-27-native-calendar-phase2.md`; cutover verification recipe: `scripts/booking-e2e.md`
 - Layout: `src/components/layout/` (Header, Footer, GTM, EmailPopup, BookedIQWidget, StructuredData, AttributionTracker)
 - Forms: `src/components/forms/ContactForm.tsx`
 - Booked-wedding feed tooling: `scripts/build-booked-wedding-ad-feeds.py`, read-only account-state scripts, and `scripts/test_booked_wedding_ad_feeds.py`
@@ -93,6 +94,14 @@ Validate cron header →
 ```
 - GA4 helper: `src/lib/ga4-data.ts` (JWT auth, no external deps)
 - Env vars for GA4 (optional): `GOOGLE_SA_EMAIL`, `GOOGLE_SA_PRIVATE_KEY`
+- ⚠️ **These same two vars now also power wedding-call Google Meet links**
+  (`src/lib/booking/google-calendar.ts`), via the same service account
+  impersonating `events@highlandfarms-oregon.com` — needs a **domain-wide
+  delegation grant for the `calendar.events` scope**, which is pending as of
+  Phase 2. Until that grant lands, `isCalendarConfigured()` may report true
+  (both env vars present) while the actual event/Meet-link call still fails —
+  that's fine, it's designed to: see ARCHITECTURE.md rule 8, the booking
+  still confirms and the farm gets a `MEET LINK NEEDED` flag instead.
 
 ## Database Tables (Supabase)
 - `shop_inventory` / `shop_orders` / `shop_order_items` / `shop_webhook_events` / `shop_stock_counts` / `shop_waitlist` / `shop_abandoned_carts` — farm store (DDL: `supabase-shop*.sql`; RLS on, service-role only)
