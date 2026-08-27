@@ -193,24 +193,23 @@ export async function GET(request: Request) {
 
       const archiveActive = archiveRows.map(archiveRowToAppointment);
 
-      // Every acuity_import row (ANY status) has to enter the merge, not
-      // just confirmed/completed ones — otherwise a cancelled import's
-      // STALE archive twin survives as "active" while the cancelled
-      // bookings row is ALSO counted separately: double count, once
-      // active (from the frozen archive) and once cancelled (from
-      // bookings), for the same real-world appointment. Native rows can
-      // never collide with an archive row (their synthetic ids can't look
-      // like a real, positive Acuity id), so only fully-resolved native
-      // bookings (confirmed/completed) are counted at all — a pending
-      // native hold isn't a real booking yet.
+      // Every non-pending row — any source, any of
+      // confirmed/completed/cancelled/no_show — has to enter the merge.
+      // Excluding cancelled/no_show rows (an earlier version of this fix
+      // filtered to confirmed/completed only) undercounts: a NATIVE row
+      // that's cancelled/no_show has no archive twin to fall back to, so
+      // dropping it here makes it vanish from the report entirely instead
+      // of landing in `canceled`. And for an acuity_import row specifically,
+      // excluding it would let its STALE archive twin survive as "active"
+      // while the real (cancelled) status is thrown away — the double
+      // count the first fix round closed. Only 'pending' is excluded: a
+      // native checkout hold that was never actually completed isn't a
+      // real booking yet. `bookingRowToAppointment` maps status='no_show'
+      // to `canceled: true` too — for report purposes a no-show is a
+      // non-completed appointment, same bucket as a cancellation.
       const allBookingRows = (bookingsResult.data ?? []) as BookingRow[];
       const currentForMerge = allBookingRows
-        .filter(
-          (row) =>
-            row.source === "acuity_import" ||
-            row.status === "confirmed" ||
-            row.status === "completed",
-        )
+        .filter((row) => row.status !== "pending")
         .map(bookingRowToAppointment);
 
       // The merged result is the SINGLE source of truth for both active

@@ -484,7 +484,41 @@ test("mode-B math: a current booking supersedes the frozen archive row for the s
 // from the SAME merged result — not from separately status-filtered raw
 // arrays, which is exactly what let the same appointment get counted
 // active (stale archive) AND canceled (bookings) at once. This test wires
-// the pure functions the same way the route does after the fix. ----
+// the pure functions the same way the route does after the fix.
+//
+// Re-review caught a second bug in the FIRST fix: filtering
+// `currentForMerge` to acuity_import (any status) OR confirmed/completed
+// dropped native rows with status cancelled/no_show entirely — before that
+// fix they were at least counted once in `canceled`; the fix made them
+// disappear from the report altogether (undercounting cancellations/volume
+// the moment Mode B goes live). The route now excludes ONLY status='pending'
+// — every other status, from either source, flows into the merge. ----
+
+const bookingRowToAppointment = (row: {
+  id: string;
+  acuity_id: number | null;
+  starts_at: string;
+  created_at: string;
+  first_name: string;
+  last_name: string;
+  amount_cents: number;
+  status: string;
+  product_slug: string;
+}) =>
+  mapBookingToAppointment({
+    id: row.id,
+    acuityId: row.acuity_id,
+    startsAt: row.starts_at,
+    createdAt: row.created_at,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    amountCents: row.amount_cents,
+    canceled: row.status === "cancelled" || row.status === "no_show",
+    type: row.product_slug,
+  });
+
+/** The fixed route's exact filter: every row except status='pending'. */
+const currentForMergeFilter = (row: { status: string }) => row.status !== "pending";
 
 test("mode-B route wiring: a cancelled import row supersedes its archive twin and is counted once, as cancelled (no double count)", () => {
   const archived = mapArchiveToAppointment({
@@ -542,27 +576,7 @@ test("mode-B route wiring: a cancelled import row supersedes its archive twin an
     },
   ];
 
-  const bookingRowToAppointment = (row: (typeof bookingRows)[number]) =>
-    mapBookingToAppointment({
-      id: row.id,
-      acuityId: row.acuity_id,
-      startsAt: row.starts_at,
-      createdAt: row.created_at,
-      firstName: row.first_name,
-      lastName: row.last_name,
-      amountCents: row.amount_cents,
-      canceled: row.status === "cancelled" || row.status === "no_show",
-      type: row.product_slug,
-    });
-
-  // The fixed route's exact filter: every acuity_import row (any status)
-  // plus confirmed/completed native rows.
-  const currentForMerge = bookingRows
-    .filter(
-      (row) => row.source === "acuity_import" || row.status === "confirmed" || row.status === "completed",
-    )
-    .map(bookingRowToAppointment);
-
+  const currentForMerge = bookingRows.filter(currentForMergeFilter).map(bookingRowToAppointment);
   const merged = mergeArchiveWithCurrent([archived], currentForMerge);
 
   // Pending native row never entered currentForMerge, so it can't appear.
@@ -583,6 +597,65 @@ test("mode-B route wiring: a cancelled import row supersedes its archive twin an
     !active.some((a) => a.id === 9002),
     "the same appointment must never appear as both active and cancelled",
   );
+});
+
+test("mode-B route wiring: a native cancelled/no_show row appears exactly once, in canceled, never in active — and a pending row appears nowhere", () => {
+  const bookingRows = [
+    {
+      id: "55555555-5555-5555-5555-555555555555",
+      acuity_id: null,
+      starts_at: "2026-08-15T10:00:00-0700",
+      created_at: "2026-08-05T09:00:00-0700",
+      first_name: "Cancelled",
+      last_name: "Native",
+      amount_cents: 15000,
+      status: "cancelled",
+      product_slug: "farm-tour",
+      source: "native",
+    },
+    {
+      id: "66666666-6666-6666-6666-666666666666",
+      acuity_id: null,
+      starts_at: "2026-08-16T10:00:00-0700",
+      created_at: "2026-08-06T09:00:00-0700",
+      first_name: "NoShow",
+      last_name: "Native",
+      amount_cents: 22000,
+      status: "no_show",
+      product_slug: "nordic-spa",
+      source: "native",
+    },
+    {
+      id: "77777777-7777-7777-7777-777777777777",
+      acuity_id: null,
+      starts_at: "2026-08-17T10:00:00-0700",
+      created_at: "2026-08-07T09:00:00-0700",
+      first_name: "Pending",
+      last_name: "Native",
+      amount_cents: 7500,
+      status: "pending",
+      product_slug: "farm-tour",
+      source: "native",
+    },
+  ];
+
+  // No archive rows in play here — these native rows have no Acuity twin.
+  const currentForMerge = bookingRows.filter(currentForMergeFilter).map(bookingRowToAppointment);
+  const merged = mergeArchiveWithCurrent([], currentForMerge);
+
+  assert.equal(merged.length, 2, "the pending row must not enter the merge at all");
+
+  const active = merged.filter((a) => !a.canceled);
+  const canceled = merged.filter((a) => a.canceled);
+  const cancelledId = bookingRowToAppointment(bookingRows[0]).id;
+  const noShowId = bookingRowToAppointment(bookingRows[1]).id;
+  const pendingId = bookingRowToAppointment(bookingRows[2]).id;
+
+  assert.equal(active.length, 0, "neither the cancelled nor the no_show native row is active");
+  assert.equal(canceled.length, 2, "both the cancelled and no_show native rows land in canceled");
+  assert.ok(canceled.some((a) => a.id === cancelledId), "the cancelled native row appears in canceled");
+  assert.ok(canceled.some((a) => a.id === noShowId), "the no_show native row appears in canceled (same bucket as a cancellation)");
+  assert.ok(!merged.some((a) => a.id === pendingId), "the pending row appears nowhere in the merged result");
 });
 
 test("zero native activity renders the daily report section-for-section identical to the single-source report", () => {
