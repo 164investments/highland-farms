@@ -116,16 +116,24 @@ export async function confirmBookings(
  * rows are on a 10-minute fuse before the sweep deletes them, and one more
  * RPC attempt is not a plan. Same effect as the RPC (gift stamped on the
  * first id only).
+ *
+ * Returns the ids ACTUALLY confirmed, in order, so a caller that hits a
+ * combo (2 legs) can tell a partial success (leg 1 confirmed, leg 2 threw)
+ * from a total failure — the un-updated leg is still on the sweep's fuse
+ * either way, but the audit trail has to say which one. A 0-row update
+ * (already swept, or already confirmed by a since-recovered RPC) is a
+ * failure for that id, not a silent success.
  */
 export async function forceConfirmBookings(
   ids: string[],
   paymentId: string | null,
   giftCode: string | null,
   giftCents: number,
-): Promise<void> {
+): Promise<string[]> {
   const supa = db();
+  const confirmed: string[] = [];
   for (let i = 0; i < ids.length; i++) {
-    const { error } = await supa
+    const { data, error } = await supa
       .from("bookings")
       .update({
         status: "confirmed",
@@ -136,9 +144,21 @@ export async function forceConfirmBookings(
         updated_at: new Date().toISOString(),
       })
       .eq("id", ids[i])
-      .eq("status", "pending");
-    if (error) throw new Error(`forceConfirm failed on ${ids[i]}: ${error.message}`);
+      .eq("status", "pending")
+      .select("id");
+    if (error) {
+      throw new Error(
+        `forceConfirm failed on ${ids[i]}: ${error.message} (confirmed so far: [${confirmed.join(",")}])`,
+      );
+    }
+    if (!data || data.length === 0) {
+      throw new Error(
+        `forceConfirm matched 0 rows for ${ids[i]} (already swept?) (confirmed so far: [${confirmed.join(",")}])`,
+      );
+    }
+    confirmed.push(ids[i]);
   }
+  return confirmed;
 }
 
 /** Best-effort audit write. Never throws — auditing must not break a booking. */

@@ -304,18 +304,26 @@ export async function POST(request: Request) {
       await confirmBookings(claim.ids, paymentId, giftApplied > 0 ? giftCode : null, giftApplied);
     } catch {
       try {
-        await forceConfirmBookings(claim.ids, paymentId, giftApplied > 0 ? giftCode : null, giftApplied);
+        const confirmedIds = await forceConfirmBookings(
+          claim.ids, paymentId, giftApplied > 0 ? giftCode : null, giftApplied,
+        );
         await auditBooking("confirm_rpc_failed_fallback_applied", claim.ids[0], {
           booking_number: bookingNumber, payment_id: paymentId, ids: claim.ids,
+          confirmed_ids: confirmedIds,
         });
       } catch (err2) {
-        // Paid booking is now on the sweep's fuse. Loudest possible trace.
+        // Paid booking is now on the sweep's fuse. err2's message names any
+        // ids the fallback DID manage to confirm before it threw (a combo's
+        // leg 1 can succeed while leg 2 fails) — that's the difference
+        // between one unconfirmed row and two. Loudest possible trace.
+        const err2Message = err2 instanceof Error ? err2.message : String(err2);
         console.error(
-          `[booking] CRITICAL: confirm AND fallback failed. PAID booking pending deletion by sweep. booking=${bookingNumber} payment=${paymentId} ids=${claim.ids.join(",")}`,
+          `[booking] CRITICAL: confirm AND fallback failed. PAID booking pending deletion by sweep. booking=${bookingNumber} payment=${paymentId} ids=${claim.ids.join(",")} error=${err2Message}`,
           err2,
         );
         await auditBooking("confirm_failed_paid_booking_at_risk", claim.ids[0], {
           booking_number: bookingNumber, payment_id: paymentId, ids: claim.ids,
+          error: err2Message,
         });
       }
     }
