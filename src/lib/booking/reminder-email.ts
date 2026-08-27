@@ -51,8 +51,8 @@ export async function sendReminder(
   }).format(when);
   const subject =
     kind === "48h"
-      ? `See you ${day} — ${product?.name ?? b.product_slug}`
-      : `Today at ${time} — ${product?.name ?? b.product_slug}`;
+      ? `See you ${day}: ${product?.name ?? b.product_slug}`
+      : `Today at ${time}: ${product?.name ?? b.product_slug}`;
   await sendOrThrow({
     from: FROM,
     to: b.email,
@@ -63,7 +63,7 @@ export async function sendReminder(
       <p>Your ${escapeHtml(product?.name ?? b.product_slug)} for ${b.party_size}
       is ${kind === "48h" ? `coming up ${escapeHtml(day)}` : "today"} at
       <strong>${escapeHtml(time)}</strong> (booking ${escapeHtml(b.booking_number)}).</p>
-      <p>We're in Brightwood at the base of Mt. Hood — about 50 minutes from
+      <p>We're in Brightwood at the base of Mt. Hood, about 50 minutes from
       Portland. Leave an hour before your time. Closed-toe shoes; dress for the
       weather.</p>
       <p>Questions? Reply here or call (971) 563-1921.</p>

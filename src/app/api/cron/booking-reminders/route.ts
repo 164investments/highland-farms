@@ -62,7 +62,10 @@ export async function GET(request: Request) {
     const { error: stampErr } = await db
       .from("booking_reminders")
       .insert({ booking_id: b.id, kind });
-    if (stampErr) continue; // 23505 = already sent — exactly what we want
+    if (stampErr && stampErr.code !== "23505") {
+      console.error("[booking] reminder stamp failed", b.booking_number, stampErr.message);
+    }
+    if (stampErr) continue; // 23505 = already sent, exactly what we want
 
     try {
       await sendReminder(b, kind);

@@ -2,7 +2,10 @@
 
 Kept for re-runs at cutover (Phase 3) and after any change to
 `src/lib/booking/*`, `src/app/api/booking/*`, or `src/app/api/cron/booking-reminders`.
-Last executed against the real stack: **2026-08-27** (Task 10, Phase 1).
+Last executed against the real stack: **2026-08-27** (Task 10, Phase 1). Items
+4, 7, and 7b failed on that first run, were fixed in `cffe1d8`, and were
+re-verified the same day — see those items below. This document reflects the
+final, post-fix state; there are no known live bugs in this matrix.
 
 ## Setup
 
@@ -34,9 +37,8 @@ Last executed against the real stack: **2026-08-27** (Task 10, Phase 1).
 6. **Email-received substitution (controller ruling, 2026-08-27):** with
    Resend disabled, "confirmation email received" is replaced by: booking
    succeeds (`success:true` + row `confirmed` in DB) AND the dev-server log
-   is checked for `[booking] ... email failed` lines. See item 4's result
-   below — the log lines did **not** appear, which is itself a finding (see
-   Concerns).
+   shows the matching `[booking] ... email failed` line(s). See item 4's
+   result below.
 
 ## Matrix
 
@@ -88,25 +90,38 @@ POST /api/booking/checkout
 ```
 DB: `status='confirmed'`, `amount_cents=0`. **Booking half PASSES.**
 
-Email-failure log substitution: **did not reproduce as specified.** Checked
-the dev-server log for several seconds after the request — zero
-`[booking] ... email failed` lines appeared, and zero errors of any kind.
-Root cause (traced, not fixed): `resend` SDK v6.9.2's `emails.send()` never
-rejects its promise — an HTTP error from Resend (bad key, 4xx/5xx) resolves
-as `{ data: null, error: {...} }`. `confirmation-email.ts`'s
-`sendBookingEmails()` only logs when `Promise.allSettled` reports
+**Original bug (found this run, fixed in `cffe1d8`):** the email-failure log
+substitution did not reproduce as specified. The dev-server log showed zero
+`[booking] ... email failed` lines after the request, and zero errors of any
+kind. Root cause: `resend` SDK v6.9.2's `emails.send()` never rejects its
+promise — an HTTP error from Resend (bad key, 4xx/5xx) resolves as
+`{ data: null, error: {...} }` instead. `confirmation-email.ts`'s
+`sendBookingEmails()` only logged when `Promise.allSettled` reported
 `status === "rejected"`, which this SDK never produces for an API-level
-failure. Verified directly:
+failure, so a failed send was completely silent. Verified directly:
 ```js
 const { Resend } = require("resend");
 new Resend("disabled-for-e2e").emails.send({from:"a@b.com",to:"c@d.com",subject:"x",html:"<p>x</p>"})
   .then(r => console.log("RESOLVED:", JSON.stringify(r)));
 // RESOLVED: {"data":null,"error":{"statusCode":401,"name":"validation_error","message":"API key is invalid"}, ...}
 ```
-So: **the "email must never block a booking" guarantee holds** (booking
-confirmed regardless), but there is currently no log line, alert, or any
-signal at all when Resend rejects a send. See ARCHITECTURE.md "Known gaps."
-**Item 4 marked FAIL on the log-line assertion; booking-success assertion PASSES.**
+The "email must never block a booking" guarantee held throughout (booking
+confirmed regardless) — the gap was purely the missing operational signal.
+
+**Fix (`cffe1d8`):** both `confirmation-email.ts` and `reminder-email.ts`
+now route sends through a `sendOrThrow()` helper that throws on a resolved
+`result.error`, so `Promise.allSettled`'s rejection branch (and the cron's
+`try`/`catch`) actually engage on a real Resend failure.
+
+**Post-fix re-verification (`cffe1d8`, 2026-08-27):** re-ran this exact
+request against a flag-on dev server with `RESEND_API_KEY=disabled-for-e2e`.
+Booking still confirms (`success:true`, DB `confirmed`), and the dev-server
+log now shows both expected lines:
+```
+[booking] customer confirmation email failed HFB-...: API key is invalid
+[booking] farm notification email failed HFB-...: API key is invalid
+```
+**Item 4: PASS** (booking success and email-failure logging both verified).
 
 ### 5. Checkout `farm-tour` with Square unconfigured → 503
 ```
@@ -131,45 +146,66 @@ Parallel POST /api/booking/checkout (same date/time, different idempotencyKey/na
 ```
 Exactly one `confirmed` row for that slot. **PASS.**
 
-### 7. Value gift cert (TESTCERT) — FAILED, real bug found
+### 7. Value gift cert (TESTCERT) fully covers a booking
 ```sql
 insert into gift_certificates (code, kind, product_scope, initial_units, remaining_units, purchaser_email, status)
   values ('TESTCERT','value',null,15000,15000,'e2e-test@example.com','active');
 ```
+**Original bug (found this run, fixed in `cffe1d8`):**
 ```
 POST /api/booking/checkout
 { product:"nordic-spa", date:"2026-09-12", time:"11:00", partySize:2, giftCode:"TESTCERT", ... }
 -> 503 {"error":"Online payment isn't available right now. Please call the farm."}
 ```
 Cert unchanged (`remaining_units:15000`, `status:"active"`); no booking row created.
+Root cause: `checkout/route.ts` computed `totalCents` from the legs and
+gated on `!isFree && !isSquareConfigured()` **before** the gift certificate
+was looked up or redeemed. nordic-spa × party 2 = 15000 cents pre-gift, so
+`isFree` was false and the route 503'd — even though the $150 gift
+certificate would have covered the entire booking and `dueCents` would
+resolve to 0 with no charge ever attempted.
 
-**Root cause (traced, not fixed):** `checkout/route.ts` computes
-`totalCents` from the legs and gates on
-`!isFree && !isSquareConfigured()` **before** the gift certificate is looked
-up or redeemed. nordic-spa × party 2 = 15000 cents pre-gift, so `isFree` is
-false and the route 503s — even though the $150 gift certificate would have
-covered the entire booking and `dueCents` would resolve to 0 with no charge
-ever attempted. The gate needs to move after gift redemption, or be
-re-evaluated against `dueCents` instead of `totalCents`.
-**Item 7 marked FAIL** — could not be exercised as specified in this
-environment (Square deliberately unconfigured per the task design), and the
-underlying ordering bug would reproduce in production too if Square were
-ever briefly unavailable on a fully-gifted booking.
+**Fix (`cffe1d8`):** the Square-configured gate moved inside the
+`dueCents > 0` charge branch, after gift redemption, mirroring the existing
+missing-`sourceId` failure path (restore gift, release claim, same 503 —
+now only when a charge is actually still due).
 
-### 7b. Visits gift cert (TESTPACK) — FAILED, same root cause
+**Post-fix re-verification (`cffe1d8`, 2026-08-27):** same request, same
+gift cert, flag-on dev server with Square still unconfigured:
+```
+POST /api/booking/checkout
+{ product:"nordic-spa", date:"2026-09-12", time:"11:00", partySize:2, giftCode:"TESTCERT", ... }
+-> 200 {"success":true,"bookingNumber":"HFB-...","amountCents":0}
+```
+Booking `confirmed`, `amount_cents:0`, no Square call attempted; cert
+`remaining_units` decremented to cover the $150.00 value used. **Item 7: PASS.**
+
+### 7b. Visits gift cert (TESTPACK), same root cause as item 7
 ```sql
 insert into gift_certificates (code, kind, product_scope, initial_units, remaining_units, purchaser_email, status)
   values ('TESTPACK','visits','nordic-spa',3,3,'e2e-test@example.com','active');
 ```
+**Original bug (found this run, fixed in `cffe1d8`):**
 ```
 POST /api/booking/checkout
 { product:"nordic-spa", date:"2026-09-12", time:"14:00", partySize:2, giftCode:"TESTPACK", ... }
 -> 503 {"error":"Online payment isn't available right now. Please call the farm."}
 ```
 Cert unchanged (`remaining_units:3`); zero pending rows. Same gate-ordering
-bug as item 7. The farm-tour-with-TESTPACK "different experience" 400 was
-not reached because the first checkout already 503'd.
-**Item 7b marked FAIL** for the same reason as item 7.
+bug as item 7 — the farm-tour-with-TESTPACK "different experience" 400 was
+never reached because the first checkout already 503'd.
+
+**Fix:** same `cffe1d8` fix as item 7 (single gate, shared by both gift kinds).
+
+**Post-fix re-verification (`cffe1d8`, 2026-08-27):** same request, flag-on
+dev server, Square still unconfigured:
+```
+POST /api/booking/checkout
+{ product:"nordic-spa", date:"2026-09-12", time:"14:00", partySize:2, giftCode:"TESTPACK", ... }
+-> 200 {"success":true,"bookingNumber":"HFB-...","amountCents":0}
+```
+Booking `confirmed`, `amount_cents:0`; cert `remaining_units` decremented by
+one visit unit. **Item 7b: PASS.**
 
 ### 8. Honeypot (`website:"x"`) → fake success, zero rows
 ```
@@ -216,18 +252,24 @@ Post-cleanup counts (all tables): `schedules:0, exceptions:0, blackouts:0, booki
 | 1 | Flag off → 404/404/401 | PASS |
 | 2 | Seed + availability correct | PASS |
 | 3 | Wedding blackout blocks tour+spa, not wedding-call | PASS |
-| 4 | wedding-call free checkout confirms | PASS (booking); **FAIL** (email-failure log line never appears — SDK resolves, doesn't reject) |
+| 4 | wedding-call free checkout confirms + email-failure logging | PASS (fixed in `cffe1d8`, re-verified) |
 | 5 | Square unconfigured → 503, no pending rows | PASS |
 | 6 | Capacity race → exactly one success | PASS |
-| 7 | Value gift cert fully covers booking | **FAIL** — Square-unconfigured gate checks pre-gift total, 503s before gift redemption is even attempted |
-| 7b | Visits gift cert | **FAIL** — same root cause as 7 |
+| 7 | Value gift cert fully covers booking | PASS (fixed in `cffe1d8`, re-verified) |
+| 7b | Visits gift cert | PASS (fixed in `cffe1d8`, re-verified) |
 | 8 | Honeypot → fake success, zero rows | PASS |
 | 9 | Foreign origin → 403 | PASS |
 | 10 | Expired-hold sweep | PASS |
 | 11 | Cleanup | PASS |
 
-**8 full passes, 1 partial pass (4), 2 fails (7, 7b), all traced to two
-distinct, unfixed root causes** — see ARCHITECTURE.md "Booking (native
-calendar) → Known gaps" for both. Neither bug is in code this task is meant
-to fix; per the task's instructions they are recorded here for the
-controller to route.
+**11/11 PASS.** The first run of this matrix (2026-08-27) found two real
+bugs: items 4 (Resend never rejects, so send failures were silently
+unlogged) and 7/7b (the Square-configured gate checked the pre-gift total
+instead of the post-gift due amount, 503ing on bookings a gift certificate
+would have fully covered). Both were fixed same-day in `cffe1d8`
+(`src/lib/booking/confirmation-email.ts`, `src/lib/booking/reminder-email.ts`,
+`src/app/api/booking/checkout/route.ts`) and re-verified against a flag-on
+dev server per the results recorded in items 4, 7, and 7b above. There are
+no known live bugs in this matrix as of `cffe1d8`; a future re-run that
+finds a regression should update the affected item and this table in place,
+the same way this pass did.

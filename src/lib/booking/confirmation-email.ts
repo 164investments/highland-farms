@@ -86,11 +86,11 @@ export function renderBookingConfirmation(data: BookingEmailData): string {
           <td style="padding:4px 0;text-align:right"><strong>${formatCents(data.paidCents)}</strong></td></tr>
     </table>
     <h2 style="font-size:16px;margin-top:24px">Getting here</h2>
-    <p>Highland Farms, Brightwood, OR — at the base of Mt. Hood, about 50 minutes
+    <p>Highland Farms, Brightwood, OR, at the base of Mt. Hood, about 50 minutes
     from Portland. Leave Portland an hour before your time and you'll arrive with
     ten minutes to spare. Wear closed-toe shoes; dress for the weather.</p>
     <h2 style="font-size:16px;margin-top:24px">Our booking policy</h2>
-    <p>All bookings are final — no refunds, credits, or transfers, including
+    <p>All bookings are final: no refunds, credits, or transfers, including
     no-shows. Please double-check your date, time, and guest count now.
     The one exception is ours: if we cancel for weather or animal/guest
     safety, you get a full refund or first pick of new dates. Your call.</p>
@@ -106,7 +106,7 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
     sendOrThrow({
       from: FROM,
       to: data.customerEmail,
-      subject: `You're booked — ${data.bookingNumber}`,
+      subject: `You're booked: ${data.bookingNumber}`,
       html: renderBookingConfirmation(data),
     }),
     sendOrThrow({
@@ -114,7 +114,7 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
       to: FARM_RECIPIENTS,
       subject: `New booking: ${data.legs.map((l) => l.productSlug).join(" + ")} · ${data.bookingNumber}`,
       html: `<p>${escapeHtml(data.customerName)} (${escapeHtml(data.customerEmail)},
-        ${escapeHtml(data.customerPhone)}) booked ${escapeHtml(data.bookingNumber)} —
+        ${escapeHtml(data.customerPhone)}) booked ${escapeHtml(data.bookingNumber)}:
         ${data.partySize} guests, paid ${formatCents(data.paidCents)}.</p>
         ${renderBookingConfirmation(data)}`,
     }),
