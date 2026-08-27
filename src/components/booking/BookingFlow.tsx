@@ -1,5 +1,10 @@
 "use client";
 
+// GTM NOTE: these events have NO container triggers yet, deliberately. The
+// server (checkout route) already sends GA4 MP + Meta CAPI purchases; binding
+// a GA4 purchase tag to booking_purchase without deduplication would double
+// count revenue. Container work happens at Phase 3 cutover.
+
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { formatCents, formatCentsShort } from "@/lib/shop/money";

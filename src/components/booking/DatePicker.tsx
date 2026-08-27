@@ -5,6 +5,13 @@ import {
   fetchAvailability, formatSlotTime, todayStr, plusDays, type UiDay, type UiSlot,
 } from "@/lib/booking/client";
 
+declare global { interface Window { dataLayer?: Record<string, unknown>[] } }
+function push(event: string, params: Record<string, unknown> = {}) {
+  if (typeof window === "undefined") return;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event, ...params });
+}
+
 const DAY_LABEL = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC", weekday: "short", month: "short", day: "numeric",
 });
@@ -55,7 +62,7 @@ export function DatePicker({
               key={d.date}
               type="button"
               disabled={!open}
-              onClick={() => setOpenDate(d.date)}
+              onClick={() => { setOpenDate(d.date); push("booking_select_date", { booking_product: product, date: d.date }); }}
               className={`rounded-lg border px-1 py-2 text-center text-xs transition ${
                 openDate === d.date
                   ? "border-forest bg-forest text-white"
