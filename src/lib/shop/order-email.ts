@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { CONTACT } from "@/lib/constants";
+import { escapeHtml } from "@/lib/html";
 import { formatCents } from "./money";
 import { PICKUP_LOCATION, type Fulfillment } from "./fulfillment";
 import type { PricedLine } from "./orders";
@@ -34,14 +35,6 @@ export interface OrderEmailData {
   deliveryFeeCents: number;
   totalCents: number;
   lines: PricedLine[];
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function lineRows(lines: PricedLine[]): string {

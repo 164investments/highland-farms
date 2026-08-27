@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { escapeHtml } from "./html";
 
 let resend: Resend;
 
@@ -181,12 +182,4 @@ export async function sendMetaLeadNotification(lead: import("@/lib/meta-leads").
     subject: `New Meta Lead — ${lead.name}${lead.weddingBudget ? ` — ${lead.weddingBudget}` : ""}`,
     html,
   });
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
