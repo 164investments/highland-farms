@@ -21,6 +21,7 @@ import {
   type ScheduleRule,
   type Blackout,
 } from "../src/lib/booking/engine.ts";
+import { renderBookingConfirmation } from "../src/lib/booking/confirmation-email.ts";
 
 test("products: tour is a private slot at $75/person, 2-6 guests", () => {
   const tour = BOOKING_PRODUCTS["farm-tour"];
@@ -215,4 +216,43 @@ test("engine: combo pairs respect the 30-min buffer in either order", () => {
   // Spa-first also allowed: spa 11:00-12:30 → tour 14:00 (gap 90) OK, 12:00 (overlap) not.
   assert.ok(pairs.includes("14:00+11:00"));
   assert.ok(!pairs.includes("12:00+11:00"));
+});
+
+test("email: confirmation carries the strict policy and the weather promise", () => {
+  const html = renderBookingConfirmation({
+    bookingNumber: "HFB-260905-1234",
+    product: "farm-tour",
+    legs: [{ productSlug: "farm-tour", startsAt: "2026-09-05T17:00:00.000Z", durationMin: 60 }],
+    partySize: 2,
+    customerName: "Ada Lovelace",
+    customerEmail: "ada@example.com",
+    customerPhone: "555-0100",
+    totalCents: 15000,
+    giftAppliedCents: 0,
+    paidCents: 15000,
+    locationChoice: null,
+  });
+  assert.match(html, /HFB-260905-1234/);
+  assert.match(html, /all bookings are final/i);
+  assert.match(html, /weather or animal|guest safety/i);
+  assert.match(html, /Saturday, September 5/);
+  assert.match(html, /10:00 AM/);          // Pacific wall clock, not UTC
+  assert.match(html, /\$150\.00/);
+  assert.doesNotMatch(html, /reschedul/i); // never promise what the policy denies
+});
+
+test("email: gift line renders only when a gift was applied", () => {
+  const base = {
+    bookingNumber: "HFB-260905-5678",
+    product: "nordic-spa" as const,
+    legs: [{ productSlug: "nordic-spa", startsAt: "2026-09-05T18:00:00.000Z", durationMin: 90 }],
+    partySize: 2,
+    customerName: "A", customerEmail: "a@b.c", customerPhone: "5550100",
+    totalCents: 15000, giftAppliedCents: 0, paidCents: 15000, locationChoice: null,
+  };
+  assert.doesNotMatch(renderBookingConfirmation(base), /gift/i);
+  assert.match(
+    renderBookingConfirmation({ ...base, giftAppliedCents: 5000, paidCents: 10000 }),
+    /Gift certificate.*\$50\.00/s,
+  );
 });
