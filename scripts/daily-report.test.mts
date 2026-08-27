@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { AcuityAppointment, AcuityOrder } from "../src/lib/acuity.ts";
-import { assertCompleteOrders, getAllAppointments } from "../src/lib/acuity.ts";
+import {
+  assertCompleteOrders,
+  getAllAppointments,
+  getAppointments,
+} from "../src/lib/acuity.ts";
 import {
   buildDailyReport,
   calculateDailyReport,
@@ -42,6 +46,8 @@ function appointment(
 function reportData(overrides: {
   active?: AcuityAppointment[];
   canceled?: AcuityAppointment[];
+  yesterdayCandidates?: AcuityAppointment[];
+  pacingCandidates?: AcuityAppointment[];
   bookingCandidates?: AcuityAppointment[];
   orders?: AcuityOrder[];
 } = {}) {
@@ -49,7 +55,8 @@ function reportData(overrides: {
     now: new Date("2026-08-27T15:00:00Z"),
     active: overrides.active ?? [],
     canceled: overrides.canceled ?? [],
-    yesterdayCandidates: overrides.active ?? [],
+    yesterdayCandidates: overrides.yesterdayCandidates ?? overrides.active ?? [],
+    pacingCandidates: overrides.pacingCandidates ?? overrides.active ?? [],
     bookingCandidates: overrides.bookingCandidates ?? [],
     orders: overrides.orders ?? [],
   };
@@ -96,12 +103,13 @@ test("includes next-year and same-day-canceled records in new-booking coverage",
   const ranges = getDailyReportDateRanges(new Date("2026-08-27T15:00:00Z"));
   assert.deepEqual(ranges.reportYear, { start: "2026-01-01", end: "2026-12-31" });
   assert.deepEqual(ranges.nextYear, { start: "2027-01-01", end: "2027-12-31" });
-  assert.equal(ranges.fetchPreviousDaySeparately, false);
+  assert.equal(ranges.fetchPriorMonthSeparately, false);
 });
 
 test("keeps December 31 appointments in the January 1 report without mixing years", () => {
   const december31 = appointment(12, {
     datetime: "2026-12-31T10:00:00-0800",
+    datetimeCreated: "2026-12-31T09:00:00-0800",
     amountPaid: "150.00",
   });
   const now = new Date("2027-01-01T16:00:00Z");
@@ -110,13 +118,41 @@ test("keeps December 31 appointments in the January 1 report without mixing year
     ...reportData(),
     now,
     yesterdayCandidates: [december31],
+    bookingCandidates: [december31],
   });
 
-  assert.deepEqual(ranges.previousDay, { start: "2026-12-31", end: "2026-12-31" });
-  assert.equal(ranges.fetchPreviousDaySeparately, true);
+  assert.deepEqual(ranges.priorMonth, { start: "2026-12-01", end: "2026-12-31" });
+  assert.equal(ranges.fetchPriorMonthSeparately, true);
   assert.deepEqual(metrics.yesterdayAppointments.map((item) => item.id), [12]);
+  assert.deepEqual(metrics.newBookings.map((item) => item.id), [12]);
   assert.equal(metrics.yesterdayScheduledValue, 150);
   assert.equal(metrics.activeCount, 0);
+});
+
+test("keeps prior-December appointments available for January pacing", () => {
+  const current = appointment(13, {
+    datetime: "2027-01-05T10:00:00-0800",
+    amountPaid: "100.00",
+  });
+  const previous = appointment(14, {
+    datetime: "2026-12-05T10:00:00-0800",
+    amountPaid: "200.00",
+  });
+
+  const metrics = calculateDailyReport({
+    ...reportData({ active: [current] }),
+    now: new Date("2027-01-10T16:00:00Z"),
+    pacingCandidates: [current, previous],
+  });
+
+  assert.deepEqual(metrics.pacing, {
+    currentValue: 100,
+    previousValue: 200,
+    percentage: -50,
+    currentLabel: "Jan 1–9",
+    previousLabel: "Dec 1–9",
+  });
+  assert.equal(metrics.activeCount, 1);
 });
 
 test("does not claim that active appointments were delivered", () => {
@@ -229,6 +265,26 @@ test("fetches all Acuity appointment ranges with showall and de-duplicates IDs",
     assert.equal(requested.length, 2);
     assert.ok(requested.every((url) => url.searchParams.get("showall") === "true"));
     assert.ok(requested.every((url) => url.searchParams.get("max") === "500"));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("uses Acuity's active and canceled filters without leaking showall", async () => {
+  const originalFetch = globalThis.fetch;
+  const requested: URL[] = [];
+  globalThis.fetch = async (input) => {
+    requested.push(new URL(String(input)));
+    return new Response("[]", { status: 200 });
+  };
+
+  try {
+    await getAppointments("2026-01-01", "2026-01-01");
+    await getAppointments("2026-01-01", "2026-01-01", true);
+    assert.equal(requested[0].searchParams.has("showall"), false);
+    assert.equal(requested[0].searchParams.has("canceled"), false);
+    assert.equal(requested[1].searchParams.has("showall"), false);
+    assert.equal(requested[1].searchParams.get("canceled"), "true");
   } finally {
     globalThis.fetch = originalFetch;
   }

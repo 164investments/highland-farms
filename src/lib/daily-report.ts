@@ -20,6 +20,7 @@ export interface DailyReportData {
   active: AcuityAppointment[];
   canceled: AcuityAppointment[];
   yesterdayCandidates: AcuityAppointment[];
+  pacingCandidates: AcuityAppointment[];
   bookingCandidates: AcuityAppointment[];
   orders: AcuityOrder[];
 }
@@ -190,14 +191,18 @@ function calculatePacing(
 
 export function getDailyReportDateRanges(now: Date) {
   const todayKey = toPacificDateKey(now);
-  const yesterdayKey = addDays(todayKey, -1);
   const year = Number(todayKey.slice(0, 4));
   const reportYear = { start: `${year}-01-01`, end: `${year}-12-31` };
+  const priorMonthKey = previousMonth(todayKey);
+  const priorMonth = {
+    start: `${priorMonthKey}-01`,
+    end: `${priorMonthKey}-${String(daysInMonth(priorMonthKey)).padStart(2, "0")}`,
+  };
   return {
     reportYear,
     nextYear: { start: `${year + 1}-01-01`, end: `${year + 1}-12-31` },
-    previousDay: { start: yesterdayKey, end: yesterdayKey },
-    fetchPreviousDaySeparately: yesterdayKey < reportYear.start,
+    priorMonth,
+    fetchPriorMonthSeparately: priorMonth.start < reportYear.start,
   };
 }
 
@@ -214,6 +219,7 @@ export function calculateDailyReport(data: DailyReportData): DailyReportMetrics 
   const active = uniqueAppointments(data.active);
   const canceled = uniqueAppointments(data.canceled);
   const yesterdayCandidates = uniqueAppointments(data.yesterdayCandidates);
+  const pacingCandidates = uniqueAppointments(data.pacingCandidates);
   const bookingCandidates = uniqueAppointments(data.bookingCandidates);
 
   const yesterdayAppointments = yesterdayCandidates
@@ -330,7 +336,7 @@ export function calculateDailyReport(data: DailyReportData): DailyReportMetrics 
       ? (canceled.length / (active.length + canceled.length)) * 100
       : 0,
     next7,
-    pacing: calculatePacing(active, todayKey),
+    pacing: calculatePacing(pacingCandidates, todayKey),
   };
 }
 
