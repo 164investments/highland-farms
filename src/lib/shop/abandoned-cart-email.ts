@@ -54,6 +54,20 @@ export interface ReminderEmail {
   senderKey: string;
 }
 
+/**
+ * Email images must point at a pre-sized derivative, never the catalogue original.
+ *
+ * `next/image` only optimises what the SITE renders. An <img> in an email is a
+ * plain URL, so a 64px thumbnail was downloading the full-resolution file —
+ * mangalitsa-tenderloin.jpg alone is 1.4 MB for a 64x64 slot. The derivatives in
+ * /images/shop/email are 128px (2x the slot) and average ~8 KB.
+ */
+function emailThumb(image: string): string {
+  return image
+    .replace("/images/shop/", "/images/shop/email/")
+    .replace(/\.(png|jpe?g)$/i, ".jpg");
+}
+
 function esc(v: string): string {
   return v
     .replace(/&/g, "&amp;")
@@ -124,7 +138,7 @@ export function preheaderFor(e: ReminderEmail): string {
 function signature(sender: Sender): string {
   const photo = sender.photo
     ? `<td width="46" style="padding-right:12px;vertical-align:middle">
-         <img src="${sender.photo}" width="46" height="46" alt=""
+         <img src="${sender.photo}" width="46" height="46" alt="${esc(sender.name)}"
               style="display:block;width:46px;height:46px;border-radius:23px;object-fit:cover" />
        </td>`
     : "";
@@ -150,7 +164,7 @@ function cartTable(e: ReminderEmail): string {
           : "";
       return `<tr>
         <td width="64" style="padding:9px 13px 9px 0;vertical-align:top">
-          <img src="${SITE}${esc(l.image)}" width="64" height="64" alt=""
+          <img src="${SITE}${esc(emailThumb(l.image))}" width="64" height="64" alt="${esc(l.name)}"
                style="display:block;width:64px;height:64px;object-fit:cover;border-radius:9px;background:${CREAM}" />
         </td>
         <td style="padding:9px 0;vertical-align:top;font-size:14.5px;color:${CHARCOAL};line-height:1.4">
