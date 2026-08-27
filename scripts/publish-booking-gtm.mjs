@@ -98,6 +98,11 @@ const EVENTS = [
     event: "booking_select_time",
     triggerName: "Booking - booking_select_time",
     tagName: "GA4 - Booking Select Time",
+    // The combo (Full Farm Day) picker's push for this event also carries a
+    // `spa_slot` field (ComboPicker.tsx's onSelect, BookingFlow.tsx ~line
+    // 160) alongside `slot`/`date`. Deliberately left unwired here — not an
+    // oversight — the tour `slot` param already identifies the booking;
+    // `spa_slot` is redundant for GA4 reporting purposes.
     params: {
       booking_product: "dlv - booking_product",
       slot: "dlv - booking_slot",

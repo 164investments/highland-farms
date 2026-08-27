@@ -76,9 +76,15 @@ was cancelled in Acuity since. This is belt-and-suspenders, not the primary
 sync: the webhook mirror (`src/app/api/acuity/webhook`,
 `src/lib/booking/acuity-import.ts`'s `upsertAcuityBooking`) already keeps
 the native `bookings` table current continuously while Acuity is live, and
-`reconcileCancellations` self-limits to the fetch horizon (18 months) per
-the boundary fix in commit `109cdd5`. Run this immediately before Step 3 so
-the window between "last webhook" and "flag flip" is as small as possible.
+`reconcileCancellations` restricts which rows it's willing to reconcile to a
+window ONE MONTH NARROWER than the 18-month fetch (`[from, from+17 months)`
+candidates against an 18-month Acuity fetch) — the boundary fix in commit
+`109cdd5`. That margin runs the other direction from "self-limits to the
+fetch horizon" might suggest: it exists so a booking rescheduled out near
+the edge of the fetch window, which would otherwise look identical to a
+real cancellation (Acuity just doesn't show it yet), can never be falsely
+marked cancelled. Run this immediately before Step 3 so the window between
+"last webhook" and "flag flip" is as small as possible.
 
 Expect output in the `inserted=N updated=N skipped=N` / `cancelled=N` shape
 documented in Task 2's report — `skipped` should be 0 (no unmapped
