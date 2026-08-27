@@ -4,6 +4,7 @@ import { sendMetaPurchase } from "@/lib/meta";
 import { getAppointment, type AcuityAppointment } from "@/lib/acuity";
 import { claimTrackingEvent } from "@/lib/tracking-dedupe";
 import { type AttributionData } from "@/lib/attribution";
+import { ensureAcuityTypeMap, upsertAcuityBooking } from "@/lib/booking/acuity-import";
 
 /**
  * Acuity Scheduling webhook handler.
@@ -109,9 +110,12 @@ export async function POST(request: Request) {
   }
 
   // Only track first-time scheduled appointments. Reschedules retain the same
-  // appointment ID and would otherwise duplicate purchase conversions.
+  // appointment ID and would otherwise duplicate purchase conversions. Both
+  // actions still reach the native-calendar mirror upsert below.
   const action = String(body.action ?? "");
-  if (action !== "scheduled" && action !== "appointment.scheduled") {
+  const isScheduled = action === "scheduled" || action === "appointment.scheduled";
+  const isRescheduled = action === "rescheduled" || action === "appointment.rescheduled";
+  if (!isScheduled && !isRescheduled) {
     return NextResponse.json({ ok: true });
   }
 
@@ -129,6 +133,21 @@ export async function POST(request: Request) {
     const appt = await getAppointment(appointmentId);
 
     if (appt.canceled) {
+      return NextResponse.json({ ok: true });
+    }
+
+    // Best-effort mirror into the native `bookings` table (source =
+    // "acuity_import"). Runs for BOTH scheduled and rescheduled, regardless
+    // of the native-calendar flag, so the mirror stays current until
+    // cancellation. Never allowed to fail the webhook response to Acuity.
+    try {
+      await ensureAcuityTypeMap();
+      await upsertAcuityBooking(appt);
+    } catch (err) {
+      console.error("[booking] acuity mirror upsert failed", appt.id, err);
+    }
+
+    if (!isScheduled) {
       return NextResponse.json({ ok: true });
     }
 
