@@ -21,6 +21,7 @@ export interface DailyReportData {
   canceled: AcuityAppointment[];
   yesterdayCandidates: AcuityAppointment[];
   pacingCandidates: AcuityAppointment[];
+  scheduleCandidates: AcuityAppointment[];
   bookingCandidates: AcuityAppointment[];
   orders: AcuityOrder[];
 }
@@ -220,6 +221,7 @@ export function calculateDailyReport(data: DailyReportData): DailyReportMetrics 
   const canceled = uniqueAppointments(data.canceled);
   const yesterdayCandidates = uniqueAppointments(data.yesterdayCandidates);
   const pacingCandidates = uniqueAppointments(data.pacingCandidates);
+  const scheduleCandidates = uniqueAppointments(data.scheduleCandidates);
   const bookingCandidates = uniqueAppointments(data.bookingCandidates);
 
   const yesterdayAppointments = yesterdayCandidates
@@ -288,7 +290,7 @@ export function calculateDailyReport(data: DailyReportData): DailyReportMetrics 
   const next7: DayValue[] = [];
   for (let offset = 0; offset < 7; offset += 1) {
     const key = addDays(todayKey, offset);
-    const appointments = active.filter(
+    const appointments = scheduleCandidates.filter(
       (appointment) => toPacificDateKey(appointment.datetime) === key,
     );
     next7.push({

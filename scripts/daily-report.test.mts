@@ -48,6 +48,7 @@ function reportData(overrides: {
   canceled?: AcuityAppointment[];
   yesterdayCandidates?: AcuityAppointment[];
   pacingCandidates?: AcuityAppointment[];
+  scheduleCandidates?: AcuityAppointment[];
   bookingCandidates?: AcuityAppointment[];
   orders?: AcuityOrder[];
 } = {}) {
@@ -57,6 +58,7 @@ function reportData(overrides: {
     canceled: overrides.canceled ?? [],
     yesterdayCandidates: overrides.yesterdayCandidates ?? overrides.active ?? [],
     pacingCandidates: overrides.pacingCandidates ?? overrides.active ?? [],
+    scheduleCandidates: overrides.scheduleCandidates ?? overrides.active ?? [],
     bookingCandidates: overrides.bookingCandidates ?? [],
     orders: overrides.orders ?? [],
   };
@@ -153,6 +155,30 @@ test("keeps prior-December appointments available for January pacing", () => {
     previousLabel: "Dec 1–9",
   });
   assert.equal(metrics.activeCount, 1);
+});
+
+test("includes next-year appointments in the late-December seven-day schedule", () => {
+  const january2 = appointment(15, {
+    datetime: "2027-01-02T10:00:00-0800",
+    amountPaid: "225.00",
+  });
+  const metrics = calculateDailyReport({
+    ...reportData(),
+    now: new Date("2026-12-29T16:00:00Z"),
+    scheduleCandidates: [january2],
+  });
+
+  assert.deepEqual(metrics.next7.at(-1), {
+    label: "Mon, Jan 4",
+    count: 0,
+    value: 0,
+  });
+  assert.deepEqual(metrics.next7[4], {
+    label: "Sat, Jan 2",
+    count: 1,
+    value: 225,
+  });
+  assert.equal(metrics.activeCount, 0);
 });
 
 test("does not claim that active appointments were delivered", () => {

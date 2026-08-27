@@ -48,6 +48,10 @@ export async function GET(request: Request) {
       canceled,
       yesterdayCandidates: analysisCandidates,
       pacingCandidates: analysisCandidates,
+      scheduleCandidates: [
+        ...reportYearAppointments,
+        ...nextYearAppointments,
+      ].filter((appointment) => !appointment.canceled),
       bookingCandidates: [
         ...reportYearAppointments,
         ...nextYearAppointments,
