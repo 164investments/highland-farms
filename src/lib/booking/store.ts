@@ -266,14 +266,26 @@ export async function insertGiftCertificate(row: GiftCertificateRow): Promise<vo
   }
 }
 
-export async function restoreGiftCertificate(code: string, units: number): Promise<void> {
+/**
+ * Never throws (same reasoning as before — this can fire after a charge has
+ * already failed, and a second failure must not compound the first). Now
+ * returns whether it actually succeeded so a caller that NEEDS to know (the
+ * admin cancel route, which reports `giftRestored` to the guest email) isn't
+ * forced to assume success from a fire-and-forget call. Existing
+ * fire-and-forget callers (checkout's failure-path restores) can keep
+ * ignoring the return value — `Promise<boolean>` is a strict widening of the
+ * old `Promise<void>` call sites.
+ */
+export async function restoreGiftCertificate(code: string, units: number): Promise<boolean> {
   const { error } = await db().rpc("restore_gift_certificate", {
     p_code: code,
     p_units: units,
   });
   if (error) {
     console.error("[booking] restore_gift_certificate FAILED:", code, units, error.message);
+    return false;
   }
+  return true;
 }
 
 /**
@@ -401,13 +413,15 @@ export interface AdminBookingRow {
   referralSource: string | null;
   source: string;
   notes: string | null;
+  /** Shared by both legs of a Full Farm Day combo; null for a single-leg booking. */
+  comboGroup: string | null;
   createdAt: string;
 }
 
 const ADMIN_BOOKING_COLUMNS =
   "id, booking_number, product_slug, starts_at, duration_min, party_size, units, status, " +
   "first_name, last_name, email, phone, amount_cents, square_payment_id, " +
-  "gift_certificate_code, gift_amount_cents, referral_source, source, notes, created_at";
+  "gift_certificate_code, gift_amount_cents, referral_source, source, notes, combo_group, created_at";
 
 interface AdminBookingDbRow {
   id: string;
@@ -429,6 +443,7 @@ interface AdminBookingDbRow {
   referral_source: string | null;
   source: string;
   notes: string | null;
+  combo_group: string | null;
   created_at: string;
 }
 
@@ -453,6 +468,7 @@ function mapAdminBookingRow(r: AdminBookingDbRow): AdminBookingRow {
     referralSource: r.referral_source,
     source: r.source,
     notes: r.notes,
+    comboGroup: r.combo_group,
     createdAt: r.created_at,
   };
 }
@@ -469,6 +485,20 @@ export async function listBookingsRange(fromIso: string, toIso: string): Promise
   return (data ?? []).map((r) => mapAdminBookingRow(r as unknown as AdminBookingDbRow));
 }
 
+/** Read-only single-row lookup, any status — used by the cancel route to
+ *  check `comboGroup` BEFORE deciding whether to cancel one row or the
+ *  whole group, without mutating anything itself. */
+export async function getBookingById(id: string): Promise<AdminBookingRow | null> {
+  const { data, error } = await db()
+    .from("bookings")
+    .select(ADMIN_BOOKING_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`getBookingById failed: ${error.message}`);
+  if (!data) return null;
+  return mapAdminBookingRow(data as unknown as AdminBookingDbRow);
+}
+
 export type CancelBookingResult =
   | { ok: true; booking: AdminBookingRow }
   | { ok: false };
@@ -477,7 +507,11 @@ export type CancelBookingResult =
  *  status machine and stops a double-cancel or a cancel of a pending hold
  *  (which the sweep already owns) from doing anything. Returns the row as it
  *  stood right before the flip, so the caller has the payment/gift fields
- *  needed for a refund without a second round trip. */
+ *  needed for a refund without a second round trip.
+ *
+ *  For a combo leg, use `cancelBookingGroup` instead — this function cancels
+ *  exactly the one row it's given, which is correct for a single-leg
+ *  booking but WRONG for one leg of a combo (see that function's doc). */
 export async function cancelBooking(id: string): Promise<CancelBookingResult> {
   const { data, error } = await db()
     .from("bookings")
@@ -489,6 +523,50 @@ export async function cancelBooking(id: string): Promise<CancelBookingResult> {
   if (error) throw new Error(`cancelBooking failed: ${error.message}`);
   if (!data) return { ok: false };
   return { ok: true, booking: mapAdminBookingRow(data as unknown as AdminBookingDbRow) };
+}
+
+export type CancelBookingGroupResult =
+  | { ok: true; bookings: AdminBookingRow[] }
+  | { ok: false; reason: "partial" };
+
+/**
+ * Cancels every row sharing `comboGroup`, as one operation — a combo's two
+ * legs (tour + spa) share one payment and one gift stamp (on the first leg
+ * only), so cancelling just one leg would mis-compute a refund against the
+ * OTHER leg's still-active amount. Checks that every row in the group is
+ * currently `confirmed` before touching anything (`reason: "partial"` if
+ * not — some other process already moved a leg, and this deliberately
+ * refuses to guess at a refund off a group that isn't in the shape it
+ * expects); only then does it flip the whole group in one UPDATE statement.
+ * A post-update count check catches the (very unlikely, single-admin-tool)
+ * race where the group changed between the check and the update, so this
+ * NEVER partially cancels a group through this path.
+ */
+export async function cancelBookingGroup(comboGroup: string): Promise<CancelBookingGroupResult> {
+  const { data: rows, error: readError } = await db()
+    .from("bookings")
+    .select(ADMIN_BOOKING_COLUMNS)
+    .eq("combo_group", comboGroup);
+  if (readError) throw new Error(`cancelBookingGroup read failed: ${readError.message}`);
+  const all = (rows ?? []).map((r) => mapAdminBookingRow(r as unknown as AdminBookingDbRow));
+  if (all.length === 0 || all.some((b) => b.status !== "confirmed")) {
+    return { ok: false, reason: "partial" };
+  }
+
+  const { data, error } = await db()
+    .from("bookings")
+    .update({ status: "cancelled", updated_at: new Date().toISOString() })
+    .eq("combo_group", comboGroup)
+    .eq("status", "confirmed")
+    .select(ADMIN_BOOKING_COLUMNS);
+  if (error) throw new Error(`cancelBookingGroup failed: ${error.message}`);
+  const updated = (data ?? []).map((r) => mapAdminBookingRow(r as unknown as AdminBookingDbRow));
+  if (updated.length !== all.length) {
+    // Something changed the group between the read above and this update —
+    // bail rather than compute a refund off a group that moved under us.
+    return { ok: false, reason: "partial" };
+  }
+  return { ok: true, bookings: updated };
 }
 
 export interface BlackoutRow {

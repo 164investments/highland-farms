@@ -6,11 +6,16 @@ Last executed against the real stack: **2026-08-27** (Task 10, Phase 1; items
 12-13 added and live-checked **2026-08-27** for Phase 2 Task 3; items 14-17
 added and live-checked **2026-08-27** for Phase 2 Task 8, gift certificates;
 items 18-22 added and live-checked **2026-08-27** for Phase 2 Task 12, admin
-booking APIs + Square refunds).
+booking APIs + Square refunds; items 23-25 added and live-checked
+**2026-08-27** for a same-day review of Task 12's cancel path).
 Items 4, 7, and 7b failed on the Phase 1 run, were fixed in `cffe1d8`, and
-were re-verified the same day — see those items below. This document
-reflects the final, post-fix state; there are no known live bugs in this
-matrix.
+were re-verified the same day — see those items below. A review of Task 12
+found four real issues in the cancel path (visits-cert over-restore, a
+cancel email that couldn't say both "refunded" and "gift restored" at once,
+an unchecked gift-restore return, and single-leg cancel logic applied to a
+two-row combo) — all four were fixed the same day and re-verified in items
+23-25. This document reflects the final, post-fix state; there are no known
+live bugs in this matrix.
 
 ## Setup
 
@@ -493,6 +498,99 @@ item 21's direct RPC call and this cleanup query were both deleted before
 commit (`git status --short` shows only the Task 12 diff — no stray
 `scripts/*-tmp.mjs`). **PASS.**
 
+### 23. Cancel-path review follow-up — single-booking re-verify (Task 12 review)
+A review pass on Task 12 found four real issues in the cancel path (see
+Task 12's report for the full writeup): a visits-cert over-restore, a cancel
+email that only ever named ONE of a refund/gift-restore instead of both, a
+`giftRestored` flag trusted without checking `restoreGiftCertificate`'s
+outcome, and — the significant one — the cancel route operating on a single
+row when a combo (Full Farm Day) is actually two rows sharing `combo_group`
+and one payment, which mis-computes a refund if only one leg is cancelled.
+All four were fixed (`restoreGiftCertificate` now returns `Promise<boolean>`;
+gift-unit restoration derives the actual visits consumed via
+`Math.round(gift_amount_cents / (amount_cents / party_size))` instead of
+assuming `partySize`; the cancel email composes both money sentences,
+refund then gift-restore, when both apply; the route detects a `comboGroup`
+on the target row and cancels/refunds/emails the WHOLE group atomically via
+the new `cancelBookingGroup`). Re-ran the single-booking cancel flow first,
+against a fresh flag-on dev server (same setup as items 18-22):
+```
+POST /api/shop/admin/booking/schedules  (wedding-call, Saturday, capacity 1)  -> 200
+POST /api/shop/admin/booking/manual     (single-leg booking)                  -> 200 {"bookingNumber":"HFB-260827-7547",...}
+GET  /api/shop/admin/booking?from=2026-09-19&to=2026-09-19
+  -> row carries "comboGroup":null (new field, confirms single-leg bookings are unaffected by the fix)
+
+POST /api/shop/admin/booking/cancel  {id, refund:true, reason:"E2E re-verify single cancel"}
+  -> 200 {"ok":true,"cancelledIds":["...7547-row-id..."],"refunded":false,"refundId":null,"refundError":null,"giftRestored":false}
+  -- refunded:false is correct: no square_payment_id on a phone booking, so refundPayment was never called
+
+POST /api/shop/admin/booking/cancel  (same id again)
+  -> 404 {"error":"Booking not found, or not currently confirmed."}
+```
+Dev-server log confirmed the cancel email `sendOrThrow` fired and failed on
+the disabled Resend key (same substitution as before), so the composed-email
+code path was actually exercised, not just unit-reasoned. **PASS** — single-
+leg behavior is unchanged by the Finding 4 fix.
+
+### 24. Cancel-path review follow-up — combo group cancels as one unit (Task 12 review, Finding 4)
+Combo bookings are never free, so they can't be seeded through the public
+checkout without a live Square charge (out of scope, same as the existing
+paid-path notes elsewhere in this matrix). Per the reviewer's instruction,
+seeded two rows directly via a service-role script with a shared
+`combo_group` uuid, both `status:'confirmed'`, no `square_payment_id`, no
+gift certificate:
+```js
+// farm-tour leg + nordic-spa leg, same combo_group, both confirmed, no payment id, no gift
+insert into bookings (...) values (leg1), (leg2);
+```
+```
+POST /api/shop/admin/booking/cancel  { id: <leg1's id>, refund:true, reason:"E2E combo group cancel test" }
+-> 200 {"ok":true,
+        "cancelledIds":["<leg1 id>","<leg2 id>"],
+        "refunded":false,"refundId":null,"refundError":null,"giftRestored":false}
+```
+Verified directly against the DB (service-role read, not just the route's
+response):
+```
+bookings: leg1 status=cancelled, leg2 status=cancelled   -- BOTH rows flipped from a single leg's id
+booking_audit: exactly ONE row, action=booking_cancelled, actor=admin,
+  detail.booking_ids=[leg1,leg2], detail.combo_group=<the group uuid>,
+  detail.booking_number="<leg1 number> / <leg2 number>"
+```
+`refunded:false` confirms `refundPayment` was correctly never called (no
+`square_payment_id` on either leg — `paymentId` resolved to `null`, so the
+`refund && paymentId && refundCents > 0` guard short-circuited). **PASS** —
+cancelling one leg's id cancels the whole group, computes the refund across
+both legs, and writes exactly one audit row naming both ids.
+
+**Follow-up check — the "already partly cancelled" guard (Finding 4's 409
+path):** seeded a second combo pair the same way, then cancelled ONE leg
+directly via SQL (simulating some other process having already moved half
+the group) before calling the route on the STILL-CONFIRMED leg's id:
+```
+POST /api/shop/admin/booking/cancel  { id: <still-confirmed leg's id>, refund:false, reason:"E2E partial-combo test" }
+-> 409 {"error":"That booking's combo pair is already partly cancelled — check the calendar."}
+```
+DB check afterward: the still-confirmed leg was left `status:"confirmed"`
+(untouched — `cancelBookingGroup` checks every row's status BEFORE issuing
+any UPDATE, so a mismatch never mutates), the other leg stayed `cancelled`
+as it already was, and **zero** new `booking_audit` rows were written for
+that `combo_group`. **PASS** — confirms `cancelBookingGroup` never partially
+mutates a group it's about to reject.
+
+### 25. Cancel-path review follow-up — cleanup (Task 12 review)
+```sql
+delete from bookings where email = 'e2e-test@example.com' or booking_number ilike 'E2E-%';
+delete from booking_schedules where id = 31;
+delete from booking_audit where actor = 'admin';
+```
+Post-cleanup counts (scoped to this run): `bookings:0, booking_schedules:0,
+booking_audit:0`. All four temporary Node scripts used for this follow-up
+pass (two seed scripts, a verify script, a cleanup script) were deleted
+before commit — `git status --short` shows only the intended Task 12 review
+diff (`cancel/route.ts`, `cancel-email.ts`, `store.ts`). Dev server
+stopped. **PASS.**
+
 ## Summary
 
 | # | Item | Result |
@@ -520,8 +618,11 @@ commit (`git status --short` shows only the Task 12 diff — no stray
 | 20 | Manual booking respects capacity; cancel only from confirmed (Task 12) | PASS |
 | 21 | Gift cert issue → lookup → void → `redeem_gift_certificate` errors (Task 12) | PASS |
 | 22 | Cleanup (Task 12) | PASS |
+| 23 | Cancel review follow-up: single-booking re-verify (Task 12 review) | PASS |
+| 24 | Cancel review follow-up: combo group cancels as one unit + partial-guard (Task 12 review) | PASS |
+| 25 | Cleanup (Task 12 review) | PASS |
 
-**22/22 PASS** (20 exercised live end-to-end, item 12 verified by code
+**25/25 PASS** (23 exercised live end-to-end, item 12 verified by code
 inspection since forcing a real `23505` isn't reliably reproducible outside
 a fuzzed harness). The first run of this matrix (2026-08-27) found two real
 bugs: items 4 (Resend never rejects, so send failures were silently
@@ -542,7 +643,21 @@ certificate issue/void) and verified the auth gate on every route (item 18),
 the blackout create/delete round trip against live availability (item 19),
 manual-booking capacity enforcement plus a cancel-only-from-confirmed check
 (item 20), and the full gift-certificate issue/void/redemption-fails loop
-including a direct RPC probe (item 21); no new bugs found. No known live
-bugs in this matrix as of that pass. A future re-run that finds a
-regression should update the affected item and this table in place, the
-same way this pass did.
+including a direct RPC probe (item 21); no new bugs found at that pass. A
+same-day review of Task 12 found four real issues in the cancel path,
+detailed in item 23's intro and the Task 12 report: a visits-cert
+over-restore (fixed by deriving actual consumed units from
+`gift_amount_cents` instead of assuming `partySize`), a cancel email that
+only ever named one of refund/gift-restore instead of composing both, a
+`giftRestored` flag trusted without checking `restoreGiftCertificate`'s
+real outcome (fixed by widening it to `Promise<boolean>`), and a cancel
+route that operated on one row of a combo when a combo is really two rows
+sharing `combo_group` and one payment (fixed with a new
+`cancelBookingGroup` that cancels/refunds/emails the whole group
+atomically, with a pre-mutation check that refuses to touch anything if the
+group isn't uniformly `confirmed`). All four were fixed and re-verified
+live in items 23-24, including a seeded "already partly cancelled" case
+that proves the group cancel never partially mutates. No known live bugs in
+this matrix as of that pass. A future re-run that finds a regression should
+update the affected item and this table in place, the same way this pass
+did.
