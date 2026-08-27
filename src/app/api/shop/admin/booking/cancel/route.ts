@@ -18,14 +18,17 @@ import { sendCancelEmail } from "@/lib/booking/cancel-email";
  * payment, and the gift stamp on the first leg only — cancelling one leg in
  * isolation would compute a refund against the OTHER leg's still-active
  * amount. So: if the target row has a `comboGroup`, the WHOLE group is
- * cancelled atomically as one operation (`cancelBookingGroup`), refunded as
- * one combined amount, restored as one gift credit, and emailed as one
- * message naming both legs. A single-leg booking is unaffected.
+ * cancelled via `cancelBookingGroup` (one atomic `UPDATE`, no prior read —
+ * see that function's doc for why), refunded as one combined amount,
+ * restored as one gift credit, and emailed as one message naming both legs.
+ * A single-leg booking is unaffected and keeps the plain `cancelBooking`
+ * path.
  *
- * Refund amount is `sum(amount_cents) - sum(gift_amount_cents)` across
- * whatever was actually cancelled — the cash portion actually charged to
- * the card, never the pre-gift total (a gift-covered booking has nothing to
- * refund on the card side; that's what restoring the certificate is for).
+ * Refund amount is `sum(amount_cents) - sum(gift_amount_cents)` across the
+ * FULL combo group (not just the rows this call flipped) — the cash portion
+ * actually charged to the card, never the pre-gift total (a gift-covered
+ * booking has nothing to refund on the card side; that's what restoring the
+ * certificate is for).
  */
 
 export const dynamic = "force-dynamic";
@@ -72,29 +75,38 @@ export async function POST(request: Request) {
       return bad("Booking not found, or not currently confirmed.", 404);
     }
 
-    let cancelled: AdminBookingRow[];
+    // `flipped` = the rows THIS call actually cancelled (drives audit/email
+    // side effects — never claim credit for a row a racing call flipped).
+    // `group` = every row sharing the combo (any status), or just the
+    // single target row for a non-combo booking — refund/gift math always
+    // needs the FULL group's numbers, not just what this call flipped.
+    let flipped: AdminBookingRow[];
+    let group: AdminBookingRow[];
     if (target.comboGroup) {
-      const group = await cancelBookingGroup(target.comboGroup);
-      if (!group.ok) {
-        return bad(
-          "That booking's combo pair is already partly cancelled — check the calendar.",
-          409,
-        );
+      const result = await cancelBookingGroup(target.comboGroup);
+      if (!result.ok) {
+        return bad("That booking is already cancelled.", 409);
       }
-      cancelled = group.bookings;
+      flipped = result.flipped;
+      group = result.group;
     } else {
       const single = await cancelBooking(id);
       if (!single.ok) {
         return bad("Booking not found, or not currently confirmed.", 404);
       }
-      cancelled = [single.booking];
+      flipped = [single.booking];
+      group = [single.booking];
     }
 
-    const bookingNumber = cancelled.map((b) => b.bookingNumber).join(" / ");
-    const totalAmountCents = cancelled.reduce((sum, b) => sum + b.amountCents, 0);
-    const totalGiftCents = cancelled.reduce((sum, b) => sum + b.giftAmountCents, 0);
-    const paymentId = cancelled.find((b) => b.squarePaymentId)?.squarePaymentId ?? null;
-    const giftLeg = cancelled.find((b) => b.giftCertificateCode && b.giftAmountCents > 0) ?? null;
+    const bookingNumber = flipped.map((b) => b.bookingNumber).join(" / ");
+    const totalAmountCents = group.reduce((sum, b) => sum + b.amountCents, 0);
+    const totalGiftCents = group.reduce((sum, b) => sum + b.giftAmountCents, 0);
+    const paymentId = group.find((b) => b.squarePaymentId)?.squarePaymentId ?? null;
+    // Only restore if THIS call flipped the gift-stamped leg — the status
+    // transition (confirmed -> cancelled) is atomic per row, so at most one
+    // concurrent caller ever sees that leg in its own `flipped` set, which
+    // keeps the restore itself at-most-once without needing a lock here.
+    const giftLeg = flipped.find((b) => b.giftCertificateCode && b.giftAmountCents > 0) ?? null;
 
     let refunded = false;
     let refundId: string | undefined;
@@ -104,6 +116,12 @@ export async function POST(request: Request) {
       const result = await refundPayment({
         paymentId,
         amountCents: refundCents,
+        // Keyed on the group (or the single booking), not on `flipped` —
+        // this is what makes computing the refund off the FULL group safe
+        // even if two racing cancel calls both reach this branch: Square
+        // executes a given idempotency key's refund at most once, so a
+        // duplicate call with the same key and amount is a no-op replay,
+        // not a second refund.
         idempotencyKey: `refund_${target.comboGroup ?? target.id}`,
         reason,
       });
@@ -134,9 +152,10 @@ export async function POST(request: Request) {
       "booking_cancelled",
       target.id,
       {
-        booking_ids: cancelled.map((b) => b.id),
+        booking_ids: flipped.map((b) => b.id),
         booking_number: bookingNumber,
         combo_group: target.comboGroup,
+        group_booking_ids: group.map((b) => b.id),
         reason,
         refunded,
         refund_id: refundId ?? null,
@@ -146,12 +165,17 @@ export async function POST(request: Request) {
       "admin",
     );
 
+    // Sent whenever this call flipped at least one row. In the extremely
+    // unlikely case of two admin cancels landing in the same millisecond on
+    // the two different legs of one combo, the guest could get two emails
+    // instead of one — acceptable; a duplicate "you're cancelled" email is
+    // harmless where a missed one is not.
     try {
       await sendCancelEmail({
         bookingNumber,
-        customerName: `${cancelled[0].firstName} ${cancelled[0].lastName}`,
-        customerEmail: cancelled[0].email,
-        legs: cancelled.map((b) => ({ productSlug: b.productSlug, startsAt: b.startsAt })),
+        customerName: `${flipped[0].firstName} ${flipped[0].lastName}`,
+        customerEmail: flipped[0].email,
+        legs: flipped.map((b) => ({ productSlug: b.productSlug, startsAt: b.startsAt })),
         refunded,
         giftRestored,
       });
@@ -161,7 +185,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
-      cancelledIds: cancelled.map((b) => b.id),
+      cancelledIds: flipped.map((b) => b.id),
       refunded,
       refundId: refundId ?? null,
       refundError: refundError ?? null,

@@ -7,15 +7,21 @@ Last executed against the real stack: **2026-08-27** (Task 10, Phase 1; items
 added and live-checked **2026-08-27** for Phase 2 Task 8, gift certificates;
 items 18-22 added and live-checked **2026-08-27** for Phase 2 Task 12, admin
 booking APIs + Square refunds; items 23-25 added and live-checked
-**2026-08-27** for a same-day review of Task 12's cancel path).
+**2026-08-27** for a same-day review of Task 12's cancel path; items 26-27
+added and live-checked **2026-08-27** for a same-day RE-review that found a
+TOCTOU race in the item 23-25 fix itself).
 Items 4, 7, and 7b failed on the Phase 1 run, were fixed in `cffe1d8`, and
 were re-verified the same day — see those items below. A review of Task 12
 found four real issues in the cancel path (visits-cert over-restore, a
 cancel email that couldn't say both "refunded" and "gift restored" at once,
 an unchecked gift-restore return, and single-leg cancel logic applied to a
 two-row combo) — all four were fixed the same day and re-verified in items
-23-25. This document reflects the final, post-fix state; there are no known
-live bugs in this matrix.
+23-25. A follow-up re-review then found that the combo-cancel fix (item 24)
+had its own bug: a SELECT-then-UPDATE race in `cancelBookingGroup` that
+could report "partial failure, nothing changed" for rows it had, in fact,
+just cancelled. Fixed in items 26-27 by making that function a single
+atomic `UPDATE ... RETURNING` statement. This document reflects the final,
+post-fix state; there are no known live bugs in this matrix.
 
 ## Setup
 
@@ -591,6 +597,83 @@ before commit — `git status --short` shows only the intended Task 12 review
 diff (`cancel/route.ts`, `cancel-email.ts`, `store.ts`). Dev server
 stopped. **PASS.**
 
+### 26. Cancel-path re-review follow-up — TOCTOU fix in `cancelBookingGroup` (Task 12 re-review)
+A re-review of item 24's fix found a real race left in it: the original
+`cancelBookingGroup` was a SELECT (check every row is `confirmed`) followed
+by a separate UPDATE. Between those two calls, a concurrent cancel on the
+same group could flip a subset, so the count check afterward could return
+`{ok:false, reason:"partial"}` — a 409 with **no refund, no audit, no
+email** — for rows THIS call had, in fact, just cancelled a moment earlier
+via the UPDATE it had already issued. The old doc comment's claim ("this
+NEVER partially cancels") overstated what a read-then-write pair can
+actually guarantee.
+
+Fix: `cancelBookingGroup` is now ONE statement — `UPDATE ... WHERE
+combo_group = X AND status = 'confirmed' RETURNING *` — with no read
+beforehand. `flipped.length === 0` (genuinely mutation-free — nothing in
+the DB changed) returns `{ok:false, reason:"already_cancelled"}`;
+`flipped.length > 0` returns `{ok:true, flipped, group}` even when
+`flipped` is a strict subset of the full group (a racer got the rest — see
+`store.ts`'s updated doc comment for the exact guarantee this makes and
+doesn't make). The route was updated to match: refund is computed off the
+FULL group's rows (safe under a racing duplicate because the idempotency
+key stays `refund_${comboGroup}` — Square executes a given key's refund at
+most once), gift restore fires only when `flipped` contains the
+gift-stamped leg (the confirmed→cancelled transition is atomic per row, so
+at most one racer's `flipped` set ever contains that leg), the audit row
+lists the ids THIS call flipped plus the combo_group and full-group ids,
+and the guest email sends whenever `flipped.length > 0`.
+
+Re-ran against a fresh flag-on dev server:
+```
+-- fresh combo pair, both confirmed, no payment id, no gift
+POST /api/shop/admin/booking/cancel  { id: <leg1>, refund:true, reason:"E2E atomic combo re-verify" }
+-> 200 {"ok":true,"cancelledIds":["<leg1>","<leg2>"],"refunded":false,...}
+
+-- DB check: both rows "cancelled", exactly 1 matching booking_audit row
+
+POST /api/shop/admin/booking/cancel  (same leg1 id again)
+-> 404 {"error":"Booking not found, or not currently confirmed."}
+   -- caught by the route's own by-id pre-check before it ever reaches
+      cancelBookingGroup, since leg1's row is itself already cancelled
+
+-- DB check after the re-cancel attempt: BOTH rows still "cancelled"
+   (unchanged), audit row count STILL 1 -- zero mutation, zero new audit row
+```
+To exercise `cancelBookingGroup`'s own `already_cancelled` branch directly
+(the specific function the TOCTOU bug lived in, rather than the route's
+by-id fast path), ran the exact statement it issues — `UPDATE bookings SET
+status='cancelled' ... WHERE combo_group = X AND status = 'confirmed'
+RETURNING id, status` — against the now-fully-cancelled group via a
+service-role probe:
+```
+-> returned rows: []   (0 rows matched/updated)
+```
+Zero rows returned confirms `flipped.length === 0` on this input, which is
+exactly the `already_cancelled` branch's trigger — and confirms the
+statement is a no-op against an already-cancelled group (no rows to touch,
+so nothing to partially mutate). A follow-up read confirmed both rows and
+the audit count were still unchanged after the probe. **PASS.**
+
+Also re-ran the single-leg (non-combo) cancel path, which this fix doesn't
+touch, as a regression check: manual-booked a single `wedding-call` slot,
+cancelled it (`refunded:false`, correct — no payment id), and a second
+cancel attempt on the same id returned 404. `comboGroup:null` confirmed via
+the GET range route. **PASS** — unaffected by the fix.
+
+### 27. Cleanup (Task 12 re-review)
+```sql
+delete from bookings where email = 'e2e-test@example.com' or booking_number ilike 'E2E-%';
+delete from booking_schedules where id in (31, 32);
+delete from booking_audit where actor = 'admin';
+```
+Post-cleanup counts (scoped to this run): `bookings:0, booking_schedules:0,
+booking_audit:0`. All four temporary Node scripts used for this pass (a
+seed script, a route-level verify script, a direct `cancelBookingGroup`
+probe script, a cleanup script) were deleted before commit — `git status
+--short` shows only `cancel/route.ts` and `store.ts` changed. Dev server
+stopped. **PASS.**
+
 ## Summary
 
 | # | Item | Result |
@@ -621,8 +704,10 @@ stopped. **PASS.**
 | 23 | Cancel review follow-up: single-booking re-verify (Task 12 review) | PASS |
 | 24 | Cancel review follow-up: combo group cancels as one unit + partial-guard (Task 12 review) | PASS |
 | 25 | Cleanup (Task 12 review) | PASS |
+| 26 | Cancel re-review follow-up: TOCTOU fix in `cancelBookingGroup` (Task 12 re-review) | PASS |
+| 27 | Cleanup (Task 12 re-review) | PASS |
 
-**25/25 PASS** (23 exercised live end-to-end, item 12 verified by code
+**27/27 PASS** (25 exercised live end-to-end, item 12 verified by code
 inspection since forcing a real `23505` isn't reliably reproducible outside
 a fuzzed harness). The first run of this matrix (2026-08-27) found two real
 bugs: items 4 (Resend never rejects, so send failures were silently
@@ -652,12 +737,23 @@ only ever named one of refund/gift-restore instead of composing both, a
 `giftRestored` flag trusted without checking `restoreGiftCertificate`'s
 real outcome (fixed by widening it to `Promise<boolean>`), and a cancel
 route that operated on one row of a combo when a combo is really two rows
-sharing `combo_group` and one payment (fixed with a new
-`cancelBookingGroup` that cancels/refunds/emails the whole group
-atomically, with a pre-mutation check that refuses to touch anything if the
-group isn't uniformly `confirmed`). All four were fixed and re-verified
-live in items 23-24, including a seeded "already partly cancelled" case
-that proves the group cancel never partially mutates. No known live bugs in
-this matrix as of that pass. A future re-run that finds a regression should
-update the affected item and this table in place, the same way this pass
+sharing `combo_group` and one payment (fixed with a `cancelBookingGroup`
+that cancels/refunds/emails the whole group as one operation). All four
+were fixed and verified live in items 23-24, including a seeded "already
+partly cancelled" case. A same-day RE-review of that Finding-4 fix then
+found a real TOCTOU race inside `cancelBookingGroup` itself: it was a
+SELECT-then-UPDATE pair, and a concurrent cancel landing between those two
+calls could flip a subset of the group while the count check afterward
+still reported a blanket "partial" failure — a 409 with no refund, audit,
+or email for rows the call had, in fact, already cancelled a moment
+earlier. That function's own doc comment overstated the guarantee ("this
+NEVER partially cancels"), which the read-then-write shape couldn't
+actually back up. Fixed in items 26-27 by collapsing it to one atomic
+`UPDATE ... RETURNING` statement with no prior read, re-verified live
+(fresh combo pair cancels as one unit; a direct probe of the exact
+`already_cancelled` statement against an already-fully-cancelled group
+returns zero rows, proving that specific branch is genuinely mutation-free
+now rather than merely claimed to be). No known live bugs in this matrix as
+of that pass. A future re-run that finds a regression should update the
+affected item and this table in place, the same way this pass
 did.

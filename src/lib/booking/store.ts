@@ -526,33 +526,38 @@ export async function cancelBooking(id: string): Promise<CancelBookingResult> {
 }
 
 export type CancelBookingGroupResult =
-  | { ok: true; bookings: AdminBookingRow[] }
-  | { ok: false; reason: "partial" };
+  | { ok: true; flipped: AdminBookingRow[]; group: AdminBookingRow[] }
+  | { ok: false; reason: "already_cancelled" };
 
 /**
- * Cancels every row sharing `comboGroup`, as one operation — a combo's two
- * legs (tour + spa) share one payment and one gift stamp (on the first leg
- * only), so cancelling just one leg would mis-compute a refund against the
- * OTHER leg's still-active amount. Checks that every row in the group is
- * currently `confirmed` before touching anything (`reason: "partial"` if
- * not — some other process already moved a leg, and this deliberately
- * refuses to guess at a refund off a group that isn't in the shape it
- * expects); only then does it flip the whole group in one UPDATE statement.
- * A post-update count check catches the (very unlikely, single-admin-tool)
- * race where the group changed between the check and the update, so this
- * NEVER partially cancels a group through this path.
+ * Cancels the rows sharing `comboGroup` that are STILL `confirmed`, as one
+ * atomic statement — a combo's two legs (tour + spa) share one payment and
+ * one gift stamp (on the first leg only), so refund/gift math needs the
+ * whole group's numbers, not just one leg's.
+ *
+ * Deliberately ONE `UPDATE ... WHERE combo_group = X AND status = 'confirmed'
+ * RETURNING *` with no read beforehand. A read-then-write pair here would be
+ * a TOCTOU race: a concurrent cancel call could flip a subset between the
+ * check and the write, and an earlier version of this function returned a
+ * blanket "partial" failure in that case — which meant a caller could
+ * genuinely flip rows and then report zero effect (no refund, no audit, no
+ * email) for the very rows it just cancelled. This version can't do that:
+ * whatever the `UPDATE` returns is unambiguously, atomically, the set of
+ * rows THIS call flipped, full stop.
+ *
+ * - `flipped.length === 0` → `{ ok: false, reason: "already_cancelled" }`.
+ *   Nothing in the database changed — this really is mutation-free, the
+ *   claim the old comment made incorrectly.
+ * - `flipped.length > 0` → `{ ok: true, flipped, group }`, even when
+ *   `flipped.length < group.length` (a concurrent call got the rest first).
+ *   The caller owns the side effects of exactly the rows it flipped; it
+ *   never has to guess or roll anything back.
+ *
+ * `group` is a separate follow-up read of every row sharing `comboGroup`
+ * (any status) — refund/gift totals need every leg's amount, not just the
+ * ones this call happened to flip.
  */
 export async function cancelBookingGroup(comboGroup: string): Promise<CancelBookingGroupResult> {
-  const { data: rows, error: readError } = await db()
-    .from("bookings")
-    .select(ADMIN_BOOKING_COLUMNS)
-    .eq("combo_group", comboGroup);
-  if (readError) throw new Error(`cancelBookingGroup read failed: ${readError.message}`);
-  const all = (rows ?? []).map((r) => mapAdminBookingRow(r as unknown as AdminBookingDbRow));
-  if (all.length === 0 || all.some((b) => b.status !== "confirmed")) {
-    return { ok: false, reason: "partial" };
-  }
-
   const { data, error } = await db()
     .from("bookings")
     .update({ status: "cancelled", updated_at: new Date().toISOString() })
@@ -560,13 +565,19 @@ export async function cancelBookingGroup(comboGroup: string): Promise<CancelBook
     .eq("status", "confirmed")
     .select(ADMIN_BOOKING_COLUMNS);
   if (error) throw new Error(`cancelBookingGroup failed: ${error.message}`);
-  const updated = (data ?? []).map((r) => mapAdminBookingRow(r as unknown as AdminBookingDbRow));
-  if (updated.length !== all.length) {
-    // Something changed the group between the read above and this update —
-    // bail rather than compute a refund off a group that moved under us.
-    return { ok: false, reason: "partial" };
+  const flipped = (data ?? []).map((r) => mapAdminBookingRow(r as unknown as AdminBookingDbRow));
+  if (flipped.length === 0) {
+    return { ok: false, reason: "already_cancelled" };
   }
-  return { ok: true, bookings: updated };
+
+  const { data: groupRows, error: groupError } = await db()
+    .from("bookings")
+    .select(ADMIN_BOOKING_COLUMNS)
+    .eq("combo_group", comboGroup);
+  if (groupError) throw new Error(`cancelBookingGroup group read failed: ${groupError.message}`);
+  const group = (groupRows ?? []).map((r) => mapAdminBookingRow(r as unknown as AdminBookingDbRow));
+
+  return { ok: true, flipped, group };
 }
 
 export interface BlackoutRow {
