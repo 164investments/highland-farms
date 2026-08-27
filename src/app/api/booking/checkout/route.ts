@@ -177,13 +177,16 @@ export async function POST(request: Request) {
       });
     }
 
-    // Combo buffer, either order (mirror of engine.comboDays).
+    // Combo buffer, either order (mirror of engine.comboDays). `legs` is built
+    // from `legDefs` above, which puts the tour leg first for combo — the
+    // destructure below is safe.
     if (isCombo) {
-      const t = Date.parse(legs[0].startsAt);
-      const s = Date.parse(legs[1].startsAt);
+      const [tourLeg, spaLeg] = legs;
+      const t = Date.parse(tourLeg.startsAt);
+      const s = Date.parse(spaLeg.startsAt);
       const ok =
-        s - (t + 60 * 60000) >= COMBO.bufferMin * 60000 ||
-        t - (s + 90 * 60000) >= COMBO.bufferMin * 60000;
+        s - (t + tourLeg.durationMin * 60000) >= COMBO.bufferMin * 60000 ||
+        t - (s + spaLeg.durationMin * 60000) >= COMBO.bufferMin * 60000;
       if (!ok) return bad("Those two times overlap. Leave at least 30 minutes between them.");
     }
 

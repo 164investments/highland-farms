@@ -4,7 +4,7 @@ import { nativeCalendarEnabled } from "@/lib/booking/flag";
 import { getScheduleData } from "@/lib/booking/store";
 import { computeAvailability, comboDays } from "@/lib/booking/engine";
 import {
-  BOOKING_PRODUCTS, COMBO, getBookingProduct, unitsFor,
+  BOOKING_PRODUCTS, COMBO, getBookingProduct, unitsFor, type BookingSlug,
 } from "@/lib/booking/products";
 import { addDays, pacificDateStr } from "@/lib/booking/time";
 
@@ -37,29 +37,44 @@ export async function GET(request: Request) {
     });
   }
 
+  // Clamp again to the product's own horizon — combo uses the tighter of its
+  // two legs, since neither leg can be booked past its own horizon.
+  const horizonDaysFor = (slugs: BookingSlug[]) =>
+    Math.min(...slugs.map((s) => BOOKING_PRODUCTS[s].horizonDays));
+  const horizonSlugs: BookingSlug[] =
+    slug === "combo" ? ["farm-tour", "nordic-spa"] : [slug];
+  const horizonCap = addDays(today, horizonDaysFor(horizonSlugs));
+  const hiClamped = hi > horizonCap ? horizonCap : hi;
+  if (hiClamped < lo) {
+    return NextResponse.json({ days: [] }, {
+      headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
+    });
+  }
+
   try {
     if (slug === "combo") {
-      const data = await getScheduleData(["farm-tour", "nordic-spa"], lo, hi);
+      const data = await getScheduleData(["farm-tour", "nordic-spa"], lo, hiClamped);
       const tour = computeAvailability({
-        product: BOOKING_PRODUCTS["farm-tour"], from: lo, to: hi, now, ...data,
+        product: BOOKING_PRODUCTS["farm-tour"], from: lo, to: hiClamped, now, ...data,
       });
       const spa = computeAvailability({
-        product: BOOKING_PRODUCTS["nordic-spa"], from: lo, to: hi, now, ...data,
+        product: BOOKING_PRODUCTS["nordic-spa"], from: lo, to: hiClamped, now, ...data,
       });
-      const days = comboDays(
-        tour, spa,
-        unitsFor(BOOKING_PRODUCTS["farm-tour"], party),
-        unitsFor(BOOKING_PRODUCTS["nordic-spa"], party),
-        COMBO.bufferMin,
-      );
+      const days = comboDays(tour, spa, {
+        tourUnitsNeeded: unitsFor(BOOKING_PRODUCTS["farm-tour"], party),
+        spaUnitsNeeded: unitsFor(BOOKING_PRODUCTS["nordic-spa"], party),
+        bufferMin: COMBO.bufferMin,
+        tourDurationMin: BOOKING_PRODUCTS["farm-tour"].durationMin,
+        spaDurationMin: BOOKING_PRODUCTS["nordic-spa"].durationMin,
+      });
       return NextResponse.json({ days }, {
         headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
       });
     }
 
     const product = getBookingProduct(slug)!;
-    const data = await getScheduleData([slug], lo, hi);
-    const days = computeAvailability({ product, from: lo, to: hi, now, ...data });
+    const data = await getScheduleData([slug], lo, hiClamped);
+    const days = computeAvailability({ product, from: lo, to: hiClamped, now, ...data });
     return NextResponse.json({ days }, {
       headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
     });

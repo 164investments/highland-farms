@@ -207,7 +207,13 @@ test("engine: combo pairs respect the 30-min buffer in either order", () => {
     product: SPA, from: "2026-09-05", to: "2026-09-05",
     schedules: rules, exceptions: [], blackouts: [], booked: [], now: NOW,
   });
-  const combos = comboDays(tourDays, spaDays, 1, 2, 30);
+  const combos = comboDays(tourDays, spaDays, {
+    tourUnitsNeeded: 1,
+    spaUnitsNeeded: 2,
+    bufferMin: 30,
+    tourDurationMin: BOOKING_PRODUCTS["farm-tour"].durationMin,
+    spaDurationMin: BOOKING_PRODUCTS["nordic-spa"].durationMin,
+  });
   assert.equal(combos.length, 1);
   const pairs = combos[0].pairs.map((p) => `${p.tour.time}+${p.spa.time}`);
   // Tour 10:00-11:00 → spa 13:00/15:00 OK (11:00 violates buffer: gap 0).
@@ -216,6 +222,25 @@ test("engine: combo pairs respect the 30-min buffer in either order", () => {
   // Spa-first also allowed: spa 11:00-12:30 → tour 14:00 (gap 90) OK, 12:00 (overlap) not.
   assert.ok(pairs.includes("14:00+11:00"));
   assert.ok(!pairs.includes("12:00+11:00"));
+});
+
+test("engine: comboDays derives overlap from the provided durations", () => {
+  const tourDays = [{ date: "2026-09-05", slots: [
+    { startsAt: "2026-09-05T17:00:00.000Z", time: "10:00", capacity: 1, remainingUnits: 1 },
+  ]}];
+  const spaDays = [{ date: "2026-09-05", slots: [
+    { startsAt: "2026-09-05T18:30:00.000Z", time: "11:30", capacity: 6, remainingUnits: 6 },
+  ]}];
+  // Tour 10:00 + 60min ends 11:00; spa 11:30 → gap 30 = OK at bufferMin 30.
+  assert.equal(comboDays(tourDays, spaDays, {
+    tourUnitsNeeded: 1, spaUnitsNeeded: 1, bufferMin: 30,
+    tourDurationMin: 60, spaDurationMin: 90,
+  })[0]?.pairs.length ?? 0, 1);
+  // With a 90-min tour the same pair overlaps and disappears.
+  assert.equal(comboDays(tourDays, spaDays, {
+    tourUnitsNeeded: 1, spaUnitsNeeded: 1, bufferMin: 30,
+    tourDurationMin: 90, spaDurationMin: 90,
+  }).length, 0);
 });
 
 test("email: confirmation carries the strict policy and the weather promise", () => {

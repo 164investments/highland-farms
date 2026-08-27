@@ -175,13 +175,16 @@ export function slotCapacity(opts: {
 export function comboDays(
   tour: DayAvailability[],
   spa: DayAvailability[],
-  tourUnitsNeeded: number,
-  spaUnitsNeeded: number,
-  bufferMin: number,
+  opts: {
+    tourUnitsNeeded: number;
+    spaUnitsNeeded: number;
+    bufferMin: number;
+    tourDurationMin: number;
+    spaDurationMin: number;
+  },
 ): { date: string; pairs: { tour: Slot; spa: Slot }[] }[] {
+  const { tourUnitsNeeded, spaUnitsNeeded, bufferMin, tourDurationMin, spaDurationMin } = opts;
   const spaByDate = new Map(spa.map((d) => [d.date, d.slots]));
-  const TOUR_MIN = 60;
-  const SPA_MIN = 90;
   const out: { date: string; pairs: { tour: Slot; spa: Slot }[] }[] = [];
   for (const day of tour) {
     const spaSlots = spaByDate.get(day.date) ?? [];
@@ -192,8 +195,8 @@ export function comboDays(
         if (s.remainingUnits < spaUnitsNeeded) continue;
         const tStart = Date.parse(t.startsAt);
         const sStart = Date.parse(s.startsAt);
-        const tourThenSpa = sStart - (tStart + TOUR_MIN * 60000);
-        const spaThenTour = tStart - (sStart + SPA_MIN * 60000);
+        const tourThenSpa = sStart - (tStart + tourDurationMin * 60000);
+        const spaThenTour = tStart - (sStart + spaDurationMin * 60000);
         if (tourThenSpa >= bufferMin * 60000 || spaThenTour >= bufferMin * 60000) {
           pairs.push({ tour: t, spa: s });
         }

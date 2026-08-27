@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type {
   Blackout, BookedUnits, ScheduleException, ScheduleRule,
 } from "./engine";
+import { addDays } from "./time";
 
 let client: SupabaseClient | undefined;
 
@@ -180,8 +181,9 @@ export async function getScheduleData(
     supa.from("bookings").select("product_slug, starts_at, units, status, hold_expires_at")
       .in("product_slug", productSlugs)
       .gte("starts_at", `${from}T00:00:00Z`)
-      // slack day so Pacific evening slots inside `to` aren't cut off by UTC
-      .lte("starts_at", `${to}T23:59:59Z`)
+      // One extra UTC day so a Pacific evening slot on `to` (which lands on
+      // the NEXT UTC date) still has its booked units counted.
+      .lte("starts_at", `${addDays(to, 1)}T23:59:59Z`)
       .in("status", ["pending", "confirmed"]),
   ]);
 
