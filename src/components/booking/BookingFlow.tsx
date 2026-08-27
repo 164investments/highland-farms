@@ -61,6 +61,7 @@ export function BookingFlow({
   const [policy, setPolicy] = useState(false);
   const [location, setLocation] = useState<"meet" | "in_person">("meet");
   const [giftCode, setGiftCode] = useState("");
+  const [refreshNonce, setRefreshNonce] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<{ bookingNumber: string; amountCents: number } | null>(null);
@@ -96,7 +97,10 @@ export function BookingFlow({
       setDone(result);
     } else {
       setError(result.error);
-      if (result.status === 409) setSlot(null); // slot gone: back to the calendar
+      if (result.status === 409) {
+        setSlot(null); // slot gone: back to the calendar
+        setRefreshNonce((n) => n + 1); // trigger availability refetch
+      }
     }
   }
 
@@ -124,7 +128,8 @@ export function BookingFlow({
       <div className="mt-5">
         <DatePicker product={product} party={party}
           selected={slot}
-          onSelect={(s, d) => { setSlot(s); setDate(d); push("booking_select_time", { booking_product: product, slot: s.time, date: d }); }} />
+          onSelect={(s, d) => { setSlot(s); setDate(d); push("booking_select_time", { booking_product: product, slot: s.time, date: d }); }}
+          refreshNonce={refreshNonce} />
       </div>
 
       {slot && max > 1 && (

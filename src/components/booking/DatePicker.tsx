@@ -15,12 +15,13 @@ const DAY_LABEL = new Intl.DateTimeFormat("en-US", {
 });
 
 export function DatePicker({
-  product, party, selected, onSelect,
+  product, party, selected, onSelect, refreshNonce,
 }: {
   product: string;
   party: number;
   selected: UiSlot | null;
   onSelect: (slot: UiSlot, date: string) => void;
+  refreshNonce: number;
 }) {
   const [days, setDays] = useState<UiDay[]>([]);
   const [windowStart, setWindowStart] = useState(todayStr());
@@ -30,7 +31,7 @@ export function DatePicker({
 
   useEffect(() => {
     let dead = false;
-    // Re-flips to true on every dependency change (window/party/product), not
+    // Re-flips to true on every dependency change (window/party/product/refreshNonce), not
     // just on mount — that's what re-shows "Checking the calendar…" when the
     // guest count or date window changes. This effect never sets a value that
     // is itself a dependency of the effect, so it cannot cascade into a loop.
@@ -41,7 +42,7 @@ export function DatePicker({
       .catch(() => { if (!dead) setError(true); })
       .finally(() => { if (!dead) setLoading(false); });
     return () => { dead = true; };
-  }, [product, party, windowStart]);
+  }, [product, party, windowStart, refreshNonce]);
 
   if (error) {
     return <p className="text-sm text-red-700">We couldn&apos;t load the calendar. Refresh to try again, or call (971) 563-1921.</p>;
