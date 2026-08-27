@@ -245,13 +245,21 @@ function addMonthsDateStr(dateStr: string, months: number): string {
  * from the `canceled=false` set entirely (also a cancellation, from Acuity's
  * point of view). Returns the number of rows actually flipped.
  *
+ * Candidate rows are pulled from a narrower window than the fetch --
+ * `[fromIso, from + 17 months)`, one month short of the 18-month fetch
+ * horizon -- so a booking rescheduled OUT to somewhere near the edge of the
+ * horizon is never judged against a fetch that might not actually cover its
+ * new date. See the inline comment above `candidateEnd` for why.
+ *
  * Only ever touches `source='acuity_import'` rows, and only rows currently
  * `confirmed` (never re-flips an already-cancelled row, never touches
  * `pending`/`completed`/`no_show`).
  */
+const HORIZON_MONTHS = 18;
+
 export async function reconcileCancellations(fromIso: string): Promise<number> {
   const fromDate = isoToDateStr(fromIso);
-  const toDate = addMonthsDateStr(fromDate, 18);
+  const toDate = addMonthsDateStr(fromDate, HORIZON_MONTHS);
 
   const [activeAppts, canceledAppts] = await Promise.all([
     getAppointments(fromDate, toDate, false),
@@ -260,6 +268,18 @@ export async function reconcileCancellations(fromIso: string): Promise<number> {
   const activeIds = new Set(activeAppts.map((a) => a.id));
   const canceledIds = new Set(canceledAppts.map((a) => a.id));
 
+  // Candidate rows are restricted to a window that ends ONE MONTH INSIDE the
+  // 18-month fetch horizon (`toDate` above), not all the way out to it. A
+  // booking rescheduled to a date past the fetch horizon simply vanishes
+  // from `activeAppts` (Acuity never told us about it -- we didn't ask that
+  // far out), which would otherwise look identical to a real cancellation
+  // and get marked cancelled here. It would self-heal on the next run once
+  // that later date rolls inside the window, but by then the daily report
+  // (post-cutover) may already have trusted the wrong status. The 1-month
+  // margin means only rows we're CERTAIN were inside the fetch window get
+  // reconciled against it.
+  const candidateEnd = addMonthsDateStr(fromDate, HORIZON_MONTHS - 1);
+
   const supa = db();
   const { data: rows, error } = await supa
     .from("bookings")
@@ -267,7 +287,7 @@ export async function reconcileCancellations(fromIso: string): Promise<number> {
     .eq("source", "acuity_import")
     .eq("status", "confirmed")
     .gte("starts_at", fromIso)
-    .lte("starts_at", `${toDate}T23:59:59Z`);
+    .lt("starts_at", `${candidateEnd}T00:00:00Z`);
   if (error) throw new Error(`reconcileCancellations read failed: ${error.message}`);
 
   const idsToCancel = (rows ?? [])

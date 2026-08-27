@@ -199,6 +199,16 @@ Post-run-2 verify: `count=199, sum_cents=2441239` — unchanged. Zero new
 rows, every row matched by `acuity_id` and went through the
 `source='acuity_import'`-guarded update path. **PASS.**
 
+**Review fix (same day):** `reconcileCancellations` originally compared
+candidate rows against the ACTIVE set across the full 18-month fetch
+window, which meant a booking rescheduled OUT to within the last month of
+that window (self-heals next run, but the daily report would trust it in
+the meantime) could be misjudged. Fixed by restricting the candidate
+`SELECT` to `starts_at < from + 17 months` — a 1-month margin inside the
+18-month fetch horizon, so only rows unambiguously covered by the fetch are
+reconciled. Re-ran live after the fix: `inserted=0 updated=199
+skipped=0 cancelled=0`, DB count/sum unchanged (`199` / `2441239`).
+
 Spot-check (5 random imported rows cross-referenced against
 `acuity_archive_appointments`, the raw Acuity API capture from Task 1 —
 datetime, amount, and names match exactly for all 5):
