@@ -3,10 +3,12 @@
 Kept for re-runs at cutover (Phase 3) and after any change to
 `src/lib/booking/*`, `src/app/api/booking/*`, or `src/app/api/cron/booking-reminders`.
 Last executed against the real stack: **2026-08-27** (Task 10, Phase 1; items
-12-13 added and live-checked **2026-08-27** for Phase 2 Task 3). Items 4, 7,
-and 7b failed on the Phase 1 run, were fixed in `cffe1d8`, and were
-re-verified the same day — see those items below. This document reflects the
-final, post-fix state; there are no known live bugs in this matrix.
+12-13 added and live-checked **2026-08-27** for Phase 2 Task 3; items 14-17
+added and live-checked **2026-08-27** for Phase 2 Task 8, gift certificates).
+Items 4, 7, and 7b failed on the Phase 1 run, were fixed in `cffe1d8`, and
+were re-verified the same day — see those items below. This document
+reflects the final, post-fix state; there are no known live bugs in this
+matrix.
 
 ## Setup
 
@@ -314,6 +316,64 @@ Cleanup: deleted the booking row, the `tracking_events` row, and schedule id
 line was removed from `checkout/route.ts` before commit (`git diff --stat`
 shows only the Task 3 brief's intended edits).
 
+### 14. Gift checkout — flag off → 404 (page + route)
+```
+GET  /gift-certificates                          -> 404 (page renders the not-found shell)
+POST /api/booking/gift/checkout                  -> 404 {"error":"Not found"}
+```
+Verified with a dev server started **without** `NEXT_PUBLIC_NATIVE_CALENDAR` set.
+**PASS.**
+
+### 15. Gift checkout — paid purchase with Square unconfigured → 503, zero cert rows
+Setup: flag-on dev server, `.env.local` confirmed to carry no `SQUARE_*` vars
+(same precondition as item 5).
+```
+POST /api/booking/gift/checkout
+{ productId:"tour-for-two", idempotencyKey:"e2e-test-key-0001", sourceId:"cnon:card-nonce-ok",
+  purchaser:{name:"E2E Test", email:"e2e-test@example.com"} }
+-> 503 {"error":"Online payment isn't available right now. Please call the farm."}
+```
+Dev-server log: `[gift] checkout hit with Square unconfigured` (the same gate
+shape as the booking checkout's item 5, checked before any Square call or
+insert is attempted).
+```sql
+select count(*) from gift_certificates where purchaser_email = 'e2e-test@example.com';
+```
+`-> 0`. **PASS.** Confirms the charge-before-insert ordering: nothing is
+written when the charge is never attempted.
+
+### 16. Gift checkout — honeypot (`website:"x"`) → fake success, zero rows
+```
+POST /api/booking/gift/checkout
+{ productId:"spa-for-two", idempotencyKey:"e2e-test-key-0002",
+  purchaser:{name:"Bot", email:"bot@example.com"}, website:"x" }
+-> 200 {"success":true,"code":"HFGC-2DXJ-5AK8"}
+```
+The returned code is a plausible fake (mirrors the booking checkout's fake
+`bookingNumber` on honeypot) — generated in-memory via `generateGiftCode()`,
+never inserted.
+```sql
+select count(*) from gift_certificates where purchaser_email = 'bot@example.com' or code = 'HFGC-2DXJ-5AK8';
+```
+`-> 0`. **PASS.**
+
+### 17. Gift checkout — guard spot-checks (copied verbatim from booking checkout)
+```
+POST /api/booking/gift/checkout  (Origin: https://evil.example.com)
+-> 403 {"error":"Unauthorized request origin."}
+
+POST /api/booking/gift/checkout  (productId:"not-a-real-product")
+-> 400 {"error":"That didn't look right. Please check your details and try again."}
+```
+Both **PASS** — confirms the origin allowlist and zod `productId` enum are
+wired the same way as the booking checkout's origin/shape guards (items 9/1).
+
+Note: the real-charge path (Square configured, a live `sourceId` from the
+Web Payments SDK, successful insert → email) is out of scope for this local
+matrix (no `SQUARE_*` vars locally, matching the booking checkout's existing
+precedent at item 5) — it joins the Phase 3 real-charge verification, same as
+the booking checkout's paid path.
+
 ## Summary
 
 | # | Item | Result |
@@ -332,8 +392,12 @@ shows only the Task 3 brief's intended edits).
 | 11 | Cleanup | PASS |
 | 12 | Number-collision retry (Task 3) | PASS (code-inspected) |
 | 13 | Free wedding-call → GA4 conversion event (Task 3) | PASS |
+| 14 | Gift checkout flag off → 404 (page + route) (Task 8) | PASS |
+| 15 | Gift checkout paid path, Square unconfigured → 503, zero rows (Task 8) | PASS |
+| 16 | Gift checkout honeypot → fake success, zero rows (Task 8) | PASS |
+| 17 | Gift checkout guard spot-checks (origin, productId shape) (Task 8) | PASS |
 
-**13/13 PASS** (11 exercised live end-to-end, item 12 verified by code
+**17/17 PASS** (15 exercised live end-to-end, item 12 verified by code
 inspection since forcing a real `23505` isn't reliably reproducible outside
 a fuzzed harness). The first run of this matrix (2026-08-27) found two real
 bugs: items 4 (Resend never rejects, so send failures were silently
@@ -345,7 +409,9 @@ would have fully covered). Both were fixed same-day in `cffe1d8`
 dev server per the results recorded in items 4, 7, and 7b above. Task 3
 (same day) added durability for the paid-confirm path (RPC failure fallback
 + audit trail), a number-collision retry on `booking_number`, and fixed the
-free wedding-call GA4 gate (items 12-13 above); no known live bugs in this
-matrix as of that pass. A future re-run that finds a regression should
-update the affected item and this table in place, the same way this pass
-did.
+free wedding-call GA4 gate (items 12-13 above). Task 8 (same day) added the
+gift certificate purchase endpoint and verified its charge-before-insert
+ordering (item 15), honeypot (item 16), and guard stack (items 14, 17); no
+new bugs found. No known live bugs in this matrix as of that pass. A future
+re-run that finds a regression should update the affected item and this
+table in place, the same way this pass did.

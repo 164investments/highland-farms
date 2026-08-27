@@ -220,6 +220,43 @@ export async function redeemGiftCertificate(
   return data as number;
 }
 
+export interface GiftCertificateRow {
+  code: string;
+  kind: "value" | "visits";
+  productScope: string | null;
+  initialUnits: number;
+  remainingUnits: number;
+  purchaserEmail: string;
+  recipientEmail: string | null;
+  squarePaymentId: string | null;
+  status: "active";
+}
+
+/**
+ * Insert one issued gift certificate row. Throws on any error — the caller
+ * (`issueGiftCertificate` in gift.ts) needs `error.code` to tell a
+ * `code` primary-key collision (23505, retry with a fresh code) from every
+ * other failure (rethrow, since money has already been taken at this point).
+ */
+export async function insertGiftCertificate(row: GiftCertificateRow): Promise<void> {
+  const { error } = await db().from("gift_certificates").insert({
+    code: row.code,
+    kind: row.kind,
+    product_scope: row.productScope,
+    initial_units: row.initialUnits,
+    remaining_units: row.remainingUnits,
+    purchaser_email: row.purchaserEmail,
+    recipient_email: row.recipientEmail,
+    square_payment_id: row.squarePaymentId,
+    status: row.status,
+  });
+  if (error) {
+    const err = new Error(`insertGiftCertificate failed: ${error.message}`) as Error & { code?: string };
+    err.code = error.code;
+    throw err;
+  }
+}
+
 export async function restoreGiftCertificate(code: string, units: number): Promise<void> {
   const { error } = await db().rpc("restore_gift_certificate", {
     p_code: code,

@@ -269,15 +269,20 @@ src/lib/booking/
   engine.ts               pure availability math (schedules + exceptions + blackouts
                            + booked units -> offered slots); no I/O
   store.ts                Supabase I/O: schedule reads, claim/confirm/release RPCs,
-                           gift-certificate RPCs
+                           gift-certificate RPCs, gift-certificate insert
   time.ts                 the only place America/Los_Angeles <-> UTC conversion happens
   flag.ts                 the NEXT_PUBLIC_NATIVE_CALENDAR kill switch
   booking-number.ts       customer-facing booking number generator
   confirmation-email.ts   customer + farm confirmation emails
   reminder-email.ts       48h / morning-of reminder emails
+  gift.ts                 gift certificate PRODUCTS (fixed price/kind/scope), code
+                           generation, and issuance (insert + one 23505 retry)
+  gift-email.ts           gift certificate purchase + delivery emails
 src/app/api/booking/
   availability/route.ts   GET — offered slots per product (or combo pairs)
   checkout/route.ts       POST — the one transactional booking endpoint
+  gift/checkout/route.ts  POST — gift certificate purchase (charge, then issue)
+src/app/gift-certificates/page.tsx + GiftBody.tsx   gift certificate purchase page
 src/app/api/cron/booking-reminders/route.ts   expired-hold sweep + reminder sends
 supabase-booking.sql      schema + RPCs, applied by hand (no migration runner here)
 ```
@@ -297,6 +302,14 @@ supabase-booking.sql      schema + RPCs, applied by hand (no migration runner he
    tours + spa. Weddings are not bookings.
 6. **Everything is behind `NEXT_PUBLIC_NATIVE_CALENDAR`** until cutover
    (Phase 3). Acuity remains the live calendar of record until then.
+7. **Gift certificates charge BEFORE they insert** (the opposite order from a
+   booking, which claims capacity first) — there is no capacity to protect, so
+   nothing may be written until money has actually moved. If the insert then
+   fails, there is no row to force-confirm the way a paid booking has: the
+   route logs a `CRITICAL` line with the Square payment id and returns
+   `{ success: true, code: null }` rather than a failure, since the customer
+   was in fact charged. The farm reconciles from that log line and issues the
+   code by hand.
 
 ## Conventions worth keeping
 
