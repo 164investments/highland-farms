@@ -7,6 +7,23 @@ function getResend(): Resend {
   if (!resend) resend = new Resend(process.env.RESEND_API_KEY);
   return resend;
 }
+
+/**
+ * The Resend SDK resolves `{ data: null, error }` on an API-level failure —
+ * it does NOT reject. The cron's caller relies on a thrown rejection to log
+ * and skip stamping the reminder as sent; without this, a bad key or a
+ * 4xx/5xx from Resend would resolve "successfully" and the stamp would stand
+ * with no email ever delivered and no log to show it.
+ */
+async function sendOrThrow(
+  params: Parameters<Resend["emails"]["send"]>[0],
+): Promise<void> {
+  const result = await getResend().emails.send(params);
+  if (result.error) {
+    throw new Error(result.error.message);
+  }
+}
+
 const FROM = "Highland Farms <notifications@highlandfarmsoregon.com>";
 const TZ = "America/Los_Angeles";
 
@@ -36,7 +53,7 @@ export async function sendReminder(
     kind === "48h"
       ? `See you ${day} — ${product?.name ?? b.product_slug}`
       : `Today at ${time} — ${product?.name ?? b.product_slug}`;
-  await getResend().emails.send({
+  await sendOrThrow({
     from: FROM,
     to: b.email,
     subject,

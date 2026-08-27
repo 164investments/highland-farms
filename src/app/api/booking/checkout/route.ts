@@ -188,11 +188,6 @@ export async function POST(request: Request) {
     }
 
     const totalCents = legs.reduce((sum, l) => sum + l.amountCents, 0);
-    const isFree = totalCents === 0;
-    if (!isFree && !isSquareConfigured()) {
-      console.error("[booking] checkout hit with Square unconfigured");
-      return bad("Online payment isn't available right now. Please call the farm.", 503);
-    }
 
     // ---- Hold the slot(s) BEFORE money moves ----
     const bookingNumber = generateBookingNumber();
@@ -257,6 +252,12 @@ export async function POST(request: Request) {
     // ---- Charge (skipped when free or fully covered) ----
     let paymentId: string | null = null;
     if (dueCents > 0) {
+      if (!isSquareConfigured()) {
+        console.error("[booking] checkout hit with Square unconfigured");
+        if (giftUnitsUsed > 0 && giftCode) await restoreGiftCertificate(giftCode, giftUnitsUsed);
+        await releaseBookings(claim.ids);
+        return bad("Online payment isn't available right now. Please call the farm.", 503);
+      }
       if (!body.sourceId) {
         if (giftUnitsUsed > 0 && giftCode) await restoreGiftCertificate(giftCode, giftUnitsUsed);
         await releaseBookings(claim.ids);

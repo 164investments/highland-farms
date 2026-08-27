@@ -19,6 +19,22 @@ function getResend(): Resend {
   return resend;
 }
 
+/**
+ * The Resend SDK resolves `{ data: null, error }` on an API-level failure —
+ * it does NOT reject. Awaiting `send()` directly would make a bad key or a
+ * 4xx/5xx from Resend look identical to success, and `Promise.allSettled`
+ * would never see a rejection to log. This throws so the caller's rejection
+ * handling actually engages.
+ */
+async function sendOrThrow(
+  params: Parameters<Resend["emails"]["send"]>[0],
+): Promise<void> {
+  const result = await getResend().emails.send(params);
+  if (result.error) {
+    throw new Error(result.error.message);
+  }
+}
+
 const FROM = "Highland Farms <notifications@highlandfarmsoregon.com>";
 const FARM_RECIPIENTS = ["info@highlandfarms-oregon.com"];
 const TZ = "America/Los_Angeles";
@@ -84,17 +100,16 @@ export function renderBookingConfirmation(data: BookingEmailData): string {
 }
 
 export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
-  const client = getResend();
   // Independent sends: a bounced/rejected customer email must never stop the
   // farm from learning about a PAID booking, and vice versa.
   const results = await Promise.allSettled([
-    client.emails.send({
+    sendOrThrow({
       from: FROM,
       to: data.customerEmail,
       subject: `You're booked — ${data.bookingNumber}`,
       html: renderBookingConfirmation(data),
     }),
-    client.emails.send({
+    sendOrThrow({
       from: FROM,
       to: FARM_RECIPIENTS,
       subject: `New booking: ${data.legs.map((l) => l.productSlug).join(" + ")} · ${data.bookingNumber}`,

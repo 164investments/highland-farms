@@ -298,30 +298,6 @@ supabase-booking.sql      schema + RPCs, applied by hand (no migration runner he
 6. **Everything is behind `NEXT_PUBLIC_NATIVE_CALENDAR`** until cutover
    (Phase 3). Acuity remains the live calendar of record until then.
 
-### Known gaps (found during Task 10 e2e verification, 2026-08-27)
-
-- ⛔ **The Square-configured gate checks the pre-gift total, not the post-gift
-  due amount.** `checkout/route.ts` computes `totalCents` from the legs and
-  503s on `!isFree && !isSquareConfigured()` *before* a gift certificate is
-  looked up or applied. A booking fully covered by a gift certificate (e.g. a
-  $150 spa session against a $150 value cert) 503s with Square unconfigured
-  even though `dueCents` would resolve to 0 and no charge would ever be
-  attempted. Reproduced locally: nordic-spa party 2 + `giftCode=TESTCERT`
-  (cert = exactly the total) → `503 "Online payment isn't available right
-  now."`, cert untouched, zero rows created. The gate needs to move after gift
-  redemption (or be re-checked against `dueCents`), not before it.
-- ⚠️ **A Resend API failure is never logged.** `confirmation-email.ts` calls
-  `client.emails.send()` and treats a `Promise.allSettled` **rejection** as
-  the failure signal, but the `resend` SDK's `send()` never rejects — HTTP
-  errors (bad key, 4xx/5xx from Resend) resolve as `{ data: null, error:
-  {...} }`. Verified locally with `RESEND_API_KEY=disabled-for-e2e`: the
-  booking still confirms correctly (money and slot logic are unaffected), but
-  the intended `"[booking] ... email failed"` console lines never print —
-  the failure is silently swallowed. Fine for "email must never block a
-  booking" (that holds), but there is currently no operational signal when
-  Resend stops delivering. Fix is to check `result.error` on the resolved
-  value, not the promise's settle status.
-
 ## Conventions worth keeping
 
 - **Fire-and-forget for leads, transactional for orders.** `/api/inquiries` writes
