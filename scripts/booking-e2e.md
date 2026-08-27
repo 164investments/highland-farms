@@ -4,7 +4,9 @@ Kept for re-runs at cutover (Phase 3) and after any change to
 `src/lib/booking/*`, `src/app/api/booking/*`, or `src/app/api/cron/booking-reminders`.
 Last executed against the real stack: **2026-08-27** (Task 10, Phase 1; items
 12-13 added and live-checked **2026-08-27** for Phase 2 Task 3; items 14-17
-added and live-checked **2026-08-27** for Phase 2 Task 8, gift certificates).
+added and live-checked **2026-08-27** for Phase 2 Task 8, gift certificates;
+items 18-22 added and live-checked **2026-08-27** for Phase 2 Task 12, admin
+booking APIs + Square refunds).
 Items 4, 7, and 7b failed on the Phase 1 run, were fixed in `cffe1d8`, and
 were re-verified the same day — see those items below. This document
 reflects the final, post-fix state; there are no known live bugs in this
@@ -374,6 +376,123 @@ matrix (no `SQUARE_*` vars locally, matching the booking checkout's existing
 precedent at item 5) — it joins the Phase 3 real-charge verification, same as
 the booking checkout's paid path.
 
+### 18. Admin booking routes — every route 401s without the token (Task 12)
+Setup: flag-on dev server, `SHOP_ADMIN_TOKEN=e2e-admin-token-task12` set for
+the dev-server process only (not written to `.env.local`), Resend disabled.
+```
+GET  /api/shop/admin/booking?from=2026-09-01&to=2026-09-30   -> 401
+POST /api/shop/admin/booking/blackouts                        -> 401
+DEL  /api/shop/admin/booking/blackouts                        -> 401
+POST /api/shop/admin/booking/schedules                        -> 401
+DEL  /api/shop/admin/booking/schedules                        -> 401
+POST /api/shop/admin/booking/manual                            -> 401
+POST /api/shop/admin/booking/cancel                            -> 401
+GET  /api/shop/admin/booking/certs?code=X                      -> 401
+POST /api/shop/admin/booking/certs                              -> 401
+```
+All 9 (across the 6 route files) returned `{"error":"Unauthorized"}` with no
+`Authorization` header. **PASS.**
+
+### 19. Blackout create → availability hides the day → delete restores it (Task 12)
+Seeded a `wedding-call` Saturday schedule (capacity 1, `2026-09-19 09:00`)
+via `POST /api/shop/admin/booking/schedules`, confirmed via the public
+availability route that the slot showed `remainingUnits:1`. Then:
+```
+POST /api/shop/admin/booking/blackouts
+{ kind:"closure", startsOn:"2026-09-19", endsOn:"2026-09-19",
+  productSlugs:["farm-tour","nordic-spa","wedding-call"], note:"E2E Task 12 blackout" }
+-> 200 {"ok":true,"blackout":{"id":2,...}}
+
+GET /api/booking/availability?product=wedding-call&from=2026-09-19&to=2026-09-19&party=1
+-> {"days":[{"date":"2026-09-19","slots":[]}]}     -- day hidden
+
+GET /api/shop/admin/booking?from=2026-09-19&to=2026-09-19 (with token)
+-> blackouts array contains the id-2 row                  -- admin GET sees it too
+
+DELETE /api/shop/admin/booking/blackouts  { "id": 2 }
+-> 200 {"ok":true}
+
+GET /api/booking/availability?product=wedding-call&from=2026-09-19&to=2026-09-19&party=1
+-> {"days":[{"date":"2026-09-19","slots":[{"time":"09:00","capacity":1,"remainingUnits":1}]}]}
+   -- restored
+```
+**PASS.**
+
+### 20. Manual booking respects capacity — second manual on a full slot errors (Task 12)
+Using the same capacity-1 `wedding-call` slot from item 19:
+```
+POST /api/shop/admin/booking/manual
+{ product:"wedding-call", date:"2026-09-19", time:"09:00", partySize:1,
+  customer:{firstName:"E2E",lastName:"One",email:"e2e-test@example.com",phone:"5035551111"},
+  note:"Task 12 e2e first manual booking" }
+-> 200 {"ok":true,"bookingNumber":"HFB-260827-4517","amountCents":0}
+
+POST /api/shop/admin/booking/manual   (same slot, second customer)
+-> 409 {"error":"That time was just booked by someone else. Your card has not been charged..."}
+```
+`GET /api/shop/admin/booking?from=2026-09-19&to=2026-09-19` confirmed the
+row: `status:"confirmed"`, `source:"admin"`, `referralSource:"phone"`,
+`amountCents:0`, `notes:"Task 12 e2e first manual booking"`. **PASS** —
+capacity enforced, `source`/`referralSource` recorded correctly, no charge
+attempted for a phone booking.
+
+Also exercised cancel on this same booking: `POST /api/shop/admin/booking/cancel`
+with `{id, refund:true, reason:"E2E task 12 cancel test"}` returned
+`{"ok":true,"refunded":false,...}` (no card was ever charged, so
+`refundCents` was 0 and `refundPayment` was correctly never called); a
+second cancel attempt on the same (now-cancelled) id returned `404
+{"error":"Booking not found, or not currently confirmed."}`, confirming
+cancel only fires from `confirmed`. Dev-server log showed
+`[booking-admin] cancel email failed: HFB-260827-4517 Error: API key is
+invalid` at `cancel-email.ts`'s `sendOrThrow` — the same
+Resend-disabled-so-log-the-failure substitution used elsewhere in this
+matrix, confirming the guest email path was actually exercised. **PASS.**
+
+### 21. Gift certificate issue → lookup → void → redemption fails (Task 12)
+```
+POST /api/shop/admin/booking/certs
+{ action:"issue", productId:"tour-for-two", purchaserEmail:"e2e-test@example.com",
+  recipientEmail:null, paymentId:null }
+-> 200 {"ok":true,"code":"HFGC-GDWS-5B5P"}
+
+GET /api/shop/admin/booking/certs?code=HFGC-GDWS-5B5P
+-> {"certificate":{"code":"HFGC-GDWS-5B5P","kind":"value","productScope":"farm-tour",
+     "initialUnits":15000,"remainingUnits":15000,"squarePaymentId":"admin_manual",
+     "status":"active",...}}
+
+POST /api/shop/admin/booking/certs   { action:"void", code:"HFGC-GDWS-5B5P" }
+-> 200 {"ok":true}
+
+GET /api/shop/admin/booking/certs?code=HFGC-GDWS-5B5P
+-> {"certificate":{...,"status":"void",...}}
+```
+Then probed `redeem_gift_certificate` directly via the service-role client
+(same call `store.ts`'s `redeemGiftCertificate` makes) to prove the voided
+code is actually unusable at the RPC that matters, not just at the admin
+read:
+```js
+await db.rpc("redeem_gift_certificate", { p_code: "HFGC-GDWS-5B5P", p_requested: 1 })
+-> data: null, error: { code: "P0001", message: "gift certificate not usable" }
+```
+`P0001` is exactly the error `redeem_gift_certificate` raises for a
+non-`active` cert (`supabase-booking.sql`) and the code `store.ts`'s
+`redeemGiftCertificate` maps to "code isn't valid" at checkout. **PASS.**
+
+### 22. Cleanup (Task 12)
+```sql
+delete from bookings where email in ('e2e-test@example.com','e2e-test-2@example.com');
+delete from gift_certificates where code = 'HFGC-GDWS-5B5P';
+delete from booking_blackouts where note = 'E2E Task 12 blackout';   -- already 0, deleted live in item 19
+delete from booking_schedules where id = 30;                         -- already 0, deleted live in item 20's follow-up
+delete from booking_audit where actor = 'admin';
+```
+Post-cleanup counts (scoped to this run's ids/emails/codes): `bookings:0,
+gift_certificates:0, booking_blackouts:0, booking_schedules:0,
+booking_audit:0`. Dev server stopped; a temporary Node probe script used for
+item 21's direct RPC call and this cleanup query were both deleted before
+commit (`git status --short` shows only the Task 12 diff — no stray
+`scripts/*-tmp.mjs`). **PASS.**
+
 ## Summary
 
 | # | Item | Result |
@@ -396,8 +515,13 @@ the booking checkout's paid path.
 | 15 | Gift checkout paid path, Square unconfigured → 503, zero rows (Task 8) | PASS |
 | 16 | Gift checkout honeypot → fake success, zero rows (Task 8) | PASS |
 | 17 | Gift checkout guard spot-checks (origin, productId shape) (Task 8) | PASS |
+| 18 | Admin booking routes: every route 401s without the token (Task 12) | PASS |
+| 19 | Blackout create → availability hides the day → delete restores it (Task 12) | PASS |
+| 20 | Manual booking respects capacity; cancel only from confirmed (Task 12) | PASS |
+| 21 | Gift cert issue → lookup → void → `redeem_gift_certificate` errors (Task 12) | PASS |
+| 22 | Cleanup (Task 12) | PASS |
 
-**17/17 PASS** (15 exercised live end-to-end, item 12 verified by code
+**22/22 PASS** (20 exercised live end-to-end, item 12 verified by code
 inspection since forcing a real `23505` isn't reliably reproducible outside
 a fuzzed harness). The first run of this matrix (2026-08-27) found two real
 bugs: items 4 (Resend never rejects, so send failures were silently
@@ -412,6 +536,13 @@ dev server per the results recorded in items 4, 7, and 7b above. Task 3
 free wedding-call GA4 gate (items 12-13 above). Task 8 (same day) added the
 gift certificate purchase endpoint and verified its charge-before-insert
 ordering (item 15), honeypot (item 16), and guard stack (items 14, 17); no
-new bugs found. No known live bugs in this matrix as of that pass. A future
-re-run that finds a regression should update the affected item and this
-table in place, the same way this pass did.
+new bugs found. Task 12 (same day) added the admin booking APIs (blackouts,
+schedules, manual bookings, farm-initiated cancel + Square refund, gift
+certificate issue/void) and verified the auth gate on every route (item 18),
+the blackout create/delete round trip against live availability (item 19),
+manual-booking capacity enforcement plus a cancel-only-from-confirmed check
+(item 20), and the full gift-certificate issue/void/redemption-fails loop
+including a direct RPC probe (item 21); no new bugs found. No known live
+bugs in this matrix as of that pass. A future re-run that finds a
+regression should update the affected item and this table in place, the
+same way this pass did.

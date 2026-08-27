@@ -166,6 +166,81 @@ export async function chargeCard(input: ChargeInput): Promise<ChargeResult> {
   };
 }
 
+export interface RefundInput {
+  paymentId: string;
+  amountCents: number;
+  /** Must be stable per refund attempt — this is what stops a double-refund. */
+  idempotencyKey: string;
+  reason: string;
+}
+
+export interface RefundResult {
+  ok: boolean;
+  refundId?: string;
+  /** Safe to show an admin. Square's raw detail is logged, not surfaced. */
+  error?: string;
+}
+
+/**
+ * Refund some or all of a completed Square payment.
+ *
+ * Used only from the admin cancel route (`src/app/api/shop/admin/booking/cancel/route.ts`)
+ * — a farm-initiated cancel, never a customer-facing action. Square accepts a
+ * partial amount, which is what lets a gift-certificate-covered booking refund
+ * only the cash portion that was actually charged to the card.
+ */
+export async function refundPayment(input: RefundInput): Promise<RefundResult> {
+  const { accessToken } = config();
+
+  let response: Response;
+  try {
+    response = await fetch(`${SQUARE_API}/refunds`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Square-Version": SQUARE_VERSION,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idempotency_key: input.idempotencyKey,
+        payment_id: input.paymentId,
+        amount_money: { amount: input.amountCents, currency: "USD" },
+        reason: input.reason.slice(0, 192),
+      }),
+    });
+  } catch (err) {
+    console.error("[booking] Square refund request failed:", err);
+    return {
+      ok: false,
+      error: "We couldn't reach our payment processor to issue the refund. Try again shortly.",
+    };
+  }
+
+  const body = (await response.json().catch(() => ({}))) as {
+    refund?: { id?: string; status?: string };
+    errors?: SquareError[];
+  };
+
+  if (!response.ok || body.errors?.length) {
+    console.error(
+      "[booking] Square refund failed:",
+      response.status,
+      JSON.stringify(body.errors ?? {}),
+    );
+    return { ok: false, error: customerMessage(body.errors) };
+  }
+
+  const refund = body.refund;
+  if (!refund?.id) {
+    console.error("[booking] Square refund returned no id");
+    return { ok: false, error: "The refund didn't come back with a confirmation. Check Square directly." };
+  }
+
+  // COMPLETED and PENDING are both real, in-flight refunds (some funding
+  // sources settle async); either one means Square accepted the request.
+  return { ok: true, refundId: refund.id };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Orders, inventory and webhooks — the POS link
 // ─────────────────────────────────────────────────────────────────────────────
