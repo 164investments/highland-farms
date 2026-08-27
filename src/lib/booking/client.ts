@@ -55,22 +55,31 @@ export async function submitBooking(payload: BookingSubmission): Promise<
   const fbc = cookies.match(/_fbc=([^;]+)/)?.[1];
   const gaCookie = cookies.match(/_ga=GA\d+\.\d+\.(.+?)(;|$)/)?.[1];
 
-  const res = await fetch("/api/booking/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ...payload,
-      idempotencyKey,
-      attribution,
-      clientId: gaCookie,
-      fbp,
-      fbc,
-    }),
-  });
-  const data = await res.json().catch(() => ({}));
+  let res: Response;
+  let data: Record<string, unknown> & { success?: boolean; bookingNumber?: string; amountCents?: number; reuseIdempotencyKey?: boolean; error?: string };
+  try {
+    res = await fetch("/api/booking/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...payload,
+        idempotencyKey,
+        attribution,
+        clientId: gaCookie,
+        fbp,
+        fbc,
+      }),
+    });
+    data = await res.json().catch(() => ({}));
+  } catch {
+    // The request may have reached the server; the charge outcome is unknown.
+    // Keep the SAME idempotency key so a retry can never double-charge.
+    reuseKey = true;
+    return { ok: false, status: 0, error: "Connection hiccup. Check your connection and try again." };
+  }
   if (res.ok && data.success) {
     idempotencyKey = null;
-    return { ok: true, bookingNumber: data.bookingNumber, amountCents: data.amountCents };
+    return { ok: true, bookingNumber: data.bookingNumber as string, amountCents: data.amountCents as number };
   }
   // 402 with reuseIdempotencyKey means Square's outcome is unknown: the SAME
   // key must be replayed so Square returns the original payment, never a
