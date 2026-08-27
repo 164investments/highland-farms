@@ -124,7 +124,7 @@ export async function getGiftCertificate(code: string): Promise<{
     .eq("code", code)
     .maybeSingle();
   if (error || !data || data.status !== "active") return null;
-  if (data.expires_at && data.expires_at < new Date().toISOString()) return null;
+  if (data.expires_at && new Date(data.expires_at).getTime() < Date.now()) return null;
   return {
     kind: data.kind,
     productScope: data.product_scope,
@@ -189,7 +189,7 @@ export async function getScheduleData(
     if (r.error) throw new Error(`booking schedule read failed: ${r.error.message}`);
   }
 
-  const nowIso = new Date().toISOString();
+  const nowMs = Date.now();
   return {
     schedules: (schedules.data ?? []).map((r) => ({
       productSlug: r.product_slug,
@@ -212,7 +212,10 @@ export async function getScheduleData(
       productSlugs: r.product_slugs,
     })),
     booked: (booked.data ?? [])
-      .filter((r) => r.status === "confirmed" || (r.hold_expires_at ?? "") > nowIso)
+      .filter(
+        (r) => r.status === "confirmed"
+          || (r.hold_expires_at !== null && new Date(r.hold_expires_at).getTime() > nowMs),
+      )
       .map((r) => ({
         productSlug: r.product_slug,
         startsAtIso: r.starts_at,
