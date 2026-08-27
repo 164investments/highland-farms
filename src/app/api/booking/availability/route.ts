@@ -31,7 +31,11 @@ export async function GET(request: Request) {
   const today = pacificDateStr(now);
   const lo = from < today ? today : from;
   const hi = to > addDays(lo, 62) ? addDays(lo, 62) : to;
-  if (hi < lo) return NextResponse.json({ days: [] });
+  if (hi < lo) {
+    return NextResponse.json({ days: [] }, {
+      headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
+    });
+  }
 
   try {
     if (slug === "combo") {
