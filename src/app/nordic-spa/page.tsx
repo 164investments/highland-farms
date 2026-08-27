@@ -620,11 +620,13 @@ export default function NordicSpaPage() {
       </section>
 
       {/* Sticky mobile CTA */}
-      <BookingStickyCTA
-        label="Book Now · $75/person"
-        href={stickyBookingHref}
-        title="Book your Nordic Spa session"
-      />
+      {!nativeCalendarEnabled() && (
+        <BookingStickyCTA
+          label="Book Now · $75/person"
+          href={stickyBookingHref}
+          title="Book your Nordic Spa session"
+        />
+      )}
 
       {/* Modal mount — listens for openBookingModal() calls from every CTA */}
       <BookingModalRoot />

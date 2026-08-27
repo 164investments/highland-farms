@@ -222,3 +222,35 @@ delete from booking_schedules where id in (27,28,29);
 ```
 Post-cleanup: `leftover_bookings: 0, leftover_schedules: 0`. Availability
 re-checked empty for the seeded dates. Dev server stopped, port 3000 free.
+
+## Follow-up: gated the sticky mobile CTA behind the flag
+
+Post-review, the coordinator flagged the "sticky CTA still routes to Acuity"
+non-issue above as worth fixing after all: with the flag on it's a second,
+contradictory booking path fixed to the bottom of the screen on mobile,
+competing with the on-page native widget.
+
+Wrapped both `BookingStickyCTA` mounts (`src/app/farm-tours/page.tsx`,
+`src/app/nordic-spa/page.tsx`) in the same `{!nativeCalendarEnabled() &&
+(...)}` conditional already used for the primary `BookingButton`. Verified
+live (`iPhone 14 Pro`, flag on, scrolled to page bottom on both pages): the
+sticky CTA's `div.fixed.bottom-0.left-0.right-0` wrapper count goes from 1
+to 0, and the footer renders cleanly with no dead gap or overlap where it
+used to sit —
+`shots/farm-tours-footer-no-sticky-mobile.png`, `shots/nordic-spa-footer-no-sticky-mobile.png`.
+The unconditional `<div className="h-20 lg:hidden" />` spacer at the end of
+both pages (originally there so the sticky bar never covers the last bit of
+content) was left untouched per the fix's scope — with the CTA gone it's
+just ~80px of ordinary-looking footer padding, not a visible defect.
+
+Re-ran Task 5's exact flag-off byte-diff method (stash to the pre-fix
+commit, build+curl both routes, restore the fix, build+curl again, diff
+normalized for build-id noise) since the conditionals in these two files
+had now been touched twice in this task. Result: **byte-identical (modulo
+build-id) for both `/farm-tours` and `/nordic-spa`**, flag off — raw file
+sizes matched exactly, and a full string-equality check passed after
+normalization.
+
+Gate re-run clean: `npm test` 34/34, `tsc` clean, `lint` clean, `build`
+clean. All dev/start servers and ports (3000, 3099, 3801, 3802) stopped and
+confirmed free.

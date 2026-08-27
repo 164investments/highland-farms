@@ -352,10 +352,12 @@ export default function FarmToursPage() {
       <EventCategoryCards />
 
       {/* Sticky Mobile CTA */}
-      <BookingStickyCTA
-        label="Book Your Farm Tour"
-        href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-sticky-mobile")}
-      />
+      {!nativeCalendarEnabled() && (
+        <BookingStickyCTA
+          label="Book Your Farm Tour"
+          href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-sticky-mobile")}
+        />
+      )}
 
       {/* Modal mount — listens for openBookingModal() calls from every CTA */}
       <BookingModalRoot />
