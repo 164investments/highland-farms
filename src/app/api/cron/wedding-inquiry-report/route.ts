@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getAppointments } from "@/lib/acuity";
 import type { AcuityAppointment } from "@/lib/acuity";
 import { getWeddingGA4Data, type GA4WeddingData } from "@/lib/ga4-data";
+import { escapeHtml } from "@/lib/html";
 
 // ── Config ───────────────────────────────────────────────────────────────────
 
@@ -91,10 +92,6 @@ function fmtDateShort(iso: string): string {
 
 function fmtDateFull(d: Date): string {
   return `${MONTH_NAMES[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-}
-
-function escapeHtml(str: string): string {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 function pctChange(current: number, previous: number): { text: string; color: string } {

@@ -27,9 +27,12 @@ export async function GET(request: Request) {
     // Current-year and next-year reads are independent. `showall=true` gives us
     // both active and canceled records in one pass for each year, which keeps
     // the wider new-booking window from increasing Acuity request latency.
-    const [reportYearAppointments, nextYearAppointments, orders] = await Promise.all([
+    const [reportYearAppointments, nextYearAppointments, previousDayAppointments, orders] = await Promise.all([
       getAllAppointments(ranges.reportYear.start, ranges.reportYear.end),
       getAllAppointments(ranges.nextYear.start, ranges.nextYear.end),
+      ranges.fetchPreviousDaySeparately
+        ? getAllAppointments(ranges.previousDay.start, ranges.previousDay.end)
+        : Promise.resolve([]),
       getOrders(),
     ]);
 
@@ -39,6 +42,10 @@ export async function GET(request: Request) {
       now,
       active,
       canceled,
+      yesterdayCandidates: [
+        ...reportYearAppointments,
+        ...previousDayAppointments,
+      ].filter((appointment) => !appointment.canceled),
       bookingCandidates: [...reportYearAppointments, ...nextYearAppointments],
       orders,
     });

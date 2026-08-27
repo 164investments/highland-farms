@@ -1,4 +1,5 @@
 import type { AcuityAppointment, AcuityOrder } from "./acuity";
+import { escapeHtml } from "./html.ts";
 
 const TIME_ZONE = "America/Los_Angeles";
 const DOW_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -18,6 +19,7 @@ export interface DailyReportData {
   now: Date;
   active: AcuityAppointment[];
   canceled: AcuityAppointment[];
+  yesterdayCandidates: AcuityAppointment[];
   bookingCandidates: AcuityAppointment[];
   orders: AcuityOrder[];
 }
@@ -52,11 +54,13 @@ export interface DailyReportMetrics {
   monthlyAppointments: Record<string, MonthValue>;
   ordersByMonth: Record<string, number>;
   yearOrders: AcuityOrder[];
+  activeCount: number;
   totalActiveValue: number;
   pastActiveCount: number;
   pastActiveValue: number;
   futureActiveCount: number;
   futureActiveValue: number;
+  canceledCount: number;
   canceledValue: number;
   byType: Array<[string, MonthValue]>;
   dowValue: number[];
@@ -67,15 +71,6 @@ export interface DailyReportMetrics {
   cancelRate: number;
   next7: DayValue[];
   pacing: PacingComparison | null;
-}
-
-export function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
 }
 
 export function toPacificDateKey(value: Date | string): string {
@@ -194,11 +189,15 @@ function calculatePacing(
 }
 
 export function getDailyReportDateRanges(now: Date) {
-  const year = Number(toPacificDateKey(now).slice(0, 4));
+  const todayKey = toPacificDateKey(now);
+  const yesterdayKey = addDays(todayKey, -1);
+  const year = Number(todayKey.slice(0, 4));
+  const reportYear = { start: `${year}-01-01`, end: `${year}-12-31` };
   return {
-    reportYear: { start: `${year}-01-01`, end: `${year}-12-31` },
+    reportYear,
     nextYear: { start: `${year + 1}-01-01`, end: `${year + 1}-12-31` },
-    bookingWindow: { start: `${year}-01-01`, end: `${year + 1}-12-31` },
+    previousDay: { start: yesterdayKey, end: yesterdayKey },
+    fetchPreviousDaySeparately: yesterdayKey < reportYear.start,
   };
 }
 
@@ -214,9 +213,10 @@ export function calculateDailyReport(data: DailyReportData): DailyReportMetrics 
 
   const active = uniqueAppointments(data.active);
   const canceled = uniqueAppointments(data.canceled);
+  const yesterdayCandidates = uniqueAppointments(data.yesterdayCandidates);
   const bookingCandidates = uniqueAppointments(data.bookingCandidates);
 
-  const yesterdayAppointments = active
+  const yesterdayAppointments = yesterdayCandidates
     .filter((appointment) => toPacificDateKey(appointment.datetime) === yesterdayKey)
     .toSorted((a, b) => a.datetime.localeCompare(b.datetime));
   const newBookings = bookingCandidates
@@ -308,11 +308,13 @@ export function calculateDailyReport(data: DailyReportData): DailyReportMetrics 
     monthlyAppointments,
     ordersByMonth,
     yearOrders,
+    activeCount: active.length,
     totalActiveValue,
     pastActiveCount: pastActive.length,
     pastActiveValue: sumAppointmentValue(pastActive),
     futureActiveCount: futureActive.length,
     futureActiveValue: sumAppointmentValue(futureActive),
+    canceledCount: canceled.length,
     canceledValue: sumAppointmentValue(canceled),
     byType: Object.entries(byTypeMap).sort((a, b) => b[1].value - a[1].value),
     dowValue,
@@ -429,10 +431,10 @@ export function buildDailyReport(data: DailyReportData): string {
       ? `<tr><td style='padding:28px 32px 0;'><span style='font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:1px;'>Bookings Created Yesterday (Pacific Time)</span><table width='100%' cellspacing='0' style='margin-top:12px;'>${bookingRows}</table></td></tr>`
       : "") +
     `<tr><td style='padding:28px 32px 0;'><span style='font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:1px;'>${year} Activity by Service / Sale Month</span><table width='100%' cellspacing='0' style='margin-top:12px;border-collapse:collapse;'><tr style='border-bottom:2px solid #eee;'><td style='padding:8px 0;font-size:12px;font-weight:600;color:#888;'>MONTH</td><td align='center' style='padding:8px 0;font-size:12px;font-weight:600;color:#888;'>ACTIVE APPTS</td><td align='right' style='padding:8px 0;font-size:12px;font-weight:600;color:#888;'>APPT VALUE</td><td align='right' style='padding:8px 0;font-size:12px;font-weight:600;color:#888;'>ORDER SALES</td></tr>${monthRows}` +
-    `<tr style='background:#1c1d1d;'><td style='padding:14px 10px;font-size:14px;font-weight:700;color:#f2c070;border-radius:6px 0 0 0;'>${year} active appointment dates</td><td align='center' style='padding:14px 0;font-size:14px;font-weight:700;color:#f2c070;'>${data.active.length}</td><td align='right' style='padding:14px 0;font-size:14px;font-weight:700;color:#f2c070;'>${fmtMoney(metrics.totalActiveValue)}</td><td></td></tr>` +
+    `<tr style='background:#1c1d1d;'><td style='padding:14px 10px;font-size:14px;font-weight:700;color:#f2c070;border-radius:6px 0 0 0;'>${year} active appointment dates</td><td align='center' style='padding:14px 0;font-size:14px;font-weight:700;color:#f2c070;'>${metrics.activeCount}</td><td align='right' style='padding:14px 0;font-size:14px;font-weight:700;color:#f2c070;'>${fmtMoney(metrics.totalActiveValue)}</td><td></td></tr>` +
     `<tr style='background:#f8f7f4;'><td style='padding:10px;font-size:13px;color:#666;'>Past active through ${formatShortDate(yesterdayKey)}</td><td align='center' style='font-size:13px;color:#666;'>${metrics.pastActiveCount}</td><td align='right' style='font-size:13px;font-weight:600;color:#666;'>${fmtMoney(metrics.pastActiveValue)}</td><td></td></tr>` +
     `<tr style='background:#f8f7f4;'><td style='padding:10px;font-size:13px;color:#666;'>Future active appointments</td><td align='center' style='font-size:13px;color:#666;'>${metrics.futureActiveCount}</td><td align='right' style='font-size:13px;font-weight:600;color:#666;'>${fmtMoney(metrics.futureActiveValue)}</td><td></td></tr>` +
-    `<tr style='background:#f8f7f4;'><td style='padding:10px;font-size:13px;color:#666;'>Canceled appointment records</td><td align='center' style='font-size:13px;color:#666;'>${data.canceled.length}</td><td align='right' style='font-size:13px;font-weight:600;color:#666;'>${fmtMoney(metrics.canceledValue)}</td><td style='font-size:11px;color:#999;text-align:right;'>Acuity amount paid</td></tr>` +
+    `<tr style='background:#f8f7f4;'><td style='padding:10px;font-size:13px;color:#666;'>Canceled appointment records</td><td align='center' style='font-size:13px;color:#666;'>${metrics.canceledCount}</td><td align='right' style='font-size:13px;font-weight:600;color:#666;'>${fmtMoney(metrics.canceledValue)}</td><td style='font-size:11px;color:#999;text-align:right;'>Acuity amount paid</td></tr>` +
     `<tr style='background:#f8f7f4;'><td style='padding:10px;font-size:13px;color:#666;border-radius:0 0 0 6px;'>${year} Acuity store orders</td><td align='center' style='font-size:13px;color:#666;'>${yearOrders.length}</td><td></td><td align='right' style='padding-right:10px;font-size:13px;font-weight:600;color:#666;border-radius:0 0 6px 0;'>${fmtMoney(yearOrderValue)}</td></tr></table></td></tr>` +
     `<tr><td style='padding:28px 32px 0;'><span style='font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:1px;'>Next 7 Days — Active Schedule</span><table width='100%' cellspacing='0' style='margin-top:12px;border-collapse:collapse;'>${next7Rows}</table></td></tr>` +
     `<tr><td style='padding:28px 32px 0;'><span style='font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:1px;'>Appointment Value by Service Type (${year} Appointment Dates)</span><table width='100%' cellspacing='0' style='margin-top:12px;border-collapse:collapse;'>${typeRows}${otherRow}</table></td></tr>` +

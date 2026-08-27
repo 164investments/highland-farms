@@ -35,6 +35,7 @@ src/
     <integration>.ts       one file per external system: acuity, hubspot,
                            bookediq, meta, ga4, supabase, resend, turnstile
     daily-report.ts        pure daily-report calculations + escaped email template
+    html.ts                shared HTML escaping for all email renderers
   data/                    static page content (properties, tours, spa, portfolio)
 docs/                      plans, recovered data, ads runbooks
 scripts/                   one-off + scheduled ops scripts

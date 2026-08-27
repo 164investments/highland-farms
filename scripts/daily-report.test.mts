@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { AcuityAppointment, AcuityOrder } from "../src/lib/acuity.ts";
-import { assertCompleteOrders } from "../src/lib/acuity.ts";
+import { assertCompleteOrders, getAllAppointments } from "../src/lib/acuity.ts";
 import {
   buildDailyReport,
   calculateDailyReport,
@@ -49,6 +49,7 @@ function reportData(overrides: {
     now: new Date("2026-08-27T15:00:00Z"),
     active: overrides.active ?? [],
     canceled: overrides.canceled ?? [],
+    yesterdayCandidates: overrides.active ?? [],
     bookingCandidates: overrides.bookingCandidates ?? [],
     orders: overrides.orders ?? [],
   };
@@ -93,10 +94,29 @@ test("includes next-year and same-day-canceled records in new-booking coverage",
   assert.equal(metrics.newActiveBookingValue, 0);
 
   const ranges = getDailyReportDateRanges(new Date("2026-08-27T15:00:00Z"));
-  assert.deepEqual(ranges.bookingWindow, {
-    start: "2026-01-01",
-    end: "2027-12-31",
+  assert.deepEqual(ranges.reportYear, { start: "2026-01-01", end: "2026-12-31" });
+  assert.deepEqual(ranges.nextYear, { start: "2027-01-01", end: "2027-12-31" });
+  assert.equal(ranges.fetchPreviousDaySeparately, false);
+});
+
+test("keeps December 31 appointments in the January 1 report without mixing years", () => {
+  const december31 = appointment(12, {
+    datetime: "2026-12-31T10:00:00-0800",
+    amountPaid: "150.00",
   });
+  const now = new Date("2027-01-01T16:00:00Z");
+  const ranges = getDailyReportDateRanges(now);
+  const metrics = calculateDailyReport({
+    ...reportData(),
+    now,
+    yesterdayCandidates: [december31],
+  });
+
+  assert.deepEqual(ranges.previousDay, { start: "2026-12-31", end: "2026-12-31" });
+  assert.equal(ranges.fetchPreviousDaySeparately, true);
+  assert.deepEqual(metrics.yesterdayAppointments.map((item) => item.id), [12]);
+  assert.equal(metrics.yesterdayScheduledValue, 150);
+  assert.equal(metrics.activeCount, 0);
 });
 
 test("does not claim that active appointments were delivered", () => {
@@ -188,4 +208,71 @@ test("fails loudly instead of silently truncating Acuity order totals", () => {
     () => assertCompleteOrders([1, 2, 3], 3),
     /refusing to send an incomplete order total/,
   );
+});
+
+test("fetches all Acuity appointment ranges with showall and de-duplicates IDs", async () => {
+  const originalFetch = globalThis.fetch;
+  const requested: URL[] = [];
+  globalThis.fetch = async (input) => {
+    const url = new URL(String(input));
+    requested.push(url);
+    const month = url.searchParams.get("minDate");
+    const rows = month === "2026-01-01"
+      ? [appointment(101)]
+      : [appointment(101), appointment(102)];
+    return new Response(JSON.stringify(rows), { status: 200 });
+  };
+
+  try {
+    const result = await getAllAppointments("2026-01-01", "2026-02-28");
+    assert.deepEqual(result.map((item) => item.id), [101, 102]);
+    assert.equal(requested.length, 2);
+    assert.ok(requested.every((url) => url.searchParams.get("showall") === "true"));
+    assert.ok(requested.every((url) => url.searchParams.get("max") === "500"));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("splits a capped Acuity date range instead of silently truncating it", async () => {
+  const originalFetch = globalThis.fetch;
+  const requested: string[] = [];
+  globalThis.fetch = async (input) => {
+    const url = new URL(String(input));
+    const minDate = url.searchParams.get("minDate")!;
+    const maxDate = url.searchParams.get("maxDate")!;
+    requested.push(`${minDate}:${maxDate}`);
+    const rows = minDate === maxDate
+      ? [appointment(minDate.endsWith("01") ? 201 : 202)]
+      : Array.from({ length: 500 }, (_, index) => appointment(1_000 + index));
+    return new Response(JSON.stringify(rows), { status: 200 });
+  };
+
+  try {
+    const result = await getAllAppointments("2026-01-01", "2026-01-02");
+    assert.deepEqual(result.map((item) => item.id), [201, 202]);
+    assert.deepEqual(requested, [
+      "2026-01-01:2026-01-02",
+      "2026-01-01:2026-01-01",
+      "2026-01-02:2026-01-02",
+    ]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("fails loudly when a single Acuity day reaches the appointment cap", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify(
+    Array.from({ length: 500 }, (_, index) => appointment(2_000 + index)),
+  ), { status: 200 });
+
+  try {
+    await assert.rejects(
+      getAllAppointments("2026-01-01", "2026-01-01"),
+      /refusing to silently truncate the report/,
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
