@@ -19,6 +19,8 @@ import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { farmTourFAQ } from "@/data/farm-tours";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
+import { nativeCalendarEnabled } from "@/lib/booking/flag";
+import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 
 const GROUP_PRICING = [
   { guests: 2, total: 150 },
@@ -264,12 +266,15 @@ export default function FarmToursPage() {
             </div>
 
             <div className="mt-6">
-              <BookingButton
-                href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-pricing")}
-                label="Book Your Tour"
-                size="lg"
-                className="w-full"
-              />
+              <NativeBookingSection product="farm-tour" />
+              {!nativeCalendarEnabled() && (
+                <BookingButton
+                  href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-pricing")}
+                  label="Book Your Tour"
+                  size="lg"
+                  className="w-full"
+                />
+              )}
               <p className="mt-3 text-center text-xs text-muted font-sans">
                 Strict cancellation policy: all bookings are final. No refunds
                 or reschedules.
