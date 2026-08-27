@@ -16,6 +16,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Verify Changes
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the project map, integration boundaries,
+and the rules that keep the farm store and reporting flows correct.
+
 ## Tracking Setup
 
 Production tracking expects these public IDs to be configured in Vercel:
@@ -41,7 +52,7 @@ commands, output files, and safety gates. Any future live-account write must
 follow the exact, approval-gated sequence in the
 [staged ads plan](docs/live-ads-plan-2026-08-13.md).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

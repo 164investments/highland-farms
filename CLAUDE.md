@@ -11,6 +11,7 @@
 ## Deploy
 Push to `main` triggers auto-deploy via Vercel.
 ```bash
+npm test         # daily-report regression suite
 npm run build    # verify before pushing
 npm run lint     # eslint
 npm run indexnow # submit pages to Bing
@@ -21,7 +22,7 @@ npm run indexnow # submit pages to Bing
 - Dynamic: `src/app/stay/[slug]/page.tsx` (4 properties), `src/app/wedding-portfolio/[slug]/page.tsx`
 - API routes: `src/app/api/` (inquiries, acuity/webhook, meta/webhook, subscribe, cron/daily-report)
 - Data: `src/data/` (properties, farm-tours, nordic-spa, navigation, wedding-portfolio)
-- Libs: `src/lib/` (supabase, acuity, hubspot, bookediq, email, ga4, meta, meta-leads, schemas)
+- Libs: `src/lib/` (supabase, acuity, daily-report, html, hubspot, bookediq, email, ga4, meta, meta-leads, schemas)
 - Layout: `src/components/layout/` (Header, Footer, GTM, EmailPopup, BookedIQWidget, StructuredData, AttributionTracker)
 - Forms: `src/components/forms/ContactForm.tsx`
 - Booked-wedding feed tooling: `scripts/build-booked-wedding-ad-feeds.py`, read-only account-state scripts, and `scripts/test_booked_wedding_ad_feeds.py`
@@ -75,7 +76,9 @@ HMAC verify → Fetch lead from Graph API → Supabase upsert →
 ### Daily Report (`GET /api/cron/daily-report`, 3 PM UTC daily)
 ```
 Validate cron header → Fetch Acuity appointments + orders →
-  Build HTML report (pacing, forecast, metrics) → Resend to 4 recipients
+  Normalize Pacific-day and year-boundary windows →
+  Build escaped HTML report (active/canceled value, pacing, next 7 days) →
+  Resend to 4 recipients
 ```
 
 ### Wedding Pipeline Report (`GET /api/cron/wedding-inquiry-report`, Mon 4 PM UTC / 9 AM PT)
