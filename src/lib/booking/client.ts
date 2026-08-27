@@ -6,6 +6,16 @@ export interface UiSlot { startsAt: string; time: string; capacity: number; rema
 export interface UiDay { date: string; slots: UiSlot[] }
 export interface UiComboDay { date: string; pairs: { tour: UiSlot; spa: UiSlot }[] }
 
+/** Today's date, Pacific wall clock, as 'YYYY-MM-DD'. Shared by DatePicker and ComboPicker. */
+export function todayStr(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(new Date());
+}
+/** `dateStr` shifted by `n` days (may be negative). */
+export function plusDays(dateStr: string, n: number): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+
 export async function fetchAvailability(
   product: string, from: string, to: string, party: number,
 ): Promise<UiDay[]> {

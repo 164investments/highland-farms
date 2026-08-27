@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { formatCents } from "@/lib/shop/money";
+import { formatCents, formatCentsShort } from "@/lib/shop/money";
 import { submitBooking, formatSlotTime, type UiSlot } from "@/lib/booking/client";
 import { BOOKING_PRODUCTS, type BookingSlug } from "@/lib/booking/products";
 import { DatePicker } from "./DatePicker";
+import { ComboPicker } from "./ComboPicker";
 import { BookingPayment } from "./BookingPayment";
 
 // Prices and party ranges come from the single price authority
@@ -49,11 +50,13 @@ export function BookingFlow({
   product,
   locationToggle = false,
 }: {
-  product: "farm-tour" | "nordic-spa" | "wedding-call";
+  product: "farm-tour" | "nordic-spa" | "combo" | "wedding-call";
   locationToggle?: boolean;
 }) {
+  const isCombo = product === "combo";
   const [slot, setSlot] = useState<UiSlot | null>(null);
   const [date, setDate] = useState<string>("");
+  const [spaTime, setSpaTime] = useState<string>("");
   const [party, setParty] = useState(PARTY[product][0] === 2 ? 2 : PARTY[product][0]);
   const [first, setFirst] = useState(""); const [last, setLast] = useState("");
   const [email, setEmail] = useState(""); const [phone, setPhone] = useState("");
@@ -70,7 +73,8 @@ export function BookingFlow({
   const isFree = totalCents === 0;
   const [min, max] = PARTY[product];
   const detailsComplete = Boolean(
-    slot && first.trim() && last.trim() && /.+@.+\..+/.test(email) && phone.trim().length >= 7 && referral && policy,
+    slot && (!isCombo || spaTime) && first.trim() && last.trim() &&
+      /.+@.+\..+/.test(email) && phone.trim().length >= 7 && referral && policy,
   );
 
   useEffect(() => push("booking_view_item", { booking_product: product }), [product]);
@@ -82,6 +86,7 @@ export function BookingFlow({
     push("booking_begin_checkout", { booking_product: product, value: totalCents / 100 });
     const result = await submitBooking({
       product, date, time: slot.time, partySize: party,
+      spaTime: isCombo ? spaTime : undefined,
       customer: { firstName: first.trim(), lastName: last.trim(), email: email.trim(), phone: phone.trim() },
       referralSource: referral, policyAgreed: true,
       locationChoice: locationToggle ? location : undefined,
@@ -99,6 +104,7 @@ export function BookingFlow({
       setError(result.error);
       if (result.status === 409) {
         setSlot(null); // slot gone: back to the calendar
+        setSpaTime("");
         setRefreshNonce((n) => n + 1); // trigger availability refetch
       }
     }
@@ -122,14 +128,26 @@ export function BookingFlow({
     <div className="rounded-2xl border border-forest/15 p-5 sm:p-7">
       <h3 className="text-2xl text-forest">{TITLES[product]}</h3>
       <p className="mt-1 font-sans text-sm text-stone-600">
-        {isFree ? "Free. 45 minutes with our events team." : `No fees. $75 per person. That's it.`}
+        {isFree ? "Free. 45 minutes with our events team." : `No fees. ${formatCentsShort(PRICES[product])} per person. That's it.`}
       </p>
 
       <div className="mt-5">
-        <DatePicker product={product} party={party}
-          selected={slot}
-          onSelect={(s, d) => { setSlot(s); setDate(d); push("booking_select_time", { booking_product: product, slot: s.time, date: d }); }}
-          refreshNonce={refreshNonce} />
+        {isCombo ? (
+          <ComboPicker party={party}
+            selected={slot && spaTime ? { date, tourTime: slot.time, spaTime } : null}
+            onSelect={(tourSlot, spaSlot, d) => {
+              setSlot(tourSlot); setDate(d); setSpaTime(spaSlot.time);
+              push("booking_select_time", {
+                booking_product: product, slot: tourSlot.time, spa_slot: spaSlot.time, date: d,
+              });
+            }}
+            refreshNonce={refreshNonce} />
+        ) : (
+          <DatePicker product={product} party={party}
+            selected={slot}
+            onSelect={(s, d) => { setSlot(s); setDate(d); push("booking_select_time", { booking_product: product, slot: s.time, date: d }); }}
+            refreshNonce={refreshNonce} />
+        )}
       </div>
 
       {slot && max > 1 && (

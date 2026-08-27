@@ -1,15 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchAvailability, formatSlotTime, type UiDay, type UiSlot } from "@/lib/booking/client";
+import {
+  fetchAvailability, formatSlotTime, todayStr, plusDays, type UiDay, type UiSlot,
+} from "@/lib/booking/client";
 
-function todayStr(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(new Date());
-}
-function plusDays(dateStr: string, n: number): string {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
-}
 const DAY_LABEL = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC", weekday: "short", month: "short", day: "numeric",
 });
