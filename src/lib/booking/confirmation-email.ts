@@ -85,19 +85,37 @@ export function renderBookingConfirmation(data: BookingEmailData): string {
 
 export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
   const client = getResend();
-  await client.emails.send({
-    from: FROM,
-    to: data.customerEmail,
-    subject: `You're booked — ${data.bookingNumber}`,
-    html: renderBookingConfirmation(data),
-  });
-  await client.emails.send({
-    from: FROM,
-    to: FARM_RECIPIENTS,
-    subject: `New booking: ${data.legs.map((l) => l.productSlug).join(" + ")} · ${data.bookingNumber}`,
-    html: `<p>${escapeHtml(data.customerName)} (${escapeHtml(data.customerEmail)},
-      ${escapeHtml(data.customerPhone)}) booked ${escapeHtml(data.bookingNumber)} —
-      ${data.partySize} guests, paid ${formatCents(data.paidCents)}.</p>
-      ${renderBookingConfirmation(data)}`,
-  });
+  // Independent sends: a bounced/rejected customer email must never stop the
+  // farm from learning about a PAID booking, and vice versa.
+  const results = await Promise.allSettled([
+    client.emails.send({
+      from: FROM,
+      to: data.customerEmail,
+      subject: `You're booked — ${data.bookingNumber}`,
+      html: renderBookingConfirmation(data),
+    }),
+    client.emails.send({
+      from: FROM,
+      to: FARM_RECIPIENTS,
+      subject: `New booking: ${data.legs.map((l) => l.productSlug).join(" + ")} · ${data.bookingNumber}`,
+      html: `<p>${escapeHtml(data.customerName)} (${escapeHtml(data.customerEmail)},
+        ${escapeHtml(data.customerPhone)}) booked ${escapeHtml(data.bookingNumber)} —
+        ${data.partySize} guests, paid ${formatCents(data.paidCents)}.</p>
+        ${renderBookingConfirmation(data)}`,
+    }),
+  ]);
+
+  const [customerResult, farmResult] = results;
+  if (customerResult.status === "rejected") {
+    console.error(
+      `[booking] customer confirmation email failed ${data.bookingNumber}:`,
+      customerResult.reason,
+    );
+  }
+  if (farmResult.status === "rejected") {
+    console.error(
+      `[booking] farm notification email failed ${data.bookingNumber}:`,
+      farmResult.reason,
+    );
+  }
 }
