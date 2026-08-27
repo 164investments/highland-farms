@@ -162,6 +162,13 @@ begin
     from jsonb_array_elements(legs) as e
     order by 1, 2                             -- stable lock order across legs
   loop
+    if leg.product_slug is null or leg.starts_at is null
+       or leg.duration_min is null or leg.capacity is null
+       or leg.party_size is null or leg.units is null
+       or leg.amount_cents is null then
+      raise exception 'malformed leg: %', to_jsonb(leg) using errcode = 'P0002';
+    end if;
+
     perform pg_advisory_xact_lock(
       hashtext(leg.product_slug || '|' || leg.starts_at::text)
     );
@@ -220,8 +227,8 @@ begin
   set status = 'confirmed',
       hold_expires_at = null,
       square_payment_id = p_payment_id,
-      gift_certificate_code = p_gift_code,
-      gift_amount_cents = coalesce(p_gift_cents, 0),
+      gift_certificate_code = case when id = p_ids[1] then p_gift_code else null end,
+      gift_amount_cents = case when id = p_ids[1] then coalesce(p_gift_cents, 0) else 0 end,
       updated_at = now()
   where id = any(p_ids) and status = 'pending';
 end;
@@ -293,7 +300,8 @@ begin
   update gift_certificates
   set remaining_units = remaining_units + p_units,
       status = 'active'
-  where code = p_code;
+  where code = p_code
+    and status <> 'void';
 end;
 $$;
 
