@@ -12,6 +12,7 @@ import {
   resolveGiftCertValueCents,
   toPacificDateKey,
 } from "@/lib/daily-report";
+import { fetchAllPages, fetchNativeAdditionsSafely } from "@/lib/daily-report-fetch";
 import { getBookingProduct } from "@/lib/booking/products";
 import { GIFT_PRODUCTS } from "@/lib/booking/gift";
 
@@ -28,6 +29,10 @@ const GIFT_CATALOG = GIFT_PRODUCTS.map((product) => ({
   units: product.units,
   amountCents: product.amountCents,
 }));
+
+// PostgREST's default row cap — the archive table page size for
+// `fetchAllPages` (see IMPORTANT-3 fix note below).
+const ARCHIVE_PAGE_SIZE = 1000;
 
 type DateRange = { start: string; end: string };
 
@@ -67,6 +72,32 @@ function bookingRowToAppointment(row: BookingRow): AcuityAppointment {
     amountCents: row.amount_cents ?? 0,
     canceled: row.status === "cancelled" || row.status === "no_show",
     type: getBookingProduct(row.product_slug)?.name ?? row.product_slug,
+  });
+}
+
+interface ArchiveRow {
+  id: number;
+  datetime: string;
+  datetime_created: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  amount_paid_cents: number | null;
+  price_cents: number | null;
+  canceled: boolean | null;
+  type: string | null;
+}
+
+function archiveRowToAppointment(row: ArchiveRow): AcuityAppointment {
+  return mapArchiveToAppointment({
+    id: row.id,
+    datetime: row.datetime,
+    datetimeCreated: row.datetime_created ?? row.datetime,
+    firstName: row.first_name ?? "",
+    lastName: row.last_name ?? "",
+    amountPaidCents: row.amount_paid_cents ?? 0,
+    priceCents: row.price_cents ?? row.amount_paid_cents ?? 0,
+    canceled: false,
+    type: row.type ?? "",
   });
 }
 
@@ -127,66 +158,87 @@ export async function GET(request: Request) {
     let nativeBookings: AcuityAppointment[] = [];
 
     if (modeB) {
-      const [{ data: archiveRows, error: archiveErr }, { data: bookingRows, error: bookingErr }] =
-        await Promise.all([
-          db
+      // Mode B's own reads (the archive snapshot + current bookings) ARE
+      // this mode's core data, unlike the "native additions" reads above
+      // Mode A and below (shared) — there is no honest fallback if these
+      // fail, so unlike the native-additions reads they are NOT wrapped to
+      // degrade silently; a failure here still throws to the outer catch.
+      // Mode B is inert today: `modeB` is only ever true once
+      // `ACUITY_ACTIVE` is unset/false AFTER the real cutover, so this path
+      // has zero live blast radius in production right now.
+      const [archiveRows, bookingsResult] = await Promise.all([
+        // IMPORTANT: PostgREST silently caps an unbounded select at its
+        // default page size — pages explicitly so a growing archive is
+        // never truncated without an error (see `fetchAllPages`).
+        fetchAllPages<ArchiveRow>(ARCHIVE_PAGE_SIZE, async (from, to) => {
+          const { data, error } = await db
             .from("acuity_archive_appointments")
             .select(
               "id, datetime, datetime_created, first_name, last_name, amount_paid_cents, price_cents, canceled, type",
             )
-            .eq("canceled", false),
-          db
-            .from("bookings")
-            .select("id, acuity_id, starts_at, created_at, first_name, last_name, amount_cents, status, product_slug, source")
-            .in("source", ["native", "acuity_import"]),
-        ]);
-      if (archiveErr) throw new Error(`acuity_archive_appointments fetch failed: ${archiveErr.message}`);
-      if (bookingErr) throw new Error(`bookings fetch failed: ${bookingErr.message}`);
-
-      const archiveActive = (archiveRows ?? []).map((row) =>
-        mapArchiveToAppointment({
-          id: row.id,
-          datetime: row.datetime,
-          datetimeCreated: row.datetime_created ?? row.datetime,
-          firstName: row.first_name ?? "",
-          lastName: row.last_name ?? "",
-          amountPaidCents: row.amount_paid_cents ?? 0,
-          priceCents: row.price_cents ?? row.amount_paid_cents ?? 0,
-          canceled: false,
-          type: row.type ?? "",
+            .eq("canceled", false)
+            .order("id", { ascending: true })
+            .range(from, to);
+          if (error) throw new Error(`acuity_archive_appointments fetch failed: ${error.message}`);
+          return (data ?? []) as ArchiveRow[];
         }),
-      );
+        db
+          .from("bookings")
+          .select("id, acuity_id, starts_at, created_at, first_name, last_name, amount_cents, status, product_slug, source")
+          .in("source", ["native", "acuity_import"]),
+      ]);
+      if (bookingsResult.error) {
+        throw new Error(`bookings fetch failed: ${bookingsResult.error.message}`);
+      }
 
-      const allBookingRows = (bookingRows ?? []) as BookingRow[];
-      const currentAppointments = allBookingRows
-        .filter((row) => row.status === "confirmed" || row.status === "completed")
+      const archiveActive = archiveRows.map(archiveRowToAppointment);
+
+      // Every acuity_import row (ANY status) has to enter the merge, not
+      // just confirmed/completed ones — otherwise a cancelled import's
+      // STALE archive twin survives as "active" while the cancelled
+      // bookings row is ALSO counted separately: double count, once
+      // active (from the frozen archive) and once cancelled (from
+      // bookings), for the same real-world appointment. Native rows can
+      // never collide with an archive row (their synthetic ids can't look
+      // like a real, positive Acuity id), so only fully-resolved native
+      // bookings (confirmed/completed) are counted at all — a pending
+      // native hold isn't a real booking yet.
+      const allBookingRows = (bookingsResult.data ?? []) as BookingRow[];
+      const currentForMerge = allBookingRows
+        .filter(
+          (row) =>
+            row.source === "acuity_import" ||
+            row.status === "confirmed" ||
+            row.status === "completed",
+        )
         .map(bookingRowToAppointment);
-      const canceledAppointments = allBookingRows
-        .filter((row) => row.status === "cancelled")
-        .map(bookingRowToAppointment);
 
-      // A `bookings` row for an appointment Acuity originally created
-      // supersedes its frozen archive counterpart (same id = the original
-      // Acuity id) — it reflects any post-cutover status change the archive
-      // snapshot can't know about. See `mergeArchiveWithCurrent`.
-      const mergedActive = mergeArchiveWithCurrent(archiveActive, currentAppointments);
+      // The merged result is the SINGLE source of truth for both active
+      // and canceled — never derive `canceled` from a separately
+      // (raw-status) filtered array; that's exactly what reintroduces the
+      // double count above.
+      const merged = mergeArchiveWithCurrent(archiveActive, currentForMerge);
 
-      active = mergedActive.filter((a) => inWindow(toPacificDateKey(a.datetime), ranges.reportYear));
-      canceled = canceledAppointments.filter((a) =>
-        inWindow(toPacificDateKey(a.datetime), ranges.reportYear),
+      active = merged.filter(
+        (a) => !a.canceled && inWindow(toPacificDateKey(a.datetime), ranges.reportYear),
       );
-      analysisCandidates = mergedActive.filter((a) => {
+      canceled = merged.filter(
+        (a) => a.canceled && inWindow(toPacificDateKey(a.datetime), ranges.reportYear),
+      );
+      analysisCandidates = merged.filter((a) => {
+        if (a.canceled) return false;
         const key = toPacificDateKey(a.datetime);
         return (
           inWindow(key, ranges.reportYear) ||
           (ranges.fetchPriorMonthSeparately && inWindow(key, ranges.priorMonth))
         );
       });
-      scheduleCandidates = mergedActive.filter((a) => {
+      scheduleCandidates = merged.filter((a) => {
+        if (a.canceled) return false;
         const key = toPacificDateKey(a.datetime);
         return inWindow(key, ranges.reportYear) || inWindow(key, ranges.nextYear);
       });
-      bookingCandidates = [...mergedActive, ...canceledAppointments].filter((a) => {
+      bookingCandidates = merged.filter((a) => {
         const key = toPacificDateKey(a.datetimeCreated);
         return (
           inWindow(key, ranges.reportYear) ||
@@ -230,19 +282,29 @@ export async function GET(request: Request) {
       // Acuity mirror), confirmed/completed, scoped to the report year —
       // rendered as their own labeled line, never merged into the numbers
       // above, so the existing Acuity numbers stay byte-identical when
-      // there's no native activity.
-      const { data: nativeRows, error: nativeErr } = await db
-        .from("bookings")
-        .select("id, acuity_id, starts_at, created_at, first_name, last_name, amount_cents, status, product_slug, source")
-        .eq("source", "native")
-        .in("status", ["confirmed", "completed"])
-        .gte("starts_at", `${ranges.reportYear.start}T00:00:00Z`)
-        .lte("starts_at", `${ranges.reportYear.end}T23:59:59Z`);
-      if (nativeErr) throw new Error(`native bookings fetch failed: ${nativeErr.message}`);
-      nativeBookings = ((nativeRows ?? []) as BookingRow[]).map(bookingRowToAppointment);
+      // there's no native activity. Wrapped so a Supabase failure here
+      // degrades to "no native activity today" instead of failing the
+      // entire (otherwise-healthy) Acuity-sourced email — see
+      // `fetchNativeAdditionsSafely`.
+      nativeBookings = await fetchNativeAdditionsSafely("native bookings", async () => {
+        const { data, error } = await db
+          .from("bookings")
+          .select("id, acuity_id, starts_at, created_at, first_name, last_name, amount_cents, status, product_slug, source")
+          .eq("source", "native")
+          .in("status", ["confirmed", "completed"])
+          .gte("starts_at", `${ranges.reportYear.start}T00:00:00Z`)
+          .lte("starts_at", `${ranges.reportYear.end}T23:59:59Z`);
+        if (error) throw new Error(`native bookings fetch failed: ${error.message}`);
+        return ((data ?? []) as BookingRow[]).map(bookingRowToAppointment);
+      });
     }
 
-    const nativeGiftCertValueCents = await fetchNativeGiftCertValueCents(db, ranges.reportYear);
+    // Shared by both modes, and just as additive/non-load-bearing in
+    // either one — same degrade-on-failure treatment as native bookings
+    // above.
+    const nativeGiftCertValueCents = await fetchNativeAdditionsSafely("native gift certs", () =>
+      fetchNativeGiftCertValueCents(db, ranges.reportYear),
+    );
 
     const html = buildDailyReport({
       now,

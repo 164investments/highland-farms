@@ -479,6 +479,112 @@ test("mode-B math: a current booking supersedes the frozen archive row for the s
   assert.equal(merged[0].canceled, true, "the live bookings row wins over the frozen archive row");
 });
 
+// ---- CRITICAL 2 fix (post-review): a cancelled acuity_import row must
+// supersede its archive twin, and active/canceled must both be derived
+// from the SAME merged result — not from separately status-filtered raw
+// arrays, which is exactly what let the same appointment get counted
+// active (stale archive) AND canceled (bookings) at once. This test wires
+// the pure functions the same way the route does after the fix. ----
+
+test("mode-B route wiring: a cancelled import row supersedes its archive twin and is counted once, as cancelled (no double count)", () => {
+  const archived = mapArchiveToAppointment({
+    id: 9002,
+    datetime: "2026-08-12T10:00:00-0700",
+    datetimeCreated: "2026-08-02T09:00:00-0700",
+    firstName: "Archive",
+    lastName: "Guest",
+    amountPaidCents: 15000,
+    priceCents: 15000,
+    canceled: false, // active as of the frozen snapshot
+    type: "Highland Farms Farm Tour",
+  });
+
+  // Raw bookings rows exactly as `bookingsResult.data` would carry them —
+  // includes a cancelled acuity_import row (the route's fix must feed this
+  // into the merge regardless of status).
+  const bookingRows = [
+    {
+      id: "22222222-2222-2222-2222-222222222222",
+      acuity_id: 9002,
+      starts_at: "2026-08-12T10:00:00-0700",
+      created_at: "2026-08-02T09:00:00-0700",
+      first_name: "Import",
+      last_name: "Guest",
+      amount_cents: 15000,
+      status: "cancelled",
+      product_slug: "farm-tour",
+      source: "acuity_import",
+    },
+    {
+      id: "33333333-3333-3333-3333-333333333333",
+      acuity_id: null,
+      starts_at: "2026-08-13T10:00:00-0700",
+      created_at: "2026-08-03T09:00:00-0700",
+      first_name: "Native",
+      last_name: "Guest",
+      amount_cents: 22000,
+      status: "confirmed",
+      product_slug: "nordic-spa",
+      source: "native",
+    },
+    {
+      // A still-pending native hold must NOT be counted at all.
+      id: "44444444-4444-4444-4444-444444444444",
+      acuity_id: null,
+      starts_at: "2026-08-14T10:00:00-0700",
+      created_at: "2026-08-04T09:00:00-0700",
+      first_name: "Pending",
+      last_name: "Guest",
+      amount_cents: 7500,
+      status: "pending",
+      product_slug: "farm-tour",
+      source: "native",
+    },
+  ];
+
+  const bookingRowToAppointment = (row: (typeof bookingRows)[number]) =>
+    mapBookingToAppointment({
+      id: row.id,
+      acuityId: row.acuity_id,
+      startsAt: row.starts_at,
+      createdAt: row.created_at,
+      firstName: row.first_name,
+      lastName: row.last_name,
+      amountCents: row.amount_cents,
+      canceled: row.status === "cancelled" || row.status === "no_show",
+      type: row.product_slug,
+    });
+
+  // The fixed route's exact filter: every acuity_import row (any status)
+  // plus confirmed/completed native rows.
+  const currentForMerge = bookingRows
+    .filter(
+      (row) => row.source === "acuity_import" || row.status === "confirmed" || row.status === "completed",
+    )
+    .map(bookingRowToAppointment);
+
+  const merged = mergeArchiveWithCurrent([archived], currentForMerge);
+
+  // Pending native row never entered currentForMerge, so it can't appear.
+  assert.equal(merged.length, 2, "archive-superseded import row + the one confirmed native row");
+
+  const active = merged.filter((a) => !a.canceled);
+  const canceled = merged.filter((a) => a.canceled);
+  const nativeAppointmentId = bookingRowToAppointment(bookingRows[1]).id;
+
+  assert.equal(active.length, 1, "only the native confirmed booking is active");
+  assert.equal(active[0].id, nativeAppointmentId, "the active entry is the confirmed native booking");
+  assert.equal(canceled.length, 1, "the cancelled import supersedes its archive twin exactly once");
+  assert.equal(canceled[0].id, 9002, "the cancelled row keeps the original Acuity id");
+
+  // The archive's stale non-cancelled id must NOT also appear in active —
+  // this is the exact double count the fix closes.
+  assert.ok(
+    !active.some((a) => a.id === 9002),
+    "the same appointment must never appear as both active and cancelled",
+  );
+});
+
 test("zero native activity renders the daily report section-for-section identical to the single-source report", () => {
   const active = [appointment(600, { amountPaid: "75.00", priceSold: "75.00" })];
   const baseline = buildDailyReport(reportData({ active }));
