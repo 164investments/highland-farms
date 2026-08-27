@@ -168,6 +168,51 @@ created by the Checkout section below, since Engine and Checkout were
 exercised together in one run — see Checkout item 8 for the combined
 post-cleanup counts. **PASS.**
 
+### A8. Acuity importer idempotency (Phase 3a Task 2, live run against real Acuity data)
+`npx tsx --env-file .env.local scripts/import-acuity-bookings.mts` against
+the live Highland Farms Acuity account (`--from` defaulted to today,
+2026-08-27), imports active appointments through 2028-02-27 (18 months),
+then reconciles cancellations.
+
+Run 1 (fresh import):
+```
+[import-acuity-bookings] fetched 199 active appointments
+[import-acuity-bookings] inserted=199 updated=0 skipped=0
+[import-acuity-bookings] cancelled=0
+[import-acuity-bookings] DONE inserted=199 updated=0 skipped=0 cancelled=0
+```
+Verify: `select count(*), sum(amount_cents) from bookings where source='acuity_import'`
+→ `count=199, sum_cents=2441239`, matching the run log exactly. Product
+breakdown: `farm-tour: 109 rows, units 1/1, party_size 2-5` · `nordic-spa: 78
+rows, units 1/1, party_size 1/1` (each attendee is its own Acuity
+appointment row, per the plan's Global Constraints) · `wedding-call: 12
+rows, units 1/1, party_size 1/1`. All 199 rows `status='confirmed'`.
+
+Run 2 (immediate re-run, idempotency proof):
+```
+[import-acuity-bookings] fetched 199 active appointments
+[import-acuity-bookings] inserted=0 updated=199 skipped=0
+[import-acuity-bookings] cancelled=0
+[import-acuity-bookings] DONE inserted=0 updated=199 skipped=0 cancelled=0
+```
+Post-run-2 verify: `count=199, sum_cents=2441239` — unchanged. Zero new
+rows, every row matched by `acuity_id` and went through the
+`source='acuity_import'`-guarded update path. **PASS.**
+
+Spot-check (5 random imported rows cross-referenced against
+`acuity_archive_appointments`, the raw Acuity API capture from Task 1 —
+datetime, amount, and names match exactly for all 5):
+
+| acuity_id | product | starts_at | amount_cents | name |
+|---|---|---|---|---|
+| 1744081638 | farm-tour | 2026-09-16 17:00 UTC | 15000 | Victoria Healy |
+| 1761752691 | nordic-spa | 2026-10-11 22:00 UTC | 7500 | Anil A |
+| 1731755315 | nordic-spa | 2026-09-01 22:00 UTC | 9000 | Dylan Jones |
+| 1749869547 | farm-tour | 2026-09-03 17:00 UTC | 17700 | chris schroeder |
+| 1729027108 | farm-tour | 2026-10-31 17:00 UTC | 15000 | Ann Truong |
+
+**PASS.**
+
 ---
 
 ## B. Checkout — customer-facing booking flow
@@ -745,6 +790,7 @@ byte-identity re-proof as this area's coverage.
 | A5 | Expired-hold sweep | PASS |
 | A6 | Number-collision retry | PASS (code-inspected) |
 | A7 | Cleanup (Engine section) | PASS |
+| A8 | Acuity importer idempotency (live, 199 rows, re-run = 0 inserted) | PASS |
 | B1 | wedding-call free checkout confirms + email-failure logging | PASS (fixed in `cffe1d8`, re-verified) |
 | B2 | Square unconfigured → 503, no pending rows | PASS |
 | B3 | Value gift cert fully covers booking | PASS (fixed in `cffe1d8`, re-verified) |
@@ -769,9 +815,13 @@ byte-identity re-proof as this area's coverage.
 | D10 | Cleanup (Task 12 re-review) | PASS |
 | E | UI/browser-level checks | Not in this matrix — see area note above |
 
-**28/28 PASS** (26 exercised live end-to-end, A6 verified by code
+**29/29 PASS** (27 exercised live end-to-end, A6 verified by code
 inspection since forcing a real `23505` isn't reliably reproducible outside
-a fuzzed harness, and E has no numbered items yet). The first run of this
+a fuzzed harness, and E has no numbered items yet). A8 (2026-08-27, Phase 3a
+Task 2) added the Acuity booking importer and ran it live twice against the
+real Highland Farms Acuity account — 199 rows imported, re-run inserted
+zero, both counts and the amount sum matched between the run log and a
+direct Supabase query; see A8 above for the full spot-check. The first run of this
 matrix (2026-08-27) found two real bugs: B1 (Resend never rejects, so send
 failures were silently unlogged) and B3/B4 (the Square-configured gate
 checked the pre-gift total instead of the post-gift due amount, 503ing on
