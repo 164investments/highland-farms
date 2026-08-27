@@ -23,6 +23,7 @@ npm run indexnow # submit pages to Bing
 - API routes: `src/app/api/` (inquiries, acuity/webhook, meta/webhook, subscribe, cron/daily-report)
 - Data: `src/data/` (properties, farm-tours, nordic-spa, navigation, wedding-portfolio)
 - Libs: `src/lib/` (supabase, acuity, daily-report, html, hubspot, bookediq, email, ga4, meta, meta-leads, schemas)
+- Native booking calendar (Phase 1, behind `NEXT_PUBLIC_NATIVE_CALENDAR`): `src/lib/booking/`, `src/app/api/booking/*`, `src/app/api/cron/booking-reminders` — spec: `docs/superpowers/specs/2026-08-27-native-calendar-design.md`, plan: `docs/superpowers/plans/2026-08-27-native-calendar-engine.md`; structure and rules in `ARCHITECTURE.md` under "Booking (native calendar)"
 - Layout: `src/components/layout/` (Header, Footer, GTM, EmailPopup, BookedIQWidget, StructuredData, AttributionTracker)
 - Forms: `src/components/forms/ContactForm.tsx`
 - Booked-wedding feed tooling: `scripts/build-booked-wedding-ad-feeds.py`, read-only account-state scripts, and `scripts/test_booked_wedding_ad_feeds.py`
@@ -37,6 +38,7 @@ npm run indexnow # submit pages to Bing
 - `NEXT_PUBLIC_CLARITY_PROJECT_ID` — Microsoft Clarity (optional)
 - `NEXT_PUBLIC_BOOKEDIQ_LOCATION_ID` — BookedIQ chat widget
 - `NEXT_PUBLIC_SQUARE_APPLICATION_ID` / `NEXT_PUBLIC_SQUARE_LOCATION_ID` — Square Web Payments SDK
+- `NEXT_PUBLIC_NATIVE_CALENDAR` — native booking calendar kill switch (`"true"` to enable; off in prod until Phase 3 cutover, Acuity remains live)
 
 ### Private (server-only, set in Vercel)
 - `SQUARE_ACCESS_TOKEN` / `SQUARE_LOCATION_ID` — farm store payments

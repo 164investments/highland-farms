@@ -257,6 +257,47 @@ Ranked.
   registration. The current `Permissions-Policy` header omits `payment`, which
   leaves it at its `self` default — that does NOT block wallets.
 
+## Booking (native calendar)
+
+Added Aug 2026 (Phase 1, behind `NEXT_PUBLIC_NATIVE_CALENDAR`) to replace Acuity
+as the calendar of record for farm tours, the Nordic spa, and wedding calls.
+Acuity remains live in production until the flag flips (Phase 3).
+
+```
+src/lib/booking/
+  products.ts            THE CATALOG — slugs, prices, party size, lead time. Static.
+  engine.ts               pure availability math (schedules + exceptions + blackouts
+                           + booked units -> offered slots); no I/O
+  store.ts                Supabase I/O: schedule reads, claim/confirm/release RPCs,
+                           gift-certificate RPCs
+  time.ts                 the only place America/Los_Angeles <-> UTC conversion happens
+  flag.ts                 the NEXT_PUBLIC_NATIVE_CALENDAR kill switch
+  booking-number.ts       customer-facing booking number generator
+  confirmation-email.ts   customer + farm confirmation emails
+  reminder-email.ts       48h / morning-of reminder emails
+src/app/api/booking/
+  availability/route.ts   GET — offered slots per product (or combo pairs)
+  checkout/route.ts       POST — the one transactional booking endpoint
+src/app/api/cron/booking-reminders/route.ts   expired-hold sweep + reminder sends
+supabase-booking.sql      schema + RPCs, applied by hand (no migration runner here)
+```
+
+### The rules that keep this honest
+
+1. **The engine is pure; the RPC is the authority.** `engine.ts` decides what's
+   offered; `claim_booking_slots` enforces capacity under an advisory lock.
+   Availability shown to users is real counts — scarcity is never invented.
+2. **Slots are held BEFORE the card is charged** (10-min pending hold), released
+   on decline, swept by cron if a crash leaks one.
+3. **The server derives every price from `products.ts`.** The browser sends
+   product/date/time/party only.
+4. **All schedule wall-times are America/Los_Angeles**; storage is timestamptz.
+   Conversion happens only in `time.ts`.
+5. **A wedding is a blackout** (`booking_blackouts.kind='wedding'`) that blocks
+   tours + spa. Weddings are not bookings.
+6. **Everything is behind `NEXT_PUBLIC_NATIVE_CALENDAR`** until cutover
+   (Phase 3). Acuity remains the live calendar of record until then.
+
 ## Conventions worth keeping
 
 - **Fire-and-forget for leads, transactional for orders.** `/api/inquiries` writes
