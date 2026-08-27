@@ -615,6 +615,10 @@ the group) before calling the route on the STILL-CONFIRMED leg's id:
 POST /api/shop/admin/booking/cancel  { id: <still-confirmed leg's id>, refund:false, reason:"E2E partial-combo test" }
 -> 409 {"error":"That booking's combo pair is already partly cancelled — check the calendar."}
 ```
+Note: this 409 message no longer exists post-D9's atomic-`UPDATE` rework — the
+current code returns `"That booking is already cancelled."` for the
+equivalent case (see `cancel/route.ts` and D9 below). Recorded here verbatim
+as the pre-TOCTOU-fix result; don't chase this exact string on a re-run.
 DB check afterward: the still-confirmed leg was left `status:"confirmed"`
 (untouched — `cancelBookingGroup` checks every row's status BEFORE issuing
 any UPDATE, so a mismatch never mutates), the other leg stayed `cancelled`

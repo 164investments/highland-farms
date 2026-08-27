@@ -1,5 +1,8 @@
+import { Resend } from "resend";
 import { after, NextResponse } from "next/server";
 import { z } from "zod";
+import { escapeHtml } from "@/lib/html";
+import { auditBooking } from "@/lib/booking/store";
 import { nativeCalendarEnabled } from "@/lib/booking/flag";
 import { GIFT_PRODUCTS, generateGiftCode, getGiftProduct, issueGiftCertificate } from "@/lib/booking/gift";
 import { sendGiftEmails } from "@/lib/booking/gift-email";
@@ -19,6 +22,46 @@ import { chargeCard, isSquareConfigured } from "@/lib/shop/square";
  *      reconciles from the log, not the customer re-buying
  *   6. after(): email the code
  */
+
+// Mirrors gift-email.ts's sendOrThrow: the Resend SDK resolves
+// `{ data: null, error }` on an API-level failure instead of rejecting, so a
+// bad key or a 4xx/5xx would look identical to success unless we throw here.
+let resend: Resend | undefined;
+function getResend(): Resend {
+  if (!resend) resend = new Resend(process.env.RESEND_API_KEY);
+  return resend;
+}
+async function sendOrThrow(params: Parameters<Resend["emails"]["send"]>[0]): Promise<void> {
+  const result = await getResend().emails.send(params);
+  if (result.error) {
+    throw new Error(result.error.message);
+  }
+}
+
+const GIFT_INSERT_FAILURE_FROM = "Highland Farms <notifications@highlandfarmsoregon.com>";
+const GIFT_INSERT_FAILURE_TO = ["info@highlandfarms-oregon.com"];
+
+/** Best-effort farm alert for the paid-but-unissued case. Never throws. */
+async function notifyGiftInsertFailed(params: {
+  paymentId: string;
+  productId: string;
+  purchaserEmail: string;
+}): Promise<void> {
+  try {
+    await sendOrThrow({
+      from: GIFT_INSERT_FAILURE_FROM,
+      to: GIFT_INSERT_FAILURE_TO,
+      subject: "ACTION NEEDED: paid gift certificate not issued",
+      html: `<p>A gift certificate charge succeeded but the certificate record failed to save.</p>
+        <p>Square payment id: ${escapeHtml(params.paymentId)}<br>
+        Product: ${escapeHtml(params.productId)}<br>
+        Purchaser email: ${escapeHtml(params.purchaserEmail)}</p>
+        <p>Look up the payment in Square and issue the code by hand from the admin panel.</p>`,
+    });
+  } catch (err) {
+    console.error("[gift] insert-failure notification email failed:", err);
+  }
+}
 
 const ALLOWED_ORIGINS = [
   "https://highlandfarmsoregon.com",
@@ -166,6 +209,16 @@ export async function POST(request: Request) {
         `[gift] CRITICAL: charge succeeded but certificate insert failed. PAID and UNISSUED. product=${product.id} payment=${charge.paymentId} purchaser=${body.purchaser.email} error=${message}`,
         err,
       );
+      await auditBooking("gift_insert_failed_paid", null, {
+        payment_id: charge.paymentId,
+        product_id: product.id,
+        purchaser_email: body.purchaser.email,
+      });
+      await notifyGiftInsertFailed({
+        paymentId: charge.paymentId,
+        productId: product.id,
+        purchaserEmail: body.purchaser.email,
+      });
       return NextResponse.json({ success: true, code: null });
     }
 
