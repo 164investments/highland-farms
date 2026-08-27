@@ -9,7 +9,7 @@ import { slotToUtc } from "@/lib/booking/time";
 import {
   claimSlots, confirmBookings, forceConfirmBookings, auditBooking, releaseBookings,
   getGiftCertificate, redeemGiftCertificate, restoreGiftCertificate,
-  getScheduleData, type ClaimLeg, type ClaimCustomer,
+  getScheduleData, setBookingCalendarInfo, type ClaimLeg, type ClaimCustomer,
 } from "@/lib/booking/store";
 import { generateBookingNumber } from "@/lib/booking/booking-number";
 import { chargeCard, isSquareConfigured } from "@/lib/shop/square";
@@ -17,6 +17,7 @@ import { claimTrackingEvent } from "@/lib/tracking-dedupe";
 import { sendBookingPurchase } from "@/lib/ga4";
 import { sendMetaPurchase } from "@/lib/meta";
 import { sendBookingEmails } from "@/lib/booking/confirmation-email";
+import { createWeddingCallEvent, isCalendarConfigured } from "@/lib/booking/google-calendar";
 
 /**
  * Native calendar checkout.
@@ -344,9 +345,34 @@ export async function POST(request: Request) {
       giftAppliedCents: giftApplied,
       paidCents: dueCents,
       locationChoice: body.locationChoice ?? null,
+      meetLink: null as string | null,
     };
 
     after(async () => {
+      // Consult calendar event, best-effort, before emails go out — a
+      // Meet link that lands after the confirmation email would just get
+      // ignored by the customer, and the whole point is it rides along.
+      if (body.product === "wedding-call" && isCalendarConfigured()) {
+        try {
+          const ev = await createWeddingCallEvent({
+            startIso: legs[0].startsAt,
+            durationMin: legs[0].durationMin,
+            guestEmail: body.customer.email,
+            guestName: emailData.customerName,
+            locationChoice: body.locationChoice ?? "in_person",
+            bookingNumber,
+          });
+          if (ev) {
+            await setBookingCalendarInfo(claim.ids[0], ev.eventId, ev.meetLink);
+            emailData.meetLink = ev.meetLink;
+          }
+        } catch (err) {
+          // createWeddingCallEvent never throws, but keep this belt-and-
+          // suspenders so a bug in it can never fail the booking.
+          console.error("[booking] wedding call calendar step threw:", bookingNumber, err);
+        }
+      }
+
       try {
         await sendBookingEmails(emailData);
       } catch (err) {

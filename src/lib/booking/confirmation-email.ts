@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { escapeHtml } from "../html.ts";
 import { formatCents } from "../shop/money.ts";
 import { getBookingProduct } from "./products.ts";
+import { buildIcs } from "./ics.ts";
 
 /**
  * Booking confirmation (customer) + notification (farm).
@@ -51,6 +52,17 @@ export interface BookingEmailData {
   giftAppliedCents: number;
   paidCents: number;
   locationChoice: "meet" | "in_person" | null;
+  /** Google Meet link for a wedding call. Null when in-person, not yet
+   *  created, or calendar integration isn't configured/failed. */
+  meetLink?: string | null;
+}
+
+/** True when this booking is a consult that chose Meet but has no link yet
+ *  (creation failed, or the calendar integration isn't configured). Both
+ *  the customer's "we'll email it" promise and the farm's "MEET LINK
+ *  NEEDED" flag key off this exact condition. */
+function needsMeetLinkFollowUp(data: BookingEmailData): boolean {
+  return data.product === "wedding-call" && data.locationChoice === "meet" && !data.meetLink;
 }
 
 function legLine(leg: BookingEmailData["legs"][number]): string {
@@ -66,6 +78,17 @@ function legLine(leg: BookingEmailData["legs"][number]): string {
     <td style="padding:8px 0;border-bottom:1px solid #eee"><strong>${escapeHtml(product?.name ?? leg.productSlug)}</strong></td>
     <td style="padding:8px 0;border-bottom:1px solid #eee">${escapeHtml(day)} · ${escapeHtml(time)} (${leg.durationMin} min)</td>
   </tr>`;
+}
+
+function meetLinkSection(data: BookingEmailData): string {
+  if (data.meetLink) {
+    return `<p style="margin-top:16px"><strong>Join on Google Meet:</strong>
+      <a href="${escapeHtml(data.meetLink)}">${escapeHtml(data.meetLink)}</a></p>`;
+  }
+  if (needsMeetLinkFollowUp(data)) {
+    return `<p style="margin-top:16px">We'll email your Google Meet link before the call.</p>`;
+  }
+  return "";
 }
 
 export function renderBookingConfirmation(data: BookingEmailData): string {
@@ -85,6 +108,7 @@ export function renderBookingConfirmation(data: BookingEmailData): string {
       <tr><td style="padding:4px 0"><strong>Paid</strong></td>
           <td style="padding:4px 0;text-align:right"><strong>${formatCents(data.paidCents)}</strong></td></tr>
     </table>
+    ${meetLinkSection(data)}
     <h2 style="font-size:16px;margin-top:24px">Getting here</h2>
     <p>Highland Farms, Brightwood, OR, at the base of Mt. Hood, about 50 minutes
     from Portland. Leave Portland an hour before your time and you'll arrive with
@@ -99,7 +123,54 @@ export function renderBookingConfirmation(data: BookingEmailData): string {
   </div>`;
 }
 
+/**
+ * One VEVENT covering the whole booking. For a combo, that's the span from
+ * the earliest leg's start to the latest leg's end — a single calendar
+ * block for the day rather than two separate invites.
+ */
+function icsForBooking(data: BookingEmailData): string {
+  const sorted = [...data.legs].sort(
+    (a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt),
+  );
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+  const startMs = Date.parse(first.startsAt);
+  const endMs = Date.parse(last.startsAt) + last.durationMin * 60000;
+  const summary = `${data.legs
+    .map((l) => getBookingProduct(l.productSlug)?.name ?? l.productSlug)
+    .join(" + ")} at Highland Farms`;
+  const location = data.meetLink
+    ? data.meetLink
+    : data.locationChoice === "meet"
+      ? "Google Meet (link to follow by email)"
+      : "Highland Farms, Brightwood, OR";
+  return buildIcs({
+    uid: data.bookingNumber,
+    startIso: first.startsAt,
+    durationMin: Math.round((endMs - startMs) / 60000),
+    summary,
+    description: `Booking ${data.bookingNumber}. All Highland Farms bookings are final: no refunds, credits, or transfers.`,
+    location,
+  });
+}
+
+/** Prominent banner on the farm notification when a consult chose Meet but
+ *  has no link yet — empty string otherwise. Exported so the exact copy
+ *  is locked down by a test, not just eyeballed in a browser. */
+export function renderMeetLinkNeededBanner(data: BookingEmailData): string {
+  if (!needsMeetLinkFollowUp(data)) return "";
+  return `<p style="background:#fff3cd;border:1px solid #e0a800;padding:10px 14px;
+       font-weight:bold;color:#7a5b00">MEET LINK NEEDED: this consult chose
+       Google Meet but no link was created. Set one up and send it to
+       ${escapeHtml(data.customerEmail)} before the call.</p>`;
+}
+
 export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
+  const icsAttachment = {
+    filename: "highland-farms.ics",
+    content: Buffer.from(icsForBooking(data)).toString("base64"),
+  };
+
   // Independent sends: a bounced/rejected customer email must never stop the
   // farm from learning about a PAID booking, and vice versa.
   const results = await Promise.allSettled([
@@ -108,12 +179,13 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
       to: data.customerEmail,
       subject: `You're booked: ${data.bookingNumber}`,
       html: renderBookingConfirmation(data),
+      attachments: [icsAttachment],
     }),
     sendOrThrow({
       from: FROM,
       to: FARM_RECIPIENTS,
       subject: `New booking: ${data.legs.map((l) => l.productSlug).join(" + ")} · ${data.bookingNumber}`,
-      html: `<p>${escapeHtml(data.customerName)} (${escapeHtml(data.customerEmail)},
+      html: `${renderMeetLinkNeededBanner(data)}<p>${escapeHtml(data.customerName)} (${escapeHtml(data.customerEmail)},
         ${escapeHtml(data.customerPhone)}) booked ${escapeHtml(data.bookingNumber)}:
         ${data.partySize} guests, paid ${formatCents(data.paidCents)}.</p>
         ${renderBookingConfirmation(data)}`,

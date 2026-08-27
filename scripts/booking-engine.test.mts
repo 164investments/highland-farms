@@ -21,7 +21,11 @@ import {
   type ScheduleRule,
   type Blackout,
 } from "../src/lib/booking/engine.ts";
-import { renderBookingConfirmation } from "../src/lib/booking/confirmation-email.ts";
+import {
+  renderBookingConfirmation,
+  renderMeetLinkNeededBanner,
+} from "../src/lib/booking/confirmation-email.ts";
+import { buildIcs } from "../src/lib/booking/ics.ts";
 
 test("products: tour is a private slot at $75/person, 2-6 guests", () => {
   const tour = BOOKING_PRODUCTS["farm-tour"];
@@ -280,4 +284,126 @@ test("email: gift line renders only when a gift was applied", () => {
     renderBookingConfirmation({ ...base, giftAppliedCents: 5000, paidCents: 10000 }),
     /Gift certificate.*\$50\.00/s,
   );
+});
+
+test("ics: DTSTART/DTEND are correct UTC for a known instant", () => {
+  const ics = buildIcs({
+    uid: "HFB-260905-1234",
+    startIso: "2026-09-05T17:00:00.000Z",
+    durationMin: 45,
+    summary: "Wedding Call: Ada Lovelace + Highland Farms",
+    description: "Booking HFB-260905-1234",
+    location: "Google Meet",
+  });
+  assert.match(ics, /DTSTART:20260905T170000Z/);
+  assert.match(ics, /DTEND:20260905T174500Z/);
+});
+
+test("ics: uses CRLF line endings throughout", () => {
+  const ics = buildIcs({
+    uid: "HFB-260905-1234",
+    startIso: "2026-09-05T17:00:00.000Z",
+    durationMin: 45,
+    summary: "Wedding Call",
+    description: "Booking HFB-260905-1234",
+    location: "Google Meet",
+  });
+  assert.ok(ics.includes("\r\n"));
+  assert.ok(!ics.replace(/\r\n/g, "").includes("\n"), "no bare LF outside CRLF pairs");
+  assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
+  assert.match(ics, /END:VCALENDAR\r\n$/);
+});
+
+test("ics: escapes a comma in the description (and other RFC5545 special chars)", () => {
+  const ics = buildIcs({
+    uid: "HFB-260905-1234",
+    startIso: "2026-09-05T17:00:00.000Z",
+    durationMin: 45,
+    summary: "Wedding Call",
+    description: "Ada + Sam, at the barn; call Hayden\\Jalene for details",
+    location: "Google Meet",
+  });
+  assert.match(ics, /DESCRIPTION:Ada \+ Sam\\, at the barn\\; call Hayden\\\\Jalene for details/);
+});
+
+test("email: consult with a Meet link renders the join line, not the promise", () => {
+  const base = {
+    bookingNumber: "HFB-260830-1111",
+    product: "wedding-call" as const,
+    legs: [{ productSlug: "wedding-call", startsAt: "2026-08-30T21:00:00.000Z", durationMin: 45 }],
+    partySize: 1,
+    customerName: "Ada Lovelace", customerEmail: "ada@example.com", customerPhone: "5550100",
+    totalCents: 0, giftAppliedCents: 0, paidCents: 0,
+    locationChoice: "meet" as const,
+  };
+  const withLink = renderBookingConfirmation({ ...base, meetLink: "https://meet.google.com/abc-defg-hij" });
+  assert.match(withLink, /Join on Google Meet/);
+  assert.match(withLink, /meet\.google\.com\/abc-defg-hij/);
+  assert.doesNotMatch(withLink, /we'll email your google meet link/i);
+});
+
+test("email: consult that chose Meet but has no link yet promises to send it", () => {
+  const html = renderBookingConfirmation({
+    bookingNumber: "HFB-260830-2222",
+    product: "wedding-call",
+    legs: [{ productSlug: "wedding-call", startsAt: "2026-08-30T21:00:00.000Z", durationMin: 45 }],
+    partySize: 1,
+    customerName: "Ada Lovelace", customerEmail: "ada@example.com", customerPhone: "5550100",
+    totalCents: 0, giftAppliedCents: 0, paidCents: 0,
+    locationChoice: "meet", meetLink: null,
+  });
+  assert.match(html, /We'll email your Google Meet link before the call\./);
+  assert.doesNotMatch(html, /—/); // no em dashes in rendered copy
+});
+
+test("email: an in-person consult never shows the Meet fallback line", () => {
+  const html = renderBookingConfirmation({
+    bookingNumber: "HFB-260830-3333",
+    product: "wedding-call",
+    legs: [{ productSlug: "wedding-call", startsAt: "2026-08-30T21:00:00.000Z", durationMin: 45 }],
+    partySize: 1,
+    customerName: "Ada Lovelace", customerEmail: "ada@example.com", customerPhone: "5550100",
+    totalCents: 0, giftAppliedCents: 0, paidCents: 0,
+    locationChoice: "in_person", meetLink: null,
+  });
+  assert.doesNotMatch(html, /google meet/i);
+});
+
+test("email: farm notification flags MEET LINK NEEDED only for a failed/unconfigured Meet consult", () => {
+  const base = {
+    bookingNumber: "HFB-260830-4444",
+    product: "wedding-call" as const,
+    legs: [{ productSlug: "wedding-call", startsAt: "2026-08-30T21:00:00.000Z", durationMin: 45 }],
+    partySize: 1,
+    customerName: "Ada Lovelace", customerEmail: "ada@example.com", customerPhone: "5550100",
+    totalCents: 0, giftAppliedCents: 0, paidCents: 0,
+  };
+  assert.match(
+    renderMeetLinkNeededBanner({ ...base, locationChoice: "meet", meetLink: null }),
+    /MEET LINK NEEDED/,
+  );
+  assert.equal(
+    renderMeetLinkNeededBanner({ ...base, locationChoice: "meet", meetLink: "https://meet.google.com/x" }),
+    "",
+  );
+  assert.equal(
+    renderMeetLinkNeededBanner({ ...base, locationChoice: "in_person", meetLink: null }),
+    "",
+  );
+  assert.equal(
+    renderMeetLinkNeededBanner({ ...base, product: "farm-tour", locationChoice: null, meetLink: null }),
+    "",
+  );
+});
+
+test("ics: UID is namespaced to highlandfarmsoregon.com", () => {
+  const ics = buildIcs({
+    uid: "HFB-260905-1234",
+    startIso: "2026-09-05T17:00:00.000Z",
+    durationMin: 45,
+    summary: "Wedding Call",
+    description: "Booking HFB-260905-1234",
+    location: "Google Meet",
+  });
+  assert.match(ics, /UID:HFB-260905-1234@highlandfarmsoregon\.com\r\n/);
 });

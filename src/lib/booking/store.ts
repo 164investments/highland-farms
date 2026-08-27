@@ -267,6 +267,26 @@ export async function restoreGiftCertificate(code: string, units: number): Promi
   }
 }
 
+/**
+ * Stamps the Google Calendar event id + Meet link onto a confirmed booking.
+ * Best-effort: called from the checkout `after()` hook after the customer
+ * has already been charged and confirmed, so a write failure here must
+ * never surface to the customer — log and move on.
+ */
+export async function setBookingCalendarInfo(
+  id: string,
+  eventId: string,
+  meetLink: string | null,
+): Promise<void> {
+  const { error } = await db()
+    .from("bookings")
+    .update({ google_event_id: eventId, meet_link: meetLink })
+    .eq("id", id);
+  if (error) {
+    console.error("[booking] setBookingCalendarInfo failed:", id, error.message);
+  }
+}
+
 /** Everything the engine needs for a product set + date range, in 4 queries. */
 export async function getScheduleData(
   productSlugs: string[],
