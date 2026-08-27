@@ -38,18 +38,16 @@ export async function GET(request: Request) {
 
     const active = reportYearAppointments.filter((appointment) => !appointment.canceled);
     const canceled = reportYearAppointments.filter((appointment) => appointment.canceled);
+    const analysisCandidates = [
+      ...reportYearAppointments,
+      ...priorMonthAppointments,
+    ].filter((appointment) => !appointment.canceled);
     const html = buildDailyReport({
       now,
       active,
       canceled,
-      yesterdayCandidates: [
-        ...reportYearAppointments,
-        ...priorMonthAppointments,
-      ].filter((appointment) => !appointment.canceled),
-      pacingCandidates: [
-        ...reportYearAppointments,
-        ...priorMonthAppointments,
-      ].filter((appointment) => !appointment.canceled),
+      yesterdayCandidates: analysisCandidates,
+      pacingCandidates: analysisCandidates,
       bookingCandidates: [
         ...reportYearAppointments,
         ...nextYearAppointments,
