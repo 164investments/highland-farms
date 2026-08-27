@@ -84,6 +84,20 @@ export function BookingFlow({
 
   useEffect(() => push("booking_view_item", { booking_product: product }), [product]);
 
+  function changeParty(next: number) {
+    if (next === party) return;
+    setParty(next);
+    // A party-size change can invalidate the slot/pair already picked
+    // (capacity or buffer no longer fits the new count), so clear the
+    // selection and force a fresh availability fetch rather than leaving a
+    // stale pick the guest could still submit.
+    if (slot) {
+      setSlot(null);
+      setSpaTime("");
+      setRefreshNonce((n) => n + 1);
+    }
+  }
+
   async function submit(sourceId?: string) {
     if (!slot || submitting) return;
     setSubmitting(true);
@@ -159,10 +173,10 @@ export function BookingFlow({
         <div className="mt-5 flex items-center gap-4">
           <span className="font-sans text-sm text-stone-700">Guests</span>
           <div className="flex items-center gap-3">
-            <button type="button" aria-label="Fewer guests" onClick={() => setParty(Math.max(min, party - 1))}
+            <button type="button" aria-label="Fewer guests" onClick={() => changeParty(Math.max(min, party - 1))}
               className="h-9 w-9 rounded-full border border-forest/30 text-forest">−</button>
             <span className="w-6 text-center font-sans">{party}</span>
-            <button type="button" aria-label="More guests" onClick={() => setParty(Math.min(max, party + 1))}
+            <button type="button" aria-label="More guests" onClick={() => changeParty(Math.min(max, party + 1))}
               className="h-9 w-9 rounded-full border border-forest/30 text-forest">+</button>
           </div>
           {!isFree && <span className="ml-auto font-sans text-sm text-stone-700">Total <strong>{formatCents(totalCents)}</strong></span>}

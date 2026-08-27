@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function WeddingCallPage() {
   if (!nativeCalendarEnabled()) notFound();
   return (
-    <Container className="py-16">
+    <Container className="pt-32 pb-16 lg:pb-20">
       <div className="mx-auto max-w-2xl">
         <p className="font-sans text-xs uppercase tracking-[0.28em] text-forest/70">Weddings at Highland Farms</p>
         <h1 className="mt-3 text-4xl text-forest">Let&apos;s talk about your wedding.</h1>

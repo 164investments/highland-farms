@@ -268,17 +268,19 @@ export default function FarmToursPage() {
             <div className="mt-6">
               <NativeBookingSection product="farm-tour" />
               {!nativeCalendarEnabled() && (
-                <BookingButton
-                  href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-pricing")}
-                  label="Book Your Tour"
-                  size="lg"
-                  className="w-full"
-                />
+                <>
+                  <BookingButton
+                    href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-pricing")}
+                    label="Book Your Tour"
+                    size="lg"
+                    className="w-full"
+                  />
+                  <p className="mt-3 text-center text-xs text-muted font-sans">
+                    Strict cancellation policy: all bookings are final. No refunds
+                    or reschedules.
+                  </p>
+                </>
               )}
-              <p className="mt-3 text-center text-xs text-muted font-sans">
-                Strict cancellation policy: all bookings are final. No refunds
-                or reschedules.
-              </p>
             </div>
           </div>
         </Container>
