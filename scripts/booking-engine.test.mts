@@ -172,6 +172,31 @@ test("engine: slotCapacity is the checkout authority — null off-schedule", () 
   assert.equal(off, null);
 });
 
+test("engine: overlapping rules — latest effectiveFrom wins, order-independent", () => {
+  const older: ScheduleRule = {
+    productSlug: "farm-tour", weekday: 6, startTimes: ["10:00"], capacity: 1,
+    effectiveFrom: "2026-01-01", effectiveTo: null,
+  };
+  const newer: ScheduleRule = {
+    productSlug: "farm-tour", weekday: 6, startTimes: ["09:00", "11:00"], capacity: 2,
+    effectiveFrom: "2026-09-01", effectiveTo: null,
+  };
+
+  for (const overlapping of [[older, newer], [newer, older]]) {
+    const days = computeAvailability({
+      product: TOUR, from: "2026-08-29", to: "2026-09-05",
+      schedules: overlapping, exceptions: [], blackouts: [], booked: [], now: NOW,
+    });
+    const byDate = Object.fromEntries(days.map((d) => [d.date, d.slots]));
+    // 2026-08-29 is before the newer rule's effectiveFrom → older rule applies.
+    assert.deepEqual(byDate["2026-08-29"].map((s) => s.time), ["10:00"]);
+    assert.equal(byDate["2026-08-29"][0].capacity, 1);
+    // 2026-09-05 is on/after the newer rule's effectiveFrom → newer rule applies.
+    assert.deepEqual(byDate["2026-09-05"].map((s) => s.time), ["09:00", "11:00"]);
+    assert.equal(byDate["2026-09-05"][0].capacity, 2);
+  }
+});
+
 test("engine: combo pairs respect the 30-min buffer in either order", () => {
   const tourDays = computeAvailability({
     product: TOUR, from: "2026-09-05", to: "2026-09-05",

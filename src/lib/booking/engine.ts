@@ -81,13 +81,20 @@ function dayPlan(
     (e) => e.productSlug === productSlug && e.onDate === dateStr,
   );
   const weekday = pacificWeekday(dateStr);
-  const rule = schedules.find(
-    (r) =>
-      r.productSlug === productSlug &&
-      r.weekday === weekday &&
-      r.effectiveFrom <= dateStr &&
-      (r.effectiveTo === null || r.effectiveTo >= dateStr),
-  );
+  // Multiple rows are allowed for the same product+weekday with overlapping
+  // effective windows; the latest effectiveFrom wins, independent of array order.
+  const rule = schedules
+    .filter(
+      (r) =>
+        r.productSlug === productSlug &&
+        r.weekday === weekday &&
+        r.effectiveFrom <= dateStr &&
+        (r.effectiveTo === null || r.effectiveTo >= dateStr),
+    )
+    .reduce<ScheduleRule | undefined>(
+      (latest, r) => (!latest || r.effectiveFrom > latest.effectiveFrom ? r : latest),
+      undefined,
+    );
 
   if (exception) {
     if (exception.startTimes === null) return null; // closed
