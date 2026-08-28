@@ -157,6 +157,9 @@ src/lib/ga4-data.ts), needs the tagmanager.readonly + edit.containers +
 edit.containerversions + publish scopes. A publish promotes the WHOLE GTM
 workspace, so this script always checks workspaces/{ws}/status first and
 refuses to publish over unrelated pending changes unless --force is passed.
+
+--dry-run and --publish together are refused (conflicting flags) rather than
+silently publishing.
 `);
 }
 
@@ -166,7 +169,12 @@ if (args.includes("--help") || args.includes("-h")) {
   process.exit(0);
 }
 const doPublish = args.includes("--publish");
+const explicitDryRun = args.includes("--dry-run");
 const force = args.includes("--force");
+if (doPublish && explicitDryRun) {
+  console.error("ERROR: conflicting flags -- --dry-run and --publish were both passed. Pick one.");
+  process.exit(1);
+}
 const dryRun = !doPublish; // --dry-run is just the (redundant) default
 
 // ---------------------------------------------------------------------------

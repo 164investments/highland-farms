@@ -25,6 +25,7 @@ npm run indexnow # submit pages to Bing
 - Libs: `src/lib/` (supabase, acuity, daily-report, html, hubspot, bookediq, email, ga4, meta, meta-leads, schemas)
 - Native booking calendar (Phase 1, behind `NEXT_PUBLIC_NATIVE_CALENDAR`): `src/lib/booking/`, `src/app/api/booking/*`, `src/app/api/cron/booking-reminders` — spec: `docs/superpowers/specs/2026-08-27-native-calendar-design.md`, plan: `docs/superpowers/plans/2026-08-27-native-calendar-engine.md`; structure and rules in `ARCHITECTURE.md` under "Booking (native calendar)"
 - Native booking calendar Phase 2 (booking UX, wedding-call + gift certs, admin surface, still behind the same flag except admin): `src/components/booking/` (BookingFlow, BookingPayment, NativeBookingSection), `src/app/wedding-call/`, `src/app/gift-certificates/`, `src/app/api/booking/gift/checkout`, `src/app/api/shop/admin/booking/*` (blackouts, schedules, manual, cancel, certs), `src/app/shop/admin/` (CalendarTab, SchedulesTab, CertsTab), `src/lib/booking/google-calendar.ts` + `ics.ts` + `cancel-email.ts` + `gift-email.ts` — plan: `docs/superpowers/plans/2026-08-27-native-calendar-phase2.md`; cutover verification recipe: `scripts/booking-e2e.md`
+- Native booking calendar Phase 3a (Acuity mirror + cutover prep, armed but not flipped): `src/lib/booking/acuity-import.ts` (owns `bookings` rows with `source='acuity_import'` only), `scripts/import-acuity-bookings.mts` (backfill/sweep + `reconcileCancellations`), `scripts/acuity-archive.mts` (full read-only Acuity snapshot → `acuity_archive_appointments` + gzipped JSON), `scripts/acuity-schedule-suggest.mts` (observation-only schedule-seeding report), `scripts/publish-booking-gtm.mjs` (provisions the booking GA4 event tags in GTM-MBH36BJH) — structure and rules in `ARCHITECTURE.md` under "Booking (native calendar)" → "The Acuity mirror"; the flip sequence itself is `docs/superpowers/plans/2026-08-27-cutover-runbook.md`
 - Layout: `src/components/layout/` (Header, Footer, GTM, EmailPopup, BookedIQWidget, StructuredData, AttributionTracker)
 - Forms: `src/components/forms/ContactForm.tsx`
 - Booked-wedding feed tooling: `scripts/build-booked-wedding-ad-feeds.py`, read-only account-state scripts, and `scripts/test_booked_wedding_ad_feeds.py`
@@ -50,6 +51,7 @@ npm run indexnow # submit pages to Bing
 - `HUBSPOT_ACCESS_TOKEN` / `HUBSPOT_PIPELINE_ID` / `HUBSPOT_DEAL_STAGE_NEW_LEAD`
 - `BOOKEDIQ_LOCATION_ID` / `BOOKEDIQ_PIT` — GHL CRM sync
 - `ACUITY_USER_ID` / `ACUITY_API_KEY` / `ACUITY_WEBHOOK_SECRET`
+- `ACUITY_ACTIVE` — cutover-only, set `"true"` alongside `NEXT_PUBLIC_NATIVE_CALENDAR=true` during the watch week (cutover runbook Step 3), removed entirely (not set `"false"`) at Step 10. Two effects while `"true"`: (1) `booking-reminders` cron skips `source='acuity_import'` bookings (Acuity's own reminders already cover them); (2) `daily-report` cron picks Mode A (live Acuity + native additions). Once removed: reminders cover imported bookings too, and `daily-report` switches to Mode B (frozen `acuity_archive_appointments` snapshot + `bookings`, Acuity's live API assumed gone).
 - `META_PIXEL_ID` / `META_CAPI_TOKEN` / `META_PAGE_ACCESS_TOKEN` / `META_APP_SECRET` / `META_WEBHOOK_VERIFY_TOKEN`
 - `GA4_MEASUREMENT_ID` / `GA4_API_SECRET` — Measurement Protocol
 - `CRON_SECRET` — Vercel cron auth
@@ -77,8 +79,15 @@ HMAC verify → Fetch lead from Graph API → Supabase upsert →
 ```
 
 ### Daily Report (`GET /api/cron/daily-report`, 3 PM UTC daily)
+Dual-mode as of Phase 3a, selected by `ACUITY_ACTIVE` (see Environment
+Variables above): **Mode A** (today, and through the cutover watch week) is
+live Acuity + native additions, unchanged from the original single-source
+report; **Mode B** (once `ACUITY_ACTIVE` is removed post-cancellation) reads
+history from the frozen `acuity_archive_appointments` snapshot and current
+activity from `bookings`, merged — no live Acuity API by then.
 ```
-Validate cron header → Fetch Acuity appointments + orders →
+Validate cron header → Fetch Acuity appointments + orders (Mode A) OR
+  frozen archive + bookings, paged (Mode B) →
   Normalize Pacific-day and year-boundary windows →
   Build escaped HTML report (active/canceled value, pacing, next 7 days) →
   Resend to 4 recipients

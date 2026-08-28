@@ -254,12 +254,32 @@ function addMonthsDateStr(dateStr: string, months: number): string {
  * Only ever touches `source='acuity_import'` rows, and only rows currently
  * `confirmed` (never re-flips an already-cancelled row, never touches
  * `pending`/`completed`/`no_show`).
+ *
+ * Also excludes any candidate row whose `updated_at` is at/after the moment
+ * the Acuity fetch started (`fetchStartedAt`, captured first thing below) --
+ * closes a reconcile <-> webhook race where a booking created and mirrored
+ * WHILE this fetch is in flight would otherwise be falsely cancelled, since
+ * it can't possibly appear in either Acuity result set fetched before it
+ * existed.
  */
 const HORIZON_MONTHS = 18;
 
 export async function reconcileCancellations(fromIso: string): Promise<number> {
   const fromDate = isoToDateStr(fromIso);
   const toDate = addMonthsDateStr(fromDate, HORIZON_MONTHS);
+
+  // Captured BEFORE the Acuity fetch starts, to close a reconcile <-> webhook
+  // race: a booking created (and webhook-mirrored into `bookings`) WHILE
+  // this fetch is in flight has no way to appear in `activeAppts` below --
+  // Acuity already returned its response snapshot before the new booking
+  // existed. Without this guard such a row would look identical to a real
+  // cancellation (missing from both `activeIds` and `canceledIds`) and get
+  // falsely marked cancelled a few lines down. Any row whose `updated_at` is
+  // at or after this timestamp was touched by something else (the webhook
+  // mirror, most likely) after the fetch started, so it's excluded from the
+  // cancel candidates below rather than trusted against a snapshot that
+  // predates it.
+  const fetchStartedAt = new Date().toISOString();
 
   const [activeAppts, canceledAppts] = await Promise.all([
     getAppointments(fromDate, toDate, false),
@@ -283,7 +303,7 @@ export async function reconcileCancellations(fromIso: string): Promise<number> {
   const supa = db();
   const { data: rows, error } = await supa
     .from("bookings")
-    .select("id, acuity_id")
+    .select("id, acuity_id, updated_at")
     .eq("source", "acuity_import")
     .eq("status", "confirmed")
     .gte("starts_at", fromIso)
@@ -292,6 +312,11 @@ export async function reconcileCancellations(fromIso: string): Promise<number> {
 
   const idsToCancel = (rows ?? [])
     .filter((r) => r.acuity_id !== null)
+    // Race guard (see `fetchStartedAt` above): a row touched at/after the
+    // fetch started may have been written by a concurrent webhook mirror
+    // AFTER Acuity's snapshot was taken -- never judge it against a
+    // snapshot that predates its own last write.
+    .filter((r) => (r.updated_at as string) < fetchStartedAt)
     .filter((r) => canceledIds.has(r.acuity_id as number) || !activeIds.has(r.acuity_id as number))
     .map((r) => r.id as string);
 

@@ -263,7 +263,10 @@ Added Aug 2026 (Phase 1, behind `NEXT_PUBLIC_NATIVE_CALENDAR`) to replace Acuity
 as the calendar of record for farm tours, the Nordic spa, and wedding calls.
 Acuity remains live in production until the flag flips (Phase 3). Phase 2
 (same month) added the on-page booking widgets, wedding-call scheduling +
-Google Meet, gift certificates, and the farm's admin booking surface.
+Google Meet, gift certificates, and the farm's admin booking surface. Phase 3a
+(also Aug 2026) added the Acuity-mirror importer, the frozen Acuity archive,
+the GTM event provisioner, and armed (but did not run) the cutover runbook —
+`docs/superpowers/plans/2026-08-27-cutover-runbook.md`.
 
 ```
 src/lib/booking/
@@ -290,6 +293,8 @@ src/lib/booking/
   google-calendar.ts      wedding-call Meet-link creation via a domain-wide-delegated
                            service account impersonating events@; NEVER throws (rule 8)
   ics.ts                  .ics calendar attachment for confirmation/reminder emails
+  acuity-import.ts         mirrors live Acuity appointments into `bookings` as
+                           `source='acuity_import'` — see "The Acuity mirror" below
 src/components/booking/
   BookingFlow.tsx          client widget: date/slot pick -> party -> details -> pay
   BookingPayment.tsx       Square card + wallet bootstrap, scoped to the widget
@@ -303,8 +308,78 @@ src/app/gift-certificates/page.tsx + GiftBody.tsx   gift certificate purchase pa
 src/app/wedding-call/page.tsx   wedding-call scheduling page (mounts BookingFlow
                                  directly — no pricing card, the product is free)
 src/app/api/cron/booking-reminders/route.ts   expired-hold sweep + reminder sends
+src/app/api/cron/daily-report/route.ts   dual-mode (Mode A/B, see "The Acuity mirror" below)
+src/app/api/acuity/webhook/route.ts   best-effort real-time mirror into `bookings`
+                                        (calls the same `upsertAcuityBooking` the
+                                        importer script does)
+scripts/import-acuity-bookings.mts   bulk backfill + periodic straggler sweep —
+                                       upserts active appointments, then runs
+                                       `reconcileCancellations`
+scripts/acuity-archive.mts           read-only full Acuity snapshot (all appointments,
+                                       orders, config) into `acuity_archive_appointments`
+                                       + gzipped JSON, before the account is ever cancelled
+scripts/acuity-schedule-suggest.mts  observation-only report of Jalene's actual booking
+                                       patterns, to seed `booking_schedules` — never
+                                       writes to the table itself
+scripts/publish-booking-gtm.mjs      provisions the GA4 event tags/triggers for the
+                                       booking dataLayer events in GTM-MBH36BJH
 supabase-booking.sql      schema + RPCs, applied by hand (no migration runner here)
 ```
+
+### The Acuity mirror (Phase 3a)
+
+Feeds the native `bookings` table from the still-live Acuity account so the
+native calendar's own tables — and eventually its own reports — don't have to
+wait for the cutover flip to have real data in them.
+
+- **Ownership is enforced by `source`, not by inference.**
+  `acuity-import.ts`'s `upsertAcuityBooking` only ever reads/writes rows with
+  `source='acuity_import'` — both the lookup and the update are guarded on
+  it. If a `bookings` row for a given `acuity_id` somehow has a different
+  `source` (e.g. `native` or `admin`), the importer logs a warning and skips
+  it rather than touching it. Two callers share this one function so the
+  mapping logic never forks: `scripts/import-acuity-bookings.mts` (the bulk
+  backfill + periodic sweep) and `src/app/api/acuity/webhook/route.ts` (a
+  best-effort real-time mirror on every `scheduled`/`rescheduled` webhook).
+- **`acuity_archive_appointments`** is the frozen full-history snapshot
+  written by `scripts/acuity-archive.mts` — every appointment (active +
+  canceled), not just the mirror's active-only slice. It's the thing Mode B
+  of the daily report reads for pre-cutover history once Acuity itself is
+  gone (see below), and the only durable copy of anything Acuity currently
+  holds. Re-run before Step 10's cancellation (runbook Step 10a) — there is
+  no API path to pull this data after the account is cancelled.
+- **`reconcileCancellations`'s 17-month candidate margin.** It fetches an
+  18-month Acuity window but only reconciles `bookings` rows whose
+  `starts_at` falls in the first 17 of those months
+  (`[fromIso, from + 17 months)`). The 1-month margin exists so a booking
+  rescheduled OUT to near the edge of the 18-month fetch — which would
+  otherwise look identical to a real cancellation (Acuity just hasn't been
+  asked that far out yet) — can never be falsely marked cancelled; it
+  self-heals once its new date rolls inside the window on a later run.
+- **Reconcile <-> webhook race guard.** `reconcileCancellations` captures
+  `fetchStartedAt` before calling Acuity, then excludes from its
+  cancel-candidates any row whose `updated_at` is at/after that timestamp —
+  a booking created (and webhook-mirrored) while the reconcile fetch is in
+  flight can't possibly appear in Acuity's response snapshot, and without
+  this guard would look identical to a real cancellation.
+- **`ACUITY_ACTIVE` plays two distinct roles**, both scoped to the watch-week
+  period where the site takes bookings natively but Acuity is still the
+  account of record (see the runbook's Step 3):
+  1. `src/app/api/cron/booking-reminders/route.ts` excludes
+     `source='acuity_import'` bookings from native reminder emails while
+     `ACUITY_ACTIVE=true` — Acuity's own reminders already cover them.
+  2. `src/app/api/cron/daily-report/route.ts` uses it (together with
+     `NEXT_PUBLIC_NATIVE_CALENDAR`) to pick Mode A vs. Mode B: **Mode A**
+     (today, and immediately post-flip) reads live Acuity + native additions,
+     unchanged from the single-source report. **Mode B** (once
+     `ACUITY_ACTIVE` is unset, at Step 10) reads history from the frozen
+     `acuity_archive_appointments` snapshot and current activity from
+     `bookings` (`native` + `acuity_import`), merged via
+     `mergeArchiveWithCurrent` — Acuity's live API is gone by then. Both of
+     Mode B's own reads are paged with `fetchAllPages` (stable `.order("id")`
+     + `.range()`) rather than an unbounded `select()`, since PostgREST
+     silently caps an unbounded read at its default page size and these are
+     Mode B's core/load-bearing data, not an optional addition.
 
 ### Admin booking surface
 

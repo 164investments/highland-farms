@@ -30,9 +30,9 @@ const GIFT_CATALOG = GIFT_PRODUCTS.map((product) => ({
   amountCents: product.amountCents,
 }));
 
-// PostgREST's default row cap — the archive table page size for
-// `fetchAllPages` (see IMPORTANT-3 fix note below).
-const ARCHIVE_PAGE_SIZE = 1000;
+// PostgREST's default row cap — the page size for both of Mode B's
+// `fetchAllPages` reads (archive + bookings, see IMPORTANT-3 fix note below).
+const MODE_B_PAGE_SIZE = 1000;
 
 type DateRange = { start: string; end: string };
 
@@ -166,11 +166,11 @@ export async function GET(request: Request) {
       // Mode B is inert today: `modeB` is only ever true once
       // `ACUITY_ACTIVE` is unset/false AFTER the real cutover, so this path
       // has zero live blast radius in production right now.
-      const [archiveRows, bookingsResult] = await Promise.all([
+      const [archiveRows, allBookingRows] = await Promise.all([
         // IMPORTANT: PostgREST silently caps an unbounded select at its
         // default page size — pages explicitly so a growing archive is
         // never truncated without an error (see `fetchAllPages`).
-        fetchAllPages<ArchiveRow>(ARCHIVE_PAGE_SIZE, async (from, to) => {
+        fetchAllPages<ArchiveRow>(MODE_B_PAGE_SIZE, async (from, to) => {
           const { data, error } = await db
             .from("acuity_archive_appointments")
             .select(
@@ -182,14 +182,22 @@ export async function GET(request: Request) {
           if (error) throw new Error(`acuity_archive_appointments fetch failed: ${error.message}`);
           return (data ?? []) as ArchiveRow[];
         }),
-        db
-          .from("bookings")
-          .select("id, acuity_id, starts_at, created_at, first_name, last_name, amount_cents, status, product_slug, source")
-          .in("source", ["native", "acuity_import"]),
+        // Same "never silently truncate" treatment as the archive read above
+        // — this is Mode B's own core data (native + acuity_import rows,
+        // unbounded as native volume grows), not a native-addition, so it
+        // gets the same stable `.order("id")` + `.range()` paging instead of
+        // an unbounded `select()`.
+        fetchAllPages<BookingRow>(MODE_B_PAGE_SIZE, async (from, to) => {
+          const { data, error } = await db
+            .from("bookings")
+            .select("id, acuity_id, starts_at, created_at, first_name, last_name, amount_cents, status, product_slug, source")
+            .in("source", ["native", "acuity_import"])
+            .order("id", { ascending: true })
+            .range(from, to);
+          if (error) throw new Error(`bookings fetch failed: ${error.message}`);
+          return (data ?? []) as BookingRow[];
+        }),
       ]);
-      if (bookingsResult.error) {
-        throw new Error(`bookings fetch failed: ${bookingsResult.error.message}`);
-      }
 
       const archiveActive = archiveRows.map(archiveRowToAppointment);
 
@@ -207,7 +215,6 @@ export async function GET(request: Request) {
       // real booking yet. `bookingRowToAppointment` maps status='no_show'
       // to `canceled: true` too — for report purposes a no-show is a
       // non-completed appointment, same bucket as a cancellation.
-      const allBookingRows = (bookingsResult.data ?? []) as BookingRow[];
       const currentForMerge = allBookingRows
         .filter((row) => row.status !== "pending")
         .map(bookingRowToAppointment);

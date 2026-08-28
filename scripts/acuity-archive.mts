@@ -31,8 +31,22 @@ function* months(fromYear: number, toYear: number): Generator<[string, string]> 
     }
 }
 
+// End year: 2 years past "now" -- derived from the run stamp (argv[2],
+// YYYYMMDD) when one is passed, falling back to the actual current date
+// otherwise. Preferring the stamp keeps a re-run against an intentionally
+// backdated/future stamp (rare, but this is a script someone might invoke
+// by hand with an odd argument) consistent with what it's archiving,
+// instead of silently drifting off whatever day the script happens to run
+// on. No `Date.now()`-freshness issue here either way -- this is a one-shot
+// script invocation, not a long-lived process where a stale `now` would
+// matter.
+const runStampArg = process.argv[2];
+const stampYear =
+  runStampArg && /^\d{8}$/.test(runStampArg) ? Number(runStampArg.slice(0, 4)) : null;
+const endYear = (stampYear ?? new Date().getUTCFullYear()) + 2;
+
 const appts: Record<string, unknown>[] = [];
-for (const [min, max] of months(2019, 2027)) {
+for (const [min, max] of months(2019, endYear)) {
   for (const canceled of ["false", "true"]) {
     const rows = (await acuity(
       `/appointments?minDate=${min}&maxDate=${max}&max=500&canceled=${canceled}`,

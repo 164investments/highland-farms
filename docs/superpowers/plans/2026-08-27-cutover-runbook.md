@@ -63,6 +63,14 @@ Do not proceed past this step without all four:
       not silence and not "go ahead" on a broader conversation (see the
       Live Ad Account Rule's approval discipline; the same rule applies to
       this cutover even though it isn't an ad account).
+- [ ] No stray native test bookings sitting in `bookings`. Check:
+      ```sql
+      select count(*) from bookings where source='native' and status in ('confirmed','completed');
+      ```
+      Expect `0`. Mode A's report is additive on top of Acuity's numbers
+      (see `ARCHITECTURE.md` → "Booking (native calendar)"), so a leftover
+      test row here would inflate the "Booked on the site (native)" line and
+      break the report-unchanged guarantee the whole Mode A design rests on.
 
 ## Step 2 — Re-run the Acuity importer
 
@@ -90,6 +98,15 @@ Expect output in the `inserted=N updated=N skipped=N` / `cancelled=N` shape
 documented in Task 2's report — `skipped` should be 0 (no unmapped
 appointment types) and `cancelled` should be small (whatever cancelled in
 Acuity since the last run).
+
+Run the importer **twice back-to-back**. The second run must report
+`cancelled=0` — `reconcileCancellations` now excludes any row touched
+(`updated_at`) at or after the moment its own Acuity fetch started (closes a
+reconcile <-> webhook race, see the comment above `fetchStartedAt` in
+`src/lib/booking/acuity-import.ts`), so a clean second run with nothing new
+happening in between should never re-flip anything. A nonzero `cancelled` on
+the second run means something is still wrong and should be understood
+before proceeding to Step 3.
 
 ## Step 3 — Vercel environment
 
@@ -222,6 +239,18 @@ for wedding-call bookings taken before the grant lands.
 
 For at least a week after the flip:
 
+- [ ] **Re-run the importer at least once during the watch window** (a
+      weekly cadence is enough for the ≥2-week gap to Step 10):
+      ```bash
+      npx tsx --env-file .env.local scripts/import-acuity-bookings.mts
+      ```
+      The webhook mirror keeps `bookings` current in near-real-time while
+      Acuity is live, but nothing else re-runs `reconcileCancellations` in
+      between — an Acuity-side cancellation made outside the webhook's reach
+      (e.g. the webhook delivery itself failing) would otherwise stay
+      `confirmed` in `bookings` indefinitely. This mid-watch run is
+      belt-and-suspenders on top of the mandatory Step 10a run right before
+      cancellation, not a replacement for it.
 - [ ] Confirm the webhook mirror is still correctly a no-op now that Acuity
       scheduling is hidden (Step 6) — no new Acuity bookings should be
       arriving to mirror, so `bookings` growth should be 100% native-source
@@ -241,6 +270,17 @@ is actually cancelled.
 
 ### Step 10a — BEFORE cancelling, while the account is still alive
 
+- [ ] **Re-run the importer one last time** while Acuity is still live and
+      queryable:
+      ```bash
+      npx tsx --env-file .env.local scripts/import-acuity-bookings.mts
+      ```
+      Catches any cancellations that happened in Acuity during the watch
+      window (Step 9) that a weekly run hasn't caught yet, so the `bookings`
+      table is current before the account goes away and this stops being
+      possible. Run this **before** the certificate export below — it's the
+      cheaper, faster check, and confirming `bookings` is current first
+      means the export below isn't reconciled against a stale picture.
 - [ ] **Export the certificates/packages list** from Acuity's reports UI.
       This has to happen before cancellation — there is no API/CLI path to
       pull it after the account is gone, and no other copy of this data

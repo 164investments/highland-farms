@@ -136,6 +136,28 @@ test("fetchAllPages stops immediately on an empty table", async () => {
   assert.deepEqual(rows, []);
 });
 
+test("fetchAllPages fetches one extra (empty) page when the table size is an exact multiple of the page size", async () => {
+  // Regression case: if the table has exactly `pageSize` rows, the first
+  // page comes back FULL (length === pageSize), which must not be
+  // mistaken for "that was the last page" -- only a page SHORTER than
+  // pageSize proves the end. A table of exactly 1000 rows with a page size
+  // of 1000 needs a second, empty-page fetch to confirm there's nothing
+  // left, same as `bookings` (IMPORTANT-1) and the archive table
+  // (IMPORTANT-3) both now rely on in route.ts.
+  const allRows = Array.from({ length: 1000 }, (_, i) => i);
+  const requestedRanges: Array<[number, number]> = [];
+  const rows = await fetchAllPages(1000, async (from, to) => {
+    requestedRanges.push([from, to]);
+    return allRows.slice(from, to + 1);
+  });
+
+  assert.deepEqual(rows, allRows);
+  assert.deepEqual(requestedRanges, [
+    [0, 999],
+    [1000, 1999],
+  ]);
+});
+
 test("fetchAllPages propagates a page fetch failure instead of swallowing it (this IS core/load-bearing data)", async () => {
   await assert.rejects(
     fetchAllPages(1000, async () => {

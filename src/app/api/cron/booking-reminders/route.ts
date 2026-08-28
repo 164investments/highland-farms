@@ -17,7 +17,12 @@ export async function GET(request: Request) {
     { auth: { persistSession: false } },
   );
 
-  // Sweep abandoned holds even while the flag is off — imports may create them.
+  // Sweep abandoned holds even while the flag is off. Imports only ever
+  // write status='confirmed' rows (`upsertAcuityBooking` in
+  // acuity-import.ts) -- pending holds are created exclusively by native
+  // checkout (the claim-then-charge flow). This sweep still has to run
+  // unconditionally though: a pending hold can leak from an abandoned
+  // native checkout regardless of whether the flag is currently on.
   const { data: swept } = await db.rpc("sweep_expired_booking_holds");
   if (!nativeCalendarEnabled()) {
     return NextResponse.json({ swept: swept ?? 0, reminders: 0, disabled: true });
