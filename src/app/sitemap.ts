@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { nativeCalendarEnabled } from "@/lib/booking/flag";
 
 const BASE_URL = "https://highlandfarmsoregon.com";
 
@@ -28,6 +29,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/accessibility", priority: 0.3, changeFrequency: "yearly" as const },
     { path: "/privacy", priority: 0.3, changeFrequency: "yearly" as const },
     { path: "/terms", priority: 0.3, changeFrequency: "yearly" as const },
+    ...(nativeCalendarEnabled()
+      ? [
+          { path: "/wedding-call", priority: 0.6, changeFrequency: "monthly" as const },
+          { path: "/gift-certificates", priority: 0.6, changeFrequency: "monthly" as const },
+        ]
+      : []),
   ];
 
   return routes.map((route) => ({

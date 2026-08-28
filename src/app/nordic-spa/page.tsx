@@ -29,8 +29,9 @@ import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { InlineEmailCapture } from "@/components/shared/InlineEmailCapture";
 import { nordicSpaFAQ } from "@/data/nordic-spa";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
-import { nativeCalendarEnabled } from "@/lib/booking/flag";
+import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
+import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
 
 export const metadata: Metadata = {
   title: "Sauna & Cold Plunge Near Portland — Mt. Hood Nordic Spa",
@@ -609,9 +610,9 @@ export default function NordicSpaPage() {
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button href="/farm-tours">Book a Farm Tour</Button>
             <Button
-              href={BOOKING_LINKS.giftCertificates}
+              href={giftCertificatesHref()}
               variant="outline"
-              external
+              external={!nativeCalendarEnabled()}
             >
               Gift Certificates
             </Button>
@@ -620,7 +621,9 @@ export default function NordicSpaPage() {
       </section>
 
       {/* Sticky mobile CTA */}
-      {!nativeCalendarEnabled() && (
+      {nativeCalendarEnabled() ? (
+        <NativeStickyCTA />
+      ) : (
         <BookingStickyCTA
           label="Book Now · $75/person"
           href={stickyBookingHref}
