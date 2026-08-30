@@ -36,9 +36,12 @@ src/
                            bookediq, meta, ga4, supabase, resend, turnstile
     daily-report.ts        pure daily-report calculations + escaped email template
     html.ts                shared HTML escaping for all email renderers
+    reviews.ts             the ONLY reader of google-reviews.json — see "Social proof"
   data/                    static page content (properties, tours, spa, portfolio)
+                           + google-reviews.json, refreshed by a scheduled job
 docs/                      plans, recovered data, ads runbooks
 scripts/                   one-off + scheduled ops scripts
+.github/workflows/         scheduled jobs that commit back to the repo
 supabase-*.sql             schema, applied by hand (no migration runner here)
 ```
 
@@ -52,6 +55,51 @@ supabase-*.sql             schema, applied by hand (no migration runner here)
 | A shared visual primitive | `src/components/ui/` |
 | A DB table | append to a `supabase-*.sql` file, then **apply it before deploying** |
 | A one-off or cron script | `scripts/` |
+| A review count, rating, or star badge | import from `src/lib/reviews.ts` — never a literal |
+
+## Social proof (Google reviews)
+
+Reviews are the strongest conversion lever on this site and they appear in more
+places than is obvious: hero badges, near-CTA counts, the review-card sections,
+and the `aggregateRating` JSON-LD in `StructuredData.tsx` (which Google reads —
+a wrong number there is a structured-data problem, not just stale copy).
+
+The data is a **committed snapshot**, not a runtime fetch:
+
+```
+Google Business Profile v4 API
+  └─ scripts/pull-gmb-reviews.mjs        (weekly, via GitHub Actions)
+       └─ src/data/google-reviews.json   (committed → Vercel auto-deploys)
+            └─ src/lib/reviews.ts        (the only module that reads the JSON)
+                 ├─ ReviewBadge          hero / near-CTA / compact tiers
+                 ├─ GoogleReviewsSection  topic-filtered review cards
+                 ├─ TestimonialSection
+                 └─ StructuredData        aggregateRating JSON-LD
+```
+
+### The rules that keep this honest
+
+1. **`src/lib/reviews.ts` is the single source of truth.** Nothing else imports
+   `google-reviews.json`. `GoogleReviewsSection` re-exports its constants only
+   so older import sites keep working.
+2. ⛔ **Never hardcode a review count or a rating.** They went stale for three
+   months precisely because `188` and `"4.9"` were typed into three files.
+   Import `REVIEW_COUNT` / `FIVE_STAR_COUNT` / `REVIEW_RATING` instead.
+3. **Never render `REVIEW_RATING` as a decimal.** Display is always five filled
+   stars plus a count — hero uses `REVIEW_COUNT`, near-CTA uses
+   `FIVE_STAR_COUNT`, inline uses `REVIEW_COUNT`. The decimal is for JSON-LD only.
+4. **A snapshot, not a fetch, is deliberate.** Pages stay fully prerendered, no
+   API call happens on a page view, the JSON diffs in review, and the site keeps
+   rendering if Google's API is down.
+5. **The rating comes from Google's `averageRating`**, not from anything we
+   compute or type. The pull script rounds it to 1dp, matching the profile.
+6. ⛔ **The GBP API does not accept service accounts** — a *user* refresh token
+   is the only headless path. `scripts/mint-gmb-refresh-token.mjs` mints one
+   scoped to `business.manage` alone; do not substitute the local gcloud ADC
+   token, which also carries `cloud-platform`.
+7. The workflow refuses to commit a snapshot whose review count dropped more
+   than 10%, and skips a commit where only `fetched_at` moved — so a bad pull
+   or a no-op run can't trigger a production deploy.
 
 ## Commerce (the farm store)
 

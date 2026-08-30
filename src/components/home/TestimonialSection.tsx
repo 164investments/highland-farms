@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { GOOGLE_REVIEW_LINK, REVIEW_COUNT } from "@/lib/reviews";
 
 const testimonials = [
   {
@@ -49,12 +50,12 @@ export function TestimonialSection() {
         {/* Google reviews link */}
         <div className="mt-10 text-center">
           <a
-            href="https://share.google/jrLOI4AhnpzbPPBpF"
+            href={GOOGLE_REVIEW_LINK}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm font-light text-forest hover:text-forest-light transition-colors font-sans tracking-wide"
           >
-            Read all 188+ reviews on Google &rarr;
+            Read all {REVIEW_COUNT} reviews on Google &rarr;
           </a>
         </div>
       </Container>

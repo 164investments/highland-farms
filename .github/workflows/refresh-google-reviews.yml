@@ -1,0 +1,93 @@
+# Refresh the Google review snapshot from the Business Profile API.
+#
+# Reviews are social proof in ~8 places (hero badges, near-CTA counts, the
+# review cards, and the aggregateRating JSON-LD). They live as a committed
+# snapshot at src/data/google-reviews.json rather than a runtime fetch so the
+# pages stay fully prerendered and keep rendering if Google's API is down.
+# This job keeps that snapshot honest.
+#
+# Pushing the updated JSON to main triggers the normal Vercel auto-deploy.
+name: Refresh Google reviews
+
+on:
+  schedule:
+    # Mondays 14:00 UTC (7am PT). Reviews arrive at ~15/month, so weekly is
+    # plenty; bump to a daily cron here if that ever stops being true.
+    - cron: "0 14 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  # Never let two runs race the same file.
+  group: refresh-google-reviews
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          # Full history so the pre-push rebase below works.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Pull reviews from the Business Profile API
+        env:
+          # The GBP API does not accept service accounts — this is a user
+          # refresh token for the GMB owner (hayden.laverty@gmail.com).
+          GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}
+          GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
+          GOOGLE_OAUTH_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH_REFRESH_TOKEN }}
+        run: node scripts/pull-gmb-reviews.mjs
+
+      - name: Sanity-check the snapshot
+        # The script already refuses to write a near-empty pull. This guards the
+        # other direction: a snapshot that collapsed relative to what we shipped.
+        run: |
+          node -e '
+            const fs = require("fs");
+            const next = JSON.parse(fs.readFileSync("src/data/google-reviews.json", "utf8"));
+            const prev = JSON.parse(
+              require("child_process")
+                .execSync("git show HEAD:src/data/google-reviews.json", { encoding: "utf8" })
+            );
+            const n = next.reviews.length, p = prev.reviews.length;
+            console.log(`reviews: ${p} -> ${n} (rating ${prev.rating} -> ${next.rating})`);
+            if (n < p * 0.9) {
+              console.error(`refusing: review count dropped ${p} -> ${n}`);
+              process.exit(1);
+            }
+            if (!(next.rating > 0 && next.rating <= 5)) {
+              console.error(`refusing: implausible rating ${next.rating}`);
+              process.exit(1);
+            }
+          '
+
+      - name: Commit if the reviews changed
+        run: |
+          # fetched_at changes on every run; only the review data is worth a deploy.
+          if git diff --quiet -- src/data/google-reviews.json; then
+            echo "no change"
+            exit 0
+          fi
+          if [ -z "$(git diff -U0 -- src/data/google-reviews.json | grep '^[+-]' | grep -v '^[+-][+-]' | grep -v 'fetched_at')" ]; then
+            echo "only fetched_at moved — skipping commit"
+            git checkout -- src/data/google-reviews.json
+            exit 0
+          fi
+          COUNT=$(node -p 'require("./src/data/google-reviews.json").user_rating_count')
+          RATING=$(node -p 'require("./src/data/google-reviews.json").rating')
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/google-reviews.json
+          git commit -m "Refresh Google reviews: ${COUNT} reviews, ${RATING}★"
+          # Someone may have pushed while we were pulling from Google.
+          git pull --rebase origin main
+          git push origin main
