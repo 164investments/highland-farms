@@ -1,15 +1,20 @@
 import { Star } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import googleReviews from "@/data/google-reviews.json";
+import {
+  FIVE_STAR_COUNT,
+  GOOGLE_REVIEW_LINK,
+  REVIEW_COUNT,
+  REVIEWS,
+  type Review,
+} from "@/lib/reviews";
 
-export const GOOGLE_REVIEW_LINK = "https://share.google/jrLOI4AhnpzbPPBpF";
-export const REVIEW_COUNT = googleReviews.user_rating_count;
-export const REVIEW_RATING = googleReviews.rating;
-export const FIVE_STAR_COUNT = googleReviews.reviews.filter(
-  (r) => r.rating === 5,
-).length;
-
-type Review = (typeof googleReviews.reviews)[number];
+// Re-exported for the existing import sites; @/lib/reviews is the source of truth.
+export {
+  FIVE_STAR_COUNT,
+  GOOGLE_REVIEW_LINK,
+  REVIEW_COUNT,
+  REVIEW_RATING,
+} from "@/lib/reviews";
 
 type Topic = "all" | "spa" | "tour" | "wedding" | "stay";
 
@@ -49,7 +54,7 @@ function relativeTime(iso: string | null | undefined): string {
 
 export function filterReviews(topic: Topic, max: number): Review[] {
   const pattern = TOPIC_PATTERNS[topic];
-  const candidates = googleReviews.reviews.filter((r) => {
+  const candidates = REVIEWS.filter((r) => {
     if (r.rating < 4) return false;
     if (!r.text || r.text.length < 60) return false;
     return pattern ? pattern.test(r.text) : true;

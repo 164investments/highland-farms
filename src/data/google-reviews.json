@@ -2,10 +2,513 @@
   "place_id": "ChIJF5dVblWLlVQRTa9sDtveCPY",
   "name": "Highland Farms",
   "rating": 4.9,
-  "user_rating_count": 188,
-  "fetched_at": "2026-05-20",
+  "user_rating_count": 234,
+  "fetched_at": "2026-08-30",
   "source": "google-business-profile-api",
   "reviews": [
+    {
+      "rating": 5,
+      "publish_time": "2026-08-26T19:59:38.466713Z",
+      "relative_time": null,
+      "author_name": "Jesse C",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJ5q34VRbsvFgu6BzxVRG1ckYUx3jLOneNsvz_3kOumVoDg4Q=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-08-13T18:08:53.708431Z",
+      "relative_time": null,
+      "author_name": "Amanda Read",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWo4qNpfZClejJh8Y74cVgM5vVT232YhG3f8tw_AvCK7-UFiqMQWQ=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Such a great experience. The tour guide was so nice and we had a blast loving on all the cows,cats, dogs and goats!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-08-10T16:12:19.829278Z",
+      "relative_time": null,
+      "author_name": "Heather Majewski",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVBPWs1IiIv98lknDKI5rOLNyCQFzq9OZ1Nu5NRJiN16OC0PYko=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "What an amazing venue! So many options for set up and photo backgrounds. You can even stay on site. The staff is so friendly and helpful! My son and daughter in-law had an amazing experience here! Thank you!",
+      "owner_reply": null
+    },
+    {
+      "rating": 1,
+      "publish_time": "2026-08-05T21:48:50.309780Z",
+      "relative_time": null,
+      "author_name": "What They Dont Tell You",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJj1haKfVjDdNrRauQeYKREKpMhqUjWjUiPwNBLFqdpKLTahw=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-08-03T16:54:12.130962Z",
+      "relative_time": null,
+      "author_name": "David Marks",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLjgF6P0GeoT7TaZ0ob7XVbzOuDv90ijHE960nYbMIMOrO3Iw=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "This is a very beautiful place.  Lots of landscaping locations for pictures.  The owner is very attentive to your party.  It is setup and designed for weddings.  THe owner makes sure every little detail is taken care of.  You will have a wonderful experience like my son just had for his wedding.  I highly recommend the Highland Farms for your wedding.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-08-03T16:19:59.013127Z",
+      "relative_time": null,
+      "author_name": "Benjamin Jones",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXh2bEj1pVUrh7XbAvs8xS51VfWphKQY_93MLbRdTbdKkE-FaNPlw=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "The venue was a perfect size for the small wedding we attended. The parking attendant was very solicitous to ensure we could navigate the gravel. There were a bunch of cute animals and a Highland cow for the couple to walk up to the cocktail/dinner area. The owner helped me arrange a memorial pillow for the groom's grandfather with his own books as a prop. Absolutely would recommend!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-08-02T20:36:01.959382Z",
+      "relative_time": null,
+      "author_name": "Jennifer Eriksen",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLPztHb86gJBF_QFozYKaK9D-adHMtXMfyjupMUTCPzS5VUBA=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "We went to the Highland Farms for a personal tour and left being blown away by the beauty of the property itself and one of the most unique experiences. Our tour guide Dante made it so enjoyable and knew so much about each individual animal on the property it made it so personable. All around an amazing experience!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-31T22:31:08.555404Z",
+      "relative_time": null,
+      "author_name": "Courtney Johnson",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWB-kjn_1fSQzfUJj4cpdlmLkWQJWtiwqLsj1iV0rW5UiKkbBIx=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "Dante gave a wonderful tour of this elegant farm. He clearly loves caring for the animals and made our experience wonderful. I highly recommend taking the trip to hug, brush and snuggle these beautiful cows. I would love to go back and stay a weekend to fully soak up the experience!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-30T00:31:50.608346Z",
+      "relative_time": null,
+      "author_name": "Charles Bedell",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIbqB3t60L6rdZVmhEOe9riC7YOPBf4BRZcm00oHXd6ly58Bw=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "The farm tour was such a fun experience. Doma, our tour guide was amazing. Fun, friendly, very knowledgeable. I feel like I learned a lot about the cows, sheep, and the farm in general. Such a wonderful time. Between Doma and Duante, this tour was such a joy to take part in. I will be telling my friends about this out of the way gem. Thanks all!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-28T07:46:38.777622Z",
+      "relative_time": null,
+      "author_name": "Amy Daisy",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIDi8OKKVpj3B9DT5GojuJavBqodNDK0FghqjkVVIKz4SqAdw=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "We hosted our daughter's wedding at Highland Farms in July 2026.  We can't say enough great things about the setting and the high quality of service provided by Conner and his team.  From planning to completion it was a wonderful experience.  We had the venue for 24 Hours and hosted twenty family members.  Everyone loved the beautiful setting surrounded by the woods and all the animals on the farm.  The spa was also a hit with guests the morning after the wedding.  All staff were courteous, helpful and professional.  I couldn't say enough about Highland Farm.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-28T00:46:30.926183Z",
+      "relative_time": null,
+      "author_name": "Dan S.",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJHMbxnvKoLRD0_r_oVHbARhf-tYJCPC99neW8pl3dpKE1ScA=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "What a nice, calm and beautiful place to visit. Very well kept.\nThank you for a great visit! We will be back.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-26T18:05:56.572388Z",
+      "relative_time": null,
+      "author_name": "TERI PUDERBAUGH",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJGm2hwTiWtnzwGyQLj3ioHckualcI5xqhif5mLL-MVXs9Q3g=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "The tour was AWESOME!  Doma was a great guide, very knowledgeable, and I he is as much of a cow lover as me!  The farm is incredibly gorgeous.  The work they put in to make it beautiful is very inspiring.  Would recommend everyone come to this place and support the farm.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-25T00:16:34.621077Z",
+      "relative_time": null,
+      "author_name": "Ella Guthrie",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXXfHkVdlpDeApQU6THwIvmPFgRHoycQhHwzkF539IpADF7XYs=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "My husband drove me down here for my birthday for this experience and it was amazing! Eliza was just perfect at explaining everything and remembering the names of all the beautiful animals! 100/10. I would definitely come back if I’m in the area again!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-22T23:36:47.960274Z",
+      "relative_time": null,
+      "author_name": "McKenna Gilstrap",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJYKoRLB9QKJ8djUyPwRu2xBUC2wJdlVRknx6mR9FyVy9IeEg=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "This place is amazing! So peaceful and relaxing! The staff are so kind as well. Will definitely be coming back soon!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-22T20:54:18.586712Z",
+      "relative_time": null,
+      "author_name": "Amanda Wolfgram",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIjrTJDGiWwquOvDdHsmm_wYZSYXljYUuuEngG0-3SCTR97iw=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "My husband surprised me with a private tour of Highland Farms for our 25th anniversary. I was in heaven! Staff is amazing. Gorgeous place and the grass Puppies (highland cows) were to die for. So sweet and friendly. The sheep loved their scratches. I would highly recommend going to visit Highland Farms",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-22T04:34:01.904353Z",
+      "relative_time": null,
+      "author_name": "Olivia Daisy",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKTITpquNNkn1YlrY4I-haF4fw0Wh-XX-hoa2Q3JQp3MTCScw=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "I had the wedding of my dreams at Highland Farms, it is the perfect destination wedding venue! The staff were so helpful and kind my whole stay. They did everything from bartending to set up and even helped with a cow photoshoot. Connor, AJ, Doma, Eliza, Hudson and Daunte where all incredible. I couldn't recommend this venue more!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-19T15:45:04.766400Z",
+      "relative_time": null,
+      "author_name": "Alexia Maizel",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJMDUfje4CeGpoZACNzV_P-3mBvlmyUrKmiEvlfWEzyMpm_dOQy=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-09T20:07:32.809499Z",
+      "relative_time": null,
+      "author_name": "Lindsay Hodge",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLw5W5ceqQIew_VNN-5C-B_eeP6giAjXpA9_MS9JQSj81crPZQ=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "We had a wonderful night at Highland Farms. The farm tour was super fun - our guides were so friendly and clearly adore the animals. All of the animals are so friendly and well taken care of. The property is immaculate. We stayed in The Cottage and it was clean and super comfortable. The hot tub and morning wake up call from Albie the peacock were highlights. Every single person we encountered was friendly and great. We had a great little getaway and will recommend to our friends.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-07T18:17:18.287689Z",
+      "relative_time": null,
+      "author_name": "Ashleigh Keesecker",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXMIgMKRBxANHj1POVUg7gMR_dHolNFIzaBIJ7Y4zl_VL37_4o=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "We had the best experience at Highland Farms for our wedding! The venue is absolutely beautiful, and our guests loved everything about the property- from the farm tour and Highland cows to the Nordic spa and staying onsite.\n\nConnor and his team went above and beyond all weekend. We got behind during setup, and Connor even jumped in to arrange our altar flowers, which meant so much to us. You can tell they genuinely care about making your day special.\n\nWe couldn't have asked for a better venue and would recommend Highland Farms to anyone looking for a unique and unforgettable wedding experience.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-07T14:53:33.879723Z",
+      "relative_time": null,
+      "author_name": "Scott Matthews",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJtvTxtCWm8DY87krzLAHd9r0zKdD_MsIwF5zVeMCqfwXp5iQ=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "A++ experience! The sauna, sream room and cold plunge were exactly what my wife and I needed! Beautiful surroundings and a very friendly staff! Thanks a million 😊",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-03T18:25:52.246154Z",
+      "relative_time": null,
+      "author_name": "Megan Civelli",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVkJBLyTXc3xE3q8o9Syc741xjJldyKLlHiUPcZEMaKTWEuHnHY-w=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "We couldn't have asked for a more beautiful venue to have our wedding than Highland Farms. The only thing I knew I wanted when I was looking at venues was that I wanted something \"foresty\". Highland Farms delivered the enchanting forest vibes, plus cutie highland cows and a cozy cabins to get ready in. Unfortunately, they did lose their venue coordinator about 3 days prior to the wedding, which created some hiccups, but the venue owner Connor took full accountability for the balls that got dropped as a result, and the HF staff (particularly Daunte and Doma) went above and beyond to keep things running. I would be remiss if I didn't mention the guest of honor Cowboy mingling during dinner. Thank you to the entire HF team for making our day so special!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-01T15:04:19.509563Z",
+      "relative_time": null,
+      "author_name": "Lyndsey Duerden",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjX0cb0A4RhZlKJVu0lBaWt1wnoZxwO1LoTMW4P7YXd7hqhqo02a=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "I will absolutely be returning. We did the nordic spa sauna and cold plunge. The property was impeccable. The spa area was clean and in perfect condition. Mary was awesome, so kind and accommodating.  I have been to different spas over the years and this experience has been my favorite so far. Mary put the experience over the top. A suggestion to make the experience even better would be to have clearer directions in an email about where to go when you arrive. When we got there the place was empty and we were worried we went to the wrong spot.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-01T00:20:22.068015Z",
+      "relative_time": null,
+      "author_name": "Ashley Smit",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKD2PSb-URPnsgUP_RnPE7bgAaUc5J6g81Vh1rEGwbVo07nfzw=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "Highland Farms is such a unique place to visit! Dante took us on a tour of the entire grounds and the work they have put into making it look very natural and modern. We booked to see the Highland cows and got to see cows, sheep, the white peacocks, and everything else they have to offer! We were very impressed with the knowledge of Dante and all he taught us about everything at Highland Farms!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-07-01T00:07:16.769484Z",
+      "relative_time": null,
+      "author_name": "Maia deVere",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKEG1QJ23JxklK1RYFZQK0QGkxOmqDMt9IIBGkkiXXJ97e63g=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "My son and his wife just had the most beautiful wedding ceremony and celebration at Highland Farms. The location is perfect for an elegant but not stuffy wedding. The staff helped to make sure everything went to plan and they were all so kind, helpful, efficient, and organized. Everything was perfect!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-30T23:35:46.516077Z",
+      "relative_time": null,
+      "author_name": "Dylan Jennings",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjV0GKKS4GlyULrTLjz876Hq8oXO21Iy5nV-r3_-kdGgx3iBYrQZ=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "Went for three days for my friends wedding. Would recommend 10/10. Amenities, views, and service all were on point. Employees like Dante will keep you and your group in good hands.",
+      "owner_reply": null
+    },
+    {
+      "rating": 4,
+      "publish_time": "2026-06-30T23:29:13.904369Z",
+      "relative_time": null,
+      "author_name": "Josh Paullus",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXXdlo4Q25-AFJ2vHx7UhTX1LTKH4AuSioJAc1Az2eYMAtD-1SU=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-30T22:52:39.291379Z",
+      "relative_time": null,
+      "author_name": "Tatum Paullus",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUOvXUI3RNKoLOij-dbOTH-1rS3ZMvHpHIHgYnYieVVVzgTlmK2=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "I chose Highland Farms for my wedding venue primarily for the amenities offered. I was planning the wedding while in my final year at school. Connor approached our call softly, understanding the overwhelm of my situation. He explained all of the packages and followed up consistently— not constantly.\n\nWhen I toured the venue 5 months later, I was comforted by the respect of the staff, particularly Dante who has been with the farm “since the beginning.” I believe Dante truly understood the depth of the farm; both in purpose and future possibilities. Both he and Connor have a vision for the property. Additionally, I would like to mention, our tour was highly accommodating to my circumstances of flying home for the holidays.\n\nLeading into the wedding, Connor scheduled a few check-ins and offered himself as a day-of coordinator. I used the vision Connor had for his venue as a base structure for our wedding, but Connor also offered a few options for us to make it most enjoyable for us, particularly, a table for just my husband and I to enjoy our dinner together separate from our guests.\n\nWhen we arrived at the venue, I was overwhelmed with all of the pre-wedding decisions to be made (where to put the boxes of table cloths, etc). Having already completed a tour of the farm previously, Connor and his staff were able to take my wedding party on a tour while I figured out some logistics. This stood out in particular, because it showed Connor understood the pressure I thought I was under.\n\nWhen it came to the rehearsal, Connor was able to effectively communicate to my wedding party, many of whom have never attended a wedding. Additionally, he gave me words of advice that I would otherwise have not considered. The day of the wedding I saw Connor very few times, that was mostly to do with my own pre-wedding nerves. However, Connor was consistently communicating with my point of contact. And he was there for the ceremony itself, which was most important to me. He also had staff that were there and available for covering photos and captured incredible candid moments.\n\nOverall, the support of the team at highland farms, the amenities offered, and the quality of service lead me to encourage my friends and family members to consider Highland Farms for their weddings.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-29T19:49:53.096520Z",
+      "relative_time": null,
+      "author_name": "Ross Blaszczyk",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIka6VRg5dpy_nnDALUCXx3XbE9zZ_T4xo3pnEwtn14BPg=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Went to the Nordic spa at Highland farms. It is such a cute setup. The service was excellent. Mary our host was super kind and informative. She did an amazing job to make our visit one we will look back fondly on. My only suggestion is to install the hand rail for the cold plunge and have a sign or make a note in the instructions where to meet the host/farmhand at the cow statue. We gave ourselves a self guided tour by accident.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-26T21:59:29.041984Z",
+      "relative_time": null,
+      "author_name": "Josh McCarty",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLAe4WpBWtQ1xzGuF0TCnUA_kZiH_oUl1cyI7VWU8bQvZkBBg=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "My experience here was amazing, we all had fun at the weeding! The staff was so kind. One of my favorite things here was either the highland cows or the nature. The nature was SO beautiful. I recommend stopping by if your in Oregon!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-25T18:47:44.086187Z",
+      "relative_time": null,
+      "author_name": "Janet McCarty",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIl7In6c3eWf6VhNRk4nvnlrzCVpHx7FtIXMe9oHC0R0e4DKw=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Our son had his wedding here and it was absolutely perfect. Room for everyone to hang out and visit, we spent the weekend and it was all amazing. The staff took such good care of us and were extremely kind and helpful the whole time. The grounds and animals were well cared for and fun to interact with. From breakfast to bonfires we had a wonderful time!!!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-23T02:44:24.551595Z",
+      "relative_time": null,
+      "author_name": "Brenna Stafford",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLsvrxfzKj9GJ0htInnhmLRPHQYqiRT_yFxs2BgxcJNEx4SAg=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "My mom and I had a private tour of the farm with tour guild, Mary. It was absolutely wonderful! Mary went above and beyond sharing so many insightful stories, giving tips along the way as we were in awe of all the animals. 10/10 recommend!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-21T23:13:13.463836Z",
+      "relative_time": null,
+      "author_name": "Amy Howard",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIaGSb9oChRLBF6JOStS_e4j95trIlZWQ_BKjBxwDlkYQWisw=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "Amazing experience! We did the farm tour followed by the spa and had the best time. AJ was a wonderful tour guide, very knowledgeable and very passionate about all the animals here! Would recommend for a forest getaway!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-18T16:20:56.634738Z",
+      "relative_time": null,
+      "author_name": "Mackenzie Wiseman",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIwglr9Af4_uEnV0IeYWLlu0waliyKPGFyJQiyc1BHbUM0YmQ=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "I took a tour of the farm and pet the highland cows with my husband. The guides felt like long lost friends, and the cows were so sweet... Mamas and their babies. The property is serene and calm and beautiful. We also met Icelandic sheep, peacocks, and Indian sheep dogs. Definitely an experience you'll not want to miss! We will be back for the sauna and spa!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-10T07:13:33.538808Z",
+      "relative_time": null,
+      "author_name": "James",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJWjyeVtkT1Y6Twyf9E2KciZ0iQAuiIFyBoBZu-BJddcov0rA=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "This was our first trip for the sauna and cold plunge package. It was an experience I’ve never had. Staff was the friendliest group of people I’ve met in a long time. They showed us around the property, let us pet and admire the highland cows, and the sauna was absolutely stunning. Not just the feel and experience of the sauna itself, but the atmosphere and scenery was amazing! I will be looking forward to another trip, and another, and another. Staff and facility gets as many stars as I can possibly add. This was the perfect end to a vacation for my family from SC and an amazing way for me to end a week of going all across northwest Oregon for a solid 5 days. It was the perfect way to come back to relaxing and ready to start new. Thank you so much for the best hour and a half in a very long time.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-08T01:10:04.726760Z",
+      "relative_time": null,
+      "author_name": "Chris S",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjW4jY6JQAEG_Qfo50QrQOVqBnfe7IBKCjYM8S6160sT0fx-c3U=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Booked the 1 1/2 hour Nordic spa experience and had an amazing time. The spa is clean, well stocked with water, tea and coffee, and felt amazing. The staff were all incredibly kind and seemed like they loved their job. Hoping to come back again soon!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-08T00:59:08.192590Z",
+      "relative_time": null,
+      "author_name": "David Woolley",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJY46mr33Fudvnuey36ubCCO81rPcTI8i2P26iNFL3JXlJbig=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "My partner and I booked the Nordic Spa Experience. We had an amazing time! The staff was amazingly helpful, friendly and informative. The spas were impeccably clean and welcoming. There were plenty of towels and amenities for private respectful self-sevice. The features were very user-friendly. We felt valued and respected, and were never rushed even though we drug our feet looking at all the lovely animals. Love the fact that we could pay for items in the online shop and pick them up that day. The only request we may have had is that many of the essential oils were low to empty, but that in no way tarnished our experience! We are now wanting to plan a farm stay and will definitely be returning soon.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-07T23:22:24.111627Z",
+      "relative_time": null,
+      "author_name": "Natasha Brown",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjW9QI4d1EYcykDoj5vrCo3U5tO1N3lccCSMsIvZj5YGtx2JGqQU7A=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "The tour of the farm was absolutely amazing. Dante was a fantastic tour guide. My family had the greatest time. Thank you for making it perfect for my birthday. I loved the baby cows. I'll see you all next year.",
+      "owner_reply": null
+    },
+    {
+      "rating": 2,
+      "publish_time": "2026-06-07T13:43:35.898082Z",
+      "relative_time": null,
+      "author_name": "Amy Segeberg",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjV-UOEQ-PicrA5hFgNdbMC-s8TZ75ZYuVtHANJQNvDB0FnhHJGE1A=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "This was a tough one for me. I was really looking forward to our farm tour and I wanted to love it. Unfortunately, I can't say that I did and I wouldn't recommend doing a farm tour to anyone else.\nThere were some positives, the staff was lovely, the grounds were beautiful and the cows seemed happy and well cared for.\nHere's why I'm only giving two stars, we paid for the farm tour that specifically states, hands on experience with all farm animals. That's absolutely not what we got. We were walked over to a pen with one mom and baby who we looked at from outside the pen before moving on. Then we walked to a second pen where we were allowed inside to interact but again, it was with one mom and baby. This was literally the only interaction we had with any animals. Everything else was locked up in a pen. We could see them but there was zero interaction. The remainder of our tour was walking the grounds listening to what came suspiciously close to a sales pitch for booking other parts of the business.\nThis was not what I envisioned when I paid $75 per person, whatsoever. Unfortunately, I'd say save your money on this one if you're wanting to visit for the animals.",
+      "owner_reply": {
+        "text": "Hi Amy, thank you for taking the time to write this, and for being so fair about it. It means a lot that you saw the care we put into our animals and the grounds, even on a day that didn't fully land for you.\n\nI do want to gently share how the tour is built, because there's more intention behind it than it may have felt in the moment. We're an educational, hands on experience, and those two halves are deliberate. We start with the education, introducing you to our animals and sharing how we run a small farm and the practices we genuinely care about. This is important as we love these animals and want people to leave understanding them, not just having seen them. Then we move into the hands-on part: private time in the pasture with a couple different cows, hopefully a momma and her baby, so you may interact with different ages for as long as you'd like. We do this for your safety, so you may be as close as possible without us having to worry about others cows interrupting your time. That one on one time is the heart of our tours, and we start the day building toward it. These are living animals as well, so we rotate our Highland cows with guests to keep them happy and unstressed rather than worn out by back to back visits. \n\nThe walk through of the grounds is something guests typically love because of where we sit, in the national forest, and it's never meant to feel like a pitch. I'm sorry that it came across that way.\n\nThat said, you're right, and it's on us. Our listing says \"hands-on with all farm animals,\" and that word, all, promised more than your tour delivered by the sounds of it. And beyond the wording, your visit didn't reflect what a tour with us should feel like, and I'm sorry for that. We can and do deliver a richer, more hands-on experience than you got, and I'd like the chance to make sure of it for you. \n\nI'd genuinely love to have you back as my guest and show you the tour the way it's meant to feel. Please email info@highlandfarms-oregon.com and ask for me directly. Thank you again.  -Connor",
+        "updated": "2026-06-08T13:15:42.721123Z"
+      }
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-02T16:32:07.840050Z",
+      "relative_time": null,
+      "author_name": "Nicole Lagman",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJsgO0KpdvKmjayLKNUCM9izIGc-QZEUlmMc5PeXPWhsV_YBA=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "My sister and I did the farm tour at Highlands Farm, and it ended up being our favorite experience of the entire trip! We had so much fun meeting all the animals—the cows, goats, sheep, dogs, and everyone else on the farm. Getting up close with them was such a special experience.\n\nDante was an amazing guide. He was so friendly, passionate, and knowledgeable, and you could tell how much he genuinely cares about the animals and the farm. He made the tour feel personal, fun, and engaging, and we learned a lot along the way.\n\nIf you're in the area, I can't recommend this experience enough. It was such a fun, unique, and memorable way to spend a couple hours. Thanks to everyone at Highland Farms!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-06-01T22:36:50.582693Z",
+      "relative_time": null,
+      "author_name": "gennine2",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLlvOyBY9huYOWsrt5zhWdWiXt7AXxqWzO4ZruihoytDUuG5A=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "Had a WONDERFUL experience lead by Dante. We were eagerly greeted and given a tour of the property. It was beautifully balanced with untouched trees and paved paths. I loved seeing the cats, peacocks, cows, sheep, and dogs. I have never seen a highland cow in my life! It was the coolest thing. We got to brush and pet them. There were some babies on the property and they were the sweetest and cutest. I learned so much and am excited to come back. We were told you can host weddings, birthdays, baby showers or any event you want here. They also have airbnbs on the property that have a sauna, cold plunge, and hot tub! SUPER beautiful experience. Thanks Dante for the tour and photos!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-05-31T23:28:11.788181Z",
+      "relative_time": null,
+      "author_name": "Rita O",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLZlQCxpk8l8BMtYV8VWpCr9ke8d-1A_uO7V3mEO0uilX5SeQ=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "Went on a farm tour today. It was amazing! Mary was our guide and so fantastic. I’m sure the others are great too  but she made our visit that much better. She’s good with kids and adults and knows a lot about the various animals on the farm. 10/10 recommend visiting here.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-05-31T05:40:28.869883Z",
+      "relative_time": null,
+      "author_name": "Vina Carpenter",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXYWxl1DUYxpXM4GrcyqMHWXPQMnVxJNoFpe4h95LRDbf-snLeEhw=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Our first time experiencing at the Nordic Forest Spa.  It was such an awesome & relaxing experience! It was so peaceful and secluded in the forest. Love the hot sauna, dry steamed room and the cold plunge! Awesome and friendly service as well! We’d suggest having the side pull up bars, so you could pull yourself out of the tub for a better balance. We highly recommend it! And we found out that they have Airbnb units that you could rent. We definitely plan on coming back! :)",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-05-29T21:04:46.639235Z",
+      "relative_time": null,
+      "author_name": "Vanessa Dichari",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVmUK1rkeXeu4BQfyyTnc16UUa7YAgZ66wRe1CnvWLn2XXMHvq2uA=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Today was pure magic at Highland Farms!\n\nWe spent the day exploring the property with Dante as our tour guide, and I can honestly say it exceeded every expectation. The vision, passion, and attention to detail that have gone into creating this space are truly remarkable.\n\nWhat they’ve built isn’t just a farm, it’s an experience. Around every corner there’s something beautiful to discover. It feels like a little oasis tucked away from the world, a place where you can slow down, connect, and appreciate the beauty around you.\n\nOur girl gang spent the day together laughing, exploring, and making memories, and the entire atmosphere was absolutely unmatched. The energy, the scenery, the people, it was all such a vibe.\n\nTo everyone at Highland Farms: congratulations on bringing your dream to life. You’ve created something incredibly special, and it shows in every detail. Thank you for sharing this beautiful space with the community.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-05-29T21:00:00.522270Z",
+      "relative_time": null,
+      "author_name": "Jacqueline Scott",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocI57K3pVGMsr4SS3pVoD7BWsshUf1h3gpd3mBymT8mNRQGdKw=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "We had such an incredible experience at Highland Farms! From the moment we arrived, it felt like stepping into a peaceful little dream tucked away in the woods. The property itself is absolutely stunning — majestic trees, beautiful scenery, and such a calm, magical atmosphere. And of course, the Highland cows were beyond adorable!\n\nOur guide, Dante, truly made the experience unforgettable. He was charismatic, knowledgeable, welcoming, and made everyone feel comfortable right away. You can tell he genuinely loves what he does, and his energy made the tour even more special and fun.\n\nIf you’re looking for a unique, relaxing, and memorable experience surrounded by nature and the cutest cows imaginable, Highland Farms is an absolute must-visit. We can’t wait to come back!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-05-29T20:55:36.167946Z",
+      "relative_time": null,
+      "author_name": "Tabitha Lovett",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVacNo_SXU_bJWQygCkKppF6hvCRrcRpdZbETywm_JKXnhVRPLo=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Hyland Farms was such an incredible experience and an absolute must-see! From the moment we arrived, everything was welcoming, beautiful, and so much fun. Dante was hands-down the BEST guide — so knowledgeable, friendly, and genuinely made the entire experience unforgettable for my girlfriends and me. You can tell he truly loves what he does, and his energy made the visit even more special.\n\nThe animals were amazing, the property was beautiful, and every moment felt relaxed, fun, and memorable. We left already talking about when we can come back. If you’re looking for a unique experience with great people and an unforgettable atmosphere, Hyland Farms is it. Highly recommend!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-05-26T21:03:04.306683Z",
+      "relative_time": null,
+      "author_name": "Ariel Schmidlin",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocITlLEix3WTc4-J_Ebea9cLn25H1RxoDyOMFb37d185Qks3BQ=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "The tour was great! Dante gave us plenty of time with the animals while educating and story telling about the farm. It was a beautiful place to visit.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-05-26T19:32:26.813945Z",
+      "relative_time": null,
+      "author_name": "Kasey Kupcake",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUS3xz6g0f_fp5wspZWp2pajock4egME9j8OK8MMgYlKGXY_R98=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "So relaxing and lovely! The attendant Mary was so helpful and everything was so clean!! Wonderful experience!!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-05-24T22:48:15.821203Z",
+      "relative_time": null,
+      "author_name": "Jimmie Chavez",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKnkAqCS1rTsL8qtQ-X_9CCONkp-u16t1uJ7GFNGQ1KWTNxPg=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "We had an amazing experience at Highland Farms! The tour was beautiful, informative, and so well put together. A huge shoutout to Dante, our tour guide, who made the experience even better. He was friendly, knowledgeable, and made sure everyone felt welcome while sharing so much interesting information along the way. You can tell he genuinely cares about making the tour enjoyable and memorable. Highly recommend visiting Highland Farms and definitely ask for Dante if you get the chance!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-05-23T22:13:01.494323Z",
+      "relative_time": null,
+      "author_name": "Mariah Anderson",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKFK5uHd4B2oJXSkf0u4VzPHbZm7CxB0EvdrpVqyXYzbrWQ_w=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "Such a special experience! I highly recommend for fellow animal lovers. D, our tour guide, was so knowledgeable about the farm and animals. We will definitely be going back! Wedding venue was also beautiful if looking to get married.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-05-20T23:09:32.998577Z",
+      "relative_time": null,
+      "author_name": "Valerie Kitajchuk",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJsBpOnF-ccq9TQq9cz4LgwgoznzyKAFFg2KE6ChYj48PXu8g=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "My wonderful man surprised me with a trip to Highland farms. We love highland cows! He booked a personal tour for us.\nDante and Mary were amazing! Dante takes a lot of pride in the farm, the cows and his work. He has been there for quite sometime. You can tell that he is an owner employee ( a great quality). His employer should be proud.\nHe is personable, very nice, easy to talk with and educated us about the cows, and the property and many other details.\n\nMary is sweet, easy going, also very personable.  it was like hanging with a friend you hadn't seen in a while. She has a special gift at sharing details about the nature on the property, the trees, the shapes and how that became, plants, flowers, the property and knowledgeable about the highland cows. I was blown away when I found out she had only been there 3 days on the job. I thought at least a year. She has vast previous farm/animal experience and is a great asset to the business/employer.\n\nThe owner is very lucky to have them both. They made our experience wonderful and memorable. Petting and brushing the highland cows ( and the cute babies) was amazing. The dogs are beautiful and still very puppy. Loved them!\nThank you Highland farms, Dante, Mary and animals for making this surprise a special memory. We will hold this day in our hearts forever.\nWe will be back to stay in one of the air bnbs.\nBest wishes to you all!",
+      "owner_reply": null
+    },
     {
       "rating": 5,
       "publish_time": "2026-05-17T14:16:42.216126Z",
@@ -21,7 +524,7 @@
       "publish_time": "2026-05-16T13:55:47.417763Z",
       "relative_time": null,
       "author_name": "Tracy Calderon",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUkrJJXrKjcAwLYkzsGYPGfqFtm-vrowk4bM3-ZS5pBJoVs0hjRxQ=s120-c-rp-mo-ba4-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUkrJJXrKjcAwLYkzsGYPGfqFtm-vrowk4bM3-ZS5pBJoVs0hjRxQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Beautiful place, enjoyed the dry sauna,  steam room, cold plunge, and the privacy.",
       "owner_reply": null
@@ -31,7 +534,7 @@
       "publish_time": "2026-05-15T18:28:22.828167Z",
       "relative_time": null,
       "author_name": "Kristin Barnes",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWfaE0hlYWlQQibPRvZyhJRcEIYyyc5hidVa0z6VgcMTI-7o_I=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWfaE0hlYWlQQibPRvZyhJRcEIYyyc5hidVa0z6VgcMTI-7o_I=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We had an amazing time at Highland Farms. Absolutely worth the time and money. Dante, AJ, and Ellory were incredible guides. They were so knowledgeable and put safety first. We learned about the history of the farm, toured the grounds and spa, and pet the cows, goats, and dogs-Bear and Beau. The grounds are beautiful and we would 100% do this again.",
       "owner_reply": null
@@ -61,7 +564,7 @@
       "publish_time": "2026-05-10T13:13:49.917024Z",
       "relative_time": null,
       "author_name": "Aerial Zetro",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLURKec2qBJ776FLrFINBqQqbCSB2iq2vobu87E7aqzFR6yNQ=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLURKec2qBJ776FLrFINBqQqbCSB2iq2vobu87E7aqzFR6yNQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We came from Fresno CA to see these beautiful cows and we had AJ as our tour guide and she's so awesome and knowledgeable about the cows, we had good laughs and the whole property is so beautiful and serene. Can't wait to come back and book the tour/spa package next time!",
       "owner_reply": null
@@ -71,7 +574,7 @@
       "publish_time": "2026-05-09T07:05:40.965339Z",
       "relative_time": null,
       "author_name": "elisa colter",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKwhSRlYZSxbdz2eT3PMwllZewyTCbe_bxb_NZWcvG7tVHW5A=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKwhSRlYZSxbdz2eT3PMwllZewyTCbe_bxb_NZWcvG7tVHW5A=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We had the most unforgettable experience at Highland Farms! From the moment we arrived, everything felt magical and thoughtfully put together. We got to enjoy a hands-on, interactive experience with Highland cows—which was truly a dream come true.\n\nOur tour guide, Daunte (with a “u” because he’s unique!), was knowledgeable, engaging, and made the entire visit even more special. The property itself is absolutely stunning, and you can tell how much care and pride goes into maintaining it.\n\nBeing able to brush, pet, and spend time up close with the Highland cows was the highlight of the day. It’s clear this farm is built on passion, care, and a deep respect for the animals and the experience they provide.\n\nHighly recommend for anyone looking for a unique, heartwarming, and memorable farm experience. 🐮✨",
       "owner_reply": null
@@ -90,8 +593,8 @@
       "rating": 5,
       "publish_time": "2026-04-16T01:24:27.389973Z",
       "relative_time": null,
-      "author_name": "Nicholas Renk",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVJuqZkQ84Fga01ZgxR35TEw69_XYoujCGNvlQXYAAPXeXzuOw-GA=s120-c-rp-mo-br100",
+      "author_name": "Nick Granger",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVQqgsjJkTqDRI0V8JZtI0mJmXJfZe3qcZ34mONtqOwE-uwrMNI4w=s120-c-rp-mo-br100",
       "author_url": null,
       "text": "Absolutely perfect. We went for an hour long tour to ask my boyfriend to prom. Our tour guides, Donte and Jayce, were absolutely the best. Each of the birds and and cats and cows and dogs and sheep that we met were soooo amazing. 10/10 experience, will definitely be booking a stay in the future. ♡\nWe even ended up in the totally wrong town and were an hour late but they accommodated us and we still had the perfect experience.\nThank you highland farms!",
       "owner_reply": null
@@ -111,7 +614,7 @@
       "publish_time": "2026-04-09T21:12:21.450971Z",
       "relative_time": null,
       "author_name": "Andres Higuera",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVFMDmWf1Rr-88jo746vmsFBR4ULeiosAZhU5RcfG4MTDP3uR0=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVFMDmWf1Rr-88jo746vmsFBR4ULeiosAZhU5RcfG4MTDP3uR0=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "AJ made the experience so fun. You can see her genuine love of the farm and the guests. We went for our anniversary, and she was very attentive to that. I highly recommend doing at least the tour for anyone to highland cows, super cute experience. We will be back for a stay soon! Thanks for having us!",
       "owner_reply": null
@@ -121,7 +624,7 @@
       "publish_time": "2026-04-04T18:16:18.655937Z",
       "relative_time": null,
       "author_name": "Ashleigh Scott",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocK7d-wvpRfryAClevXwlafbavDvDK1SqqiUip3r59-ofsJY4mM=s120-c-rp-mo-ba4-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocK7d-wvpRfryAClevXwlafbavDvDK1SqqiUip3r59-ofsJY4mM=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "A literal dream come true! we did the cow tour and got to pet all the highland cows and spend lots of time with the two baby cows. We did the spa experience after with the cold plunge, sauna and steam room. Private tours take up to 6 people but it was just my husband and I for the cow experience. Our tour guide Jace was super cool and knowledgeable and made the tour fun. Would definitely recommend, 100% worth it. They do weddings as well, it’s a beautiful venue for that.",
       "owner_reply": null
@@ -151,7 +654,7 @@
       "publish_time": "2026-03-29T02:50:04.565270Z",
       "relative_time": null,
       "author_name": "Brandy Wright",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocL6OgpvWLKlxvwFaBk5krVr4qF41zpTpiWRO8QStxV1Q4voCQ=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocL6OgpvWLKlxvwFaBk5krVr4qF41zpTpiWRO8QStxV1Q4voCQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "I had the absolute best experience visiting Highland farms today! The cows were unbelievably adorable—honestly even cuter in person—and you can tell they’re well cared for and loved. The grounds were beautiful, peaceful, and the perfect setting for such a unique experience.\n\nA huge shoutout to Dante, our tour guide, who truly made the visit unforgettable. He was knowledgeable, engaging, and clearly passionate about what he does. He took the time to answer all our questions.\n\nIf you’re even thinking about going—do it. This was such a fun, relaxing, and memorable experience. Easy 5 stars.",
       "owner_reply": null
@@ -161,7 +664,7 @@
       "publish_time": "2026-03-29T02:23:39.312819Z",
       "relative_time": null,
       "author_name": "Amber Hall",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocK1w03vpcVwsBtDw85wuWH-5wIQaDEfICR1-jgX0neRXUgx1Q=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocK1w03vpcVwsBtDw85wuWH-5wIQaDEfICR1-jgX0neRXUgx1Q=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We had the most incredible experience at the highland farm today! The farm itself is absolutely stunning, and you can truly feel how much care and love goes into every animal there.\nOur tour guide, Dante, was amazing—so knowledgeable, kind, and clearly passionate about what he does. He made the entire experience even more special.\nGetting to pet, brush, and spend time with the highland cows and baby calves was unforgettable. You can tell these animals are exceptionally well cared for, and the entire farm is centered around their wellbeing.\nHighly recommend this experience to anyone—such a special and memorable day!",
       "owner_reply": null
@@ -211,7 +714,7 @@
       "publish_time": "2026-03-22T01:43:31.112106Z",
       "relative_time": null,
       "author_name": "Maxime Sendra",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWvluNWTwvFcPNDbUx6KR1OoigZhKjatJ7Nu8BOppM4bu7QxA=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWvluNWTwvFcPNDbUx6KR1OoigZhKjatJ7Nu8BOppM4bu7QxA=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Fabulous is the global description, i enjoyed two times the spa in Highland farm and each moment were like a fairy tail.\nThanks to Alary for the warm welcome !\nAbout the spa it is fantastically cute little house in the woods full equipped and perfect for a relaxing but also ressourcing time.\nThank you again =D",
       "owner_reply": null
@@ -251,7 +754,7 @@
       "publish_time": "2026-03-14T20:10:12.226179Z",
       "relative_time": null,
       "author_name": "Eric Bond",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJB-DvH5SAbrGdGNjaSQZ3Ov1gGcaffTBcnH9GQR9GmYsmYiw=s120-c-rp-mo-ba5-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJB-DvH5SAbrGdGNjaSQZ3Ov1gGcaffTBcnH9GQR9GmYsmYiw=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Daute gave us a great tour of the property. Cute place to visit with some wonderful cows",
       "owner_reply": null
@@ -261,7 +764,7 @@
       "publish_time": "2026-03-11T22:07:22.008233Z",
       "relative_time": null,
       "author_name": "Tori Laen",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjV2haqVJzJCmoBupuicR18aHzC8HsFAnvzdlfeLjnrCGDnnbehv8g=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjV2haqVJzJCmoBupuicR18aHzC8HsFAnvzdlfeLjnrCGDnnbehv8g=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "What an amazing experience! Our guide was awesome and we learned so much! I really appreciate the commitment to the environment and care for the animals. You can tell they are well loved. We feel honored that Cowboy wanted to be in our picture 💚 thanks guys, we'll be back",
       "owner_reply": null
@@ -281,7 +784,7 @@
       "publish_time": "2026-03-08T00:21:35.102332Z",
       "relative_time": null,
       "author_name": "Natasha Smith",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXPmcao58FRKON9f31ueHBgMOyG-bBumge8cCGBl61L1NxRy_4=s120-c-rp-mo-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXPmcao58FRKON9f31ueHBgMOyG-bBumge8cCGBl61L1NxRy_4=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Visited Highland Farms for a guided tour to celebrate a friend’s birthday and absolutely loved it! The property was beautiful. I loved how spaced out all the different locations were. The variety of animals seemed so calm, well loved and cared for. The tour guides Dante and Elory (hopefully remembering those names correctly) were wonderful! They were very personable, funny, and knowledgeable when questions came up. Definitely looking forward to a future weekend stay on the property.",
       "owner_reply": null
@@ -321,7 +824,7 @@
       "publish_time": "2026-03-01T21:10:11.787275Z",
       "relative_time": null,
       "author_name": "Kate Holt Photography",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVpB3SSmdDCnciIiCX7f9W1yRErszK-8Cz2Btn3btr5sZRtI61K=s120-c-rp-mo-ba4-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVpB3SSmdDCnciIiCX7f9W1yRErszK-8Cz2Btn3btr5sZRtI61K=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "WOW! What a fun venue! As a long-time wedding photographer in the PNW, I absolutely loved seeing what Highland Farms has created. From woodland trails and charming barns to gorgeous ceremony and reception spaces and yes, the Highland cows. Really, it’s a dream spot. Connor and his team are fantastic, attentive, and dedicated to helping couples create an unforgettable experience. If you’re searching for something fun, unique, and truly special, this venue is for you! We also spent a weekend as guests at Highland Farms and it was the most wonderful experience! We highly recommend it to anyone coming into town or any locals looking for a fun place to stay!",
       "owner_reply": {
@@ -334,7 +837,7 @@
       "publish_time": "2026-02-24T14:17:39.778827Z",
       "relative_time": null,
       "author_name": "Roman Sannikov",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUET1Y5SKCMA1eZ0mTvQgBu8xziY4mcyKfuz9DPIU7Ozvoy_xLN=s120-c-rp-mo-ba5-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUET1Y5SKCMA1eZ0mTvQgBu8xziY4mcyKfuz9DPIU7Ozvoy_xLN=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We had an excellent time at the farm. We did a tour and the sauna. The animals are adorable and the cows and dogs were very friendly. Though the sheep were a little... standoffish. :)\n\nThe sauna was great and the surroundings were beautiful.\n\nJace and his colleague took wonderful care of us, making sure we had everything we needed.",
       "owner_reply": null
@@ -410,7 +913,7 @@
       "publish_time": "2026-01-26T15:43:04.185245Z",
       "relative_time": null,
       "author_name": "Alli Conklin",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVS-7KRv-m0Zd53kibKAqAAumgIroJn6cNFlUToNLSBkt72f0FJmw=s120-c-rp-mo-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWJaCI7g5-HUf0DwNu8knwQAiQF4TK8U951xL2hG_Xz1Mz7dreQ-w=s120-c-rp-mo-br100",
       "author_url": null,
       "text": "We had the most amazing time at Highland Farms! From start to finish, the farm tour was such a special experience. The property itself is beautiful, and getting up close with all the animals made it unforgettable—friendly dogs, stunning peacocks, the sweetest Highland cows, and adorable sheep. Every part of the tour felt thoughtful and engaging, and you can really tell how much care and love goes into this place.\n\nHuge shoutout to Dante, our tour guide—he was incredible! Super knowledgeable, informative, and genuinely funny, which made the whole experience even better. He shared so much about the farm and the animals while keeping things fun and relaxed. We left with big smiles and great memories. Highly recommend Highland Farms to anyone looking for a unique, hands-on, and joyful farm experience 🐄🌾🦚",
       "owner_reply": {
@@ -423,7 +926,7 @@
       "publish_time": "2026-01-25T22:05:23.924469Z",
       "relative_time": null,
       "author_name": "Heidi Yeager",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWdrOSyAWCyV9KuMBKPa4Lde1G2oeXMD29qlgbmBfgHytJlNDx7YQ=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWdrOSyAWCyV9KuMBKPa4Lde1G2oeXMD29qlgbmBfgHytJlNDx7YQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "My husband and I had a little couples getaway with our other couple friends this past weekend at the Highland Farm.\nThe location is absolutely stunning, quiet, calming, clean and of course the cows make it so special and unique from other stays. The soaking tub by the cottage was so relaxing. The cottage had all the amenities we needed as well as some beautiful farm fresh eggs. We got to do the farm tour, meet the cows, pet them and take photos. The cows are incredibly tame and friendly, just giant puppies that love attention, so we had a ton of fun hanging out with them. We also did the new spa experience with the cold plunge, sauna and steam room which was all incredibly luxurious and rejuvenating.\nThe staff was very friendly and accommodating for our stay.\nWe had a great time walking the property and enjoying the sounds of the fresh stream, nature and the animals. This place has so much to offer.\nWe’ll definitely be back.",
       "owner_reply": {
@@ -462,7 +965,7 @@
       "publish_time": "2026-01-01T23:29:01.297629Z",
       "relative_time": null,
       "author_name": "Leanna Little",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVv_RJeC1feHodix1Va5sezLs_qyLrGBGm6qJdp1g3uU2uK9Ayl=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVv_RJeC1feHodix1Va5sezLs_qyLrGBGm6qJdp1g3uU2uK9Ayl=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "I was lucky enough to photograph a wedding at Highland Farms in October, and I was completely blown away. Tucked into the forest in the foothills of Mt. Hood, this venue truly feels like something out of a fairytale. As soon as you arrive, you’re welcomed by a cozy mountain-style lodge, a beautiful barn, and even a grazing area for their family of Highland cows, which adds so much charm to the property.\n\nHighland Farms offers multiple on-site lodging options for you and your guests, along with thoughtful amenities like a sauna and hot tub for relaxing and unwinding. The ceremony space is stunning, featuring a stone patio, a peaceful pond, and towering evergreens that create such an intimate, natural atmosphere. The forest trails are lined with hazelnut shells instead of dirt, it’s a small touch that makes the entire experience feel elevated and intentional. The reception area, located beside the lodge, is another stone patio that’s perfect for an intimate gathering of around 50 guests. If you’re considering Highland Farms for your wedding, I can’t recommend it enough",
       "owner_reply": {
@@ -501,7 +1004,7 @@
       "publish_time": "2025-12-08T01:59:01.729384Z",
       "relative_time": null,
       "author_name": "Jessica Schoeffling",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJsNwvr0OZZ5_LZiJ9E2kAD3eezwBAHosvBgJidYHNrt3ASaQ=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJsNwvr0OZZ5_LZiJ9E2kAD3eezwBAHosvBgJidYHNrt3ASaQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We had the best day! The grounds were stunning and it was so fun getting to meet not only the cows but all the other animals. The guide was informative and made the tour a great experience.",
       "owner_reply": {
@@ -540,7 +1043,7 @@
       "publish_time": "2025-10-23T20:25:23.272419Z",
       "relative_time": null,
       "author_name": "David Tyler",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJvEY3DibwWfXje3FCJ00ugnuWz5iabTNT33P1h2ql_b14hMQ=s120-c-rp-mo-ba4-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJvEY3DibwWfXje3FCJ00ugnuWz5iabTNT33P1h2ql_b14hMQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Had a great tour with Tovah.  Petted the cows, gave them treats, saw the facility.  Looks like a beautiful wedding venue!",
       "owner_reply": {
@@ -565,8 +1068,8 @@
       "rating": 5,
       "publish_time": "2025-10-13T00:16:10.877605Z",
       "relative_time": null,
-      "author_name": "JP MERCADO",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWsSQKWhRBFfm3jz-LCmSsnewcsGwif9-zaw7i67NCtVrLt_IA=s120-c-rp-mo-br100",
+      "author_name": "J R",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjU9F6BxYkC0U87RVyoRySO8EgJbsNJ1dU5MYHYZJN4Ox8X-FAU=s120-c-rp-mo-br100",
       "author_url": null,
       "text": "Recently took a private tour of this place came from California and I was not disappointed!! Tova ( hope I spelt correctly) gave us a magnificent tour she was so sweet, knowledgeable & made the whole experience feel safe and fun!! Def recommend stopping by the cows are the cutest and they love people💕",
       "owner_reply": {
@@ -605,7 +1108,7 @@
       "publish_time": "2025-10-05T22:00:07.816151Z",
       "relative_time": null,
       "author_name": "Hannah Smith",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUDmyry3jJ29bwwmFkH--CDIEbevhCfgr__DicJ9XhuGsPI3uyb=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUDmyry3jJ29bwwmFkH--CDIEbevhCfgr__DicJ9XhuGsPI3uyb=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Had a very sweet tour with a very knowledgeable guide, Tova. We learned a lot and got to pet the cows and sheep! Pretty property, too",
       "owner_reply": {
@@ -644,7 +1147,7 @@
       "publish_time": "2025-09-19T20:44:17.911189Z",
       "relative_time": null,
       "author_name": "Debbie Brunhoff",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUWZa4hcn7emGHAiINOqh05Ga-RRpFYiB6FytD1Yq2ppdHMRgzp1Q=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUWZa4hcn7emGHAiINOqh05Ga-RRpFYiB6FytD1Yq2ppdHMRgzp1Q=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Slept in the airstream camper which was very comfortable and stayed warm with super cozy blankets.  Dante was very friendly and gave us a fun tour, and we got to brush the cows",
       "owner_reply": {
@@ -670,7 +1173,7 @@
       "publish_time": "2025-09-08T03:17:56.322863Z",
       "relative_time": null,
       "author_name": "Mellani Calvin",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjU6_ADBPI0J2X6RjKQMqdpEumGJ-kge_qc0armHvosI-PvssGo=s120-c-rp-mo-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXGA7FKWvVuCWs4GQpV1gS69A7PpAlt2y6o1t-X6AKcA9YGKbFkjw=s120-c-rp-mo-br100",
       "author_url": null,
       "text": "Well, as a Boomer, in a good way :) I can honestly say I don't do many reviews.  But I'm stepping out for this place. We rented the whole darn farm for the weekend for my daughter's wedding. I slept in the Airstream the first night and the very cozy, small yurt the next. Staff: Extremely helpful.  Hip Hip Dante!!  Owner: Very present and accommodating. The pride he has for all his, and his staff's, hard work on this beautiful little slice of forested Pacific Northwest property was really nice to see.  He described his beautiful herd of coos as \"my babies,\" He even brushed them out and made them look pretty for their wedding shoot. I was told they were instructed not to roll in the dirt again until after their photo session was over. Connor, you were very hands on and it was lovely meet you! And, most importantly, you truly made my daughter's wedding dreams come true. Cheers!",
       "owner_reply": {
@@ -683,7 +1186,7 @@
       "publish_time": "2025-09-07T19:53:08.883518Z",
       "relative_time": null,
       "author_name": "barbara martin",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjW7bT1t1DaU_ksOpcfD1WwlfFOSmUrMpvhpDx4r6_xjTD6t06bB=s120-c-rp-mo-ba4-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjW7bT1t1DaU_ksOpcfD1WwlfFOSmUrMpvhpDx4r6_xjTD6t06bB=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Attended a wedding here and had a wonderful time.  The setting is lovely, with animals around as well as beautiful views and trees and a sense of calm.\nI was able to also stay in one of the outfitted tents with a full bed and mattress and it was very comfortable.\nNavigating the property was a little bit difficult for some people with disabilities so hopefully over time they will become more accessible.\nThe staff were very friendly and helpful, and put on a wonderful event.\nIt is also an Airbnb and parts of it can be rented out individually, beautiful location near Mount Hood.\nHighly recommend!",
       "owner_reply": null
@@ -693,7 +1196,7 @@
       "publish_time": "2025-09-07T18:19:59.570584Z",
       "relative_time": null,
       "author_name": "Kym Lardieri",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXBXNTOgjHm7I1Ugt64DWAdSVqsr6HSuuv7D_yIJ1awIzAQaBWqhQ=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXBXNTOgjHm7I1Ugt64DWAdSVqsr6HSuuv7D_yIJ1awIzAQaBWqhQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Love,  love,  love this place! Such a magical experience with these amazing creatures in a gorgeous setting! I wasn't sure about the cost at first,  but our guide, Dante, made the experience so incredibly worth it! We got to brush several cows,  tore the entire grounds and learn about about these unique creatures! Highly recommend!",
       "owner_reply": {
@@ -731,8 +1234,8 @@
       "rating": 5,
       "publish_time": "2025-08-30T23:11:05.280480Z",
       "relative_time": null,
-      "author_name": "Katie Boruff",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWKFnZA8Zp_Mp8g0j_uu81_AXSBKX2gg38hnAMK0HZBXur7gahMrw=s120-c-rp-mo-br100",
+      "author_name": "Katie Merrill",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjX23WIyneSSz63DmqnoGD1_SVISaMFoI826DqFyCKLgdrgwZF8wVg=s120-c-rp-mo-br100",
       "author_url": null,
       "text": "Highland Farms was such an amazing place to visit. Dante led us around, introducing us to every cow and answering all our questions. The cows were all so sweet and friendly. You can tell they are treated with love and accustomed to visitors. Tova helped us to feed treats to some new babies and helped us learn more about their personalities. This would be a great spot to visit, camp, or have a picturesque wedding.",
       "owner_reply": {
@@ -745,7 +1248,7 @@
       "publish_time": "2025-08-16T20:15:09.775021Z",
       "relative_time": null,
       "author_name": "Amy Bains",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIaur2XM2VLSlFrG1Ex6LGzs36MhcFOB3kO3ztNzr6YoQvQgw=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIaur2XM2VLSlFrG1Ex6LGzs36MhcFOB3kO3ztNzr6YoQvQgw=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We stayed at The Camp, an airstream, perfectly suited for a couple. We loved every second of our stay at Highland Farms. Every one of the staff and owners we encountered were incredibly friendly. The Airstream was comfy and clean. We were able to beat the rain and grill our dinner outside in the propane bbq then cuddle up for an evening listening to the rain outside. The following morning we took a tour of the farm and met the coos, the cats and the beautiful guard dogs. I can’t wait to come back and hope one day someone I know will use this gorgeous farm as their wedding venue and invite us!",
       "owner_reply": {
@@ -797,7 +1300,7 @@
       "publish_time": "2025-08-14T23:02:38.193260Z",
       "relative_time": null,
       "author_name": "Jamie Allegro",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWLFuTeLMoRpwg6xn7s2ni-FDgsttR4TazHCGETm_nX9Kz_5w3-=s120-c-rp-mo-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWLFuTeLMoRpwg6xn7s2ni-FDgsttR4TazHCGETm_nX9Kz_5w3-=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "",
       "owner_reply": {
@@ -875,7 +1378,7 @@
       "publish_time": "2025-07-29T03:04:21.050154Z",
       "relative_time": null,
       "author_name": "J MM",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIxvSCpArUaw5vOe0GMmhTvEgHlJAtIJKiduNUAvcR2mcAxww=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIxvSCpArUaw5vOe0GMmhTvEgHlJAtIJKiduNUAvcR2mcAxww=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We wanted to spend time with the beautiful highland cows. We got it and a lovely tour as well",
       "owner_reply": {
@@ -901,7 +1404,7 @@
       "publish_time": "2025-07-16T16:32:17.330079Z",
       "relative_time": null,
       "author_name": "sunshiney074",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjX_wBtc-gNg-QfKLJUik58mCjBcxVScHsCZJwz8GeoP-zZ5HTVW=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVtfMqch6sj2sN4dGCqG6A42IOWDWrOeOe2iu7u6vceu6qo53jU=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "What can I say but a DREAM COME TRUE!!!! I am in LOVE with Highland cows! My husband and I were on a \"mini\" vacation this past weekend in Washington to visit a location that had Highland cows there. I was searching for other places on line and came across Highland Farms!! This was on our way home so my husband scheduled us a personal tour for Sunday afternoon. As we were driving up the road to this location, we were in awe of the gorgeous forest and this beautiful, serene location! While entering you see this amazing Highland cow statue that was originally a tree but some creative individual (kudos to you, whoever made this)  made this awesome sign! We met an employee by the name of Daunte who gave us our personal tour. We started off meeting 4 of the cows in a newly fenced area, 2 momma's and 2 babies along with some goats. One of the momma's, \"Missy\" came over to greet us along with her baby and we were able to feed them. After that we headed to the barn where we met a couple more momma's and babies! We were able to pet them and even \"brush\" them! This was sooooo amazing! Daunte gave us some food to feed them as well. During the whole tour, Daunte was just full of so much information about these beautiful creatures! You can tell he truly loves his job and the animals that he cares for. What a very docile and calm animal! I was in ultimate heaven being able to pet them, be up close with them, brush them, love them, even though it was about 95 degrees out, I would sweat all day long to be with these lovely animals! During this tour we were also able to meet some peacocks, chickens and their two watch dogs! They have a nice small cottage on the premises you can reserve as well as the house itself, an airstream or all three if you so choose! Anyways, I can't say enough about Highland Farms! It was incredible to meet the Highland cow family as well as the other animals. My family and I will be making this a regular stop from here on out. If you get on their website, they have some \"merch\" but are working on coming out with some more... so hop on there and support this place.... they are truly amazing in what they do and Daunte.... you were great!! (This kid deserves a raise!!!) Thank you for making this girl's dream come true!!! xo",
       "owner_reply": {
@@ -914,7 +1417,7 @@
       "publish_time": "2025-07-11T01:49:11.190485Z",
       "relative_time": null,
       "author_name": "Stewart Myers",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXdnrZVQE95MhmU6nIsu9yiobetnXTG3f367Kh-EuVEoyKi688=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXdnrZVQE95MhmU6nIsu9yiobetnXTG3f367Kh-EuVEoyKi688=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Best surprise ever! Got to pet and hang out with fuzzy cows, sheep and chickens.",
       "owner_reply": {
@@ -927,7 +1430,7 @@
       "publish_time": "2025-07-10T22:06:16.667825Z",
       "relative_time": null,
       "author_name": "Andrew Oates",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUopIQe4Wc-gBIj9F0w7XfckD_bXxc9GfBiwqDfeiCyZ7vlUr_f=s120-c-rp-mo-ba5-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUopIQe4Wc-gBIj9F0w7XfckD_bXxc9GfBiwqDfeiCyZ7vlUr_f=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "",
       "owner_reply": {
@@ -979,7 +1482,7 @@
       "publish_time": "2025-06-22T23:36:42.919192Z",
       "relative_time": null,
       "author_name": "Chelyn Joseph",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWSc4vdG-EKFTneeoozjmxbTGvWi1Q2mOCY6yi-IMlaeo1KgWJNcw=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWSc4vdG-EKFTneeoozjmxbTGvWi1Q2mOCY6yi-IMlaeo1KgWJNcw=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "My husband surprised me with a visit here the week before last. It was so wonderful I hope to go back soon. Being around the animals was just the therapy I needed! I brushed and petted Finley and wished I could take him home with me. Our tour guide was delightful and told us all about the Highland cows, sheep, ducks, chickens, pea hen and chicks, barn cat and dogs. I was in heaven with all the critters. This farm is a magical place!",
       "owner_reply": {
@@ -1018,7 +1521,7 @@
       "publish_time": "2025-06-20T17:01:35.243687Z",
       "relative_time": null,
       "author_name": "Emily Enns",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKOK38ImWbGSojF8XaaGvpSeot5CpuH_nz4PcQp9If6oV15mw=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKOK38ImWbGSojF8XaaGvpSeot5CpuH_nz4PcQp9If6oV15mw=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We absolutely loved staying at the cottage!! It’s super cute, cozy, and has plenty of rooms and beds. Slept great! We also did a farm tour and that was fun too. Very interactive. We walked around and enjoyed the animals company throughout our stay even after the tour. The hot tub was our favorite thing though. We sat in it in the evening as well as in the morning with coffee while it was sprinkling!! So perfect.",
       "owner_reply": {
@@ -1057,7 +1560,7 @@
       "publish_time": "2025-06-12T00:42:31.757056Z",
       "relative_time": null,
       "author_name": "David Schelvis",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWPavWXNQq67gOVDTZ-k5P6w-lpWaWrfTV_dBWHBGQOX2OXRRyF=s120-c-rp-mo-ba4-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWPavWXNQq67gOVDTZ-k5P6w-lpWaWrfTV_dBWHBGQOX2OXRRyF=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "The full tour throughout the farm was amazing and the animals are really friendly.",
       "owner_reply": {
@@ -1070,7 +1573,7 @@
       "publish_time": "2025-06-11T17:17:55.020740Z",
       "relative_time": null,
       "author_name": "Carolyn Turner",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVQgJCpg6k4rl0LpZoqcJ9dJ9_sAuL0TQsSZ10u1Fny7lsTYqbc=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVQgJCpg6k4rl0LpZoqcJ9dJ9_sAuL0TQsSZ10u1Fny7lsTYqbc=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We took a tour of Highland Farms yesterday and had such a great experience. Getting up close with the animals was so cool and the farm property is stunning and tranquil. Conner and Bailey were our hosts and are both great! You can really feel the passion here. Can’t wait to come back to try the glamping tent and the airstream!",
       "owner_reply": {
@@ -1132,19 +1635,6 @@
     },
     {
       "rating": 5,
-      "publish_time": "2025-06-06T05:02:19.876201Z",
-      "relative_time": null,
-      "author_name": "Christopher Dick",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXpb4ydzqqMg-WUWpZx7BkqQNZBNf8tFNaYvxXKptMML6XuB28=s120-c-rp-mo-br100",
-      "author_url": null,
-      "text": "",
-      "owner_reply": {
-        "text": "Thank you so much for the 5-star rating! We’re delighted to know that you enjoyed your time at Highland Farms in Oregon. Your support means a lot to us, and we’re thrilled that you had a positive experience with our farm animals, scenic surroundings, and farm stay accommodations. Whether you were here to meet our friendly Highland cows, explore the beautiful natural landscapes near Mt. Hood, or simply relax in the peaceful farm environment, we hope it was memorable.\n\nWe look forward to welcoming you back to Highland Farms for another amazing visit soon!",
-        "updated": "2024-09-01T19:40:51.663718Z"
-      }
-    },
-    {
-      "rating": 5,
       "publish_time": "2025-06-05T14:12:53.175957Z",
       "relative_time": null,
       "author_name": "Beth Thurman",
@@ -1173,8 +1663,8 @@
       "rating": 5,
       "publish_time": "2025-05-23T02:10:43.896552Z",
       "relative_time": null,
-      "author_name": "Lany Egana",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjW-pZzSGJbek3Mm1KL3VU9SUKnc-qYyVrqwogQ6hvvIG2UsbTM7Ew=s120-c-rp-mo-ba2-br100",
+      "author_name": "Álvarez",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjU6bB8IrQGcPmvXtpabQUsGWK2cwHVsOLRDybhLn2b_IEz6C6c=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "(Translated by Google) Thank you, it was very beautiful, we loved the beautiful view in the countryside, the cows, everything was spectacular, thank you so much 🙏\n\n(Original)\nGracias fue muy bonito nos encanto la Vista Bella en el campo las vacas todo espectacular muchas gracias 🙏",
       "owner_reply": {
@@ -1213,7 +1703,7 @@
       "publish_time": "2025-05-20T21:47:35.432547Z",
       "relative_time": null,
       "author_name": "Mike's Dead",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUmQcmNkSIKKf-__51pby_mD_cj5c1rmcLKT_egPow49qprXBZo=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUmQcmNkSIKKf-__51pby_mD_cj5c1rmcLKT_egPow49qprXBZo=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Wonderful experience! Dante showed us around the property and was incredibly knowledgeable of all the animals. We got to play with the Highland cows and the younger calves, as well as sheep and ducks. They also have 2 super friendly cute dogs on the property. Lovely afternoon in the mountains with the animals!",
       "owner_reply": {
@@ -1226,7 +1716,7 @@
       "publish_time": "2025-05-20T00:26:38.323065Z",
       "relative_time": null,
       "author_name": "Teresa Hoover",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLKlrtv6s7nE6LT9jStlEtqgzFZmMTBfmSFH9_u_ou6ZPYYmQ=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLKlrtv6s7nE6LT9jStlEtqgzFZmMTBfmSFH9_u_ou6ZPYYmQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "My husband and I did the farm tour. It was awesome! Our guide was so nice and knowledgeable and we enjoyed all the animals and the farm is stunning!",
       "owner_reply": {
@@ -1249,23 +1739,10 @@
     },
     {
       "rating": 5,
-      "publish_time": "2025-05-15T19:00:52.648113Z",
-      "relative_time": null,
-      "author_name": "Michael Young",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKa-GQBV4IJsh61nIuyoYkLvFEzqp643ERbpdenu5wCrCAY-A=s120-c-rp-mo-ba3-br100",
-      "author_url": null,
-      "text": "Beautiful forest wedding venue at the base of Mt.Hood. This is one of the best  farm wedding venues I have been too. The Highland Cows are awesome! The farm tours are magical, really a special place. Would highly recommend.",
-      "owner_reply": {
-        "text": "Thank you so much, Michael, for your wonderful review! We’re delighted to hear that you enjoyed the beautiful forest setting and had a magical time with the farm tours and Highland Cows. We're thrilled you consider Highland Farms one of the best farm wedding venues!",
-        "updated": "2025-05-15T19:20:17.647303Z"
-      }
-    },
-    {
-      "rating": 5,
       "publish_time": "2025-05-13T19:19:16.129408Z",
       "relative_time": null,
       "author_name": "hamandmac",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJBZ-mwQX9Ti5WPDp7Bq8LTeufb2HdYGjnY0qsKDU1fn3oXTg=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJBZ-mwQX9Ti5WPDp7Bq8LTeufb2HdYGjnY0qsKDU1fn3oXTg=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We have been to this farm twice now and both times was an incredible experience. Dante's tour was great, informative but chill. Petting the cows and feeding the cows was everything you'd hope for. Super worth it. Like hidden gem tucked away on the mountain. Also the baby cows are adorable. Shout out to Findlay.",
       "owner_reply": {
@@ -1317,7 +1794,7 @@
       "publish_time": "2025-05-01T01:05:53.351824Z",
       "relative_time": null,
       "author_name": "Adam Fuge",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLTaoRF773eY4TerUgQVZmSpMips6tUX-_Lm23QOVI3rxBb7WM=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLTaoRF773eY4TerUgQVZmSpMips6tUX-_Lm23QOVI3rxBb7WM=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Came to this property for a friend's wedding. Absolutely beautiful venue, amazing host made sure we had everything we needed for the event. Friendly animals were so cute and great to pet and spend time around!",
       "owner_reply": {
@@ -1330,7 +1807,7 @@
       "publish_time": "2025-04-30T23:37:45.885278Z",
       "relative_time": null,
       "author_name": "Sydney Brown",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJeZZrXssZl2VyyK-flWzcgC0JtoAvkof6BRy7m9J7ODPcyoQ=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJeZZrXssZl2VyyK-flWzcgC0JtoAvkof6BRy7m9J7ODPcyoQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "I had my wedding at Highland farms this weekend and to say it was a perfect dream is an understatement. The property is absolutely stunning and they were extremely easy to work with and VERY accommodating. We rented tables, chairs, heaters AND speakers + microphone from them. We had a large portion of our wedding guests staying at the property with us. There was more than enough clean towels for us, and even enough towels for the hot tubs (which were amazing). They have put their blood, sweat, tears and LOVE into this property and venue and you can really feel it. HIGHLY recommend booking your wedding here or even a group family or friend vacation where everyone can stay together. Oh! and the Bell tents are awesome, with real beds on bed frames! AND the airstream is super cute, clean and perfect for a couple to stay in.\n\nALSO - the animals are soooooo well loved. They take amazing care of them. If you take the time to talk with them you will learn about all of the behind-the-scenes work, love and care they put into their animals, including bottle feeding baby cows every 4 hours. The dogs are incredibly loved and we even got the chance to see one of the baby cows get the zoomies! They take a lot of care to ensure the safety of their animals but also the safety of their guests with the animals.",
       "owner_reply": {
@@ -1382,7 +1859,7 @@
       "publish_time": "2025-04-30T23:09:06.258235Z",
       "relative_time": null,
       "author_name": "Morgan V.",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUDNqjA7-n_7S7XoKXFZDusWCSl1rAvOXFLMIFlGiWuQezttmY=s120-c-rp-mo-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUDNqjA7-n_7S7XoKXFZDusWCSl1rAvOXFLMIFlGiWuQezttmY=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Spent the most incredible weekend here recently! I was so excited to go to a place in the United States that had Highland cows, I am obsessed!! There was a whole barn of other animals too including the cutest barn kitties. But this place was so much more. It was amazing, up in the middle of the forest, surrounded by the most beautiful trees with moss growing everywhere. There was a pond with a little waterfall, it was the most magical serene place! I was here for a wedding, and it was the BEST location for that, Connor made everything perfect! He took care of everything, there was no detail left out or that he hadn't thought of. He was a wonderful host, and I cannot wait to go back. I was so sad leaving, but I am already planning my next trip!",
       "owner_reply": {
@@ -1486,7 +1963,7 @@
       "publish_time": "2025-04-12T17:32:59.470878Z",
       "relative_time": null,
       "author_name": "Jodie Pulliam",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUEyzg8o4SFIejHtnMrsm5PKwmSplC2m_BkijSGppNHYu8lPMJC=s120-c-rp-mo-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjU_7cSy5H8zDJFSiiT6JFBDPDoKO2Ixa_EJZ7g2VX6CoYINEUYm=s120-c-rp-mo-br100",
       "author_url": null,
       "text": "Incredible experience for any highland cow lover! Such a fun time on the farm with all the animals and our tour guide Madison was so friendly and knowledgeable. Highly recommend :)",
       "owner_reply": null
@@ -1515,19 +1992,6 @@
       "owner_reply": {
         "text": "Thank you so much for your kind words! We're delighted to hear that you enjoyed your experience from start to finish and that our friendly staff made you feel at home. Baby Finn will be glad to know he has another fan, and we can't wait to welcome you back for more fun and heartwarming moments!",
         "updated": "2025-04-05T17:00:13.692833Z"
-      }
-    },
-    {
-      "rating": 5,
-      "publish_time": "2025-03-22T02:50:25.865508Z",
-      "relative_time": null,
-      "author_name": "Jalene Dick",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVQm3bHAK0pkPHXORNSNBbcx-SAvnEc-5mORV0hPsQET4d1L4gf=s120-c-rp-mo-br100",
-      "author_url": null,
-      "text": "Our stay at Highland Farms was absolutely amazing! From the moment we arrived, we were welcomed with warm hospitality and breathtaking views. The farm tour was a fantastic experience—getting up close with the Highland cows especially Bonnie! was a highlight. The peaceful surroundings, fresh air, and beautifully maintained property made for the perfect getaway. Whether you’re looking to relax, explore, or learn more about farm life, Highland Farms is a must-visit. We can’t wait to come back!",
-      "owner_reply": {
-        "text": "Thank you so much for the 5-star rating! We’re thrilled that you enjoyed your visit to Highland Farms in Oregon. Whether it was spending time with our friendly animals, exploring the picturesque landscapes near Mt. Hood, or simply relaxing in our unique farm setting, we’re glad it made for a memorable experience. We look forward to welcoming you back to the farm soon!",
-        "updated": "2024-09-01T19:42:47.021292Z"
       }
     },
     {
@@ -1600,7 +2064,7 @@
       "publish_time": "2024-10-19T20:03:42.005943Z",
       "relative_time": null,
       "author_name": "Emily Shaw",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUfjt3-TB96ZML_kLXSi6X6yg3LpGDwiSLLLUmhQtLdWYlGDdE9JA=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUfjt3-TB96ZML_kLXSi6X6yg3LpGDwiSLLLUmhQtLdWYlGDdE9JA=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "My partner and I are obsessed with highland cows and once we found this incredible farm we knew we had to go. Our expectations were blown out of the water with the tour, experience, and the care of the farm. We had the best tour guide who knew his stuff and was so kind and answered all our questions. HIGHLY Recommend for the cuteness and to support a local business!",
       "owner_reply": {
@@ -1612,7 +2076,7 @@
       "rating": 5,
       "publish_time": "2024-10-17T21:08:09.405252Z",
       "relative_time": null,
-      "author_name": "Graham Scofield-Swearingen",
+      "author_name": "Graham Scofield",
       "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWxILu7BsGYnue6EvOb6VfdbWjvdEjUunFoA2FdWuSQ99OJltse=s120-c-rp-mo-br100",
       "author_url": null,
       "text": "Had such a good time! The hosts were friendly and knowledgeable and we got to spend a good amount of time with the cows which is what we were there for. Strongly recommend!",
@@ -1704,7 +2168,7 @@
       "publish_time": "2024-10-10T15:27:48.193077Z",
       "relative_time": null,
       "author_name": "Chase Meyers",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjU4hX5KKLLQKPClsSWmrv5hIARU4aOUcIXMWyNZXbJkiSFVmIfX=s120-c-rp-mo-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjU4hX5KKLLQKPClsSWmrv5hIARU4aOUcIXMWyNZXbJkiSFVmIfX=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Had a blast at the Farm celebrating a birthday. Personal experience with a great guide walking us through the farm. Got to feed and pet the highland cows and learn about their personalities. A hidden gem just below Mt Hood. Looking forward to visiting again!",
       "owner_reply": {
@@ -1828,7 +2292,7 @@
       "publish_time": "2024-10-07T17:28:52.902397Z",
       "relative_time": null,
       "author_name": "Denise Happle",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLUBpLKpgOw_r1maKbNMGUtPXOlYVSC7UQtjMtDNBEDg2loCQ=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLUBpLKpgOw_r1maKbNMGUtPXOlYVSC7UQtjMtDNBEDg2loCQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "My daughter and I had a great time on our private tour at Highland Farms. Our guide (I can’t remember her name😩) was so friendly and knowledgeable about the farm.  Looking forward to going back!!",
       "owner_reply": {
@@ -1841,7 +2305,7 @@
       "publish_time": "2024-10-07T17:17:34.876773Z",
       "relative_time": null,
       "author_name": "h El",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKnzMHjdT05ARFOIDgFEMp75DbmoYsr3VnkEZfOT8oAerx6hQ=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKnzMHjdT05ARFOIDgFEMp75DbmoYsr3VnkEZfOT8oAerx6hQ=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Me and my friend came to Oregon for a post grad trip and we found the farm highland tour on TikTok, I cannot recommend enough this tour for everyone who is interested. Not only was the tour guide Tiffany so informed on each and every single animal on the farm, but she was so personable and lovely to talk to and get to know as a human. She definitely made out trip up here worthwhile and gave us an amazing experience getting to know farm animals!!! We <3 Bo and Tiffiany!!!",
       "owner_reply": {
@@ -1893,7 +2357,7 @@
       "publish_time": "2024-10-06T17:07:21.447397Z",
       "relative_time": null,
       "author_name": "Jodi Freeman",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJlI1M1LDckVzJI1rTySGGKcggNkRFa6U0vspFQq6cOZSCgkA=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJlI1M1LDckVzJI1rTySGGKcggNkRFa6U0vspFQq6cOZSCgkA=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We had such a fun time here! The host is fabulous and knowledgeable about all their wonderful animals. Bucket list to pet a highland coo checked off!",
       "owner_reply": {
@@ -1906,7 +2370,7 @@
       "publish_time": "2024-10-06T16:43:27.383123Z",
       "relative_time": null,
       "author_name": "Sheila Campbell",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWHfWc3sy_VGjmaGfW6JPWDkZeWUM1P23GmR0b6MpIgNsNNh5g=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWHfWc3sy_VGjmaGfW6JPWDkZeWUM1P23GmR0b6MpIgNsNNh5g=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We came for a private farm tour for two. The farm and facilities were less developed than we had anticipated, but we were thrilled with the contact we got with the animals. I look forward to going back sometime to see how the property evolves.",
       "owner_reply": {
@@ -1997,19 +2461,6 @@
       "owner_reply": {
         "text": "Thank you so much for your wonderful review! We’re thrilled to hear that you and your cousin had such a fun time during the tour and enjoyed meeting all of our animals! Our team works hard to ensure every guest has a great experience, and we're glad to know it was a family-friendly outing for you both. We truly appreciate your recommendation and look forward to welcoming you back for more fun soon! ",
         "updated": "2024-10-08T18:44:33.840323Z"
-      }
-    },
-    {
-      "rating": 5,
-      "publish_time": "2024-09-26T19:18:00.988221Z",
-      "relative_time": null,
-      "author_name": "Tori Horton",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocK4lxGSlXQpxgm2j3s5prcgnhSEAUMuMUI4r8trV8XBhkHlRg=s120-c-rp-mo-br100",
-      "author_url": null,
-      "text": "Wow, I’m surprised to see anyone giving less than a 5-star review! Highland Farms is a hidden gem. Connor, the owner, is incredibly welcoming and knowledgeable, ensuring a wonderful experience. The property is beautiful, peaceful, and home to the most adorable animals. It’s the perfect place for a relaxing getaway, and I highly recommend it to anyone looking to unwind and enjoy nature. I’ll definitely be back!",
-      "owner_reply": {
-        "text": "Thank you so much for your kind words and support! We’re thrilled to hear that you had such a wonderful experience at Highland Farms. It’s always heartening to know that our guests appreciate the beauty and tranquility of the property, as well as the care we put into making every visit special.\n\nConnor and the team are passionate about creating a welcoming environment where guests can truly relax and connect with nature and our adorable animals. We’re so glad you enjoyed your time here and found it to be the perfect spot for a peaceful getaway.\n\nThank you for your recommendation! We can’t wait to welcome you back for another visit soon.",
-        "updated": "2024-09-26T19:31:13.134091Z"
       }
     },
     {
@@ -2121,7 +2572,7 @@
       "publish_time": "2024-07-18T17:34:09.466456Z",
       "relative_time": null,
       "author_name": "Alexis Sanders",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUBDWxj-FFH6g7FaAiF2CnXY6BAvrEPrySPV3spAYPLyJOE99LT1A=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjUBDWxj-FFH6g7FaAiF2CnXY6BAvrEPrySPV3spAYPLyJOE99LT1A=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "I visited Highland Farms with my partner and his family. We were greeted with kindness and grace but from the beginning all of us felt as though something was “off”. The cows are in disgusting and small pens with no larger fields for them to be turned out in at any point and most of the dogs were tied to trees. None of the animals have any grass to graze on, and it is heartbreaking to see their living conditions if you know anything about their husbandry. The farmhand reeked of alcohol, made an inappropriate comment towards my partner and I when no other adults were around, and smoked in front of us. We were not comfortable in his presence. We were kicked out of our AirBnb for being “disrespectful and pushy” when we were neither of these things. We were told that we were acting negatively towards the animals when we treated them with probably more kindness than the owner of this place. I myself am vegan and it makes me sick to my stomach to think of someone perceiving me as disrespectful towards animals. When we asked for specific examples of our “poor behavior” we were never given any. In one of the messages sent by the owner upon us getting kicked out, there was a perceived threat along with other baseless accusations such as him claiming we stole the keys and were going to come back to vandalize the property despite us sending a picture of the keys on the counter when we left. Just please think twice about going and wasting your money. You can’t even brush the cows, one of their biggest marketing campaigns on their instagram.",
       "owner_reply": {
@@ -2173,7 +2624,7 @@
       "publish_time": "2024-03-25T02:48:24.275330Z",
       "relative_time": null,
       "author_name": "Brynt Campbell",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKINjTODzPjhiI4e4eiN7zYvJOGdGN-jaYZsTsub6575aVa2g=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKINjTODzPjhiI4e4eiN7zYvJOGdGN-jaYZsTsub6575aVa2g=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Went here for a day away and had a blast. The tour guide/ranch hand was very knowledgeable about the animals. He explained they have a lot of big plans for expanding the place which I will definitely be going back periodically to see the development over time. Recommend taking kids or if you have never been around farm animals it's a good experience.",
       "owner_reply": {
@@ -2225,7 +2676,7 @@
       "publish_time": "2024-02-17T18:05:45.803024Z",
       "relative_time": null,
       "author_name": "Pume Currie",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWV1o-aYA1FT8uM-NsUPALdUkGgCmNBAbd_JB0vCcNXufDAqr71=s120-c-rp-mo-ba2-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWV1o-aYA1FT8uM-NsUPALdUkGgCmNBAbd_JB0vCcNXufDAqr71=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Just finished our tour of the farm with... This place is beautiful and tucked away from all the city noise. Dante did an amazing job guiding us through the farm, providing us with great information and making the experience truly enjoyable. Thank you!",
       "owner_reply": {
@@ -2303,7 +2754,7 @@
       "publish_time": "2023-08-29T17:14:09.489239Z",
       "relative_time": null,
       "author_name": "Leah Lucid",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjW0vXdvRwmOjW1qKPPdGm1WaPnnm8tAGpiBAbX3H4wNQ1R7qbWP9g=s120-c-rp-mo-ba3-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjW0vXdvRwmOjW1qKPPdGm1WaPnnm8tAGpiBAbX3H4wNQ1R7qbWP9g=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We had a great tour of the barn with Connor — our group included adults and young kiddos, and everyone got to pet & feed the animals and learn about their care! Highly recommend; we’ll definitely be return visitors!\nBe aware this is a *working* farm, so if you’re a strict “friends not food” kinda person this is likely not the right farm for you to visit…",
       "owner_reply": {
@@ -2316,7 +2767,7 @@
       "publish_time": "2023-08-22T02:32:59.533012Z",
       "relative_time": null,
       "author_name": "Private Eye",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXN6hwnAY0n7HRolpafllSmtZVMXzLturPY-yYaRWfJQICLYB0=s120-c-rp-mo-ba4-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXN6hwnAY0n7HRolpafllSmtZVMXzLturPY-yYaRWfJQICLYB0=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "We stayed in the converted barn house and had THE most amazing time! Great farm tour and the animals were all so friendly! None of us wanted to leave! We love the royal family 💕 Henry was such a sweetheart and baby Skye made our week!",
       "owner_reply": {

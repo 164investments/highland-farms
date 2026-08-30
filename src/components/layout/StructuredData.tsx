@@ -1,4 +1,5 @@
 import { CONTACT, SITE, BOOKING_LINKS } from "@/lib/constants";
+import { REVIEW_COUNT, REVIEW_RATING } from "@/lib/reviews";
 
 const address = {
   "@type": "PostalAddress",
@@ -116,8 +117,8 @@ export function StructuredData() {
         ],
         aggregateRating: {
           "@type": "AggregateRating",
-          ratingValue: "4.9",
-          reviewCount: "188",
+          ratingValue: String(REVIEW_RATING),
+          reviewCount: String(REVIEW_COUNT),
           bestRating: "5",
         },
         maximumAttendeeCapacity: 16,
@@ -312,8 +313,8 @@ export function StructuredData() {
         },
         aggregateRating: {
           "@type": "AggregateRating",
-          ratingValue: "4.9",
-          reviewCount: "188",
+          ratingValue: String(REVIEW_RATING),
+          reviewCount: String(REVIEW_COUNT),
           bestRating: "5",
         },
         hasOfferCatalog: {
