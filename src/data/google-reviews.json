@@ -2,10 +2,60 @@
   "place_id": "ChIJF5dVblWLlVQRTa9sDtveCPY",
   "name": "Highland Farms",
   "rating": 4.9,
-  "user_rating_count": 241,
-  "fetched_at": "2026-09-07",
+  "user_rating_count": 246,
+  "fetched_at": "2026-09-14",
   "source": "google-business-profile-api",
   "reviews": [
+    {
+      "rating": 5,
+      "publish_time": "2026-09-11T16:25:58.587251Z",
+      "relative_time": null,
+      "author_name": "Casey Hoyer",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWea6uZm88ICKixxrDdQDn4Rtp3cJoq-vRbP4otIuvtl9wypFO8=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "My wife handled most of the wedding planning, and by the end of the weekend I understood why she was so confident in Highland Farms as the choice. It's a genuinely beautiful property, but the standout was Connor and his team. Their hospitality and attention to detail were about as good as I've seen, and they took care of things well before we thought to ask.\n\nFor anyone considering a destination wedding, this venue is run by people who know exactly what they're doing. I'd recommend it without hesitation.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-09-11T16:23:15.762566Z",
+      "relative_time": null,
+      "author_name": "A H",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWXVCBn8xJXIzgwVPGVh9Nx6OUIQYGoOYAkVQcjuSF2Lidq2jqupQ=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Highland Farms was the perfect setting for our daughter's destination wedding. The property itself is absolutely gorgeous, one of those venues where every corner works as a backdrop without any extra effort. But what set the experience apart was the staff. Connor and his team were as good as it gets for hospitality: attentive, professional, and clearly experienced with weddings of this scale. They handled the details we hadn't even thought to ask about, and by the end of the weekend it felt like everything had been taken care of for us.\n\nIf you're considering Highland Farms for a destination wedding, they know what they're doing. Highly recommend.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-09-09T18:57:13.639918Z",
+      "relative_time": null,
+      "author_name": "Lisa Beach",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjU3noFeq2VdNZBkC0SBoo50iGfb3Xo_nZvr7vvkGI17dSyQFibB=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "We took the private farm tour and I highly recommend!  Daunte was the perfect guide and all the animals were super friendly.  Enjoyed the dogs, sheep, chicken, cat and most of all the cows.  They were so friendly and nuzzling.  Can't wait to go back and book a spa session and maybe stay the night.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-09-09T00:45:15.787518Z",
+      "relative_time": null,
+      "author_name": "Lauren Kotowski",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocKIgK-UsC9ZFVgEFdCGr9N-pnWq3MzwcXIlM4Bgw2NsX474pg=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "My husband and I took a trip around the state of Oregon and visiting the farm was one of our favorite activities! Our tour guide was super informative and knowledgable. We had a blast petting all the animals, especially the sweet babies! Will definitely come back if we are in the area.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-09-08T23:04:32.641001Z",
+      "relative_time": null,
+      "author_name": "David Kenneth Swinson (Raasiyanatha)",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVI2gKLCgD9XS2QOyFlWtNhCK5c0RE2-ZXxJWad0vRhG7d1yFrA5g=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "wow so much fun in the woods.  little ranch some cows and sheep.  cute for venues.  great place to stay.   lovely friendly staff.  so helpful.   the wedding turned out so beautiful .   the staff had great attention to detail.",
+      "owner_reply": null
+    },
     {
       "rating": 5,
       "publish_time": "2026-09-07T18:08:33.471727Z",
