@@ -6,6 +6,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
 import { weddingPortfolio } from "@/data/wedding-portfolio";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
   title: "Wedding Portfolio",
@@ -30,10 +31,12 @@ export const metadata: Metadata = {
 export default function WeddingPortfolioPage() {
   return (
     <>
+      <StructuredData pathname="/wedding-portfolio" />
       {/* Portfolio Grid */}
       <section className="pt-[calc(var(--header-h,120px)+3rem)] pb-20 lg:pb-28 bg-background">
         <Container>
           <SectionHeading
+            as="h1"
             eyebrow="Real Weddings"
             title="Wedding Portfolio"
             subtitle="Every love story is unique. Browse real celebrations at Highland Farms and imagine your own."

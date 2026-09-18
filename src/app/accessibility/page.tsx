@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { CONTACT } from "@/lib/constants";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
   title: "Accessibility Statement",
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function AccessibilityPage() {
   return (
     <>
+      <StructuredData pathname="/accessibility" />
       <section className="pt-32 pb-20 lg:pb-28 bg-background">
         <Container className="max-w-3xl">
           <h1 className="text-3xl font-normal sm:text-4xl mb-2">

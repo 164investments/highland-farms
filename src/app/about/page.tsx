@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/Button";
 import { ImageCarousel } from "@/components/gallery/ImageCarousel";
 import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
 import { properties } from "@/data/properties";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
-  title: "About The Farm — Highland Farms Brightwood, Oregon",
+  title: "About The Farm — Brightwood, Oregon",
   description:
-    "The story of Highland Farms — from a California ranch dream to a five-acre forest property at the base of Mt. Hood. Scottish Highland Cows, forest lodging for 16 guests, Nordic spa, and unforgettable experiences in Brightwood, Oregon.",
+    "The story of Highland Farms — from a California ranch dream to a five-acre forest property at the base of Mt. Hood. Scottish Highland Cows, forest lodging for 20 guests, Nordic spa, and unforgettable experiences in Brightwood, Oregon.",
   alternates: { canonical: "/about" },
   openGraph: {
     title: "About The Farm — Highland Farms Brightwood, Oregon",
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 const amenities = [
-  { icon: Bed, label: "Lodging for 16", description: "Two unique accommodations across the property" },
+  { icon: Bed, label: "Lodging for 20", description: "Three places to stay across the property — lodge, cottage, and camp" },
   { icon: UtensilsCrossed, label: "Full Time Hospitality Team", description: "Our hospitality team believes in unreasonable hospitality" },
   { icon: Wifi, label: "WiFi Access", description: "Stay connected throughout the property" },
   { icon: Car, label: "Event Parking", description: "Ample parking for guests and vendors" },
@@ -50,6 +51,7 @@ const galleryImages = [
 export default function AboutPage() {
   return (
     <>
+      <StructuredData pathname="/about" />
       {/* Hero */}
       <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
         <Image
@@ -241,17 +243,25 @@ export default function AboutPage() {
           <SectionHeading
             eyebrow="Stay With Us"
             title="The Accommodations"
-            subtitle="Two unique spaces designed for comfort and connection — sleeping up to 16 guests together."
+            subtitle="Three distinct places to stay, designed for comfort and connection — sleeping up to 20 guests together."
           />
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 max-w-5xl mx-auto">
+          {/*
+            All three places to stay — Lodge 8 + Cottage 8 + The Camp 4 = the
+            20 overnight guests quoted above. Guest/bedroom/bath counts come
+            from `@/data/properties` so this section can't drift from the
+            booking data; only the two long lead-ins are trimmed for the card.
+          */}
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
             {properties
-              .filter((p) => p.slug === "lodge" || p.slug === "cottage")
+              .filter((p) => p.slug !== "whole-farm")
               .map((property) => {
                 const shortDescription =
                   property.slug === "lodge"
                     ? "Our cedar mill lodge is a warm and inviting retreat where scenic meals, fireside conversations, and lasting memories are made."
-                    : "A cozy retreat neighboring our barn pasture where the Scottish Highland Cows greet you in the morning and relax with you in the evenings.";
+                    : property.slug === "cottage"
+                      ? "A cozy retreat neighboring our barn pasture where the Scottish Highland Cows greet you in the morning and relax with you in the evenings."
+                      : property.description;
 
                 return (
                   <Link

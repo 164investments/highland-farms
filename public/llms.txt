@@ -1,16 +1,16 @@
 # Highland Farms Oregon
 
-> All-inclusive farm and forest wedding venue and outdoor Nordic sauna spa at the base of Mt. Hood — 21261 East Little River Road, Brightwood, Oregon 97011, 50 minutes from Portland and 20 minutes from Mt. Hood. The five-acre property is home to Scottish Highland Cows and old-growth forest, with on-site lodging for up to 24 guests, private Highland Cow farm tours, and a wood-burning cedar sauna + cold plunge. Contact: events@highlandfarms-oregon.com or +1 (831) 214-2053.
+> All-inclusive farm and forest wedding venue and outdoor Nordic sauna spa at the base of Mt. Hood — 21261 East Little River Road, Brightwood, Oregon 97011, 50 minutes from Portland and 20 minutes from Mt. Hood. The five-acre property is home to Scottish Highland Cows and old-growth forest, with on-site lodging for up to 20 guests, private Highland Cow farm tours, and a wood-burning cedar sauna + cold plunge. Contact: events@highlandfarms-oregon.com or +1 (831) 214-2053.
 
 Name: Highland Farms Oregon
 Base: https://highlandfarmsoregon.com
-Last-Updated: 2026-08-26
+Last-Updated: 2026-09-17
 Contact: events@highlandfarms-oregon.com | +1 (831) 214-2053
 Sitemap: https://highlandfarmsoregon.com/sitemap.xml
 
 ## About
 
-Highland Farms is a transformed cedar mill property at the base of Mt. Hood, nestled in the forest valley of Brightwood, Oregon. The farm is home to Scottish Highland Cows, Icelandic Sheep, White Peacocks, Nigerian Dwarf Goats, Kunekune Pigs, geese, and chickens. The property includes a restored historic lodge, a cozy cottage, and a glamping camp — all surrounded by towering old-growth evergreens and accessed via a private road.
+Highland Farms is a transformed cedar mill property at the base of Mt. Hood, nestled in the forest valley of Brightwood, Oregon. The farm is home to Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl. The property includes a restored historic lodge, a cozy cottage, and a glamping camp — all surrounded by towering old-growth evergreens and accessed via a private road.
 
 Highland Farms was featured on LivePDX, Portland's popular local guide, and has 18,000+ Instagram followers at @highlandfarmsor.
 
@@ -18,32 +18,71 @@ Highland Farms was featured on LivePDX, Portland's popular local guide, and has 
 
 - **vs. a typical Oregon wedding venue:** Exclusive-use and all-inclusive — one wedding at a time, the entire 5-acre property yours, on-site lodging for your closest guests, and dedicated event coordination included rather than à la carte. The old-growth forest and Scottish Highland Cow setting is not something a ballroom or vineyard offers.
 - **vs. an indoor Portland spa or bathhouse:** The Nordic Forest Spa is a wood-burning cedar sauna, wet sauna, and cold plunge set in an old-growth forest 50 minutes from Portland. It's a public, Scandinavian-style shared session (90 minutes, up to 6 guests) — what sets it apart is being fully outdoors in the Mt. Hood forest, not an indoor city facility with locker rooms.
-- **vs. a public farm tour or petting zoo:** Farm tours are private (up to 6 guests, 60 minutes) and hands-on with Scottish Highland Cows, Icelandic Sheep, White Peacocks, Nigerian Dwarf Goats, and more.
+- **vs. a public farm tour or petting zoo:** Farm tours are private (up to 6 guests, 60 minutes) and hands-on with Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl.
 
 ## Weddings & Events
 
-- [Weddings](https://highlandfarmsoregon.com/weddings): All-inclusive farm and forest wedding packages. Exchange vows under towering evergreens with Highland Cow photo opportunities. Venue includes exclusive 5-acre property access, on-site lodging for 24 guests, full kitchen access, ceremony and reception areas, and dedicated event coordination.
+- [Weddings](https://highlandfarmsoregon.com/weddings): All-inclusive farm and forest wedding packages. Exchange vows under towering evergreens with Highland Cow photo opportunities. Venue includes exclusive 5-acre property access, on-site lodging for 20 guests, full kitchen access, ceremony and reception areas, and dedicated event coordination.
 - [Celebrations & Events](https://highlandfarmsoregon.com/celebrations): Host engagement parties, birthdays, rehearsal dinners, anniversaries, celebrations of life, and retreats.
 - [Wedding Portfolio](https://highlandfarmsoregon.com/wedding-portfolio): Browse real weddings at Highland Farms featuring couples who celebrated in the forest and farm setting.
+- [Wedding Look Book (PDF)](https://highlandfarmsoregon.com/lookbook.pdf): Full wedding look book with venue photos, packages, and details.
 
 ## Experiences
 
-- [Highland Cow Farm Tours](https://highlandfarmsoregon.com/farm-tours): Private 60-minute farm tours for up to 6 guests ($75/person). Meet Highland Cows, Icelandic Sheep, White Peacocks, Nigerian Dwarf Goats, and more. Book via Acuity Scheduling.
+- [Highland Cow Farm Tours](https://highlandfarmsoregon.com/farm-tours): Private 60-minute farm tours for up to 6 guests ($75/person). Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl. Book via Acuity Scheduling.
 - [Nordic Forest Spa](https://highlandfarmsoregon.com/nordic-spa): Public, Scandinavian-style 90-minute Nordic spa sessions for up to 6 guests ($75/person) — a wood-burning cedar dry sauna, wet sauna, and cold plunge nestled among towering evergreens. Sessions are shared, so you may share your slot with other guests. (Separately, the Lodge and Cottage accommodations each have a private cedar hot tub — not part of the Nordic Forest Spa.)
 - [Sauna Near Portland](https://highlandfarmsoregon.com/sauna-near-portland): The Nordic Forest Spa as a day trip from Portland — a public outdoor wood-burning sauna and cold plunge roughly 50 minutes from the city, in the Mt. Hood National Forest.
 - [Gift Certificates](https://highlandfarms.as.me/schedule/e759f21b): Give the gift of a Highland Farms experience.
 
 ## Accommodations
 
-- [Stay Overview](https://highlandfarmsoregon.com/stay): Four unique accommodations nestled among towering evergreens. Book direct for the best rate.
-- [The Lodge](https://highlandfarmsoregon.com/stay/lodge): Historic cedar mill lodge sleeping 8 guests across 4 bedrooms and 2 baths. Features a spacious family room, dining area, full kitchen, private cedar hot tub, and outdoor forest deck.
-- [The Cottage](https://highlandfarmsoregon.com/stay/cottage): Cozy retreat near The Lodge with 3 bedrooms, 1 bath, full kitchen, and private cedar hot tub. Sleeps 8 guests. Perfect for families or a peaceful forest getaway.
+- [Stay Overview](https://highlandfarmsoregon.com/stay): Three accommodations nestled among towering evergreens — the Lodge, the Cottage and the Camp — bookable individually or together as the Whole Farm. Book direct for the best rate.
+- [The Lodge](https://highlandfarmsoregon.com/stay/lodge): Historic cedar mill lodge sleeping 8 guests across 4 bedrooms and 2.5 baths. Features a spacious family room, dining area, full kitchen, private cedar hot tub, and outdoor forest deck.
+- [The Cottage](https://highlandfarmsoregon.com/stay/cottage): Cozy retreat near The Lodge with 3 bedrooms, 1 bath, kitchenette, and private cedar hot tub. Sleeps 8 guests. Perfect for families or a peaceful forest getaway.
 - [The Camp](https://highlandfarmsoregon.com/stay/camp): Glamping experience with a restored Airstream trailer and canvas tent camping under towering evergreens. Sleeps 4 guests.
-- [The Whole Farm](https://highlandfarmsoregon.com/stay/whole-farm): Reserve the entire property for up to 24 guests. Exclusive access to all accommodations, the farm, and the forest. Perfect for weddings, retreats, and large gatherings.
+- [The Whole Farm](https://highlandfarmsoregon.com/stay/whole-farm): Reserve the entire property for up to 20 guests. Exclusive access to all accommodations, the farm, and the forest. Perfect for weddings, retreats, and large gatherings.
 
 ## Farm Store
 
 - [Shop](https://highlandfarmsoregon.com/shop): Highland Farms merchandise including apparel, weighted Highland Cow plushies, fresh farm eggs, Highland beef, Mangalitsa pork, and firewood. Orders are placed and paid for on this site. Fulfillment is free pickup at the farm in Brightwood, or local delivery ($15) within the Mt. Hood corridor and east Portland metro. Highland Farms does not ship.
+
+### Plush (2)
+- [Princess Fiona — White Highland Cow Plush](https://highlandfarmsoregon.com/shop/weighted-microwavable-highland-cow-plush-white) — $65
+- [Mr. Finley — Red Highland Cow Plush](https://highlandfarmsoregon.com/shop/weighted-mircrowavable-highland-cow-plush) — $65
+
+### Apparel (7)
+- [The Dream Hoodie — Coyote Brown](https://highlandfarmsoregon.com/shop/highland-farms-the-dream-hoodie) — $55
+- [The Dream Hoodie — Olive Green](https://highlandfarmsoregon.com/shop/highland-farm-the-dream-hoodie-olive-green) — $55
+- [The Dream T-Shirt — Olive Green](https://highlandfarmsoregon.com/shop/highland-farms-the-dream-t-shirt) — $32
+- [The Dream T-Shirt — Cream](https://highlandfarmsoregon.com/shop/highland-farms-the-dream-t-shirt-j7bx6) — $32
+- [The Farm T-Shirt — Cream](https://highlandfarmsoregon.com/shop/highland-farms-the-dream-t-shirt-j7bx6-appl6) — $32
+- [Highland Farms Camo Trucker Hat](https://highlandfarmsoregon.com/shop/highland-farms-camo-trucker-hat) — $35
+- [Logo Leather Keychain](https://highlandfarmsoregon.com/shop/highland-farms-logo-keychain-leather-branded) — $10
+
+### Mangalitsa Pork (12)
+- [Thick Cut Peppered Bacon](https://highlandfarmsoregon.com/shop/mangalitsa-thick-cut-peppered-bacon) — $16 (1 lb pack)
+- [Thick Cut Bacon](https://highlandfarmsoregon.com/shop/mangalitsa-thick-cut-bacon) — $16 (1 lb pack)
+- [Cured Ham](https://highlandfarmsoregon.com/shop/mangalitsa-cured-hams) — $36 (2.6–3 lbs)
+- [Sirloin Roast](https://highlandfarmsoregon.com/shop/mangalitsa-sirloin-roast-213-lb) — $31 (2.13 lb)
+- [Pork Shoulder Roast](https://highlandfarmsoregon.com/shop/mangalitsa-pork-roast) — from $29 (2–3 lb, by weight)
+- [Baby Back Ribs](https://highlandfarmsoregon.com/shop/mangalitsa-baby-back-ribs) — $19
+- [Spare Ribs](https://highlandfarmsoregon.com/shop/mangalitsa-spare-ribs) — from $30 (by weight)
+- [Pork Tenderloin](https://highlandfarmsoregon.com/shop/mangalitsa-pork-tenderloin) — $17 (0.95 lb)
+- [Pork Chop — Boneless](https://highlandfarmsoregon.com/shop/mangalitsa-pork-chop-boneless) — $9 (1 lb)
+- [Pork Chop — Bone-In](https://highlandfarmsoregon.com/shop/mangalitsa-pork-chop-bone-in) — $9
+- [Sausage Links](https://highlandfarmsoregon.com/shop/mangalitsa-special-blend-sausage) — $9 (1 lb pack)
+- [Breakfast Sausage — Ground](https://highlandfarmsoregon.com/shop/mangalitsa-breakfast-sausage) — $9 (1 lb pack)
+
+### Highland Beef (3)
+- [Top Sirloin Ground Beef](https://highlandfarmsoregon.com/shop/ground-beef) — $9 (1 lb)
+- [New York Steak](https://highlandfarmsoregon.com/shop/highland-beef-new-york-steak) — $20
+- [Tenderloin Steak](https://highlandfarmsoregon.com/shop/highland-beef-tenderloin-steak) — $22
+
+### Pantry (4)
+- [Farm Fresh Eggs](https://highlandfarmsoregon.com/shop/a-dozen-eggs) — $8 (dozen)
+- [Fresh Flower Bouquet](https://highlandfarmsoregon.com/shop/fresh-flower-bouquet) — $25
+- [Dried Flower Bouquet](https://highlandfarmsoregon.com/shop/dried-flower-bouquet) — $15
+- [Firewood & Kindling](https://highlandfarmsoregon.com/shop/firewood) — $9
 
 ## Contact & Location
 
@@ -62,12 +101,15 @@ Highland Farms was featured on LivePDX, Portland's popular local guide, and has 
 - Distance from Portland: 50 minutes
 - Distance from Mt. Hood: 20 minutes
 - Property size: 5 acres of forest and farmland
-- Maximum guest capacity: 24 (overnight), larger for day events
-- Animals: Scottish Highland Cows, Icelandic Sheep, White Peacocks, Nigerian Dwarf Goats, Kunekune Pigs, geese, chickens
-- Accommodations: The Lodge (8 guests), The Cottage (8 guests), The Camp (4 guests), Whole Farm (24 guests)
+- Maximum guest capacity: 20 overnight (Lodge 8 + Cottage 8 + Camp 4); up to 125 for day events such as weddings
+- Animals: Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, Guinea Fowl
+- Accommodations: The Lodge (8 guests), The Cottage (8 guests), The Camp (4 guests), Whole Farm (20 guests — all three together)
 - Nordic Forest Spa: 90-minute public, shared sessions, up to 6 guests, $75/person — wood-burning cedar dry sauna, wet sauna, and cold plunge
-- Farm Tours: 60-minute private tours, up to 6 guests, $75/person
-- Cancellation policy (farm tours and spa sessions): Strict. All bookings are final — no refunds, no reschedules, no credits, including for no-shows. The only exception is a session Highland Farms cancels for severe weather or safety, which is refunded or rebooked.
+- Nordic Forest Spa availability: not a fixed weekly schedule. Session days vary because weddings and events on the property block the spa calendar (Saturdays are the most affected). Check the live booking link below for real availability rather than assuming set hours.
+- Farm Tours: 60-minute private tours, 2–6 guests, $75/person (the smallest bookable tour is for two people, $150)
+- Cancellation policy (farm tours and spa sessions): Strict. All bookings are final — no refunds, no reschedules, no credits, and no transfers, for cancellations, date changes or no-shows. Please confirm your date, time and guest count before booking. The only exception is a session Highland Farms cancels for severe weather or a safety issue, which is refunded or rebooked.
+- Cancellation policy (accommodations): Terms vary by property and booking date, and are provided at the time of booking. The strict tours-and-spa policy above does not apply to lodging.
+- Cancellation policy (weddings and events): Set out in the individual event agreement. Deposits are generally non-refundable. Contact the events team for specific terms.
 - Farm tour booking: https://highlandfarms.as.me/schedule/e759f21b
 - Spa booking: https://highlandfarms.as.me/schedule/e759f21b/appointment/85942611/calendar/13047082
 

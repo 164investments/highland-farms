@@ -4,7 +4,6 @@ import Script from "next/script";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SkipLink } from "@/components/layout/SkipLink";
-import { StructuredData } from "@/components/layout/StructuredData";
 import {
   GoogleTagManager,
   GoogleTagManagerNoScript,
@@ -115,7 +114,20 @@ export default function RootLayout({
   return (
     <html lang="en" className="overflow-x-hidden">
       <head>
-        <StructuredData />
+        {/*
+          The JSON-LD entity graph is NOT mounted here any more.
+
+          `StructuredData` now derives its BreadcrumbList from a `pathname`
+          prop, and a root-layout Server Component cannot read the current
+          path: `usePathname` is a client hook, and the `headers()` +
+          `middleware.ts` route would force all 24+ statically prerendered
+          routes into dynamic rendering — trading correct breadcrumbs for the
+          static HTML that a non-JS AI crawler actually reads.
+
+          So every page renders `<StructuredData pathname="..." />` itself.
+          ⛔ When you add a page, add that line too, or the page ships with no
+          structured data at all.
+        */}
         <link
           rel="alternate"
           type="text/plain"

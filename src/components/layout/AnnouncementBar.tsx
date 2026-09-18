@@ -144,7 +144,7 @@ const STAY: Variant = {
   layout: "single",
   body: (
     <>
-      William Wallace Lodge &amp; Bonnie Lass Cottage &middot; Up to 16 Guests{" "}
+      William Wallace Lodge, Bonnie Lass Cottage &amp; The Camp &middot; Up to 20 Guests{" "}
       <Link
         href="/stay"
         className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"

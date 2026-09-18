@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { nativeCalendarEnabled } from "@/lib/booking/flag";
 import { BookingFlow } from "@/components/booking/BookingFlow";
 import { Container } from "@/components/ui/Container";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
   title: "Schedule a Wedding Call | Highland Farms",
@@ -14,6 +15,7 @@ export default function WeddingCallPage() {
   if (!nativeCalendarEnabled()) notFound();
   return (
     <Container className="pt-32 pb-16 lg:pb-20">
+      <StructuredData pathname="/wedding-call" />
       <div className="mx-auto max-w-2xl">
         <p className="font-sans text-xs uppercase tracking-[0.28em] text-forest/70">Weddings at Highland Farms</p>
         <h1 className="mt-3 text-4xl text-forest">Let&apos;s talk about your wedding.</h1>

@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FAQAccordion } from "@/components/shared/FAQAccordion";
 import { BookingButton, BookingStickyCTA } from "@/components/shared/BookingButton";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
   title: "Sauna Near Portland, Oregon — Public Outdoor Sauna & Cold Plunge",
@@ -69,7 +70,7 @@ const faqItems = [
   {
     question: "What's the cancellation policy?",
     answer:
-      "Our cancellation policy is strict. All spa bookings are final: no refunds, no reschedules, and no credits, including for no-shows. Please confirm your date and time before you book. The only exception is if we have to cancel a session for severe weather or a safety issue on our end, in which case you'll receive a full refund or a new date.",
+      "Our cancellation policy is strict. All spa bookings are final: no refunds, no reschedules, no credits, and no transfers, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if Highland Farms has to cancel a session for severe weather or a safety issue on our end, in which case you'll receive a full refund or a new date.",
   },
 ];
 
@@ -138,6 +139,7 @@ export default function SaunaNearPortlandPage() {
   return (
     <>
       <SaunaNearPortlandSchema />
+      <StructuredData pathname="/sauna-near-portland" />
 
       {/* Hero */}
       <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">

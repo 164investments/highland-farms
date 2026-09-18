@@ -11,12 +11,16 @@ import { FinalCTA } from "@/components/home/FinalCTA";
 import { InstagramEmbed } from "@/components/shared/InstagramEmbed";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
 import { FadeIn } from "@/components/ui/FadeIn";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
   title: "Highland Farms | Oregon's Premier Farm Wedding Venue",
   description:
     "All-inclusive farm and forest weddings at the base of Mt. Hood. Highland Cow farm tours, Nordic spa, and luxury farm stays in Brightwood, Oregon.",
-  alternates: { canonical: "/" },
+  // Explicit trailing slash to match sitemap.ts's `${BASE_URL}/` entry for
+  // the homepage — relying on metadataBase + "/" resolution here was
+  // rendering without the trailing slash, disagreeing with the sitemap.
+  alternates: { canonical: "https://highlandfarmsoregon.com/" },
   openGraph: {
     title: "Highland Farms | Oregon's Premier Farm Wedding Venue",
     description:
@@ -35,6 +39,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
+      <StructuredData pathname="/" />
       <HeroSection />
       <SocialProofBar />
       <FadeIn>

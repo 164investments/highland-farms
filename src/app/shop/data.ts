@@ -448,6 +448,15 @@ export function fromPrice(product: Product): number {
   return Math.min(...product.variants.map((v) => v.price));
 }
 
+/**
+ * Highest price across variants. Paired with `fromPrice` for the
+ * `AggregateOffer.lowPrice`/`highPrice` schema on multi-variant products —
+ * see `src/lib/shop/product-schema.ts`.
+ */
+export function toPrice(product: Product): number {
+  return Math.max(...product.variants.map((v) => v.price));
+}
+
 export function hasChoices(product: Product): boolean {
   return product.variants.length > 1;
 }

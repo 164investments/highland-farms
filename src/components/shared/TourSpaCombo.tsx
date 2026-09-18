@@ -105,7 +105,7 @@ export function TourSpaCombo({ utmContent }: TourSpaComboProps) {
             title="Book your spa session"
           />
           <p className="text-xs text-muted font-sans">
-            Spa runs Tue / Wed / Fri / Sat / Sun
+            Spa days vary week to week &mdash; see the calendar for open times
           </p>
         </div>
       </Container>

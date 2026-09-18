@@ -10,6 +10,7 @@ import { ContactForm } from "@/components/forms/ContactForm";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { CONTACT } from "@/lib/constants";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
   title: "Oregon Farm Wedding Venue — All-Inclusive at Mt. Hood",
@@ -116,6 +117,7 @@ const galleryImages = [
 export default function WeddingsPage() {
   return (
     <>
+      <StructuredData pathname="/weddings" />
       <WeddingsSchema />
       {/* Hero */}
       <section className="relative flex min-h-[75vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
@@ -203,8 +205,9 @@ export default function WeddingsPage() {
               </p>
               <p className="mt-4 text-base text-muted leading-relaxed font-sans">
                 Your wedding party can stay on site in the William Wallace Lodge,
-                Bonnie Lass Cottage and Camp, making it a true destination wedding
-                experience for up to 20 of your closest people.
+                Bonnie Lass Cottage and The Camp &mdash; 20 beds for your closest
+                people &mdash; while the property hosts weddings of up to 125
+                guests. A true destination wedding, 50 minutes from Portland.
               </p>
 
               <ul className="mt-6 space-y-2">

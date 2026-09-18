@@ -6,6 +6,12 @@ interface SectionHeadingProps {
   eyebrow?: string;
   align?: "left" | "center";
   className?: string;
+  /**
+   * Heading level to render. Defaults to "h2" (the pre-existing behavior on
+   * every page using this component). Pass "h1" on a page whose document
+   * otherwise has no top-level heading.
+   */
+  as?: "h1" | "h2";
 }
 
 export function SectionHeading({
@@ -14,6 +20,7 @@ export function SectionHeading({
   eyebrow,
   align = "center",
   className,
+  as: Heading = "h2",
 }: SectionHeadingProps) {
   return (
     <div
@@ -28,9 +35,9 @@ export function SectionHeading({
           {eyebrow}
         </p>
       )}
-      <h2 className="text-3xl font-light tracking-tight sm:text-4xl lg:text-[2.75rem]">
+      <Heading className="text-3xl font-light tracking-tight sm:text-4xl lg:text-[2.75rem]">
         {title}
-      </h2>
+      </Heading>
       {subtitle && (
         <p className="mt-4 max-w-2xl text-base text-muted leading-relaxed mx-auto font-sans">
           {subtitle}

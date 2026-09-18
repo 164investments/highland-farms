@@ -17,9 +17,11 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ShopBody } from "./ShopBody";
-import { PRODUCTS, fromPrice } from "./data";
-import { getStockMap, allSoldOut, type StockMap } from "@/lib/shop/inventory";
+import { PRODUCTS } from "./data";
+import { getStockMap, type StockMap } from "@/lib/shop/inventory";
+import { BRAND, buildOffers } from "@/lib/shop/product-schema";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
+import { StructuredData as SiteStructuredData } from "@/components/layout/StructuredData";
 
 function BarnIcon({ className }: { className?: string }) {
   return (
@@ -43,7 +45,7 @@ function BarnIcon({ className }: { className?: string }) {
 }
 
 export const metadata: Metadata = {
-  title: "Farm Store — Highland Farms Oregon",
+  title: "Farm Store",
   description:
     "Heritage Mangalitsa pork, pasture-raised Highland beef, fresh eggs, farm-made plush, and apparel from Highland Farms in Brightwood, Oregon. Gift certificates for farm tours, Nordic spa, and stays.",
   alternates: { canonical: "/shop" },
@@ -67,12 +69,9 @@ function StructuredData({ stock }: { stock: StockMap }) {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Highland Farms Farm Store",
+    numberOfItems: PRODUCTS.length,
     itemListElement: PRODUCTS.map((p, i) => {
       const url = `https://highlandfarmsoregon.com/shop/${p.slug}`;
-      const soldOut = allSoldOut(
-        stock,
-        p.variants.map((v) => v.id),
-      );
       return {
         "@type": "ListItem",
         position: i + 1,
@@ -82,15 +81,20 @@ function StructuredData({ stock }: { stock: StockMap }) {
           image: `https://highlandfarmsoregon.com${p.image}`,
           url,
           category: p.category,
-          offers: {
-            "@type": "Offer",
-            price: fromPrice(p),
-            priceCurrency: "USD",
-            availability: soldOut
-              ? "https://schema.org/OutOfStock"
-              : "https://schema.org/InStock",
-            url,
-          },
+          brand: BRAND,
+          // `sku` intentionally omitted: the catalog's `SQ`-prefixed ids are
+          // recovered Squarespace identifiers, not Square ones — 0 of 56
+          // match the real Square catalog. Publishing them as `sku` would be
+          // worse than no `sku` at all. See product-schema.ts for the rest
+          // of what's omitted and why (description, priceValidUntil,
+          // hasMerchantReturnPolicy).
+          //
+          // `description` intentionally omitted: neither `data.ts` nor the
+          // recovered Squarespace catalog (`docs/squarespace-catalog-recovered-2026-06-05.json`)
+          // has a product description field for any of the 28 products —
+          // there's nothing honest to put here without writing marketing
+          // copy from scratch.
+          offers: buildOffers(p, stock, url),
         },
       };
     }),
@@ -112,6 +116,7 @@ export default async function ShopPage() {
   return (
     <>
       <StructuredData stock={stock} />
+      <SiteStructuredData pathname="/shop" />
 
       {/* Hero — cow as top photo band on mobile (under header), right portrait on desktop */}
       <section className="relative isolate overflow-hidden bg-cream pb-8 sm:pb-16 md:pt-[calc(var(--header-h,100px)+2.5rem)] lg:pb-20">

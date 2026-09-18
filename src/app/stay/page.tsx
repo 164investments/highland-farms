@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
 import { properties } from "@/data/properties";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 const propertyIllustrations: Record<string, string> = {
   lodge: "/images/illustrations/lodge-illustration.png",
@@ -17,7 +18,7 @@ const propertyIllustrations: Record<string, string> = {
 export const metadata: Metadata = {
   title: "Farm Stays — Brightwood, Oregon",
   description:
-    "Book a farm stay at Highland Farms near Portland, Oregon. Choose from William Wallace Lodge, Bonnie Lass Cottage, or reserve the whole farm for up to 16 guests. 50 minutes from Portland, 20 minutes from Mt. Hood in Brightwood.",
+    "Book a farm stay at Highland Farms near Portland, Oregon. Choose from William Wallace Lodge, Bonnie Lass Cottage, or reserve the whole farm for up to 20 guests. 50 minutes from Portland, 20 minutes from Mt. Hood in Brightwood.",
   alternates: { canonical: "/stay" },
   openGraph: {
     title: "Stay at Highland Farms — Farm Stays in Brightwood, Oregon",
@@ -39,6 +40,7 @@ export const metadata: Metadata = {
 export default function StayPage() {
   return (
     <>
+      <StructuredData pathname="/stay" />
       {/* Hero */}
       <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
         <Image
@@ -60,9 +62,10 @@ export default function StayPage() {
             Stay at Highland Farms
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light">
-            Escape to the heart of the forest. Two unique accommodations await,
-            nestled beneath towering evergreens, alongside winding creeks and a
-            tranquil pond at the base of majestic Mt. Hood.
+            Escape to the heart of the forest. From a cozy cottage and rustic
+            camp to a private lodge — or the whole farm — every stay is
+            nestled beneath towering evergreens, alongside winding creeks and
+            a tranquil pond at the base of majestic Mt. Hood.
           </p>
         </div>
       </section>

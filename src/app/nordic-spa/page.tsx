@@ -32,6 +32,7 @@ import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
   title: "Sauna & Cold Plunge Near Portland — Mt. Hood Nordic Spa",
@@ -158,6 +159,7 @@ export default function NordicSpaPage() {
   return (
     <>
       <NordicSpaSchema />
+      <StructuredData pathname="/nordic-spa" />
 
       {/* ─── HERO ─── */}
       <section className="relative overflow-hidden pt-[var(--header-h,120px)] lg:min-h-[88vh]">
@@ -343,8 +345,9 @@ export default function NordicSpaPage() {
             <span className="font-normal text-forest">
               80% of our spa guests come back.
             </span>{" "}
-            With 6 spots per session and only 5 days a week, weekends tend to
-            book early.
+            Six spots per session, and our open days shift with the farm&apos;s
+            wedding and event calendar &mdash; check the booking calendar for
+            live times.
           </p>
         </Container>
       </div>
@@ -445,12 +448,13 @@ export default function NordicSpaPage() {
                 />
               )}
               <p className="mt-3 text-center text-xs text-muted font-sans">
-                Spa runs Tue / Wed / Fri / Sat / Sun
+                Spa days vary week to week &mdash; see the calendar for open times
               </p>
               {!nativeCalendarEnabled() && (
                 <p className="mt-1.5 text-center text-xs text-muted font-sans">
-                  Strict cancellation policy: all bookings are final. No refunds
-                  or reschedules.
+                  Strict cancellation policy: all bookings are final &mdash; no
+                  refunds, reschedules, credits, or transfers, including
+                  no-shows.
                 </p>
               )}
             </div>
@@ -522,7 +526,7 @@ export default function NordicSpaPage() {
         source="spa-page"
         eyebrow="Not ready to book?"
         heading="Get first dibs on weekend openings"
-        body="With only 6 spots per session and the spa open 5 days a week, weekends fill fast. Leave your email and we'll let you know the moment new sessions open up."
+        body="Six spots per session, and our open days shift with the farm's wedding and event calendar — Saturdays especially. Leave your email and we'll let you know the moment new sessions open up."
         buttonLabel="Notify Me"
         background="sage"
       />

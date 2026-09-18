@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { ImageCarousel } from "@/components/gallery/ImageCarousel";
 import { HospitableWidget } from "@/components/stay/HospitableWidget";
 import { properties } from "@/data/properties";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export function generateStaticParams() {
   return properties.map((p) => ({ slug: p.slug }));
@@ -109,6 +110,8 @@ export default async function PropertyPage({
 
   return (
     <>
+      <StructuredData pathname={`/stay/${property.slug}`} />
+
       {/* Back link + Hero */}
       <section className="pt-24 pb-4 bg-background">
         <Container>

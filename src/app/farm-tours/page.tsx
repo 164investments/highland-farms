@@ -23,6 +23,7 @@ import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 const GROUP_PRICING = [
   { guests: 2, total: 150 },
@@ -116,6 +117,7 @@ const features = [
 export default function FarmToursPage() {
   return (
     <>
+      <StructuredData pathname="/farm-tours" />
       <FarmTourSchema />
       {/* Hero */}
       <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
@@ -278,8 +280,9 @@ export default function FarmToursPage() {
                     className="w-full"
                   />
                   <p className="mt-3 text-center text-xs text-muted font-sans">
-                    Strict cancellation policy: all bookings are final. No refunds
-                    or reschedules.
+                    Strict cancellation policy: all bookings are final &mdash; no
+                    refunds, reschedules, credits, or transfers, including
+                    no-shows.
                   </p>
                 </>
               )}

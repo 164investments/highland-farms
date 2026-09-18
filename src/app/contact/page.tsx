@@ -5,9 +5,10 @@ import { Container } from "@/components/ui/Container";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
 import { CONTACT } from "@/lib/constants";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
-  title: "Contact Us — Highland Farms Oregon",
+  title: "Contact Us",
   description:
     "Contact Highland Farms for weddings, farm tours, Nordic spa sessions, and farm stays in Brightwood, Oregon. Located 50 minutes from Portland at the base of Mt. Hood. Call (831) 214-2053.",
   alternates: { canonical: "/contact" },
@@ -29,6 +30,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
+      <StructuredData pathname="/contact" />
       {/* Hero */}
       <section className="relative flex min-h-[40vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
         <Image

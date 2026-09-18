@@ -7,9 +7,10 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
 import { CONTACT } from "@/lib/constants";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
-  title: "Celebrations & Events — Highland Farms Oregon",
+  title: "Celebrations & Events",
   description:
     "Host your engagement party, birthday, rehearsal dinner, anniversary, or special celebration at Highland Farms in Brightwood, Oregon. Scottish Highland Cows, forest setting, Nordic spa, and on-site lodging near Portland.",
   alternates: { canonical: "/celebrations" },
@@ -64,6 +65,7 @@ const eventTypes = [
 export default function CelebrationsPage() {
   return (
     <>
+      <StructuredData pathname="/celebrations" />
       {/* Hero */}
       <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
         <Image
@@ -103,7 +105,7 @@ export default function CelebrationsPage() {
           <SectionHeading
             eyebrow="What We Host"
             title="Enchanted Gatherings"
-            subtitle="Highland Farms is a fully immersed, all-inclusive forest stage for your celebration."
+            subtitle="Highland Farms is a fully immersed, all-inclusive forest stage for your celebration — events for up to 125 guests, with lodging on site for 20."
           />
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

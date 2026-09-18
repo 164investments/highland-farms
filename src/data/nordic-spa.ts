@@ -34,6 +34,6 @@ export const nordicSpaFAQ: FAQItem[] = [
   {
     question: "What is the cancellation policy?",
     answer:
-      "Our cancellation policy is strict. All spa bookings are final: no refunds, no reschedules, and no credits, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if Highland Farms has to cancel a session for severe weather or a safety issue on our end, in which case you'll receive a full refund or a new date.",
+      "Our cancellation policy is strict. All spa bookings are final: no refunds, no reschedules, no credits, and no transfers, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if Highland Farms has to cancel a session for severe weather or a safety issue on our end, in which case you'll receive a full refund or a new date.",
   },
 ];

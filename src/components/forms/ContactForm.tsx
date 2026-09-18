@@ -291,7 +291,7 @@ export function ContactForm({
             >
               <option value="">Select a range</option>
               <option value="2-10">2 - 10 guests</option>
-              <option value="11-16">11 - 16 guests (full property)</option>
+              <option value="11-20">11 - 20 guests (full property)</option>
               <option value="25-50">25 - 50 guests</option>
               <option value="50+">50+ guests</option>
             </select>

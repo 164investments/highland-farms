@@ -7,7 +7,7 @@ export const properties: Property[] = [
     tagline: "The full Highland Farms experience",
     description:
       "Highland Farms, a hidden glen nestled in the heart of Mt. Hood National Forest, where towering ancient cedars, gentle whispering streams, and our beloved Scottish Highland Cows set the stage for unforgettable gatherings with family, friends, and the people who matter most.",
-    guests: 16,
+    guests: 20,
     bedrooms: 7,
     baths: 3.5,
     imageSrc: "/images/properties/whole-farm.jpg",
@@ -15,7 +15,7 @@ export const properties: Property[] = [
     hospitable_widget_url: "https://booking.hospitable.com/widget/9c273e8f-0df2-4bd3-b639-da59849e328f/1336238",
     highlights: [
       "Full farm access",
-      "2 separate accommodations",
+      "3 separate accommodations",
       "Perfect for large family & friend gatherings",
       "2 Cedar Hot Tubs",
     ],

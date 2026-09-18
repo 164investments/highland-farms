@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { CONTACT, SITE } from "@/lib/constants";
+import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <>
+      <StructuredData pathname="/privacy" />
       <section className="pt-32 pb-20 lg:pb-28 bg-background">
         <Container className="max-w-3xl">
           <h1 className="text-3xl font-normal sm:text-4xl mb-2">
