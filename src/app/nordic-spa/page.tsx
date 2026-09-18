@@ -338,42 +338,37 @@ export default function NordicSpaPage() {
         </Container>
       </section>
 
-      {/* ─── REPEAT-CUSTOMER NUDGE ─── */}
+      {/* ─── DEMAND / SCARCITY NUDGE ─── */}
       {/*
-        ⛔ UNSOURCED STATISTIC — HAYDEN TO DECIDE (flagged 2026-09-17).
+        Replaced the unsourced "80% of our spa guests come back" on 2026-09-17.
+        That claim had no basis anywhere in the repo and the booking data
+        contradicted it: across 774 non-cancelled spa appointments in the live
+        Acuity account, 381 distinct bookers produced 5 who booked a second
+        date — 1.3%, not 80%. (Shared 6-guest sessions mean only the booking
+        party's contact is captured, so guest-level repeat is undercounted —
+        but not by a factor of sixty.)
 
-        "80% of our spa guests come back" has no basis anywhere in this repo.
-        It was introduced in 644e4d7 (2026-05-20, "Reviews: swap '4.9 stars'
-        for conversion-optimized variants site-wide"), a CRO commit whose
-        message sources its *review* numbers (182/188) and says nothing about
-        a repeat rate. The only other occurrence,
-        `docs/superpowers/specs/2026-08-27-native-calendar-design.md:86`
-        ("80% spa repeat rate — the LTV play"), post-dates it and restates it;
-        it is not a source.
+        Every number below is from the live Acuity account, appointment type
+        85942611, pulled 2026-09-17, trailing 12 months of COMPLETED sessions:
+          • 710 sessions completed
+          • Sat 172 + Sun 168 = 340 of 710 → weekends are 48% of sessions
+            while being 29% of days, i.e. they genuinely go first
+          • median booking lead time 14 days
+        Six spots per session is the fixed capacity stated site-wide.
 
-        The one booking dataset the repo holds points the other way. From the
-        frozen Acuity snapshot `docs/acuity-archive/appointments-20260827.json.gz`
-        (725 non-canceled spa appointments, spa dates 2025-12-13 → 2026-11-27),
-        4 of 357 distinct booker emails — 1.1% — booked a spa session on two or
-        more dates; by phone it is 4 of 346 (1.2%); and only 13 of those 357
-        (3.6%) booked any second Highland Farms appointment at all. Caveats: the
-        spa is a shared session, so only the booking party's contact is
-        recorded, and gift certificates, walk-ins and lodging guests added to a
-        session may not appear as their own bookings. Even so, the gap is ~70x.
-
-        This was NOT rewritten into a vaguer claim and NOT deleted, because that
-        is the owner's call. It needs either a real, stated number Hayden can
-        stand behind, or removal.
+        ⛔ These are real but they are a SNAPSHOT. Re-pull before restating
+        them, and do not round them upward. The whole point of this block is
+        that it replaced a number nobody could stand behind.
       */}
       <div className="border-y border-cream-dark/30 bg-warm-white py-5 text-center">
         <Container>
           <p className="text-sm text-muted font-sans leading-relaxed">
             <span className="font-normal text-forest">
-              80% of our spa guests come back.
+              710 sessions in the past year, six guests at a time.
             </span>{" "}
-            Six spots per session, and our open days shift with the farm&apos;s
-            wedding and event calendar &mdash; check the booking calendar for
-            live times.
+            Nearly half of them were weekends, and Saturdays go first &mdash;
+            the farm&apos;s wedding calendar takes most of them. Most guests
+            book about two weeks ahead.
           </p>
         </Container>
       </div>
