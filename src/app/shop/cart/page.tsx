@@ -5,7 +5,7 @@ import { getStockMap, allSoldOut } from "@/lib/shop/inventory";
 import { toCents } from "@/lib/shop/money";
 
 export const metadata: Metadata = {
-  title: "Your Cart | Highland Farms",
+  title: "Your Cart",
   robots: { index: false, follow: false },
 };
 

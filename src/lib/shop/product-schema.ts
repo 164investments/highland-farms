@@ -130,3 +130,33 @@ export function buildOffers(product: Product, stock: StockMap, url: string) {
     ...common,
   };
 }
+
+/**
+ * The whole `Product` node, shared by the `/shop` ItemList and the standalone
+ * block on `/shop/<slug>` so the two can't describe the same SKU differently.
+ * Callers add `@context` when the node is the document root.
+ *
+ * `description` comes straight from the catalog and is only emitted when the
+ * product actually has one. It is not schema-only text: `/shop/<slug>` renders
+ * the same string under the price note, so the markup never describes copy a
+ * human can't read on the page. If you add a product without a description,
+ * the field is omitted rather than filled with the name or a placeholder.
+ *
+ * `sku` is still omitted: the catalog's `SQ`-prefixed ids are recovered
+ * Squarespace identifiers, not Square ones — 0 of 56 match the real Square
+ * catalog, so publishing them as `sku` would be worse than having none. See
+ * the comments above for the other deliberate omissions (`deliveryTime`,
+ * `hasMerchantReturnPolicy`) and why.
+ */
+export function buildProductNode(product: Product, stock: StockMap, url: string) {
+  return {
+    "@type": "Product",
+    name: product.name,
+    ...(product.description ? { description: product.description } : {}),
+    image: `${SITE_URL}${product.image}`,
+    url,
+    category: product.category,
+    brand: BRAND,
+    offers: buildOffers(product, stock, url),
+  };
+}

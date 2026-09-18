@@ -83,7 +83,7 @@ const galleryImages = [
   { src: "/images/farm/white-peacock.jpg", alt: "White peacock perched in the barn" },
   { src: "/images/farm/farm-life.jpg", alt: "Farm guide walking with a Highland Cow calf in the forest" },
   { src: "/images/farm/cows.jpg", alt: "Highland Cow mama and calf near the barn" },
-  { src: "/images/farm/geese.jpg", alt: "Farmer bonding with a resting Highland Cow" },
+  { src: "/images/farm/farmer-with-highland-cow.jpg", alt: "Farmer bonding with a resting Highland Cow" },
   { src: "/images/farm/farm-visit.jpg", alt: "Highland Cow close-up with shaggy hair and horns" },
 ];
 

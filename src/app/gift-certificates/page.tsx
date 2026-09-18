@@ -6,7 +6,7 @@ import { GiftBody } from "./GiftBody";
 import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
-  title: "Gift Certificates | Highland Farms",
+  title: "Gift Certificates",
   description:
     "Give a Highland Farms private farm tour, Nordic Forest Spa session, or spa 3-visit pack. We email the code right away.",
 };

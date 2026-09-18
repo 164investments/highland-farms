@@ -16,7 +16,7 @@ import { CONTACT } from "@/lib/constants";
  */
 
 export const metadata: Metadata = {
-  title: "Unsubscribed | Highland Farms",
+  title: "Unsubscribed",
   robots: { index: false, follow: false },
 };
 

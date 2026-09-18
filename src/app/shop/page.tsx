@@ -19,9 +19,12 @@ import { Container } from "@/components/ui/Container";
 import { ShopBody } from "./ShopBody";
 import { PRODUCTS } from "./data";
 import { getStockMap, type StockMap } from "@/lib/shop/inventory";
-import { BRAND, buildOffers } from "@/lib/shop/product-schema";
+import { buildProductNode } from "@/lib/shop/product-schema";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { StructuredData as SiteStructuredData } from "@/components/layout/StructuredData";
+import { FAQAccordion } from "@/components/shared/FAQAccordion";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { shopFAQ } from "@/data/shop-faq";
 
 function BarnIcon({ className }: { className?: string }) {
   return (
@@ -72,30 +75,15 @@ function StructuredData({ stock }: { stock: StockMap }) {
     numberOfItems: PRODUCTS.length,
     itemListElement: PRODUCTS.map((p, i) => {
       const url = `https://highlandfarmsoregon.com/shop/${p.slug}`;
+      // Built by the shared helper so this listing and the standalone Product
+      // block on `/shop/<slug>` describe each SKU identically. That helper
+      // carries `description` (the catalog's own, also rendered on the product
+      // page) and documents what stays omitted — `sku`, `priceValidUntil`,
+      // `hasMerchantReturnPolicy` — and why.
       return {
         "@type": "ListItem",
         position: i + 1,
-        item: {
-          "@type": "Product",
-          name: p.name,
-          image: `https://highlandfarmsoregon.com${p.image}`,
-          url,
-          category: p.category,
-          brand: BRAND,
-          // `sku` intentionally omitted: the catalog's `SQ`-prefixed ids are
-          // recovered Squarespace identifiers, not Square ones — 0 of 56
-          // match the real Square catalog. Publishing them as `sku` would be
-          // worse than no `sku` at all. See product-schema.ts for the rest
-          // of what's omitted and why (description, priceValidUntil,
-          // hasMerchantReturnPolicy).
-          //
-          // `description` intentionally omitted: neither `data.ts` nor the
-          // recovered Squarespace catalog (`docs/squarespace-catalog-recovered-2026-06-05.json`)
-          // has a product description field for any of the 28 products —
-          // there's nothing honest to put here without writing marketing
-          // copy from scratch.
-          offers: buildOffers(p, stock, url),
-        },
+        item: buildProductNode(p, stock, url),
       };
     }),
   };
@@ -103,6 +91,33 @@ function StructuredData({ stock }: { stock: StockMap }) {
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+    />
+  );
+}
+
+/**
+ * `FAQPage` for the farm store, built from the same `shopFAQ` array the
+ * accordion below renders — so the markup can never answer a question the page
+ * does not visibly answer. Content rules (and the reason there is no
+ * returns/refunds entry) live in `src/data/shop-faq.ts`.
+ */
+function ShopFAQSchema() {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: shopFAQ.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
     />
   );
 }
@@ -116,6 +131,7 @@ export default async function ShopPage() {
   return (
     <>
       <StructuredData stock={stock} />
+      <ShopFAQSchema />
       <SiteStructuredData pathname="/shop" />
 
       {/* Hero — cow as top photo band on mobile (under header), right portrait on desktop */}
@@ -345,6 +361,22 @@ export default async function ShopPage() {
 
       {/* Everything else (client) */}
       <ShopBody stock={Object.fromEntries(stock)} />
+
+      {/* Fulfillment FAQ — the questions the store actually gets asked, and the
+          only part of the page that spells out pickup vs delivery vs "we don't
+          ship" in full sentences. Also the visible half of the FAQPage markup
+          emitted above. */}
+      <section className="bg-warm-white py-14 lg:py-20">
+        <Container className="max-w-3xl">
+          <SectionHeading
+            eyebrow="Pickup & delivery"
+            title="Farm Store Questions"
+            subtitle="How orders reach you, and where we can drive."
+            className="!mb-10"
+          />
+          <FAQAccordion items={shopFAQ} />
+        </Container>
+      </section>
     </>
   );
 }

@@ -95,18 +95,10 @@ function SaunaNearPortlandSchema() {
     description:
       "Public wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
     url: "https://highlandfarmsoregon.com/sauna-near-portland",
-    provider: {
-      "@type": "LocalBusiness",
-      name: "Highland Farms Oregon",
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: CONTACT.address,
-        addressLocality: CONTACT.city,
-        addressRegion: CONTACT.state,
-        postalCode: CONTACT.zip,
-        addressCountry: "US",
-      },
-    },
+    // Reference the canonical business node rather than inlining a second,
+    // thinner LocalBusiness — an inline copy fragments the entity across the
+    // page that matters most for "sauna near Portland".
+    provider: { "@id": "https://highlandfarmsoregon.com/#business" },
     areaServed: {
       "@type": "City",
       name: "Portland",

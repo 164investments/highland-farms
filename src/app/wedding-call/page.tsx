@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
-  title: "Schedule a Wedding Call | Highland Farms",
+  title: "Schedule a Wedding Call",
   description:
     "Pick a time for a free 45-minute wedding call with our events team. Google Meet or in person at the farm in Brightwood, Oregon.",
 };

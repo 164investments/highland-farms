@@ -8,7 +8,7 @@ import { PRODUCTS, getProduct, fromPrice, type Product } from "../data";
 import { getStockMap, allSoldOut, type StockMap } from "@/lib/shop/inventory";
 import { toCents, formatCents, formatCentsShort } from "@/lib/shop/money";
 import { DELIVERY_FEE_CENTS, PICKUP_LOCATION } from "@/lib/shop/fulfillment";
-import { BRAND, buildOffers } from "@/lib/shop/product-schema";
+import { buildProductNode } from "@/lib/shop/product-schema";
 import { AddToCart } from "./AddToCart";
 import { StructuredData } from "@/components/layout/StructuredData";
 
@@ -25,11 +25,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const product = getProduct(slug);
-  if (!product) return { title: "Not found | Highland Farms" };
+  if (!product) return { title: "Not found" };
 
   const price = formatCents(toCents(fromPrice(product)));
   return {
-    title: `${product.name} | Highland Farms Farm Store`,
+    title: `${product.name} — Farm Store`,
     description: `${product.name} from Highland Farms in Brightwood, Oregon — ${price}. Farm pickup or local delivery.`,
     alternates: { canonical: `https://highlandfarmsoregon.com/shop/${product.slug}` },
     openGraph: {
@@ -58,18 +58,12 @@ export default async function ProductPage({
   const soldOut = variants.every((v) => v.stock === 0);
   const productUrl = `https://highlandfarmsoregon.com/shop/${product.slug}`;
 
-  // `sku` and `description` intentionally omitted — see the comment in
-  // `src/lib/shop/product-schema.ts` (0/56 recovered Squarespace SKUs match
-  // the real Square catalog, and no product in `data.ts` or the recovered
-  // catalog carries a description to draw from).
+  // Built from the shared helper so this node and the `/shop` ItemList can't
+  // drift. `description` is the catalog's, and is rendered visibly below —
+  // markup must never describe text a human can't read on the page.
   const productSchema = {
     "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    image: `https://highlandfarmsoregon.com${product.image}`,
-    category: product.category,
-    brand: BRAND,
-    offers: buildOffers(product, stock, productUrl),
+    ...buildProductNode(product, stock, productUrl),
   };
 
   return (
@@ -128,6 +122,17 @@ export default async function ProductPage({
             {product.priceNote && (
               <p className="mt-2 text-xs uppercase tracking-[0.12em] text-muted font-sans">
                 {product.priceNote}
+              </p>
+            )}
+
+            {/*
+              The same string the Product JSON-LD publishes as `description`.
+              Keep these two in sync by keeping them the same field — never
+              describe the product in markup without showing it here.
+            */}
+            {product.description && (
+              <p className="mt-4 max-w-prose text-[0.9375rem] leading-relaxed text-muted font-sans">
+                {product.description}
               </p>
             )}
 

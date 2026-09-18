@@ -198,7 +198,6 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
           `${SITE.url}/images/farm/highland-cows-hero.jpg`,
         ],
         logo: `${SITE.url}/images/logo/HF-Lettermark.png`,
-        priceRange: "$$$$",
         currenciesAccepted: "USD",
         paymentAccepted: "Cash, Credit Card",
         areaServed: [
@@ -330,7 +329,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
             "@type": "Accommodation",
             name: "The Whole Farm",
             description:
-              "The full Highland Farms experience: all three accommodations, full farm access, and two cedar hot tubs across 7 bedrooms and 3.5 baths.",
+              "The full Highland Farms experience: William Wallace Lodge, Bonnie Lass Cottage and The Camp together, sleeping 20 with full farm access and two cedar hot tubs. The lodge and cottage provide 7 bedrooms and 3.5 baths; The Camp adds a restored Airstream and canvas tents.",
             url: `${SITE.url}/stay/whole-farm`,
             // Owner-confirmed 2026-09-17: 20 overnight guests, which includes
             // The Camp (Lodge 8 + Cottage 8 + Camp 4).
@@ -365,6 +364,9 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         geo,
         // Owner-confirmed 2026-09-17: maximum event headcount, not beds.
         maximumAttendeeCapacity: 125,
+        // Venue-scoped. Deliberately NOT on #business: that node also covers the
+        // $75 farm tour and $75 spa session, and an engine reads $$$$ literally.
+        priceRange: "$$$$",
         isAccessibleForFree: false,
         publicAccess: false,
         image: `${SITE.url}/images/weddings/couple.jpg`,

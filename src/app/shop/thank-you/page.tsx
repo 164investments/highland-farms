@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { CONTACT } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Order confirmed | Highland Farms",
+  title: "Order confirmed",
   robots: { index: false, follow: false },
 };
 

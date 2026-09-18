@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CheckoutBody } from "./CheckoutBody";
 
 export const metadata: Metadata = {
-  title: "Checkout | Highland Farms",
+  title: "Checkout",
   robots: { index: false, follow: false },
 };
 

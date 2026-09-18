@@ -8,7 +8,7 @@ import { isSquareConfigured, listCatalogVariations } from "@/lib/shop/square";
 import { AdminBody, type InventoryRow, type OrderRow } from "./AdminBody";
 
 export const metadata: Metadata = {
-  title: "Farm Store Admin | Highland Farms",
+  title: "Farm Store Admin",
   robots: { index: false, follow: false, nocache: true },
 };
 

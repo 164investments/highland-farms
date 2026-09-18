@@ -6,7 +6,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CONTACT } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Order From the Farm | Highland Farms",
+  title: "Order From the Farm",
   description:
     "Order Mangalitsa pork, Highland beef, farm eggs, and Highland Farms apparel direct from the farm in Brightwood, Oregon. Pick up on the farm.",
   robots: { index: false, follow: true },

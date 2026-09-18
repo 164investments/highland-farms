@@ -10,6 +10,16 @@ export interface Property {
   bookingUrl: string;
   hospitable_widget_url?: string;
   highlights: string[];
+  /**
+   * "The space" — how the bedrooms, baths and cooking actually lay out, for the
+   * `/stay/<slug>` page. Sourced only from `guests`/`bedrooms`/`baths`, the
+   * `highlights` above, and the gallery alt text already published on that
+   * page. Never state a rate, a minimum stay, a check-in time, or an amenity
+   * that isn't already in this file or on the page.
+   */
+  layout?: string;
+  /** Who the accommodation fits, drawn from the same sources as `layout`. */
+  bestFor?: string;
 }
 
 export interface NavItem {

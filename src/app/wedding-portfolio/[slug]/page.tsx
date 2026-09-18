@@ -147,7 +147,6 @@ function WeddingSchema({ couple }: { couple: WeddingCouple }) {
       startDate: couple.date,
       endDate: couple.date,
       eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-      eventStatus: "https://schema.org/EventScheduled",
       location: {
         "@type": "Place",
         name: "Highland Farms Oregon",

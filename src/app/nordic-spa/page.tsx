@@ -339,6 +339,32 @@ export default function NordicSpaPage() {
       </section>
 
       {/* ─── REPEAT-CUSTOMER NUDGE ─── */}
+      {/*
+        ⛔ UNSOURCED STATISTIC — HAYDEN TO DECIDE (flagged 2026-09-17).
+
+        "80% of our spa guests come back" has no basis anywhere in this repo.
+        It was introduced in 644e4d7 (2026-05-20, "Reviews: swap '4.9 stars'
+        for conversion-optimized variants site-wide"), a CRO commit whose
+        message sources its *review* numbers (182/188) and says nothing about
+        a repeat rate. The only other occurrence,
+        `docs/superpowers/specs/2026-08-27-native-calendar-design.md:86`
+        ("80% spa repeat rate — the LTV play"), post-dates it and restates it;
+        it is not a source.
+
+        The one booking dataset the repo holds points the other way. From the
+        frozen Acuity snapshot `docs/acuity-archive/appointments-20260827.json.gz`
+        (725 non-canceled spa appointments, spa dates 2025-12-13 → 2026-11-27),
+        4 of 357 distinct booker emails — 1.1% — booked a spa session on two or
+        more dates; by phone it is 4 of 346 (1.2%); and only 13 of those 357
+        (3.6%) booked any second Highland Farms appointment at all. Caveats: the
+        spa is a shared session, so only the booking party's contact is
+        recorded, and gift certificates, walk-ins and lodging guests added to a
+        session may not appear as their own bookings. Even so, the gap is ~70x.
+
+        This was NOT rewritten into a vaguer claim and NOT deleted, because that
+        is the owner's call. It needs either a real, stated number Hayden can
+        stand behind, or removal.
+      */}
       <div className="border-y border-cream-dark/30 bg-warm-white py-5 text-center">
         <Container>
           <p className="text-sm text-muted font-sans leading-relaxed">

@@ -8,7 +8,45 @@ import { Button } from "@/components/ui/Button";
 import { ImageCarousel } from "@/components/gallery/ImageCarousel";
 import { HospitableWidget } from "@/components/stay/HospitableWidget";
 import { properties } from "@/data/properties";
+import { CONTACT } from "@/lib/constants";
 import { StructuredData } from "@/components/layout/StructuredData";
+
+/**
+ * Facts that are true of every stay, kept in one place so the four property
+ * pages can't drift from each other.
+ *
+ * ⛔ Sourcing: drive times and acreage are the ones already published in
+ * `public/llms.txt` and on `/stay`; the address is `CONTACT.fullAddress`; the
+ * pet policy is the one in `terms/page.tsx` ("No outside pets allowed. Service
+ * animals are permitted in accordance with ADA requirements.") and on `/stay`;
+ * free on-site parking is already stated on `/nordic-spa` and
+ * `/sauna-near-portland` and is `LocationFeatureSpecification "Free Parking"`
+ * in `StructuredData.tsx`. Nothing here is a rate, a minimum stay, a check-in
+ * time or an availability claim, because the farm has published none of those —
+ * do not add one without the farm saying it first.
+ */
+const STAY_FACTS: { label: string; value: string }[] = [
+  {
+    label: "Getting here",
+    value: `50 minutes from Portland and 20 minutes from Mt. Hood, at ${CONTACT.fullAddress}.`,
+  },
+  {
+    label: "The property",
+    value:
+      "Five forested acres at the base of Mt. Hood, shared with our Scottish Highland Cows. Every stay is on the same working farm.",
+  },
+  {
+    label: "While you're on the farm",
+    value:
+      "Private Highland Cow farm tours and the Nordic Forest Spa run on the property and are booked separately from your stay.",
+  },
+  { label: "Parking", value: "Free on-site parking." },
+  {
+    label: "Pets",
+    value:
+      "No outside pets. Service animals are permitted in accordance with ADA requirements.",
+  },
+];
 
 export function generateStaticParams() {
   return properties.map((p) => ({ slug: p.slug }));
@@ -167,11 +205,34 @@ export default async function PropertyPage({
                 {property.description}
               </p>
 
+              {/* The space — how the bedrooms, baths and cooking lay out. */}
+              {property.layout && (
+                <div className="mt-6">
+                  <h2 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
+                    The Space
+                  </h2>
+                  <p className="text-base text-muted leading-relaxed font-sans">
+                    {property.layout}
+                  </p>
+                </div>
+              )}
+
+              {property.bestFor && (
+                <div className="mt-6">
+                  <h2 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
+                    Who It Suits
+                  </h2>
+                  <p className="text-base text-muted leading-relaxed font-sans">
+                    {property.bestFor}
+                  </p>
+                </div>
+              )}
+
               {/* Highlights */}
               <div className="mt-6">
-                <h3 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
+                <h2 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
                   Highlights
-                </h3>
+                </h2>
                 <ul className="space-y-2">
                   {property.highlights.map((h) => (
                     <li
@@ -189,9 +250,9 @@ export default async function PropertyPage({
 
               {/* Activities */}
               <div className="mt-6">
-                <h3 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
+                <h2 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
                   While You&apos;re Here
-                </h3>
+                </h2>
                 <div className="space-y-2">
                   <Button href="/farm-tours" variant="ghost" className="w-full justify-start text-sm px-0">
                     Highland Cow Farm Tours &rarr;
@@ -203,6 +264,38 @@ export default async function PropertyPage({
                     Weddings &amp; Events &rarr;
                   </Button>
                 </div>
+              </div>
+
+              <div className="mt-6 h-px bg-cream-dark" />
+
+              {/* Good to know — farm-wide, from STAY_FACTS above. */}
+              <div className="mt-6">
+                <h2 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
+                  Good to Know
+                </h2>
+                <dl className="space-y-3">
+                  {STAY_FACTS.map((fact) => (
+                    <div key={fact.label} className="text-sm font-sans">
+                      <dt className="text-charcoal">{fact.label}</dt>
+                      <dd className="mt-0.5 text-muted leading-relaxed">
+                        {fact.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                {/*
+                  Both sentences are the published position and nothing more:
+                  rates and dates live in the Hospitable calendar to the right,
+                  and `public/llms.txt` states the accommodation cancellation
+                  policy as "Terms vary by property and booking date, and are
+                  provided at the time of booking." Do not replace either with a
+                  specific rate, minimum stay or check-in time.
+                */}
+                <p className="mt-4 text-sm text-muted leading-relaxed font-sans">
+                  Rates and open dates are shown in the booking calendar.
+                  Cancellation terms vary by property and booking date, and are
+                  provided at the time of booking.
+                </p>
               </div>
             </div>
 
