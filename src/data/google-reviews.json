@@ -2,10 +2,50 @@
   "place_id": "ChIJF5dVblWLlVQRTa9sDtveCPY",
   "name": "Highland Farms",
   "rating": 4.9,
-  "user_rating_count": 246,
-  "fetched_at": "2026-09-14",
+  "user_rating_count": 250,
+  "fetched_at": "2026-09-21",
   "source": "google-business-profile-api",
   "reviews": [
+    {
+      "rating": 5,
+      "publish_time": "2026-09-17T20:40:44.751812Z",
+      "relative_time": null,
+      "author_name": "Deanna Meyer",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjVIBa6JXs5KF1ehN3A9x9kCQwqU-urwlzhlUYJ1XkXJAu6YdoPOHA=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-09-17T02:59:48.618196Z",
+      "relative_time": null,
+      "author_name": "Taryn Bagley",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIE_7hjP0tw36owYZZQdXmZkKr0UsVnTN9EserzGVE1w07XzQ=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Amazing is an understatement when describing this property. It was so gorgeous. We did the farm tour, and fell in love with all the animals. Dante was so nice and knowledgeable. The tour was unforgettable!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-09-16T14:14:19.505703Z",
+      "relative_time": null,
+      "author_name": "Adam Dellert",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJBzMwUkceRvJ6zZigR3d0dJwpwLQqzOfd67Q2IOljgmtTe=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "My sister chose Highland Farm for her destination wedding, and after spending the weekend there with about 20 of our closest family and friends, I can see exactly why.\n\nWe had rain on the wedding day, and the team was amazing about adapting and making sure everything still felt special. Everyone was flexible, welcoming, and willing to do whatever they could to make the day beautiful. As her brother, it meant a lot to see how much they cared about making sure she and her wife had an incredible wedding regardless of the weather.\n\nThe reception in the barn ended up being one of the coolest parts of the day. It was intimate, different, and fit the whole weekend perfectly. The farm itself is beautiful, the Highland cows are awesome, and being at the base of Mount Hood makes the setting hard to beat. It was an incredible place for a destination wedding and somewhere our family will always have really great memories of.",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-09-16T13:58:11.734275Z",
+      "relative_time": null,
+      "author_name": "Elise Hooghkirk",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocK3d_dA7VwINPnASfOsaRUaKhIOtNOX48ErFmpcU2IXgu3hcw=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "We traveled to Oregon for my sister-in-law’s destination wedding at Highland Farm, and I truly can’t say enough wonderful things about our experience. It was a very intimate wedding with only about 20 guests, and the farm was such a special setting for it.\n\nIt rained on the wedding day, which obviously wasn’t the original plan, but everyone at Highland Farm was incredibly kind, flexible, and determined to make sure the day was still beautiful. Instead of the rain feeling like a disappointment, everything came together in a way that felt cozy, intimate, and honestly perfect.\n\nWe ended up having the reception in the barn, which was SO unique and became one of my favorite parts of the entire day. Between the beautiful property, the Highland cows, the views at the base of Mount Hood, and how genuinely wonderful everyone was to our family, it was an experience we’ll never forget. Such a special place for a destination wedding!",
+      "owner_reply": null
+    },
     {
       "rating": 5,
       "publish_time": "2026-09-11T16:25:58.587251Z",
@@ -1669,7 +1709,7 @@
       "publish_time": "2025-08-14T23:02:38.193260Z",
       "relative_time": null,
       "author_name": "Jamie Allegro",
-      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWLFuTeLMoRpwg6xn7s2ni-FDgsttR4TazHCGETm_nX9Kz_5w3-=s120-c-rp-mo-ba12-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXXwEFskzEXj3c_M-wylwq8SX2nsoW1hOLRCPaE2A0w-J5VAcUb=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "",
       "owner_reply": {
