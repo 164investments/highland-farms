@@ -2,10 +2,20 @@
   "place_id": "ChIJF5dVblWLlVQRTa9sDtveCPY",
   "name": "Highland Farms",
   "rating": 4.9,
-  "user_rating_count": 250,
-  "fetched_at": "2026-09-21",
+  "user_rating_count": 251,
+  "fetched_at": "2026-09-28",
   "source": "google-business-profile-api",
   "reviews": [
+    {
+      "rating": 5,
+      "publish_time": "2026-09-21T05:19:51.687422Z",
+      "relative_time": null,
+      "author_name": "Jim RASMUSSEN",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXT34W6Wi9in-4wi_RCDkz_OfselqwcVV-30eZQ-Kf4JXmj1pRy=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "Connor and his crew were great!!!",
+      "owner_reply": null
+    },
     {
       "rating": 5,
       "publish_time": "2026-09-17T20:40:44.751812Z",
@@ -21,7 +31,7 @@
       "publish_time": "2026-09-17T02:59:48.618196Z",
       "relative_time": null,
       "author_name": "Taryn Bagley",
-      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocIE_7hjP0tw36owYZZQdXmZkKr0UsVnTN9EserzGVE1w07XzQ=s120-c-rp-mo-ba12-br100",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjWA9FZ4wBbk3f4iU-CNdt1X_qDF71QGDjEX4HBmjH78AAFMt53Vew=s120-c-rp-mo-ba12-br100",
       "author_url": null,
       "text": "Amazing is an understatement when describing this property. It was so gorgeous. We did the farm tour, and fell in love with all the animals. Dante was so nice and knowledgeable. The tour was unforgettable!",
       "owner_reply": null
