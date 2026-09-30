@@ -10,6 +10,22 @@ const FIELD_GUEST_COUNT     = "oC80o6RFqL8IjgYfudqM"; // Estimated Number of Gue
 const FIELD_EVENT_DATE      = "bD5UbqcequJXjdwM7q6s"; // Desired Event Date (DATE type — strict)
 const FIELD_EVENT_DATE_META = "P1OnvSvlMzgRA4i526jh"; // Desired Event Date (Meta) — free text for enum ranges
 const FIELD_MESSAGE         = "XdkbuNVwwMGVNIlCRfpE"; // Contact Form Message
+const FIELD_REFERRAL        = "YKJFaETa1FNabZohr92y"; // How did you hear about us? (SINGLE_OPTIONS)
+
+// The form's referral_source values are slugs; the BookedIQ field is a picklist
+// with its own wording. Map to the exact option strings so the GHL smart lists
+// and filters group them, instead of scattering near-duplicate free text.
+// Verified against /contacts/upsert 2026-08-13 — every value below returns 200.
+const REFERRAL_OPTIONS: Record<string, string> = {
+  google: "Google Search",
+  instagram: "Instagram",
+  facebook: "Facebook",
+  tiktok: "Tik-Tok",
+  "travel-oregon": "Travel Oregon",
+  "word-of-mouth": "From someone you know",
+  "wedding-wire": "Wedding Wire / The Knot",
+  other: "Other",
+};
 
 export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void> {
   const locationId = process.env.BOOKEDIQ_LOCATION_ID?.trim();
@@ -21,8 +37,20 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
   const [firstName, ...rest] = data.name.trim().split(/\s+/);
   const lastName = rest.join(" ");
 
+  // The guest's own answer to "How did you hear about us?" is the single most
+  // reliable source signal the business collects — utm tags miss word of mouth
+  // entirely. Send it to the picklist field, and repeat it in the message body
+  // so it survives even if the picklist ever rejects a new form option.
+  const referralLabel = data.referral_source
+    ? REFERRAL_OPTIONS[data.referral_source] ?? data.referral_source
+    : null;
+
   const attributionText = formatAttribution(data.attribution);
-  const messageText = [data.message, attributionText ? `Attribution:\n${attributionText}` : null]
+  const messageText = [
+    data.message,
+    referralLabel ? `Heard about us: ${referralLabel}` : null,
+    attributionText ? `Attribution:\n${attributionText}` : null,
+  ]
     .filter(Boolean)
     .join("\n\n");
 
@@ -30,6 +58,7 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
   if (data.event_type)    customFields.push({ id: FIELD_EVENT_TYPE,  field_value: data.event_type });
   if (data.guest_count)   customFields.push({ id: FIELD_GUEST_COUNT, field_value: data.guest_count });
   if (data.preferred_date) customFields.push({ id: FIELD_EVENT_DATE, field_value: data.preferred_date });
+  if (referralLabel)      customFields.push({ id: FIELD_REFERRAL,    field_value: referralLabel });
   if (messageText)        customFields.push({ id: FIELD_MESSAGE,     field_value: messageText });
 
   const headers = {
@@ -39,6 +68,7 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
   };
 
   const tags = ["source :: contact form"];
+  if (data.referral_source) tags.push(`heard :: ${data.referral_source}`);
   if (data.attribution?.utm_source) tags.push(`utm_source :: ${data.attribution.utm_source}`);
   if (data.attribution?.utm_campaign) tags.push(`utm_campaign :: ${data.attribution.utm_campaign}`);
   if (data.consent_marketing_sms)    tags.push("sms consent :: marketing");
