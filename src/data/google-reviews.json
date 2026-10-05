@@ -2,10 +2,40 @@
   "place_id": "ChIJF5dVblWLlVQRTa9sDtveCPY",
   "name": "Highland Farms",
   "rating": 4.9,
-  "user_rating_count": 251,
-  "fetched_at": "2026-09-28",
+  "user_rating_count": 254,
+  "fetched_at": "2026-10-05",
   "source": "google-business-profile-api",
   "reviews": [
+    {
+      "rating": 5,
+      "publish_time": "2026-10-05T03:23:00.961176Z",
+      "relative_time": null,
+      "author_name": "R",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjU1ssx5Xrn1ZriAwr5LKxcfilZWVrVtOuwIB09oMxbJXVOFIUc=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Enjoyed the farm tour. Excellent staff; they’re very kind, friendly, and knowledgeable. I would 100% come back!",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-10-03T00:30:21.185702Z",
+      "relative_time": null,
+      "author_name": "D Platosh",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJtP_hYDu1GSLgTFjyszHrLNc6SXbaZ7IU2ESh97ZHrTd6g=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "Had a fun time touring - thanks Dante !",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-10-01T03:13:15.546172Z",
+      "relative_time": null,
+      "author_name": "Zahava Angster",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocLCwB_tGT2p80xINPkW2goEGY0gVl_VwAGYBBHgfQuF_0xJEw=s120-c-rp-mo-br100",
+      "author_url": null,
+      "text": "Amazing experience at the spa and farm tour! Very serene, clean and pretty. Super helpful and friendly staff who are passionate about what they do.",
+      "owner_reply": null
+    },
     {
       "rating": 5,
       "publish_time": "2026-09-21T05:19:51.687422Z",
