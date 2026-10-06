@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
@@ -79,6 +79,8 @@ interface BookingButtonProps {
   variant?: "primary" | "outline" | "ghost" | "soft";
   className?: string;
   title?: string;
+  /** Rich content in place of `label`; `label` still names the tracking event. */
+  children?: ReactNode;
 }
 
 export function BookingButton({
@@ -88,6 +90,7 @@ export function BookingButton({
   variant = "primary",
   className,
   title,
+  children,
 }: BookingButtonProps) {
   const handleClick = () => {
     const src = prepareBookingUrl(href);
@@ -102,7 +105,7 @@ export function BookingButton({
       className={className}
       onClick={handleClick}
     >
-      {label}
+      {children ?? label}
     </Button>
   );
 }
@@ -112,10 +115,12 @@ interface BookingTextLinkProps {
   label: string;
   title?: string;
   className?: string;
+  /** Rich content in place of `label` (e.g. a price row); `label` still names the tracking event. */
+  children?: ReactNode;
 }
 
 /** Quiet text link that opens the booking modal through the same tracking path. */
-export function BookingTextLink({ href, label, title, className }: BookingTextLinkProps) {
+export function BookingTextLink({ href, label, title, className, children }: BookingTextLinkProps) {
   return (
     <button
       type="button"
@@ -126,7 +131,7 @@ export function BookingTextLink({ href, label, title, className }: BookingTextLi
         openBookingModal({ src, title });
       }}
     >
-      {label}
+      {children ?? label}
     </button>
   );
 }

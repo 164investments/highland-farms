@@ -14,9 +14,20 @@ function formatDate(iso: string): string {
 interface Props {
   /** Which product's availability to probe. Defaults to "tour". */
   product?: "tour" | "spa";
+  /**
+   * "pill" (default): the calendar pill. "text": bare inline text such as
+   * "Next open tour: Mon, Oct 12." for a sentence the caller styles.
+   */
+  variant?: "pill" | "text";
+  /** Lead-in for the text variant. */
+  label?: string;
 }
 
-export async function NextAvailability({ product = "tour" }: Props = {}) {
+export async function NextAvailability({
+  product = "tour",
+  variant = "pill",
+  label = "Next open:",
+}: Props = {}) {
   let date: string | null = null;
   try {
     date = product === "spa" ? await getNextSpaDate() : await getNextTourDate();
@@ -24,6 +35,14 @@ export async function NextAvailability({ product = "tour" }: Props = {}) {
     return null;
   }
   if (!date) return null;
+
+  if (variant === "text") {
+    return (
+      <>
+        {label} {formatDate(date)}.
+      </>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center gap-2 rounded-full bg-sage/10 px-4 py-2 text-sm text-forest font-sans">

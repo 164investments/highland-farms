@@ -1,5 +1,18 @@
 import type { FAQItem } from "@/lib/types";
 
+/**
+ * Group sizes and totals ($75 a guest, as Acuity prices each "Private Tour
+ * for N"). Two is flagged most popular: 85% of tour bookings are parties of
+ * two (see BOOKING_LINKS.farmTourForTwo).
+ */
+export const TOUR_PARTY_SIZES = [
+  { guests: 2, total: 150, popular: true },
+  { guests: 3, total: 225, popular: false },
+  { guests: 4, total: 300, popular: false },
+  { guests: 5, total: 375, popular: false },
+  { guests: 6, total: 450, popular: false },
+] as const;
+
 export const farmTourFAQ: FAQItem[] = [
   {
     question: "How do I book a farm tour?",

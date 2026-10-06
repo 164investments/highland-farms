@@ -37,6 +37,22 @@ export const BOOKING_LINKS = {
   giftCertificates: "https://highlandfarms.as.me/catalog/e759f21b",
 } as const;
 
+/**
+ * Acuity "Private Tour for N" calendar per party size (calendar 7539520),
+ * opened by the group-size rows on /farm-tours. Type ids match
+ * FARM_TOUR_TYPE_IDS in src/lib/acuity.ts. Checked 2026-10-06: every URL
+ * returns 200, and each id is an active type in the scheduler's own data
+ * under that name and price ($150 / $225 / $300 / $375 / $450). The page
+ * returns 200 for any id, so re-check the name, not just the status.
+ */
+export const FARM_TOUR_PARTY_LINKS = {
+  2: BOOKING_LINKS.farmTourForTwo,
+  3: "https://highlandfarms.as.me/schedule/e759f21b/appointment/48403269/calendar/7539520",
+  4: "https://highlandfarms.as.me/schedule/e759f21b/appointment/48403283/calendar/7539520",
+  5: "https://highlandfarms.as.me/schedule/e759f21b/appointment/48403306/calendar/7539520",
+  6: "https://highlandfarms.as.me/schedule/e759f21b/appointment/64217701/calendar/7539520",
+} as const;
+
 export function bookingUrl(
   base: string,
   content: string,

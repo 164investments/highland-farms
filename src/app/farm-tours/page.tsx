@@ -20,20 +20,15 @@ import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { KnowBeforeYouBook, BookingPolicyNote } from "@/components/shared/KnowBeforeYouBook";
 import { Button } from "@/components/ui/Button";
-import { farmTourFAQ } from "@/data/farm-tours";
+import { farmTourFAQ, TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { ToursHero } from "./ToursHero";
 
-const GROUP_PRICING = [
-  { guests: 2, total: 150 },
-  { guests: 3, total: 225 },
-  { guests: 4, total: 300 },
-  { guests: 5, total: 375 },
-  { guests: 6, total: 450 },
-];
+const GROUP_PRICING = TOUR_PARTY_SIZES;
 
 export const metadata: Metadata = {
   title: { absolute: "Highland Cow Farm Tour near Portland | Highland Farms" },
@@ -121,54 +116,8 @@ export default function FarmToursPage() {
     <>
       <StructuredData pathname="/farm-tours" />
       <FarmTourSchema />
-      {/* Hero */}
-      <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
-        <Image
-          src="/images/farm/hero.jpg"
-          alt=""
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-black/35" />
-
-        <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
-          <p className="mb-4 text-xl font-normal text-white/80 font-script">
-            Highland Farms Oregon
-          </p>
-          <h1 className="text-4xl font-normal leading-tight sm:text-5xl md:text-6xl">
-            Meet Our Scottish Highland Cows
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light">
-            Private 60-minute tour · 2 to 6 guests · $75 per person
-            <br />
-            About an hour from Portland at the base of Mt. Hood
-          </p>
-          <div className="mt-8" data-hero-cta>
-            <BookingButton
-              href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-hero")}
-              label="See open tour dates"
-              size="lg"
-              className="bg-white text-charcoal hover:bg-cream"
-              title="Book your farm tour"
-            />
-            <p className="mt-3 text-sm text-white/85 font-sans">
-              $150 for two &middot; $75 each additional guest
-            </p>
-            <BookingTextLink
-              href={bookingUrl(BOOKING_LINKS.farmTourAllSizes, "farm-tours-hero-group")}
-              label="Bringing 3 to 6 guests? Choose your group size"
-              title="Choose your tour group size"
-              className="mt-2 text-sm text-white/85 underline underline-offset-4 hover:text-white"
-            />
-          </div>
-          <div className="mt-6 flex justify-center">
-            <ReviewBadge variant="card" />
-          </div>
-        </div>
-      </section>
+      {/* First screen (Field Guide): the group-size rows open each size's calendar */}
+      <ToursHero />
 
       {/* What to Expect */}
       <section className="py-20 lg:py-28 bg-warm-white">
