@@ -221,37 +221,37 @@ export default function PrivacyPolicyPage() {
                   conversion reporting, suppression of existing customers, and audience modeling
                 </li>
                 <li>
-                  <strong>Microsoft Clarity</strong> — session analytics when enabled
+                  <strong>Microsoft Clarity</strong>: session analytics when enabled
                 </li>
                 <li>
-                  <strong>Supabase</strong> — secure form data storage
+                  <strong>Supabase</strong>: secure form data storage
                 </li>
                 <li>
-                  <strong>BookedIQ / GoHighLevel</strong> — CRM and appointment management
+                  <strong>BookedIQ / GoHighLevel</strong>: CRM and appointment management
                 </li>
                 <li>
-                  <strong>Acuity Scheduling</strong> — farm tour and spa session booking
+                  <strong>Acuity Scheduling</strong>: farm tour and spa session booking
                 </li>
                 <li>
-                  <strong>Hospitable</strong> — accommodation booking widgets
+                  <strong>Hospitable</strong>: accommodation booking widgets
                 </li>
                 <li>
-                  <strong>Vercel</strong> — website hosting
+                  <strong>Vercel</strong>: website hosting
                 </li>
                 <li>
-                  <strong>Cloudflare Turnstile</strong> — spam protection on our forms
+                  <strong>Cloudflare Turnstile</strong>: spam protection on our forms
                 </li>
                 <li>
-                  <strong>Square</strong> — farm store payments (card details go directly to Square)
+                  <strong>Square</strong>: farm store payments (card details go directly to Square)
                 </li>
                 <li>
-                  <strong>Instagram (Meta)</strong> — links to our Instagram profile and featured posts; following those links is subject to Instagram&rsquo;s own policies
+                  <strong>Instagram (Meta)</strong>: links to our Instagram profile and featured posts; following those links is subject to Instagram&rsquo;s own policies
                 </li>
                 <li>
-                  <strong>Google</strong> — reviewer profile photos shown with Google reviews are loaded from Google&rsquo;s servers, so Google may receive your IP address when they load
+                  <strong>Google</strong>: reviewer profile photos shown with Google reviews are loaded from Google&rsquo;s servers, so Google may receive your IP address when they load
                 </li>
                 <li>
-                  <strong>SMS aggregators and providers</strong> — solely for delivering messages you&rsquo;ve consented to receive
+                  <strong>SMS aggregators and providers</strong>: solely for delivering messages you&rsquo;ve consented to receive
                 </li>
               </ul>
               <p className="text-sm mt-3">
