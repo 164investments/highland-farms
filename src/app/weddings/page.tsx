@@ -15,7 +15,7 @@ import { StructuredData } from "@/components/layout/StructuredData";
 export const metadata: Metadata = {
   title: "Oregon Farm Wedding Venue — All-Inclusive at Mt. Hood",
   description:
-    "Oregon's premier farm wedding venue at the base of Mt. Hood — 50 minutes from Portland. All-inclusive outdoor weddings with Scottish Highland Cows, on-site lodging for 20 guests, Nordic spa & full event coordination.",
+    "Oregon's premier farm wedding venue at the base of Mt. Hood — about an hour from Portland. All-inclusive outdoor weddings with Scottish Highland Cows, on-site lodging for 20 guests, Nordic spa & full event coordination.",
   alternates: { canonical: "/weddings" },
   openGraph: {
     title: "Oregon Farm Wedding Venue — Highland Farms at Mt. Hood",
@@ -38,12 +38,12 @@ const weddingFAQ = [
   {
     question: "What type of wedding venue is Highland Farms?",
     answer:
-      "Highland Farms is an all-inclusive farm and forest wedding venue at the base of Mt. Hood in Brightwood, Oregon. You get exclusive use of our private 5-acre property with Scottish Highland Cows, on-site lodging for 20 guests, a Nordic spa, and dedicated event coordination — all just 50 minutes from Portland.",
+      "Highland Farms is an all-inclusive farm and forest wedding venue at the base of Mt. Hood in Brightwood, Oregon. You get exclusive use of our private 5-acre property with Scottish Highland Cows, on-site lodging for 20 guests, a Nordic spa, and dedicated event coordination — all just about an hour from Portland.",
   },
   {
     question: "How far is Highland Farms from Portland?",
     answer:
-      "We're located in Brightwood, Oregon — about 50 minutes east of Portland via US-26 (the Mt. Hood Highway). For Portland-area couples, Highland Farms is a destination wedding experience without a long travel burden for your guests.",
+      "We're located in Brightwood, Oregon — about an hour east of Portland via US-26 (the Mt. Hood Highway). For Portland-area couples, Highland Farms is a destination wedding experience without a long travel burden for your guests.",
   },
   {
     question: "Is Highland Farms an all-inclusive wedding venue?",
@@ -53,7 +53,7 @@ const weddingFAQ = [
   {
     question: "What makes Highland Farms different from other Oregon wedding venues?",
     answer:
-      "Three things: exclusivity, intimacy, and setting. You get the entire 5-acre farm to yourselves — not a shared venue. Our Scottish Highland Cows create one-of-a-kind wedding photos. And our old-growth forest setting is unlike any other Oregon wedding venue. Plus, you're just 50 minutes from Portland.",
+      "Three things: exclusivity, intimacy, and setting. You get the entire 5-acre farm to yourselves — not a shared venue. Our Scottish Highland Cows create one-of-a-kind wedding photos. And our old-growth forest setting is unlike any other Oregon wedding venue. Plus, you're just about an hour from Portland.",
   },
   {
     question: "Is this an outdoor wedding venue?",
@@ -207,7 +207,7 @@ export default function WeddingsPage() {
                 Your wedding party can stay on site in the William Wallace Lodge,
                 Bonnie Lass Cottage and The Camp &mdash; 20 beds for your closest
                 people &mdash; while the property hosts weddings of up to 125
-                guests. A true destination wedding, 50 minutes from Portland.
+                guests. A true destination wedding, about an hour from Portland.
               </p>
 
               <ul className="mt-6 space-y-2">

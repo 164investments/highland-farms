@@ -460,7 +460,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         "@id": `${SITE.url}/#spa`,
         name: "Highland Farms Nordic Spa",
         description:
-          "Public outdoor wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+          "Public outdoor wood-burning sauna, wet sauna & cold plunge about an hour from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
         url: `${SITE.url}/nordic-spa`,
         telephone: CONTACT.phone,
         address,

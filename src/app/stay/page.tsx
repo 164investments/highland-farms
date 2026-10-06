@@ -18,7 +18,7 @@ const propertyIllustrations: Record<string, string> = {
 export const metadata: Metadata = {
   title: "Farm Stays — Brightwood, Oregon",
   description:
-    "Book a farm stay at Highland Farms near Portland, Oregon. Choose from William Wallace Lodge, Bonnie Lass Cottage, or reserve the whole farm for up to 20 guests. 50 minutes from Portland, 20 minutes from Mt. Hood in Brightwood.",
+    "Book a farm stay at Highland Farms near Portland, Oregon. Choose from William Wallace Lodge, Bonnie Lass Cottage, or reserve the whole farm for up to 20 guests. About an hour from Portland, about 25 minutes from Government Camp in Brightwood.",
   alternates: { canonical: "/stay" },
   openGraph: {
     title: "Stay at Highland Farms — Farm Stays in Brightwood, Oregon",
@@ -56,7 +56,7 @@ export default function StayPage() {
 
         <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
           <p className="mb-4 text-xl font-normal text-white/80 font-script">
-            50 min from Portland &middot; 20 min from Mt. Hood
+            About an hour from Portland &middot; about 25 min from Government Camp
           </p>
           <h1 className="text-4xl font-normal leading-tight sm:text-5xl md:text-6xl">
             Stay at Highland Farms

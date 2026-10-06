@@ -97,7 +97,7 @@ const SAUNA_NEAR_PDX: Variant = {
   layout: "single",
   body: (
     <>
-      50 Minutes From Portland &middot; Forest Sauna + Cold Plunge &middot; From $75{" "}
+      About an Hour From Portland &middot; Forest Sauna + Cold Plunge &middot; From $75{" "}
       <AnnouncementBookingLink
         href={bookingUrl(BOOKING_LINKS.nordicSpa, "announcement-bar-sauna-near-portland")}
       >

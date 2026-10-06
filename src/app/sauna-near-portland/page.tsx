@@ -12,12 +12,12 @@ import { StructuredData } from "@/components/layout/StructuredData";
 export const metadata: Metadata = {
   title: "Sauna Near Portland, Oregon — Public Outdoor Sauna & Cold Plunge",
   description:
-    "The best sauna near Portland, Oregon. Public wood-burning sauna & cold plunge just 50 minutes from downtown Portland at the base of Mt. Hood. $75/person — book online.",
+    "The best sauna near Portland, Oregon. Public wood-burning sauna & cold plunge just about an hour from downtown Portland at the base of Mt. Hood. $75/person — book online.",
   alternates: { canonical: "/sauna-near-portland" },
   openGraph: {
     title: "Sauna Near Portland — Highland Farms Mt. Hood Nordic Spa",
     description:
-      "Public outdoor sauna & cold plunge 50 minutes from Portland, Oregon. Escape to old-growth forest at the base of Mt. Hood. Book your sauna day trip.",
+      "Public outdoor sauna & cold plunge about an hour from Portland, Oregon. Escape to old-growth forest at the base of Mt. Hood. Book your sauna day trip.",
     url: "https://highlandfarmsoregon.com/sauna-near-portland",
     type: "website",
     images: [
@@ -35,7 +35,7 @@ const faqItems = [
   {
     question: "How far is the sauna from Portland?",
     answer:
-      "Highland Farms is located in Brightwood, Oregon — approximately 50 minutes east of downtown Portland via US-26 (the Mt. Hood Highway). From Gresham and Troutdale it's about 30 minutes. From Sandy it's just 15 minutes.",
+      "Highland Farms is located in Brightwood, Oregon — approximately an hour east of downtown Portland via US-26 (the Mt. Hood Highway). From Gresham and Troutdale it's about 30 minutes. From Sandy it's just 15 minutes.",
   },
   {
     question: "Is this a public or private sauna near Portland?",
@@ -93,7 +93,7 @@ function SaunaNearPortlandSchema() {
     "@type": "Service",
     name: "Outdoor Sauna Near Portland — Highland Farms Nordic Spa",
     description:
-      "Public wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+      "Public wood-burning sauna, wet sauna & cold plunge about an hour from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
     url: "https://highlandfarmsoregon.com/sauna-near-portland",
     // Reference the canonical business node rather than inlining a second,
     // thinner LocalBusiness — an inline copy fragments the entity across the
@@ -148,7 +148,7 @@ export default function SaunaNearPortlandPage() {
 
         <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
           <p className="mb-4 text-xl font-normal text-white/80 font-script">
-            50 Minutes from Downtown Portland
+            About an Hour from Downtown Portland
           </p>
           <h1 className="text-4xl font-normal leading-tight sm:text-5xl md:text-6xl">
             Sauna Near Portland
@@ -198,7 +198,7 @@ export default function SaunaNearPortlandPage() {
                 few fellow travelers — never a crowd.
               </p>
               <p className="mt-4 text-base text-muted leading-relaxed font-sans">
-                Drive east on US-26 and in 50 minutes you&apos;ll trade city
+                Drive east on US-26 and in about an hour you&apos;ll trade city
                 noise for birdsong, mountain air, and the sound of a mountain
                 creek. It&apos;s the opposite of a city spa — and it&apos;s
                 only $75 per person.
@@ -232,7 +232,7 @@ export default function SaunaNearPortlandPage() {
                 </p>
                 <div className="space-y-3 text-sm font-sans">
                   {[
-                    { from: "Portland (downtown)", time: "~50 min", via: "US-26 East" },
+                    { from: "Portland (downtown)", time: "about 1 hour", via: "US-26 East" },
                     { from: "Gresham / Troutdale", time: "~30 min", via: "US-26 East" },
                     { from: "Beaverton / Hillsboro", time: "~60 min", via: "US-26 East" },
                     { from: "Sandy", time: "~15 min", via: "US-26 West" },

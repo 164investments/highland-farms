@@ -21,7 +21,7 @@ export function LocationBlock() {
           {CONTACT.fullAddress}
         </p>
         <p className="mt-1 text-xs text-muted/80 font-sans font-light tracking-wide">
-          50 minutes from Portland &middot; 20 minutes from Mt. Hood
+          About an hour from Portland &middot; about 25 minutes from Government Camp
         </p>
       </Container>
     </section>

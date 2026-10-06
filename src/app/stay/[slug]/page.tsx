@@ -28,7 +28,7 @@ import { StructuredData } from "@/components/layout/StructuredData";
 const STAY_FACTS: { label: string; value: string }[] = [
   {
     label: "Getting here",
-    value: `50 minutes from Portland and 20 minutes from Mt. Hood, at ${CONTACT.fullAddress}.`,
+    value: `About an hour from Portland and about 25 minutes from Government Camp, at ${CONTACT.fullAddress}.`,
   },
   {
     label: "The property",

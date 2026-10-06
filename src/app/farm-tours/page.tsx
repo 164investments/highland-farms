@@ -143,7 +143,7 @@ export default function FarmToursPage() {
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light">
             Private 60-minute tour · 2 to 6 guests · $75 per person
             <br />
-            50 minutes from Portland at the base of Mt. Hood
+            About an hour from Portland at the base of Mt. Hood
           </p>
           <div className="mt-8">
             <BookingButton
@@ -216,6 +216,7 @@ export default function FarmToursPage() {
         heading="See what a tour feels like"
         body="A short walk through the farm — meet the herd, the guardian dogs, and the views you'll wake up to."
         bookingHref={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-video")}
+        bookingLabel="See open tour dates"
       />
 
       {/* Pricing & Details */}
