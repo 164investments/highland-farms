@@ -11,6 +11,7 @@ import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { CONTACT } from "@/lib/constants";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { WeddingsHero } from "./WeddingsHero";
 
 export const metadata: Metadata = {
   title: { absolute: "Mt. Hood Wedding Venue | All-Inclusive | Highland Farms" },
@@ -119,49 +120,8 @@ export default function WeddingsPage() {
     <>
       <StructuredData pathname="/weddings" />
       <WeddingsSchema />
-      {/* Hero */}
-      <section className="relative flex min-h-[75vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
-        <Image
-          src="/images/weddings/hero.jpg"
-          alt=""
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-black/35" />
-
-        <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
-          <p className="mb-4 text-xl font-normal text-white/80 font-script">
-            Oregon Farm Wedding Venue
-          </p>
-          <h1 className="text-4xl font-normal leading-tight sm:text-5xl md:text-6xl">
-            Your Dream Wedding in the Forest
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light">
-            Exchange vows under towering evergreens, celebrate with Scottish Highland Cows,
-            and host your closest family and friends on-site at the base of Mt. Hood.
-          </p>
-          <div
-            className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
-            data-hero-cta
-          >
-            <Button href="#contact" size="lg" className="bg-white text-charcoal hover:bg-cream">
-              Check your date
-            </Button>
-            <Button
-              href="https://highlandfarmsoregon.com/lookbook.pdf"
-              external
-              variant="outline"
-              size="lg"
-              className="border-white/60 text-white hover:bg-white/10 hover:border-white/80 hover:text-white"
-            >
-              See the 2027 look book
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* First screen (Field Guide) */}
+      <WeddingsHero />
 
       {/* Why Highland Farms */}
       <section className="py-20 lg:py-28 bg-warm-white">
