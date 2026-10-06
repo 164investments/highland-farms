@@ -103,17 +103,22 @@ interface FieldRowsProps {
   rows: readonly { term: string; detail: string }[];
   /** Width of the term column, e.g. "w-[92px]". */
   termClassName?: string;
+  /** Row height and gap overrides. */
+  rowClassName?: string;
   className?: string;
 }
 
 /** A ruled definition list: Cormorant term, Inter detail. */
-export function FieldRows({ rows, termClassName, className }: FieldRowsProps) {
+export function FieldRows({ rows, termClassName, rowClassName, className }: FieldRowsProps) {
   return (
     <dl className={cn("m-0 flex flex-col border-t border-rule", className)}>
       {rows.map((row) => (
         <div
           key={row.term}
-          className="flex min-h-[42px] items-center gap-3 border-b border-rule py-1.5 lg:min-h-[54px] lg:gap-5"
+          className={cn(
+            "flex min-h-[42px] items-center gap-3 border-b border-rule py-1.5 lg:min-h-[54px] lg:gap-5",
+            rowClassName,
+          )}
         >
           <dt
             className={cn(

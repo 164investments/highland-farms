@@ -1,5 +1,13 @@
 import type { FAQItem } from "@/lib/types";
 
+/** The four-row circuit in the /nordic-spa first screen (B-spa board). */
+export const SPA_CIRCUIT = [
+  { term: "Heat", detail: "The wood-burning cedar sauna" },
+  { term: "Steam", detail: "The wet sauna" },
+  { term: "Cold", detail: "The plunge on the deck" },
+  { term: "Rest", detail: "Robes and towels are on us" },
+] as const;
+
 export const nordicSpaFAQ: FAQItem[] = [
   {
     question: "What is the Nordic Spa experience?",

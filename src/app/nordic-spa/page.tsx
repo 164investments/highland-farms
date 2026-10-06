@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import Image from "next/image";
 import {
   Clock,
@@ -10,7 +10,6 @@ import {
   MapPin,
   Flame,
   Leaf,
-  ArrowRight,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -36,6 +35,7 @@ import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag"
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { SpaHero } from "./SpaHero";
 
 export const metadata: Metadata = {
   title: { absolute: "Nordic Spa: Sauna & Cold Plunge | Highland Farms Oregon" },
@@ -99,22 +99,6 @@ const galleryImages = [
   { src: "/images/spa/spa-3.jpg", alt: "Guests in robes relaxing on the spa deck" },
 ];
 
-const heroPills = [
-  { icon: Leaf, label: "Peaceful & Restorative" },
-  { icon: Users, label: "Limited to 6 Guests" },
-  { icon: Clock, label: "90-Minute Sessions" },
-  { icon: MapPin, label: "About 1 Hour from Portland" },
-];
-
-const includedItems = [
-  "Wood-Burning Cedar Sauna",
-  "Wet Steam Sauna",
-  "Cold Plunge",
-  "Robes & Towels",
-  "Up to 6 Guests per Session",
-  "Open Year-Round",
-];
-
 const sessionFeatures = [
   {
     icon: Flame,
@@ -168,119 +152,8 @@ export default function NordicSpaPage() {
       <NordicSpaSchema />
       <StructuredData pathname="/nordic-spa" />
 
-      {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden pt-[var(--header-h,120px)] lg:min-h-[88vh]">
-        <Image
-          src="/images/spa/spa-1.jpg"
-          alt=""
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        {/* Asymmetric gradient — heavier on the left for readable text */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/45 to-black/20" />
-
-        <Container className="relative z-10 flex items-center py-8 lg:min-h-[calc(88vh-var(--header-h,120px))] lg:py-16">
-          <div className="grid w-full grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)] lg:gap-14">
-            {/* Left: hero text — width is unconstrained so the pill row fits on a single line at lg+ */}
-            <div className="text-white">
-              <p className="text-[0.7rem] font-normal uppercase tracking-[0.28em] text-white/70 font-sans">
-                Reset · Restore · Reconnect
-              </p>
-              <h1 className="mt-5 max-w-xl text-4xl font-normal leading-[1.05] sm:text-5xl md:text-6xl">
-                Sauna &amp; Cold Plunge<br className="hidden sm:inline" />{" "}
-                in the Forest
-              </h1>
-              {/* Ornamental leaf separator — decorative, hidden on mobile to lift the CTA */}
-              <div
-                aria-hidden
-                className="mt-6 hidden max-w-[130px] items-center gap-3 lg:flex"
-              >
-                <span className="h-px flex-1 bg-white/35" />
-                <Leaf
-                  className="h-4 w-4 -rotate-12 text-white/65"
-                  strokeWidth={1.5}
-                />
-                <span className="h-px flex-1 bg-white/35" />
-              </div>
-              <p className="mt-4 max-w-lg text-lg text-white/85 leading-relaxed font-sans font-light lg:mt-6">
-                Wood-burning sauna, steam sauna, and cold plunge tucked
-                into old-growth forest — public sessions for up to 6 guests,
-                about an hour from Portland.
-              </p>
-
-              {/* Icon + label pairs — 2×2 grid below lg, single row with separators on lg+ */}
-              <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-4 lg:mt-8 lg:flex lg:flex-nowrap lg:items-center lg:gap-x-4 lg:gap-y-5">
-                {heroPills.map(({ icon: Icon, label }, i) => (
-                  <Fragment key={label}>
-                    {i > 0 && (
-                      <span
-                        aria-hidden
-                        className="hidden h-10 w-px shrink-0 bg-white/20 lg:block"
-                      />
-                    )}
-                    <div className="flex shrink-0 items-center gap-3">
-                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-cream/25 bg-forest/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm">
-                        <Icon
-                          className="h-5 w-5 text-cream"
-                          strokeWidth={1.5}
-                        />
-                      </span>
-                      <span className="max-w-[5.75rem] text-[13px] leading-snug text-white/90 font-sans">
-                        {label}
-                      </span>
-                    </div>
-                  </Fragment>
-                ))}
-              </div>
-
-              {/* Dual CTA */}
-              <div
-                className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 lg:mt-8"
-                data-hero-cta
-              >
-                <BookingButton
-                  href={heroBookingHref}
-                  label="Book Your Session"
-                  size="lg"
-                  className="bg-white text-charcoal hover:bg-cream"
-                  title="Book your Nordic Spa session"
-                />
-                <a
-                  href="#details"
-                  className="inline-flex items-center gap-1.5 text-[0.75em] font-normal uppercase tracking-[0.18em] text-white/90 underline-offset-4 hover:underline font-sans"
-                >
-                  Learn more <ArrowRight className="h-4 w-4" />
-                </a>
-              </div>
-
-              {/* Trust */}
-              <div className="mt-5 lg:mt-7">
-                <ReviewBadge variant="card" />
-              </div>
-            </div>
-
-            {/* Right: What's Included overlay card (lg+ only) */}
-            <aside className="hidden rounded-2xl border border-white/15 bg-charcoal/55 p-7 text-white shadow-2xl backdrop-blur-md lg:block">
-              <p className="text-[0.7rem] font-normal uppercase tracking-[0.22em] text-white/65 font-sans">
-                What&apos;s Included
-              </p>
-              <ul className="mt-5 space-y-3.5 text-[0.9375rem] font-sans">
-                {includedItems.map((item) => (
-                  <li key={item} className="flex items-center gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sage/30">
-                      <Check className="h-3 w-3 text-white" />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </aside>
-          </div>
-        </Container>
-      </section>
+      {/* ─── FIRST SCREEN (Field Guide) ─── */}
+      <SpaHero bookingHref={heroBookingHref} />
 
       {/* ─── EVERYTHING FOR A PERFECT SESSION ─── */}
       <section id="details" className="bg-cream py-14 sm:py-20 lg:py-28">
