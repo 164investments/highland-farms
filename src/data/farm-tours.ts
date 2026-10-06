@@ -9,7 +9,7 @@ export const farmTourFAQ: FAQItem[] = [
   {
     question: "How many people can attend a tour?",
     answer:
-      "Each private tour accommodates up to 6 guests. For larger groups, please contact us to arrange a custom experience.",
+      "Each private tour is for 2 to 6 guests. For larger groups, please contact us to arrange a custom experience.",
   },
   {
     question: "How long is the tour?",
@@ -34,7 +34,7 @@ export const farmTourFAQ: FAQItem[] = [
   {
     question: "Can I combine a farm tour with a spa session?",
     answer:
-      "Yes! Many guests book both. We recommend scheduling your spa session at least 1 hour after your farm tour ends.",
+      "Yes. Book them as two appointments, with your spa session at least 1 hour after your farm tour ends.",
   },
   {
     question: "What is the cancellation policy?",

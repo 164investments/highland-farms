@@ -609,7 +609,7 @@ export default function NordicSpaPage() {
                 title="Book your Nordic Spa session"
               />
               <p className="text-center text-xs text-white/65 font-sans md:text-right">
-                Spots fill up fast. Reserve your time today.
+                Weekend sessions go first. Most guests book about two weeks ahead.
               </p>
             </div>
           </div>
@@ -633,9 +633,8 @@ export default function NordicSpaPage() {
             Make It a Full Day
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-base text-muted font-sans font-light leading-relaxed">
-            Meet the Scottish Highland Cows, then unwind at the spa. Most
-            guests book a farm tour + spa session for a half-day escape from
-            Portland.
+            Meet the Scottish Highland Cows, then unwind at the spa. Pair it
+            with a farm tour for a half-day at the farm.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button href="/farm-tours">Book a Farm Tour</Button>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const STORAGE_KEYS = {
   subscribed: "hf-email-subscribed",
@@ -12,8 +13,11 @@ const STORAGE_KEYS = {
 const DISMISS_DAYS = 30;
 const TRIGGER_DELAY_MS = 45_000;
 const MIN_PAGEVIEWS = 2;
+/** Never interrupt a purchase. */
+const SUPPRESSED_PATHS = ["/shop/cart", "/shop/checkout", "/shop/thank-you", "/shop/order"];
 
 export function EmailPopup() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
@@ -31,6 +35,7 @@ export function EmailPopup() {
   }, []);
 
   useEffect(() => {
+    if (SUPPRESSED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return;
     if (localStorage.getItem(STORAGE_KEYS.subscribed)) return;
 
     const dismissedAt = localStorage.getItem(STORAGE_KEYS.dismissed);
@@ -61,7 +66,7 @@ export function EmailPopup() {
         document.removeEventListener("mouseleave", handleMouseLeave);
       }
     };
-  }, [show]);
+  }, [show, pathname]);
 
   useEffect(() => {
     if (!visible) return;
@@ -146,7 +151,7 @@ export function EmailPopup() {
     }
   }
 
-  if (!visible) return null;
+  if (!visible || SUPPRESSED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
 
   return (
     <div
@@ -254,7 +259,7 @@ export function EmailPopup() {
               </form>
 
               <p className="mt-4 text-center text-xs text-muted/60 font-sans">
-                Join 2,000+ visitors who stay connected with the farm. Unsubscribe anytime.
+                We only email when there is something new. Unsubscribe anytime.
               </p>
             </>
           )}

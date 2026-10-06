@@ -109,7 +109,7 @@ export default function TermsOfServicePage() {
               </h2>
               <ul className="list-disc pl-5 space-y-2 text-sm">
                 <li>All bookings are subject to availability and confirmation by Highland Farms.</li>
-                <li>A deposit may be required to secure your reservation. Deposit amounts and payment terms are specified at the time of booking.</li>
+                <li>Farm tours and spa sessions are paid in full when you book. For weddings, events and accommodations, any deposit and payment terms are specified at the time of booking.</li>
                 <li>By booking, you agree to the pricing, dates, and specific terms communicated during the reservation process.</li>
                 <li>Farm tour and spa bookings are made through our scheduling partner (Acuity Scheduling) and are subject to their terms of service in addition to ours.</li>
                 <li>Accommodation bookings may be made through our booking partner (Hospitable) and are subject to their terms in addition to ours.</li>

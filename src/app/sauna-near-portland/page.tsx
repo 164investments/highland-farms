@@ -55,12 +55,12 @@ const faqItems = [
   {
     question: "How much does the sauna near Portland cost?",
     answer:
-      "Sessions are $75 per person for a 90-minute session, with up to 6 guests per session. Book online through our scheduling system — no deposit required at booking.",
+      "Sessions are $75 per person for a 90-minute session, with up to 6 guests per session. Book online through our scheduling system. You pay in full when you book, and all bookings are final.",
   },
   {
     question: "Can I combine the sauna with a Highland Cow farm tour?",
     answer:
-      "Absolutely — it's our most popular combo. Book a farm tour the hour before or after your spa session for the full Highland Farms experience. You'll meet the Scottish Highland Cows, then unwind in the Nordic spa.",
+      "Yes. Book them as two appointments, with your spa session at least 1 hour after your farm tour ends. You'll meet the Scottish Highland Cows, then unwind in the Nordic spa.",
   },
   {
     question: "Is the sauna available year-round?",

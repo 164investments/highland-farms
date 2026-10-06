@@ -24,7 +24,7 @@ export const nordicSpaFAQ: FAQItem[] = [
   {
     question: "Can I book a spa session with a farm tour?",
     answer:
-      "Yes! We recommend scheduling your spa session the hour time slot before or the hour time slot after your farm tour.",
+      "Yes. Book them as two appointments, at least 1 hour apart.",
   },
   {
     question: "Is the spa available year-round?",

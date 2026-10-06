@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Highland Cow Farm Tours at Highland Farms Oregon",
     description:
-      "Private 60-minute farm tours for up to 6 guests. Meet Scottish Highland Cows and farm animals at the base of Mt. Hood.",
+      "Private 60-minute farm tours for 2 to 6 guests. Meet Scottish Highland Cows and farm animals at the base of Mt. Hood.",
     url: "https://highlandfarmsoregon.com/farm-tours",
     type: "website",
     images: [
@@ -98,7 +98,7 @@ const features = [
     icon: Users,
     title: "Private & Personal",
     description:
-      "Up to 6 guests per tour. It's just you, your group, and the animals — no crowds.",
+      "2 to 6 guests per tour. It's just you, your group, and the animals — no crowds.",
   },
   {
     icon: Clock,
@@ -140,7 +140,7 @@ export default function FarmToursPage() {
             Meet Our Scottish Highland Cows
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light">
-            Private 60-minute tour for up to 6 guests · $75 per person
+            Private 60-minute tour · 2 to 6 guests · $75 per person
             <br />
             50 minutes from Portland at the base of Mt. Hood
           </p>
@@ -235,7 +235,7 @@ export default function FarmToursPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-forest" />
-                  Up to 6 guests per tour
+                  2 to 6 guests per tour
                 </li>
                 <li className="flex items-center gap-2">
                   <Heart className="h-4 w-4 text-forest" />

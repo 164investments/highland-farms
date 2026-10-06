@@ -379,7 +379,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         "@id": `${SITE.url}/#attraction`,
         name: "Highland Farms Highland Cow Farm Tours",
         description:
-          "Private 60-minute farm tours for up to 6 guests. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl at the base of Mt. Hood.",
+          "Private 60-minute farm tours for 2 to 6 guests. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl at the base of Mt. Hood.",
         url: `${SITE.url}/farm-tours`,
         address,
         geo,
@@ -395,7 +395,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         "@id": `${SITE.url}/#farm-tour-product`,
         name: "Highland Cow Farm Tour",
         description:
-          "Private 60-minute Highland Cow farm tour for up to 6 guests at $75 per person. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl.",
+          "Private 60-minute Highland Cow farm tour for 2 to 6 guests at $75 per person. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl.",
         url: `${SITE.url}/farm-tours`,
         image: `${SITE.url}/images/farm/highland-cows-hero.jpg`,
         brand: {
@@ -403,9 +403,11 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
           name: "Highland Farms Oregon",
         },
         offers: {
-          "@type": "Offer",
+          "@type": "AggregateOffer",
           url: BOOKING_LINKS.farmTour,
-          price: "75",
+          lowPrice: "150",
+          highPrice: "450",
+          offerCount: 5,
           availability: "https://schema.org/InStock",
           priceCurrency: "USD",
           // No `shippingDetails`: a farm tour is a booked on-site service.
