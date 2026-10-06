@@ -21,7 +21,7 @@ export default function TermsOfServicePage() {
             Terms of Service
           </h1>
           <p className="text-sm text-muted font-sans mb-10">
-            Last updated: March 3, 2026
+            Last updated: October 6, 2026
           </p>
 
           <div className="prose prose-neutral max-w-none text-base text-charcoal/90 font-sans leading-relaxed space-y-8">
@@ -32,6 +32,10 @@ export default function TermsOfServicePage() {
                 SMS Messaging Terms &amp; Compliance
               </h2>
               <p className="text-sm text-muted mb-4">Highland Farms Oregon LLC &mdash; Effective Date: January 1, 2026</p>
+
+              <p className="text-sm mb-4">
+                <strong>Marketing text messages:</strong> If you check the marketing text message box on our contact form, you consent to receive marketing text messages from Highland Farms Oregon LLC at the phone number you provided. Frequency may vary. Message and data rates may apply. Text HELP for assistance. Reply STOP to opt out. Consent is not a condition of purchase. Appointment messages (confirmations and reminders) are a separate, optional choice on the same form.
+              </p>
 
               <ol className="list-decimal pl-5 space-y-4 text-sm">
                 <li>
