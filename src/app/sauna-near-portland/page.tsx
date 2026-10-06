@@ -36,7 +36,7 @@ const faqItems = [
   {
     question: "How far is the sauna from Portland?",
     answer:
-      "Highland Farms is located in Brightwood, Oregon — approximately an hour east of downtown Portland via US-26 (the Mt. Hood Highway). From Gresham and Troutdale it's about 40 minutes. From Sandy it's just 15 minutes.",
+      "Highland Farms is located in Brightwood, Oregon — approximately an hour east of downtown Portland via US-26 (the Mt. Hood Highway). From Gresham and Troutdale it's about 40 minutes. From Sandy it's about 20 minutes. From Beaverton and Hillsboro it's about 1.5 hours.",
   },
   {
     question: "Is this a public or private sauna near Portland?",
@@ -237,9 +237,9 @@ export default function SaunaNearPortlandPage() {
                 <div className="space-y-3 text-sm font-sans">
                   {[
                     { from: "Portland (downtown)", time: "about 1 hour", via: "US-26 East" },
-                    { from: "Gresham / Troutdale", time: "~30 min", via: "US-26 East" },
-                    { from: "Beaverton / Hillsboro", time: "~60 min", via: "US-26 East" },
-                    { from: "Sandy", time: "~15 min", via: "US-26 West" },
+                    { from: "Gresham / Troutdale", time: "about 40 min", via: "US-26 East" },
+                    { from: "Beaverton / Hillsboro", time: "about 1.5 hours", via: "US-26 East" },
+                    { from: "Sandy", time: "about 20 min", via: "US-26 West" },
                   ].map((d) => (
                     <div key={d.from} className="flex justify-between items-start gap-4">
                       <div>
