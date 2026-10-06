@@ -52,9 +52,11 @@ export function featuredQuotes(specs: QuoteSpec[]): FeaturedQuote[] {
   return specs.flatMap((spec) => {
     const r = findReview(spec.author, spec.date);
     if (!r?.text) return [];
+    const quote = buildQuote(r.text, spec);
+    if (!quote) return [];
     return [
       {
-        quote: buildQuote(r.text, spec),
+        quote,
         name: r.author_name ?? spec.author,
         rating: r.rating,
         topic: spec.topic,

@@ -25,16 +25,18 @@ export function splitSentences(text: string): string[] {
   return flat.match(/[^.!?]+(?:[.!?]+["'”’)]*)(?=\s|$)|[^.!?]+$/g)?.map((s) => s.trim()) ?? [];
 }
 
-export function buildQuote(text: string, spec: QuoteSpec): string {
+/** Returns null (never throws) when the review text no longer contains the sentence, e.g. after an edit upstream. */
+export function buildQuote(text: string, spec: QuoteSpec): string | null {
   const sentences = splitSentences(text);
   if (spec.sentenceStartsWith) {
     const hit = sentences.find((s) => s.includes(spec.sentenceStartsWith!));
-    if (!hit) throw new Error(`No sentence contains "${spec.sentenceStartsWith}"`);
+    if (!hit) return null;
     // Drop leftovers from the previous sentence (e.g. an emoticon) before the match.
     return hit.slice(hit.indexOf(spec.sentenceStartsWith));
   }
   const n = spec.firstSentences ?? 1;
   const picked = sentences.slice(0, n).join(" ");
+  if (!picked) return null;
   return sentences.length > n ? `${picked} …` : picked;
 }
 

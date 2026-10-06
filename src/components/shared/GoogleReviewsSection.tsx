@@ -21,10 +21,16 @@ type Topic = "all" | "spa" | "tour" | "wedding" | "stay";
 
 const TOPIC_PATTERNS: Record<Topic, RegExp | null> = {
   all: null,
-  spa: /\b(spa|sauna|steam|cold plunge|hot tub|wellness|soak|massage|cedar)\b/i,
+  spa: /\b(sauna|cold plunge|steam room|nordic spa|spa session)\b/i,
   tour: /\b(tour|cow|cows|highland cow|barn|sheep|peacock|brush|animals|cuddle|cuddling|guide|dante|ellery|jace|aj|jalene)\b/i,
   wedding: /\b(wedding|wed|ceremony|reception|venue|bride|groom|bridal|groomsmen|elope|elopement|aisle)\b/i,
   stay: /\b(stay|stayed|staying|cottage|airstream|lodge|cabin|night|nights|overnight|getaway|accommodations?)\b/i,
+};
+
+/** Reviews that mention a topic word without being from that kind of guest. */
+const TOPIC_EXCLUDE: Partial<Record<Topic, RegExp>> = {
+  spa: /(book a spa|peek at the sauna|cottage|next time)/i,
+  stay: /\b(next time|come back to stay|coming back to stay|hope to stay|want to stay|would love to stay|timberline)\b/i,
 };
 
 /**
@@ -94,6 +100,8 @@ export function filterReviews(
     if ((topic === "tour" || topic === "spa" || match) && TOPIC_PATTERNS.wedding!.test(r.text)) {
       return false;
     }
+    const exclude = TOPIC_EXCLUDE[topic];
+    if (exclude && exclude.test(r.text)) return false;
     // Judge the text the visitor will actually see, not the hidden full review.
     return pattern ? pattern.test(excerpt(r.text, truncateAt, pattern)) : true;
   });

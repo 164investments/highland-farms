@@ -20,6 +20,7 @@ function check(spec: QuoteSpec) {
   );
   assert.ok(r, `review not found: ${spec.author} ${spec.date}`);
   const quote = buildQuote(r.text, spec);
+  assert.ok(quote, `quote could not be built (sentence changed?): ${spec.author}`);
   const body = quote.replace(/\s*…$/, "");
   assert.ok(body.length > 20, "quote too short");
   assert.ok(

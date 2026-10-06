@@ -54,7 +54,7 @@ const STAY_FACTS: { label: string; value: string }[] = [
 const STAY_REVIEW_MATCH: Record<string, RegExp> = {
   cottage: /\b(cottage|bonnie)\b/i,
   camp: /\b(airstream|camp|bell tents?)\b/i,
-  lodge: /\b(lodge|wallace)\b/i,
+  lodge: /\b(william wallace|the lodge)\b/i,
   "whole-farm": /\b(lodge|cottage|airstream|bell tents?|overnight|slept|stayed)\b/i,
 };
 

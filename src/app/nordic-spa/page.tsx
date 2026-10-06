@@ -595,14 +595,16 @@ export default function NordicSpaPage() {
               </p>
             </div>
 
-            <div className="text-center">
-              <p className="text-lg italic leading-relaxed font-display sm:text-xl">
-                &ldquo;{spaQuote}&rdquo;
-              </p>
-              <p className="mt-4 text-xs font-normal uppercase tracking-[0.18em] text-white/60 font-sans">
-                {spaAuthor}, Google review
-              </p>
-            </div>
+            {spaQuote && (
+              <div className="text-center">
+                <p className="text-lg italic leading-relaxed font-display sm:text-xl">
+                  &ldquo;{spaQuote}&rdquo;
+                </p>
+                <p className="mt-4 text-xs font-normal uppercase tracking-[0.18em] text-white/60 font-sans">
+                  {spaAuthor}, Google review
+                </p>
+              </div>
+            )}
 
             <div className="flex flex-col items-center gap-3 md:items-end">
               <BookingButton
