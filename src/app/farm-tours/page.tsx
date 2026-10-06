@@ -282,7 +282,7 @@ export default function FarmToursPage() {
                   <p className="mt-3 text-center text-xs text-muted font-sans">
                     Strict cancellation policy: all bookings are final &mdash; no
                     refunds, reschedules, credits, or transfers, including
-                    no-shows.
+                    no-shows. The only exception is if we cancel for severe weather or for the safety of our animals or guests, in which case we will refund or rebook you.
                   </p>
                 </>
               )}

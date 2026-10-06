@@ -39,6 +39,6 @@ export const farmTourFAQ: FAQItem[] = [
   {
     question: "What is the cancellation policy?",
     answer:
-      "Our cancellation policy is strict. All farm tour bookings are final: no refunds, no reschedules, no credits, and no transfers, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if Highland Farms has to cancel a tour for severe weather or animal safety, in which case you'll receive a full refund or a new date.",
+      "Our cancellation policy is strict. All farm tour bookings are final: no refunds, no reschedules, no credits, and no transfers, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if we cancel for severe weather or for the safety of our animals or guests, in which case we will refund or rebook you.",
   },
 ];
