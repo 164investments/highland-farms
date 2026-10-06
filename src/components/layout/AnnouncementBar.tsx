@@ -108,11 +108,11 @@ const SAUNA_NEAR_PDX: Variant = {
 };
 
 const WEDDINGS: Variant = {
-  id: "hf-bar-weddings-2027-2026-05",
+  id: "hf-bar-weddings-2027-2026-10",
   layout: "single",
   body: (
     <>
-      All-Inclusive Forest Weddings &middot; 2027 Summer &amp; Fall Dates Filling Fast{" "}
+      All-Inclusive Forest Weddings &middot; Now Booking 2027{" "}
       <Link
         href="/weddings#contact"
         className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
@@ -156,11 +156,11 @@ const STAY: Variant = {
 };
 
 const DEFAULT: Variant = {
-  id: "hf-bar-default-weddings-2027-2026-05",
+  id: "hf-bar-default-weddings-2027-2026-10",
   layout: "single",
   body: (
     <>
-      Forest Weddings &middot; 2027 Summer &amp; Fall Dates Filling Fast{" "}
+      Forest Weddings &middot; Now Booking 2027{" "}
       <Link
         href="/weddings"
         className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"

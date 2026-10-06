@@ -296,7 +296,7 @@ export default function WeddingsPage() {
           <SectionHeading
             eyebrow="Ready to Start Planning?"
             title="Check Availability for Your Date"
-            subtitle="2027 dates are filling quickly. Every wedding at Highland Farms is unique — tell us your vision and we'll create a custom package."
+            subtitle="Now booking 2027 weddings. Every wedding at Highland Farms is unique — tell us your vision and we'll create a custom package."
           />
           <div className="mx-auto max-w-xl rounded-xl border border-cream-dark bg-white p-6 sm:p-8 shadow-sm">
             <ContactForm
