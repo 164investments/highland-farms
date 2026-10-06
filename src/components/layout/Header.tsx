@@ -50,7 +50,7 @@ export function Header() {
         <AnnouncementBar />
 
         <header className="surface-paper h-[60px] border-b-[3px] border-double border-frame bg-paper text-ink xl:h-[84px]">
-          <div className="mx-auto grid h-full max-w-[1440px] grid-cols-3 items-center pl-1.5 pr-3 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] xl:px-12 min-[1440px]:px-16">
+          <div className="mx-auto grid h-full max-w-[1440px] grid-cols-3 items-center pl-1.5 pr-3 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] xl:px-10 min-[90rem]:px-16">
             {/* Left: menu (phone, tablet) or the full nav (xl) */}
             <div className="flex items-center">
               <button
@@ -77,7 +77,7 @@ export function Header() {
 
               <nav
                 aria-label="Main"
-                className="hidden items-center gap-[18px] font-sans text-[13px] tracking-[0.04em] xl:flex min-[1440px]:gap-[26px]"
+                className="hidden items-center gap-[14px] font-sans text-[13px] tracking-[0.04em] xl:flex min-[90rem]:gap-[22px]"
               >
                 {mainNavItems.map((item) => (
                   <div key={item.href} className="group relative">
