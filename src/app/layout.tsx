@@ -113,7 +113,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="overflow-x-hidden" suppressHydrationWarning>
+    <html
+      lang="en"
+      // Font variables live on <html> so the @theme tokens in globals.css
+      // (--font-display, --font-sans), which resolve at :root, can read them.
+      // On <body> they resolved to nothing and every page fell back to the
+      // system font.
+      className={`${cormorant.variable} ${inter.variable} ${dancingScript.variable} overflow-x-hidden`}
+      suppressHydrationWarning
+    >
       <head>
         {/*
           The JSON-LD entity graph is NOT mounted here any more.
@@ -137,7 +145,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${cormorant.variable} ${inter.variable} ${dancingScript.variable} antialiased overflow-x-hidden`}
+        className="antialiased overflow-x-hidden"
       >
         <GoogleTagManager />
         <GoogleTagManagerNoScript />
