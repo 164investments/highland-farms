@@ -19,8 +19,30 @@ const MIN_PAGEVIEWS = 2;
 /** Never interrupt a purchase. */
 const SUPPRESSED_PATHS = ["/shop/cart", "/shop/checkout", "/shop/thank-you", "/shop/order"];
 
+// Blocked or full storage (private mode, strict settings) must never throw.
+const store = {
+  get(key: string): string | null {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  set(key: string, value: string) {
+    try {
+      localStorage.setItem(key, value);
+    } catch {}
+  },
+  remove(key: string) {
+    try {
+      localStorage.removeItem(key);
+    } catch {}
+  },
+};
+
 export function EmailPopup() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
+  const suppressed = SUPPRESSED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
@@ -38,18 +60,21 @@ export function EmailPopup() {
   }, []);
 
   useEffect(() => {
-    if (SUPPRESSED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return;
-    if (localStorage.getItem(STORAGE_KEYS.subscribed)) return;
+    if (suppressed) {
+      queueMicrotask(() => setVisible(false));
+      return;
+    }
+    if (store.get(STORAGE_KEYS.subscribed)) return;
 
-    const dismissedAt = localStorage.getItem(STORAGE_KEYS.dismissed);
+    const dismissedAt = store.get(STORAGE_KEYS.dismissed);
     if (dismissedAt) {
       const elapsed = Date.now() - Number(dismissedAt);
       if (elapsed < DISMISS_DAYS * 24 * 60 * 60 * 1000) return;
-      localStorage.removeItem(STORAGE_KEYS.dismissed);
+      store.remove(STORAGE_KEYS.dismissed);
     }
 
-    const views = Number(localStorage.getItem(STORAGE_KEYS.pageviews) || "0") + 1;
-    localStorage.setItem(STORAGE_KEYS.pageviews, String(views));
+    const views = Number(store.get(STORAGE_KEYS.pageviews) || "0") + 1;
+    store.set(STORAGE_KEYS.pageviews, String(views));
     const hasEnoughViews = views >= MIN_PAGEVIEWS;
 
     const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
@@ -64,10 +89,16 @@ export function EmailPopup() {
       );
     }
 
+    // Once the visitor has focused any form on this page view, stay quiet.
+    let formTouched = false;
+    function onFocusIn(e: FocusEvent) {
+      if (e.target instanceof Element && e.target.closest("form")) formTouched = true;
+    }
+
     let timeOk = false;
     let scrollOk = !isTouch;
     function check() {
-      if (timeOk && scrollOk && !fieldFocused()) show();
+      if (timeOk && scrollOk && !formTouched && !fieldFocused()) show();
     }
     function onScroll() {
       const doc = document.documentElement;
@@ -85,12 +116,17 @@ export function EmailPopup() {
       },
       isTouch ? TOUCH_DELAY_MS : TRIGGER_DELAY_MS,
     );
-    const onFocusOut = () => setTimeout(check, 0);
+    let focusTimer: ReturnType<typeof setTimeout> | undefined;
+    const onFocusOut = () => {
+      clearTimeout(focusTimer);
+      focusTimer = setTimeout(check, 0);
+    };
+    document.addEventListener("focusin", onFocusIn);
     document.addEventListener("focusout", onFocusOut);
     if (isTouch) window.addEventListener("scroll", onScroll, { passive: true });
 
     function handleMouseLeave(e: MouseEvent) {
-      if (e.clientY <= 0 && hasEnoughViews && !fieldFocused()) show();
+      if (e.clientY <= 0 && hasEnoughViews && !formTouched && !fieldFocused()) show();
     }
 
     if (!isTouch) {
@@ -99,16 +135,18 @@ export function EmailPopup() {
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(focusTimer);
+      document.removeEventListener("focusin", onFocusIn);
       document.removeEventListener("focusout", onFocusOut);
       window.removeEventListener("scroll", onScroll);
       if (!isTouch) {
         document.removeEventListener("mouseleave", handleMouseLeave);
       }
     };
-  }, [show, pathname]);
+  }, [show, pathname, suppressed]);
 
   useEffect(() => {
-    if (!visible) return;
+    if (!visible || suppressed) return;
 
     closeButtonRef.current?.focus();
 
@@ -145,11 +183,11 @@ export function EmailPopup() {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [visible]);
+  }, [visible, suppressed]);
 
   function dismiss() {
     setVisible(false);
-    localStorage.setItem(STORAGE_KEYS.dismissed, String(Date.now()));
+    store.set(STORAGE_KEYS.dismissed, String(Date.now()));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -176,8 +214,8 @@ export function EmailPopup() {
       }
 
       setStatus("success");
-      localStorage.setItem(STORAGE_KEYS.subscribed, "true");
-      localStorage.removeItem(STORAGE_KEYS.pageviews);
+      store.set(STORAGE_KEYS.subscribed, "true");
+      store.remove(STORAGE_KEYS.pageviews);
 
       if (typeof window !== "undefined" && window.dataLayer) {
         window.dataLayer.push({ event: "email_subscribe", method: "popup" });
@@ -190,7 +228,7 @@ export function EmailPopup() {
     }
   }
 
-  if (!visible || SUPPRESSED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
+  if (!visible || suppressed) return null;
 
   return (
     <div
