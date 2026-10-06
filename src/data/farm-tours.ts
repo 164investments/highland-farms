@@ -49,7 +49,7 @@ export const farmTourFAQ: FAQItem[] = [
   {
     question: "Can I combine a farm tour with a spa session?",
     answer:
-      "Yes. Book them as two appointments, with your spa session at least 1 hour after your farm tour ends.",
+      "Yes. Book them as two appointments, at least 1 hour apart.",
   },
   {
     question: "What is the cancellation policy?",

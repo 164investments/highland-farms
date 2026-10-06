@@ -378,8 +378,8 @@ export default function NordicSpaPage() {
               More than 700 guest visits in the past year, six guests at a time.
             </span>{" "}
             Nearly half of them were weekends, and Saturdays go first &mdash;
-            the farm&apos;s wedding calendar takes most of them. Most guests
-            book about two weeks ahead.
+            the farm&apos;s wedding calendar takes most of them. The typical
+            guest books about two weeks ahead.
           </p>
         </Container>
       </div>
@@ -615,7 +615,7 @@ export default function NordicSpaPage() {
                 title="Book your Nordic Spa session"
               />
               <p className="text-center text-xs text-white/65 font-sans md:text-right">
-                Weekend sessions go first. Most guests book about two weeks ahead.
+                Weekend sessions go first. The typical guest books about two weeks ahead.
               </p>
             </div>
           </div>

@@ -61,7 +61,7 @@ const faqItems = [
   {
     question: "Can I combine the sauna with a Highland Cow farm tour?",
     answer:
-      "Yes. Book them as two appointments, with your spa session at least 1 hour after your farm tour ends. You'll meet the Scottish Highland Cows, then unwind in the Nordic spa.",
+      "Yes. Book them as two appointments, at least 1 hour apart. You'll meet the Scottish Highland Cows, then unwind in the Nordic spa.",
   },
   {
     question: "Is the sauna available year-round?",
