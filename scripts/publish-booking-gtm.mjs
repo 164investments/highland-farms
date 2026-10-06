@@ -6,7 +6,7 @@
 // coverage:
 //
 //   booking_select_date, booking_select_time, booking_begin_checkout,
-//   gift_view, gift_purchase
+//   gift_view, gift_purchase, and the Acuity-era booking_start CTA event
 //
 // ⛔⛔ Deliberately NOT wired here — do not add these later without re-reading
 // the reasoning, both are called out in BookingFlow.tsx's own GTM NOTE too:
@@ -85,6 +85,7 @@ const VARIABLES = [
   { name: "dlv - booking_slot", dlKey: "slot" },
   { name: "dlv - booking_value", dlKey: "value" },
   { name: "dlv - gift_product", dlKey: "gift_product" },
+  { name: "dlv - booking_type", dlKey: "booking_type" },
 ];
 
 const EVENTS = [
@@ -114,6 +115,18 @@ const EVENTS = [
     triggerName: "Booking - booking_begin_checkout",
     tagName: "GA4 - Booking Begin Checkout",
     params: { booking_product: "dlv - booking_product", value: "dlv - booking_value" },
+  },
+  {
+    // Acuity-era booking intent. BookingButton / BookingStickyCTA /
+    // AnnouncementBar push `booking_start` on every booking CTA click, but no
+    // container trigger consumed it after the 2026-05-20 relaunch (the old
+    // LINK_CLICK trigger 149 cannot fire on a <button> + modal), so per-page
+    // booking intent went dark. Sent as its own GA4 event rather than
+    // `begin_checkout`, which the farm-store checkout also emits.
+    event: "booking_start",
+    triggerName: "Booking - booking_start",
+    tagName: "GA4 - Booking Start (Acuity CTA)",
+    params: { booking_type: "dlv - booking_type" },
   },
   {
     event: "gift_view",
