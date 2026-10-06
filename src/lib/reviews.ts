@@ -11,6 +11,7 @@
  * decimal in the UI — it is for structured data only.
  */
 import googleReviews from "@/data/google-reviews.json";
+import { buildQuote, type QuoteSpec } from "@/lib/review-quotes";
 
 export type Review = (typeof googleReviews.reviews)[number];
 
@@ -31,3 +32,33 @@ export const FIVE_STAR_COUNT = googleReviews.reviews.filter(
 export const REVIEWS_FETCHED_AT = googleReviews.fetched_at;
 
 export const REVIEWS: Review[] = googleReviews.reviews;
+
+/** Find one review by exact author name and publish date (YYYY-MM-DD). */
+export function findReview(author: string, date: string): Review | undefined {
+  return REVIEWS.find(
+    (r) => r.author_name === author && r.publish_time?.startsWith(date),
+  );
+}
+
+export interface FeaturedQuote {
+  quote: string;
+  name: string;
+  rating: number;
+  topic: string;
+}
+
+/** Resolve quote specs to verbatim quotes from the snapshot (missing reviews are dropped). */
+export function featuredQuotes(specs: QuoteSpec[]): FeaturedQuote[] {
+  return specs.flatMap((spec) => {
+    const r = findReview(spec.author, spec.date);
+    if (!r?.text) return [];
+    return [
+      {
+        quote: buildQuote(r.text, spec),
+        name: r.author_name ?? spec.author,
+        rating: r.rating,
+        topic: spec.topic,
+      },
+    ];
+  });
+}

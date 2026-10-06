@@ -28,6 +28,8 @@ import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { InlineEmailCapture } from "@/components/shared/InlineEmailCapture";
 import { nordicSpaFAQ } from "@/data/nordic-spa";
+import { featuredQuotes } from "@/lib/reviews";
+import { SPA_QUOTE } from "@/lib/review-quotes";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
@@ -76,6 +78,10 @@ function NordicSpaSchema() {
     />
   );
 }
+
+const [spaReview] = featuredQuotes([SPA_QUOTE]);
+const spaQuote = spaReview?.quote ?? "";
+const spaAuthor = spaReview?.name ?? "";
 
 const galleryImages = [
   { src: "/images/spa/spa-sauna-interior.jpg", alt: "Cedar sauna interior with Himalayan salt-brick wall" },
@@ -587,11 +593,10 @@ export default function NordicSpaPage() {
 
             <div className="text-center">
               <p className="text-lg italic leading-relaxed font-display sm:text-xl">
-                &ldquo;The sauna was great and the surroundings were
-                beautiful. They took wonderful care of us.&rdquo;
+                &ldquo;{spaQuote}&rdquo;
               </p>
               <p className="mt-4 text-xs font-normal uppercase tracking-[0.18em] text-white/60 font-sans">
-                — Roman S., Google Review
+                {spaAuthor}, Google review
               </p>
             </div>
 

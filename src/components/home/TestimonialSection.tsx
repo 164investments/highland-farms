@@ -1,21 +1,9 @@
 import { Star } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { GOOGLE_REVIEW_LINK, REVIEW_COUNT } from "@/lib/reviews";
+import { featuredQuotes, GOOGLE_REVIEW_LINK, REVIEW_COUNT } from "@/lib/reviews";
+import { HOME_QUOTES } from "@/lib/review-quotes";
 
-const testimonials = [
-  {
-    quote:
-      "We had our wedding at Highland Farms and I can not recommend them highly enough!! An absolutely stunning and unique venue that surpassed our wildest dreams! Everyone on staff was so kind and helpful, and Connor made every part of the process so simple and seamless!",
-    name: "Hannah M.",
-    attribution: "Google Review — Wedding",
-  },
-  {
-    quote:
-      "The Highland cows were friendly and sweet, and the sheep were so silly and brought a few laughs. We loved walking the property, taking in the peaceful forest setting, and soaking in the hot tub under the stars.",
-    name: "Sarah K.",
-    attribution: "Google Review — Farm Stay",
-  },
-];
+const testimonials = featuredQuotes(HOME_QUOTES);
 
 export function TestimonialSection() {
   return (
@@ -24,7 +12,7 @@ export function TestimonialSection() {
         <h2 className="sr-only">Guest Reviews</h2>
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
           {testimonials.map((t) => (
-            <div key={t.attribution} className="text-center md:text-left">
+            <div key={t.name} className="text-center md:text-left">
               <div className="flex justify-center md:justify-start mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-gold/70 text-gold/70" />
@@ -41,7 +29,7 @@ export function TestimonialSection() {
                 {t.name}
               </p>
               <p className="mt-0.5 text-xs text-muted font-sans font-light">
-                {t.attribution}
+                Google review &middot; {t.topic}
               </p>
             </div>
           ))}
