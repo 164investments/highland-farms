@@ -26,12 +26,18 @@ declare global {
 
 /**
  * Dispatched anywhere — opens the Acuity booking modal mounted by
- * <BookingModalRoot/>. Falls back to opening the URL in a new tab if the modal
+ * <BookingModalRoot/>. Falls back to navigating to the URL if the modal
  * isn't mounted (e.g. on pages that didn't include it).
  */
 export function openBookingModal(detail: OpenDetail) {
   if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent<OpenDetail>(OPEN_EVENT, { detail }));
+  // A mounted <BookingModalRoot/> calls preventDefault() to claim the event.
+  // dispatchEvent() returns true when nobody did, so navigate instead of
+  // silently doing nothing.
+  const unhandled = window.dispatchEvent(
+    new CustomEvent<OpenDetail>(OPEN_EVENT, { detail, cancelable: true }),
+  );
+  if (unhandled && detail?.src) window.location.href = detail.src;
 }
 
 function bookingTypeFromUrl(url: string): string {
@@ -101,6 +107,30 @@ export function BookingButton({
   );
 }
 
+interface BookingTextLinkProps {
+  href: string;
+  label: string;
+  title?: string;
+  className?: string;
+}
+
+/** Quiet text link that opens the booking modal through the same tracking path. */
+export function BookingTextLink({ href, label, title, className }: BookingTextLinkProps) {
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={() => {
+        const src = prepareBookingUrl(href);
+        trackBookingStart(src, title ?? label);
+        openBookingModal({ src, title });
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
 interface BookingStickyCTAProps {
   href: string;
   label: string;
@@ -134,7 +164,10 @@ export function BookingModalRoot() {
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<OpenDetail>).detail;
-      if (detail?.src) setState(detail);
+      if (detail?.src) {
+        e.preventDefault();
+        setState(detail);
+      }
     };
     window.addEventListener(OPEN_EVENT, handler);
     return () => window.removeEventListener(OPEN_EVENT, handler);

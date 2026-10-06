@@ -25,7 +25,11 @@ export const CONTACT = {
 export const INSTAGRAM_FOLLOWERS = "29K";
 
 export const BOOKING_LINKS = {
-  farmTour: "https://highlandfarms.as.me/schedule/e759f21b",
+  /** Acuity generic tour menu (all group sizes). */
+  farmTourAllSizes: "https://highlandfarms.as.me/schedule/e759f21b",
+  /** "Private Tour for Two" calendar: 85% of tour bookings are parties of two. */
+  farmTourForTwo:
+    "https://highlandfarms.as.me/schedule/e759f21b/appointment/48403186/calendar/7539520",
   nordicSpa: "https://highlandfarms.as.me/schedule/e759f21b/appointment/85942611/calendar/13047082",
   giftCertificates: "https://highlandfarms.as.me/catalog/e759f21b",
 } as const;

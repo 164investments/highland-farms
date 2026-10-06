@@ -404,7 +404,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         },
         offers: {
           "@type": "AggregateOffer",
-          url: BOOKING_LINKS.farmTour,
+          url: BOOKING_LINKS.farmTourAllSizes,
           lowPrice: "150",
           highPrice: "450",
           offerCount: 5,

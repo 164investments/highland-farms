@@ -69,7 +69,7 @@ const FARM_TOURS: Variant = {
     <>
       Meet the Highland Coos &middot; Private Farm Tours &middot; 60 Min From $150{" "}
       <AnnouncementBookingLink
-        href={bookingUrl(BOOKING_LINKS.farmTour, "announcement-bar-farm-tours")}
+        href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "announcement-bar-farm-tours")}
       >
         Book Your Tour
       </AnnouncementBookingLink>

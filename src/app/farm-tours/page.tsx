@@ -10,6 +10,7 @@ import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
 import {
   BookingButton,
   BookingModalRoot,
+  BookingTextLink,
   BookingStickyCTA,
 } from "@/components/shared/BookingButton";
 import { TourVideo } from "@/components/shared/TourVideo";
@@ -146,10 +147,20 @@ export default function FarmToursPage() {
           </p>
           <div className="mt-8">
             <BookingButton
-              href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-hero")}
-              label="Book Your Tour"
+              href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-hero")}
+              label="See open tour dates"
               size="lg"
               className="bg-white text-charcoal hover:bg-cream"
+              title="Book your farm tour"
+            />
+            <p className="mt-3 text-sm text-white/85 font-sans">
+              $150 for two &middot; $75 each additional guest
+            </p>
+            <BookingTextLink
+              href={bookingUrl(BOOKING_LINKS.farmTourAllSizes, "farm-tours-hero-group")}
+              label="Bringing 3 to 6 guests? Choose your group size"
+              title="Choose your tour group size"
+              className="mt-2 text-sm text-white/85 underline underline-offset-4 hover:text-white"
             />
           </div>
           <div className="mt-6 flex justify-center">
@@ -204,7 +215,7 @@ export default function FarmToursPage() {
         eyebrow="A glimpse from the field"
         heading="See what a tour feels like"
         body="A short walk through the farm — meet the herd, the guardian dogs, and the views you'll wake up to."
-        bookingHref={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-video")}
+        bookingHref={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-video")}
       />
 
       {/* Pricing & Details */}
@@ -274,11 +285,23 @@ export default function FarmToursPage() {
               {!nativeCalendarEnabled() && (
                 <>
                   <BookingButton
-                    href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-pricing")}
-                    label="Book Your Tour"
+                    href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-pricing")}
+                    label="See open tour dates"
                     size="lg"
                     className="w-full"
+                    title="Book your farm tour"
                   />
+                  <p className="mt-3 text-center text-sm text-muted font-sans">
+                    $150 for two &middot; $75 each additional guest
+                  </p>
+                  <p className="mt-1 text-center">
+                    <BookingTextLink
+                      href={bookingUrl(BOOKING_LINKS.farmTourAllSizes, "farm-tours-pricing-group")}
+                      label="Bringing 3 to 6 guests? Choose your group size"
+                      title="Choose your tour group size"
+                      className="text-sm text-forest underline underline-offset-4 hover:text-forest-light"
+                    />
+                  </p>
                   <p className="mt-3 text-center text-xs text-muted font-sans">
                     Strict cancellation policy: all bookings are final &mdash; no
                     refunds, reschedules, credits, or transfers, including
@@ -367,8 +390,8 @@ export default function FarmToursPage() {
         <NativeStickyCTA />
       ) : (
         <BookingStickyCTA
-          label="Book Your Farm Tour"
-          href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-sticky-mobile")}
+          label="See open tour dates"
+          href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-sticky-mobile")}
         />
       )}
 

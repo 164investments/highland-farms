@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FAQAccordion } from "@/components/shared/FAQAccordion";
-import { BookingButton, BookingStickyCTA } from "@/components/shared/BookingButton";
+import { BookingButton, BookingModalRoot, BookingStickyCTA } from "@/components/shared/BookingButton";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 import { StructuredData } from "@/components/layout/StructuredData";
 
@@ -405,6 +405,7 @@ export default function SaunaNearPortlandPage() {
       />
 
       <div className="h-20 lg:hidden" />
+      <BookingModalRoot />
     </>
   );
 }

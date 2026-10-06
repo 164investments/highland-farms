@@ -22,7 +22,7 @@ type Topic = "all" | "spa" | "tour" | "wedding" | "stay";
 const TOPIC_PATTERNS: Record<Topic, RegExp | null> = {
   all: null,
   spa: /\b(spa|sauna|steam|cold plunge|hot tub|wellness|soak|massage|cedar)\b/i,
-  tour: /\b(tour|cow|cows|highland cow|barn|sheep|peacock|brush|animals|cuddle|cuddling|guide|dante|ellery|jace|aj|jalene|connor)\b/i,
+  tour: /\b(tour|cow|cows|highland cow|barn|sheep|peacock|brush|animals|cuddle|cuddling|guide|dante|ellery|jace|aj|jalene)\b/i,
   wedding: /\b(wedding|wed|ceremony|reception|venue|bride|groom|bridal|groomsmen|elope|elopement|aisle)\b/i,
   stay: /\b(stay|stayed|staying|cottage|airstream|lodge|cabin|night|nights|overnight|getaway|accommodations?)\b/i,
 };
@@ -82,6 +82,11 @@ export function filterReviews(topic: Topic, max: number, truncateAt = 240): Revi
   const candidates = REVIEWS.filter((r) => {
     if (r.rating < 4) return false;
     if (!r.text || r.text.length < 60) return false;
+    // Wedding reviews often thank staff by name or mention the cows; they
+    // do not belong under tour or spa headings.
+    if ((topic === "tour" || topic === "spa") && TOPIC_PATTERNS.wedding!.test(r.text)) {
+      return false;
+    }
     // Judge the text the visitor will actually see, not the hidden full review.
     return pattern ? pattern.test(excerpt(r.text, truncateAt, pattern)) : true;
   });
