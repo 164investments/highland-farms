@@ -2,6 +2,13 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.2.0.0] - 2026-10-06
+
+### Added
+
+- Compare the two four-night Thanksgiving 2026 stay packages, see meals and experiences included, and email the farm with the selected package and guest count.
+- Find the Thanksgiving offer in the Stays menu and on the farm-stays page, with an illustrated holiday hero alongside real farm photography.
+
 ## [0.1.1.0] - 2026-08-27
 
 ### Changed

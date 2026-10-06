@@ -80,6 +80,16 @@ export default function StayPage() {
         </p>
       </section>
 
+      <section className="bg-cream-light py-7">
+        <Container className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">
+          <div>
+            <h2 className="font-display text-3xl">A Highland Farms Thanksgiving</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">November 24–28, 2026. Four nights, holiday meals, Nordic spa and time on the farm.</p>
+          </div>
+          <Button href="/thanksgiving" className="shrink-0">See the packages</Button>
+        </Container>
+      </section>
+
       {/* Properties */}
       <section className="py-20 lg:py-28 bg-background">
         <Container>

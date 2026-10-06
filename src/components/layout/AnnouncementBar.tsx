@@ -171,8 +171,22 @@ const DEFAULT: Variant = {
   ),
 };
 
+const THANKSGIVING: Variant = {
+  id: "hf-bar-thanksgiving-2026",
+  layout: "single",
+  body: (
+    <>
+      Thanksgiving on the farm &middot; November 24–28, 2026{" "}
+      <Link href="/thanksgiving#packages" className="ml-1 underline underline-offset-4 decoration-gold/70 hover:decoration-gold">
+        See Packages
+      </Link>
+    </>
+  ),
+};
+
 function pickVariant(pathname: string | null): Variant {
   if (!pathname) return DEFAULT;
+  if (pathname === "/thanksgiving") return THANKSGIVING;
   if (pathname.startsWith("/shop")) return SHOP;
   if (pathname.startsWith("/farm-tours")) return FARM_TOURS;
   if (pathname.startsWith("/sauna-near-portland")) return SAUNA_NEAR_PDX;

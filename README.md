@@ -27,6 +27,13 @@ npm run build
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the project map, integration boundaries,
 and the rules that keep the farm store and reporting flows correct.
 
+## Thanksgiving 2026
+
+The seasonal stay offer is at `/thanksgiving`, with details in
+`src/data/thanksgiving.ts`. Guests inquire by email; this page does not charge
+or reserve a stay. Its package links prefill the selected package and guest
+count. See `AGENTS.md` for content and booking-term boundaries.
+
 ## Tracking Setup
 
 Production tracking expects these public IDs to be configured in Vercel:

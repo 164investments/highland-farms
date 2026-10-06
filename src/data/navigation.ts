@@ -12,7 +12,14 @@ export const mainNavItems: NavItem[] = [
   },
   { label: "Farm Tours", href: "/farm-tours" },
   { label: "Nordic Spa", href: "/nordic-spa" },
-  { label: "Stays", href: "/stay" },
+  {
+    label: "Stays",
+    href: "/stay",
+    children: [
+      { label: "Farm Stays", href: "/stay" },
+      { label: "Thanksgiving 2026", href: "/thanksgiving" },
+    ],
+  },
   { label: "Celebrations", href: "/celebrations" },
   { label: "About", href: "/about" },
   {
