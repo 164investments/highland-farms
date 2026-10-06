@@ -53,8 +53,10 @@ The seasonal Thanksgiving offer is a server-rendered marketing page at
 in `src/data/thanksgiving.ts`. It sends inquiries to the address supplied by the
 farm; it does not create bookings, charge payments or apply tour/spa terms to a
 stay package. Discoverability comes from the Stays menu, `/stay` and the sitemap.
-Its generated hero is clearly captioned as an illustration; accommodation and
-experience photos use the existing real farm assets.
+Its hero edits the actual Lodge dining-room photo with Thanksgiving table
+styling, which the caption identifies. Accommodation photo sets live with the
+package data; the whole-farm card shows the Lodge, Cottage and Camp separately.
+Accommodation and experience photos use the existing real farm assets.
 
 | Adding… | Put it in |
 |---|---|
