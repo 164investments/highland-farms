@@ -6,6 +6,8 @@ import { Users, BedDouble, Bath, ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { ImageCarousel } from "@/components/gallery/ImageCarousel";
+import { ReviewBadge } from "@/components/shared/ReviewBadge";
+import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { HospitableWidget } from "@/components/stay/HospitableWidget";
 import { properties } from "@/data/properties";
 import { CONTACT } from "@/lib/constants";
@@ -47,6 +49,14 @@ const STAY_FACTS: { label: string; value: string }[] = [
       "No outside pets. Service animals are permitted in accordance with ADA requirements.",
   },
 ];
+
+/** Per-property review filters; the generic "stay" topic also matches tour reviews. */
+const STAY_REVIEW_MATCH: Record<string, RegExp> = {
+  cottage: /\b(cottage|bonnie)\b/i,
+  camp: /\b(airstream|camp|bell tents?)\b/i,
+  lodge: /\b(lodge|wallace)\b/i,
+  "whole-farm": /\b(lodge|cottage|airstream|bell tents?|overnight|slept|stayed)\b/i,
+};
 
 export function generateStaticParams() {
   return properties.map((p) => ({ slug: p.slug }));
@@ -173,9 +183,9 @@ export default async function PropertyPage({
       {/* Property Details + Booking Widget */}
       <section className="py-12 bg-background">
         <Container>
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_380px] max-w-5xl mx-auto">
-            {/* Left: Details */}
-            <div>
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-y-8 lg:grid-cols-[1fr_380px] lg:gap-x-12 lg:gap-y-0">
+            {/* Title + stats. On mobile the booking widget follows directly (CSS grid order). */}
+            <div className="lg:col-start-1 lg:row-start-1">
               <h1 className="text-3xl font-normal sm:text-4xl">
                 {property.name}
               </h1>
@@ -198,8 +208,29 @@ export default async function PropertyPage({
                   {property.baths} Baths
                 </span>
               </div>
+            </div>
 
-              <div className="mt-6 h-px bg-cream-dark" />
+            {/* Booking widget: second on mobile, right column on lg */}
+            <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+              <div className="lg:sticky lg:top-24">
+                <div className="rounded-xl border border-cream-dark bg-white p-3">
+                  <p className="mb-3 text-center text-xs font-light text-muted font-sans">
+                    Book direct with the farm. You see the full total, cleaning included, before you reserve.
+                  </p>
+                  <HospitableWidget
+                    widgetUrl={property.hospitable_widget_url || ""}
+                    propertyName={property.name}
+                  />
+                </div>
+                <div className="mt-4 flex justify-center">
+                  <ReviewBadge variant="pill" />
+                </div>
+              </div>
+            </div>
+
+            {/* Details */}
+            <div className="lg:col-start-1 lg:row-start-2">
+              <div className="h-px bg-cream-dark lg:mt-6" />
 
               <p className="mt-6 text-base text-muted leading-relaxed font-sans">
                 {property.description}
@@ -298,24 +329,17 @@ export default async function PropertyPage({
                 </p>
               </div>
             </div>
-
-            {/* Right: Booking Widget */}
-            <div>
-              <div className="lg:sticky lg:top-24">
-                <div className="rounded-xl border border-cream-dark bg-white p-3">
-                  <p className="text-center text-xs font-light tracking-[0.15em] uppercase text-muted font-sans mb-3">
-                    Book Direct &mdash; Best Rate Guaranteed
-                  </p>
-                  <HospitableWidget
-                    widgetUrl={property.hospitable_widget_url || ""}
-                    propertyName={property.name}
-                  />
-                </div>
-              </div>
-            </div>
           </div>
         </Container>
       </section>
+
+      <GoogleReviewsSection
+        topic="stay"
+        match={STAY_REVIEW_MATCH[property.slug]}
+        max={3}
+        eyebrow="What guests say about staying here"
+        background="cream"
+      />
 
       {/* Other Properties */}
       <section className="py-20 lg:py-28 bg-warm-white">

@@ -5,6 +5,7 @@ import { Users, BedDouble, Bath } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
+import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
 import { properties } from "@/data/properties";
 import { StructuredData } from "@/components/layout/StructuredData";
@@ -16,14 +17,14 @@ const propertyIllustrations: Record<string, string> = {
 };
 
 export const metadata: Metadata = {
-  title: "Farm Stays — Brightwood, Oregon",
+  title: { absolute: "Farm Stay near Mt. Hood, Oregon | Highland Farms" },
   description:
-    "Book a farm stay at Highland Farms near Portland, Oregon. Choose from William Wallace Lodge, Bonnie Lass Cottage, or reserve the whole farm for up to 20 guests. About an hour from Portland, about 25 minutes from Government Camp in Brightwood.",
+    "Stay on a working Highland cow farm in Brightwood. William Wallace Lodge, Bonnie Lass Cottage, or the whole farm. About an hour from Portland, near Mt. Hood.",
   alternates: { canonical: "/stay" },
   openGraph: {
-    title: "Stay at Highland Farms — Farm Stays in Brightwood, Oregon",
+    title: "Farm Stay near Mt. Hood, Oregon | Highland Farms",
     description:
-      "Three unique forest stays at the base of Mt. Hood, or book the whole farm. Book direct for the best rate.",
+      "Stay on a working Highland cow farm in Brightwood. William Wallace Lodge, Bonnie Lass Cottage, or the whole farm. About an hour from Portland, near Mt. Hood.",
     url: "https://highlandfarmsoregon.com/stay",
     type: "website",
     images: [
@@ -63,17 +64,29 @@ export default function StayPage() {
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light">
             Escape to the heart of the forest. From a cozy cottage and rustic
-            camp to a private lodge — or the whole farm — every stay is
-            nestled beneath towering evergreens, alongside winding creeks and
-            a tranquil pond at the base of majestic Mt. Hood.
+            camp to a private lodge — or the whole farm — every stay sits
+            beneath towering evergreens, alongside winding creeks and
+            a tranquil pond at the base of Mt. Hood.
           </p>
+          <div className="mt-8" data-hero-cta>
+            <Button
+              href="#stays"
+              size="lg"
+              className="bg-white text-charcoal hover:bg-cream"
+            >
+              Find your dates
+            </Button>
+          </div>
+          <div className="mt-6 flex justify-center">
+            <ReviewBadge variant="card" />
+          </div>
         </div>
       </section>
 
       {/* Book Direct Banner */}
       <section className="bg-charcoal/90 py-4 text-center backdrop-blur-sm">
-        <p className="text-xs font-light text-white/80 tracking-[0.15em] uppercase font-sans">
-          Book Direct for the Best Rate &mdash; No Hidden Fees
+        <p className="mx-auto max-w-2xl px-4 text-sm font-light text-white/85 font-sans">
+          Book direct with the farm. You see the full total, cleaning included, before you reserve.
         </p>
         <p className="mt-1 text-[10px] font-light text-white/50 tracking-[0.1em] uppercase font-sans">
           No outside pets allowed
@@ -91,7 +104,7 @@ export default function StayPage() {
       </section>
 
       {/* Properties */}
-      <section className="py-20 lg:py-28 bg-background">
+      <section id="stays" className="scroll-mt-24 py-20 lg:py-28 bg-background">
         <Container>
           <SectionHeading
             eyebrow="The Accommodations"

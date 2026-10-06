@@ -77,14 +77,21 @@ function monthYear(iso: string | null | undefined): string {
   });
 }
 
-export function filterReviews(topic: Topic, max: number, truncateAt = 240): Review[] {
-  const pattern = TOPIC_PATTERNS[topic];
+export function filterReviews(
+  topic: Topic,
+  max: number,
+  truncateAt = 240,
+  match?: RegExp,
+): Review[] {
+  // `match` narrows a topic further (e.g. one stay property) and is applied to
+  // the visible excerpt, like the topic pattern.
+  const pattern = match ?? TOPIC_PATTERNS[topic];
   const candidates = REVIEWS.filter((r) => {
     if (r.rating < 4) return false;
     if (!r.text || r.text.length < 60) return false;
     // Wedding reviews often thank staff by name or mention the cows; they
     // do not belong under tour or spa headings.
-    if ((topic === "tour" || topic === "spa") && TOPIC_PATTERNS.wedding!.test(r.text)) {
+    if ((topic === "tour" || topic === "spa" || match) && TOPIC_PATTERNS.wedding!.test(r.text)) {
       return false;
     }
     // Judge the text the visitor will actually see, not the hidden full review.
@@ -111,6 +118,8 @@ interface Props {
   background?: "cream" | "background" | "white";
   /** Truncate long review text to this many characters. Defaults to 240. */
   truncateAt?: number;
+  /** Narrower pattern than `topic` (e.g. one stay property). Wedding reviews are excluded. */
+  match?: RegExp;
 }
 
 export function GoogleReviewsSection({
@@ -120,8 +129,9 @@ export function GoogleReviewsSection({
   heading,
   background = "cream",
   truncateAt = 240,
+  match,
 }: Props) {
-  const reviews = filterReviews(topic, max, truncateAt);
+  const reviews = filterReviews(topic, max, truncateAt, match);
   if (reviews.length === 0) return null;
 
   const bgClass =
@@ -176,7 +186,7 @@ export function GoogleReviewsSection({
                 ))}
               </div>
               <blockquote className="flex-1 text-[0.9375rem] leading-relaxed text-charcoal font-sans">
-                &ldquo;{excerpt(r.text, truncateAt, TOPIC_PATTERNS[topic])}&rdquo;
+                &ldquo;{excerpt(r.text, truncateAt, match ?? TOPIC_PATTERNS[topic])}&rdquo;
               </blockquote>
               <div className="mt-4 flex items-center gap-3 border-t border-cream-dark/40 pt-4">
                 {r.author_photo ? (
