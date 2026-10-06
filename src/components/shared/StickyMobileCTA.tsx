@@ -46,12 +46,12 @@ export function StickyMobileCTA({
   }, []);
 
   const linkClasses =
-    "flex items-center justify-center gap-2 w-full rounded-full bg-forest py-3.5 text-sm font-light uppercase tracking-wider text-white transition-colors hover:bg-forest-light active:bg-forest-light";
+    "flex min-h-[52px] items-center justify-center gap-2 w-full bg-pine py-3.5 font-sans text-[15px] font-semibold tracking-[0.02em] text-paper-light transition-colors hover:bg-pine-dark active:bg-pine-dark";
 
   const inner = (
     <>
       {label}
-      {sublabel && <span className="text-sm text-white/80">{sublabel}</span>}
+      {sublabel && <span className="text-sm text-paper-light/80">{sublabel}</span>}
     </>
   );
 
@@ -65,7 +65,7 @@ export function StickyMobileCTA({
       aria-hidden={!shown}
       inert={!shown}
     >
-      <div className="bg-white border-t border-cream-dark px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+      <div className="bg-paper border-t border-rule px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
         {onClick ? (
           <button type="button" onClick={onClick} className={linkClasses}>
             {inner}

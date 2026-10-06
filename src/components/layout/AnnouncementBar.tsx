@@ -143,7 +143,7 @@ const WEDDINGS: Variant = {
         Now booking 2027<span className="lg:hidden"> weddings</span>
       </Msg>
       <Link href="/weddings#contact" className={LINK_CLASS}>
-        Check<span className="hidden lg:inline">&nbsp;your date</span>
+        Check<span className="hidden lg:inline">&nbsp;your</span>&nbsp;date
       </Link>
     </>
   ),

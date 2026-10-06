@@ -533,7 +533,7 @@ export default function NordicSpaPage() {
         <NativeStickyCTA />
       ) : (
         <BookingStickyCTA
-          label="Book Now · $75/person"
+          label="See open sessions · $75"
           href={stickyBookingHref}
           title="Book your Nordic Spa session"
         />

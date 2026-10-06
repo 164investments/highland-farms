@@ -406,7 +406,7 @@ export default function SaunaNearPortlandPage() {
       </section>
 
       <BookingStickyCTA
-        label="Book Your Sauna Session"
+        label="See open sessions · $75"
         href={bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-sticky-mobile")}
         title="Book your sauna session"
       />
