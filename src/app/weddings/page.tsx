@@ -264,7 +264,7 @@ export default function WeddingsPage() {
       <GoogleReviewsSection
         topic="wedding"
         max={6}
-        eyebrow="What couples are saying"
+        eyebrow="What wedding couples and guests are saying"
         background="background"
       />
 

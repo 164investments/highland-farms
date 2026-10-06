@@ -45,7 +45,7 @@ export function Footer() {
                 </svg>
                 <div>
                   <p className="text-[10px] font-light uppercase tracking-[0.12em] text-white/50 font-sans leading-none">
-                    Featured on
+                    Listed on
                   </p>
                   <p className="text-xs font-normal text-white/75 font-sans mt-0.5">
                     Travel Oregon

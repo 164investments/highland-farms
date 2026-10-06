@@ -21,6 +21,9 @@ export const CONTACT = {
   instagramHandle: "@highlandfarmsor",
 } as const;
 
+/** Instagram follower figure shown on the site (profile og:description, 2026-10-06). Update here only. */
+export const INSTAGRAM_FOLLOWERS = "29K";
+
 export const BOOKING_LINKS = {
   farmTour: "https://highlandfarms.as.me/schedule/e759f21b",
   nordicSpa: "https://highlandfarms.as.me/schedule/e759f21b/appointment/85942611/calendar/13047082",

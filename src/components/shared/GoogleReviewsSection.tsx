@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { splitSentences } from "@/lib/review-quotes";
 import {
   FIVE_STAR_COUNT,
   GOOGLE_REVIEW_LINK,
@@ -26,38 +27,63 @@ const TOPIC_PATTERNS: Record<Topic, RegExp | null> = {
   stay: /\b(stay|stayed|staying|cottage|airstream|lodge|cabin|night|nights|overnight|getaway|accommodations?)\b/i,
 };
 
-function truncate(text: string, max: number): string {
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max);
-  const lastSpace = cut.lastIndexOf(" ");
-  return cut.slice(0, lastSpace > max - 30 ? lastSpace : max).trim() + "…";
+/**
+ * Visible excerpt for a card. Whole sentences, in order, never stitched. When a
+ * topic pattern is given the excerpt always contains the sentence that matched,
+ * so the card the visitor reads is actually on-topic.
+ */
+function excerpt(text: string, max: number, pattern: RegExp | null): string {
+  const flat = text.replace(/\s+/g, " ").trim();
+  if (flat.length <= max) return flat;
+  const sentences = splitSentences(text);
+  let out = "";
+  for (const s of sentences) {
+    const next = out ? `${out} ${s}` : s;
+    if (next.length > max) break;
+    out = next;
+  }
+  const hitIdx = pattern ? sentences.findIndex((s) => pattern.test(s)) : -1;
+  if (pattern && (!out || !pattern.test(out)) && hitIdx >= 0) {
+    // Lead with the matching sentence (and what follows) instead.
+    let n = 0;
+    out = "";
+    for (const s of sentences.slice(hitIdx)) {
+      const next = out ? `${out} ${s}` : s;
+      if (next.length > max) break;
+      out = next;
+      n++;
+    }
+    if (!out) return "";
+    const lead = hitIdx > 0 ? "\u2026 " : "";
+    const tail = hitIdx + n < sentences.length ? " \u2026" : "";
+    return `${lead}${out}${tail}`;
+  }
+  if (!out) {
+    const cut = flat.slice(0, max);
+    const lastSpace = cut.lastIndexOf(" ");
+    return cut.slice(0, lastSpace > max - 30 ? lastSpace : max).trim() + "\u2026";
+  }
+  return `${out} \u2026`;
 }
 
-function relativeTime(iso: string | null | undefined): string {
+function monthYear(iso: string | null | undefined): string {
   if (!iso) return "";
-  const then = new Date(iso).getTime();
-  if (!Number.isFinite(then)) return "";
-  const diffMs = Date.now() - then;
-  const days = Math.floor(diffMs / 86_400_000);
-  if (days < 7) return days <= 1 ? "this week" : `${days} days ago`;
-  if (days < 30) {
-    const w = Math.floor(days / 7);
-    return w === 1 ? "1 week ago" : `${w} weeks ago`;
-  }
-  if (days < 365) {
-    const m = Math.floor(days / 30);
-    return m === 1 ? "1 month ago" : `${m} months ago`;
-  }
-  const y = Math.floor(days / 365);
-  return y === 1 ? "1 year ago" : `${y} years ago`;
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
-export function filterReviews(topic: Topic, max: number): Review[] {
+export function filterReviews(topic: Topic, max: number, truncateAt = 240): Review[] {
   const pattern = TOPIC_PATTERNS[topic];
   const candidates = REVIEWS.filter((r) => {
     if (r.rating < 4) return false;
     if (!r.text || r.text.length < 60) return false;
-    return pattern ? pattern.test(r.text) : true;
+    // Judge the text the visitor will actually see, not the hidden full review.
+    return pattern ? pattern.test(excerpt(r.text, truncateAt, pattern)) : true;
   });
   candidates.sort((a, b) => {
     const at = a.publish_time ? new Date(a.publish_time).getTime() : 0;
@@ -90,7 +116,7 @@ export function GoogleReviewsSection({
   background = "cream",
   truncateAt = 240,
 }: Props) {
-  const reviews = filterReviews(topic, max);
+  const reviews = filterReviews(topic, max, truncateAt);
   if (reviews.length === 0) return null;
 
   const bgClass =
@@ -145,7 +171,7 @@ export function GoogleReviewsSection({
                 ))}
               </div>
               <blockquote className="flex-1 text-[0.9375rem] leading-relaxed text-charcoal font-sans">
-                &ldquo;{truncate(r.text, truncateAt)}&rdquo;
+                &ldquo;{excerpt(r.text, truncateAt, TOPIC_PATTERNS[topic])}&rdquo;
               </blockquote>
               <div className="mt-4 flex items-center gap-3 border-t border-cream-dark/40 pt-4">
                 {r.author_photo ? (
@@ -169,7 +195,7 @@ export function GoogleReviewsSection({
                     {r.author_name}
                   </p>
                   <p className="text-xs text-muted font-sans">
-                    {r.relative_time || relativeTime(r.publish_time)} · Google
+                    {monthYear(r.publish_time)} · Google
                   </p>
                 </div>
               </div>

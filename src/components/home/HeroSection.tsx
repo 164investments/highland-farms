@@ -55,7 +55,7 @@ export function HeroSection() {
             rel="noopener noreferrer"
             className="flex items-center gap-1 hover:text-white/80 transition-colors"
           >
-            Featured on Travel Oregon
+            Listed on Travel Oregon
             <ExternalLink className="h-2.5 w-2.5" />
           </a>
         </div>
