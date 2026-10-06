@@ -26,6 +26,7 @@
 //   node scripts/publish-booking-gtm.mjs --dry-run            # same, explicit
 //   node scripts/publish-booking-gtm.mjs --publish             # create the objects, version, and publish for real
 //   node scripts/publish-booking-gtm.mjs --publish --force     # also publish even if the workspace has UNRELATED pending changes
+//   node scripts/publish-booking-gtm.mjs --only=booking_start   # limit any mode to the named event(s)
 //   node scripts/publish-booking-gtm.mjs --help
 //
 // A publish promotes the WHOLE workspace, not just this script's objects —
@@ -184,6 +185,10 @@ if (args.includes("--help") || args.includes("-h")) {
 const doPublish = args.includes("--publish");
 const explicitDryRun = args.includes("--dry-run");
 const force = args.includes("--force");
+// --only=booking_start[,other_event] limits the run to those EVENTS and the
+// variables their params use, so one approved event can ship without the rest.
+const onlyArg = args.find((a) => a.startsWith("--only="));
+const onlyEvents = onlyArg ? onlyArg.slice("--only=".length).split(",").filter(Boolean) : null;
 if (doPublish && explicitDryRun) {
   console.error("ERROR: conflicting flags -- --dry-run and --publish were both passed. Pick one.");
   process.exit(1);
@@ -335,12 +340,19 @@ async function main() {
   const triggerByName = new Map((existingTriggers.trigger ?? []).map((t) => [t.name, t]));
   const tagByName = new Map((existingTags.tag ?? []).map((t) => [t.name, t]));
 
-  const varsToCreate = VARIABLES.filter((v) => !varByName.has(v.name));
-  const triggersToCreate = EVENTS.filter((e) => !triggerByName.has(e.triggerName));
-  const tagsToCreate = EVENTS.filter((e) => !tagByName.has(e.tagName));
+  const events = onlyEvents ? EVENTS.filter((e) => onlyEvents.includes(e.event)) : EVENTS;
+  if (onlyEvents && events.length !== onlyEvents.length) {
+    throw new Error(`--only names unknown event(s): ${onlyEvents.filter((n) => !EVENTS.some((e) => e.event === n)).join(", ")}`);
+  }
+  const usedVars = new Set(events.flatMap((e) => Object.values(e.params)));
+  const variables = onlyEvents ? VARIABLES.filter((v) => usedVars.has(v.name)) : VARIABLES;
+  if (onlyEvents) console.log(`Limited to: ${onlyEvents.join(", ")}\n`);
+  const varsToCreate = variables.filter((v) => !varByName.has(v.name));
+  const triggersToCreate = events.filter((e) => !triggerByName.has(e.triggerName));
+  const tagsToCreate = events.filter((e) => !tagByName.has(e.tagName));
 
   console.log(
-    `Plan: ${varsToCreate.length}/${VARIABLES.length} variables, ${triggersToCreate.length}/${EVENTS.length} triggers, ${tagsToCreate.length}/${EVENTS.length} tags need creating.\n`
+    `Plan: ${varsToCreate.length}/${variables.length} variables, ${triggersToCreate.length}/${events.length} triggers, ${tagsToCreate.length}/${events.length} tags need creating.\n`
   );
 
   if (varsToCreate.length) {
@@ -398,16 +410,21 @@ async function main() {
     return;
   }
 
-  const version = await gtm("POST", `/${wsPath}:create_version`, {
-    name: "Native calendar booking events (Phase 3a Task 8)",
-    notes:
-      "GA4 event tags for booking_select_date, booking_select_time, booking_begin_checkout, gift_view, gift_purchase. Excludes booking_purchase (server MP already reports it) and booking_view_item (double-fires on the combo picker).",
-  });
-  console.log(`Created version ${version.containerVersion.versionId}`);
+  const version = await gtm("POST", `/${wsPath}:create_version`, onlyEvents
+    ? {
+        name: `Booking events: ${onlyEvents.join(", ")}`,
+        notes: `GA4 event tags for ${onlyEvents.join(", ")} only (publish-booking-gtm.mjs --only).`,
+      }
+    : {
+        name: "Native calendar booking events (Phase 3a Task 8)",
+        notes:
+          "GA4 event tags for booking_select_date, booking_select_time, booking_begin_checkout, gift_view, gift_purchase. Excludes booking_purchase (server MP already reports it) and booking_view_item (double-fires on the combo picker).",
+      });
+  console.log(`Created version ${version.containerVersion.containerVersionId}`);
 
   await gtm(
     "POST",
-    `/accounts/${ACCOUNT_ID}/containers/${CONTAINER_ID}/versions/${version.containerVersion.versionId}:publish`,
+    `/accounts/${ACCOUNT_ID}/containers/${CONTAINER_ID}/versions/${version.containerVersion.containerVersionId}:publish`,
     {}
   );
   console.log("Published.");
