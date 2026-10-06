@@ -10,7 +10,10 @@
   --forest: #4A6741;
   --forest-light: #4E6B44;
   --charcoal: #3A3A3A;
-  --muted: #6F6F68;
+  --muted: #666660; /* 4.55:1 on cream #E8E4D9, 5.3:1 on #F7F5F0 */
+  --sage-text: #506B4D; /* text-only sage: 4.65:1 on #E8E4D9, 5.4:1 on #F7F5F0, 5.7:1 on #FAFAF8 */
+  /* Header height before JS measures it: 64/72px header + 44px announcement bar. */
+  --header-h: 108px;
   --accent: #B8976A;
   --sage: #8BA888;
   --sage-light: #A3BDA0;
@@ -19,6 +22,22 @@
   --gold: #C4A96A;
   --gold-light: #D4BE8A;
   --gold-bright: #FBBC04;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --header-h: 116px;
+  }
+}
+
+/* Announcement bar dismissed (or absent): set before first paint by an inline script. */
+html[data-bar-hidden] {
+  --header-h: 64px;
+}
+@media (min-width: 1024px) {
+  html[data-bar-hidden] {
+    --header-h: 72px;
+  }
 }
 
 @theme inline {
@@ -124,4 +143,9 @@ html {
 :focus-visible {
   outline: 2px solid var(--sage);
   outline-offset: 2px;
+}
+
+/* sage as TEXT needs 4.5:1; the fill/border sage (#8BA888) stays as is. */
+.text-sage {
+  color: var(--sage-text);
 }

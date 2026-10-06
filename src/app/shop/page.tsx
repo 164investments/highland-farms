@@ -223,61 +223,53 @@ export default async function ShopPage() {
 
             {/* Inline trust strip — 4 feature pills; sublabels hidden on mobile to stay one row */}
             <dl className="mt-5 inline-flex max-w-full flex-wrap items-start gap-x-5 gap-y-2.5 rounded-2xl bg-white/90 px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.05)] backdrop-blur-sm sm:mt-6 sm:gap-x-7 sm:gap-y-3 sm:px-6 sm:py-4">
-              <div className="flex items-start gap-2">
+              <div className="grid grid-cols-[auto_1fr] items-start gap-x-2">
                 <Leaf
-                  className="mt-0.5 h-4 w-4 text-forest shrink-0"
+                  className="row-span-2 mt-0.5 h-4 w-4 text-forest shrink-0"
                   strokeWidth={1.5}
                 />
-                <div className="font-sans">
-                  <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
+                <dt className="col-start-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
                     Pasture-raised
                   </dt>
-                  <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
+                  <dd className="col-start-2 font-sans mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
                     Raised at the base of Mt. Hood
                   </dd>
-                </div>
               </div>
-              <div className="flex items-start gap-2">
+              <div className="grid grid-cols-[auto_1fr] items-start gap-x-2">
                 <Home
-                  className="mt-0.5 h-4 w-4 text-forest shrink-0"
+                  className="row-span-2 mt-0.5 h-4 w-4 text-forest shrink-0"
                   strokeWidth={1.5}
                 />
-                <div className="font-sans">
-                  <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
+                <dt className="col-start-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
                     Family-run
                   </dt>
-                  <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
+                  <dd className="col-start-2 font-sans mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
                     Since 2019
                   </dd>
-                </div>
               </div>
-              <div className="flex items-start gap-2">
+              <div className="grid grid-cols-[auto_1fr] items-start gap-x-2">
                 <MapPin
-                  className="mt-0.5 h-4 w-4 text-forest shrink-0"
+                  className="row-span-2 mt-0.5 h-4 w-4 text-forest shrink-0"
                   strokeWidth={1.5}
                 />
-                <div className="font-sans">
-                  <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
+                <dt className="col-start-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
                     Farm pickup
                   </dt>
-                  <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
+                  <dd className="col-start-2 font-sans mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
                     Always free
                   </dd>
-                </div>
               </div>
-              <div className="flex items-start gap-2">
+              <div className="grid grid-cols-[auto_1fr] items-start gap-x-2">
                 <Truck
-                  className="mt-0.5 h-4 w-4 text-forest shrink-0"
+                  className="row-span-2 mt-0.5 h-4 w-4 text-forest shrink-0"
                   strokeWidth={1.5}
                 />
-                <div className="font-sans">
-                  <dt className="text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
+                <dt className="col-start-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.1em] leading-tight text-charcoal">
                     Local delivery
                   </dt>
-                  <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
+                  <dd className="col-start-2 font-sans mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
                     $15, orders $50+
                   </dd>
-                </div>
               </div>
             </dl>
           </div>
@@ -346,9 +338,9 @@ export default async function ShopPage() {
                   </div>
                 </div>
                 <div className="mt-8 text-center">
-                  <h3 className="text-[0.6875rem] font-medium uppercase tracking-[0.15em] text-charcoal font-sans sm:text-xs">
+                  <h2 className="text-[0.6875rem] font-medium uppercase tracking-[0.15em] text-charcoal font-sans sm:text-xs">
                     {tile.title}
-                  </h3>
+                  </h2>
                   <p className="mt-1 text-xs italic text-charcoal/60 font-sans">
                     Shop now <span aria-hidden className="not-italic transition-transform group-hover:translate-x-0.5 inline-block">→</span>
                   </p>

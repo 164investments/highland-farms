@@ -6,6 +6,7 @@ import Image from "next/image";
 import { X, Phone, Mail, Instagram } from "lucide-react";
 import { mainNavItems } from "@/data/navigation";
 import { CONTACT } from "@/lib/constants";
+import { giftCertificatesHref, nativeCalendarEnabled } from "@/lib/booking/flag";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -70,7 +71,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="p-3 -mr-1 hover:opacity-70 transition-opacity"
+            className="flex h-11 w-11 items-center justify-center -mr-1 hover:opacity-70 transition-opacity"
             aria-label="Close menu"
           >
             <X className="h-5 w-5" aria-hidden="true" />
@@ -91,7 +92,9 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 </Link>
                 {item.children && (
                   <ul className="pl-4">
-                    {item.children.map((child) => (
+                    {item.children
+                      .filter((child) => child.label !== "Gift Certificates")
+                      .map((child) => (
                       <li key={child.href}>
                         {child.external ? (
                           <a
@@ -115,6 +118,18 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       </li>
                     ))}
                   </ul>
+                )}
+                {item.href === "/shop" && (
+                  <a
+                    href={giftCertificatesHref()}
+                    {...(nativeCalendarEnabled()
+                      ? {}
+                      : { target: "_blank", rel: "noopener noreferrer" })}
+                    onClick={onClose}
+                    className="block py-3.5 text-lg font-normal text-charcoal hover:text-forest transition-colors border-b border-cream-dark/20 font-display"
+                  >
+                    Gift Certificates
+                  </a>
                 )}
               </li>
             ))}

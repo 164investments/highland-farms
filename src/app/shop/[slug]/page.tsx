@@ -67,7 +67,7 @@ export default async function ProductPage({
   };
 
   return (
-    <main className="bg-cream pt-32 pb-20 sm:pb-28">
+    <div className="bg-cream pt-32 pb-20 sm:pb-28">
       <StructuredData pathname={`/shop/${product.slug}`} />
       <script
         type="application/ld+json"
@@ -169,7 +169,7 @@ export default async function ProductPage({
         </div>
         <GoesWellWith product={product} stock={stock} />
       </Container>
-    </main>
+    </div>
   );
 }
 

@@ -39,6 +39,12 @@ function AnnouncementBookingLink({
   );
 }
 
+const LINK_CLASS =
+  "underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1";
+
+// Every variant is ONE line at 375px: a short message, a short link label, and
+// the longer wording only from sm up. Keep it that way; the header height
+// (--header-h in globals.css) assumes a single 44px line.
 const SHOP: Variant = {
   id: "hf-shop-promo-dismissed",
   layout: "shop",
@@ -46,7 +52,7 @@ const SHOP: Variant = {
     <>
       <span className="inline-flex items-center gap-1.5">
         <Truck className="h-3.5 w-3.5" aria-hidden />
-        Free farm pickup in Brightwood, Oregon
+        Free farm pickup<span className="hidden sm:inline">&nbsp;in Brightwood, Oregon</span>
       </span>
       <span aria-hidden className="hidden sm:inline opacity-50">·</span>
       <span className="hidden sm:inline">Local delivery available</span>
@@ -63,76 +69,74 @@ const SHOP: Variant = {
 };
 
 const FARM_TOURS: Variant = {
-  id: "hf-bar-farm-tours-2026-05",
+  id: "hf-bar-farm-tours-2026-10",
   layout: "single",
   body: (
     <>
-      Meet the Highland Coos &middot; Private Farm Tours &middot; 60 Min From $150{" "}
+      <span className="hidden sm:inline">Meet the Highland Coos &middot; </span>
+      Private farm tours &middot; $150 for two{" "}
       <AnnouncementBookingLink
         href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "announcement-bar-farm-tours")}
       >
-        Book Your Tour
+        Book<span className="hidden sm:inline">&nbsp;Your Tour</span>
       </AnnouncementBookingLink>
     </>
   ),
 };
 
 const NORDIC_SPA: Variant = {
-  id: "hf-bar-nordic-spa-2026-05",
+  id: "hf-bar-nordic-spa-2026-10",
   layout: "single",
   body: (
     <>
-      Nordic Sauna + Cold Plunge &middot; 90 Min From $75 &middot; Weekends Fill Fast{" "}
+      Sauna + cold plunge &middot; from $75<span className="hidden sm:inline"> &middot; 90 min &middot; Weekends go first</span>{" "}
       <AnnouncementBookingLink
         href={bookingUrl(BOOKING_LINKS.nordicSpa, "announcement-bar-nordic-spa")}
       >
-        Reserve Your Session
+        Reserve<span className="hidden sm:inline">&nbsp;Your Session</span>
       </AnnouncementBookingLink>
     </>
   ),
 };
 
 const SAUNA_NEAR_PDX: Variant = {
-  id: "hf-bar-sauna-near-pdx-2026-05",
+  id: "hf-bar-sauna-near-pdx-2026-10",
   layout: "single",
   body: (
     <>
-      About an Hour From Portland &middot; Forest Sauna + Cold Plunge &middot; From $75{" "}
+      <span className="hidden sm:inline">About an Hour From Portland &middot; </span>
+      Forest sauna + cold plunge &middot; from $75{" "}
       <AnnouncementBookingLink
         href={bookingUrl(BOOKING_LINKS.nordicSpa, "announcement-bar-sauna-near-portland")}
       >
-        Reserve Your Session
+        Reserve<span className="hidden sm:inline">&nbsp;Your Session</span>
       </AnnouncementBookingLink>
     </>
   ),
 };
 
 const WEDDINGS: Variant = {
-  id: "hf-bar-weddings-2027-2026-10",
+  id: "hf-bar-weddings-2027-2026-10b",
   layout: "single",
   body: (
     <>
-      All-Inclusive Forest Weddings &middot; Now Booking 2027{" "}
-      <Link
-        href="/weddings#contact"
-        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
-      >
-        Schedule a Tour
+      <span className="hidden sm:inline">All-Inclusive Forest Weddings &middot; </span>
+      Now booking 2027<span className="sm:hidden"> weddings</span>{" "}
+      <Link href="/weddings#contact" className={LINK_CLASS}>
+        Check<span className="hidden sm:inline">&nbsp;your date</span>
       </Link>
     </>
   ),
 };
 
 const CELEBRATIONS: Variant = {
-  id: "hf-bar-celebrations-2026-05",
+  id: "hf-bar-celebrations-2026-10",
   layout: "single",
   body: (
     <>
-      Anniversaries &middot; Birthdays &middot; Family Gatherings at Mt. Hood{" "}
-      <Link
-        href="/contact"
-        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
-      >
+      <span className="hidden sm:inline">Anniversaries &middot; Birthdays &middot; </span>
+      Family gatherings at Mt. Hood{" "}
+      <Link href="/contact" className={LINK_CLASS}>
         Inquire
       </Link>
     </>
@@ -140,31 +144,28 @@ const CELEBRATIONS: Variant = {
 };
 
 const STAY: Variant = {
-  id: "hf-bar-stay-2026-05",
+  id: "hf-bar-stay-2026-10",
   layout: "single",
   body: (
     <>
-      William Wallace Lodge, Bonnie Lass Cottage &amp; The Camp &middot; Up to 20 Guests{" "}
-      <Link
-        href="/stay"
-        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
-      >
-        Plan Your Stay
+      <span className="hidden sm:inline">William Wallace Lodge, Bonnie Lass Cottage &amp; The Camp</span>
+      <span className="sm:hidden">Farm stays</span> &middot; Up to 20 guests{" "}
+      <Link href="/stay" className={LINK_CLASS}>
+        <span className="sm:hidden">See stays</span>
+        <span className="hidden sm:inline">Plan Your Stay</span>
       </Link>
     </>
   ),
 };
 
 const DEFAULT: Variant = {
-  id: "hf-bar-default-weddings-2027-2026-10",
+  id: "hf-bar-default-weddings-2027-2026-10b",
   layout: "single",
   body: (
     <>
-      Forest Weddings &middot; Now Booking 2027{" "}
-      <Link
-        href="/weddings"
-        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
-      >
+      <span className="hidden sm:inline">Forest Weddings &middot; </span>
+      Now booking 2027<span className="sm:hidden"> weddings</span>{" "}
+      <Link href="/weddings" className={LINK_CLASS}>
         Inquire
       </Link>
     </>
@@ -176,8 +177,8 @@ const THANKSGIVING: Variant = {
   layout: "single",
   body: (
     <>
-      Thanksgiving on the farm &middot; November 24–28, 2026{" "}
-      <Link href="/thanksgiving#packages" className="ml-1 underline underline-offset-4 decoration-gold/70 hover:decoration-gold">
+      Thanksgiving on the farm<span className="hidden sm:inline"> &middot; November 24–28, 2026</span>{" "}
+      <Link href="/thanksgiving#packages" className={LINK_CLASS}>
         See Packages
       </Link>
     </>
@@ -197,57 +198,90 @@ function pickVariant(pathname: string | null): Variant {
   return DEFAULT;
 }
 
+const HIDE_ATTR = "data-bar-hidden";
+
+function setBarHidden(hidden: boolean) {
+  const el = document.documentElement;
+  if (hidden) el.setAttribute(HIDE_ATTR, "1");
+  else el.removeAttribute(HIDE_ATTR);
+}
+
 export function AnnouncementBar() {
-  const [visible, setVisible] = useState(false);
+  // Rendered on the server (visible by default) so the header height is right
+  // in the first paint. A visitor who dismissed this variant gets it hidden by
+  // the inline script below before first paint; the effect then syncs state.
+  const [visible, setVisible] = useState(true);
   const pathname = usePathname();
   const variant = pickVariant(pathname);
+  // Checkout and cart get no announcement bar: its CTA is a competing link out
+  // of the one page whose only job is finishing the order.
+  const suppressed = pathname === "/shop/checkout" || pathname === "/shop/cart";
 
   useEffect(() => {
-    const dismissed = localStorage.getItem(variant.id);
+    if (suppressed) {
+      setBarHidden(true);
+      return;
+    }
+    let dismissed = false;
+    try {
+      dismissed = !!localStorage.getItem(variant.id);
+    } catch {}
     queueMicrotask(() => setVisible(!dismissed));
-  }, [variant.id]);
+    setBarHidden(dismissed);
+  }, [variant.id, suppressed]);
 
   function dismiss() {
     setVisible(false);
-    localStorage.setItem(variant.id, "true");
+    setBarHidden(true);
+    try {
+      localStorage.setItem(variant.id, "true");
+    } catch {}
   }
 
-  // Checkout and cart get no announcement bar: its CTA is a competing link out
-  // of the one page whose only job is finishing the order. Same reasoning the
-  // floating cart button uses to hide itself there.
-  if (pathname === "/shop/checkout" || pathname === "/shop/cart") return null;
+  if (suppressed) {
+    return (
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.setAttribute("${HIDE_ATTR}","1")`,
+        }}
+      />
+    );
+  }
 
   if (!visible) return null;
 
-  if (variant.layout === "shop") {
-    return (
-      <div className="relative bg-charcoal/90 backdrop-blur-sm text-white text-center text-[0.6875rem] py-2.5 px-12 sm:px-10 sm:text-xs">
-        <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-light tracking-[0.1em] uppercase font-sans sm:gap-x-5 sm:tracking-[0.14em]">
+  const script = `try{if(localStorage.getItem(${JSON.stringify(variant.id)}))document.documentElement.setAttribute("${HIDE_ATTR}","1")}catch(e){}`;
+  const barClass =
+    "relative flex h-11 items-center justify-center bg-charcoal/90 backdrop-blur-sm text-white text-center";
+
+  return (
+    <>
+      <div
+        data-announcement-bar
+        className={
+          variant.layout === "shop"
+            ? `${barClass} text-[0.6875rem] pl-3 pr-12 sm:px-12 sm:text-xs`
+            : `${barClass} text-[0.6875rem] pl-3 pr-12 sm:px-12 sm:text-xs`
+        }
+      >
+        <p
+          className={
+            variant.layout === "shop"
+              ? "flex items-center justify-center gap-x-3 whitespace-nowrap overflow-hidden font-light tracking-[0.06em] uppercase font-sans sm:gap-x-5 sm:tracking-[0.14em]"
+              : "whitespace-nowrap overflow-hidden font-light tracking-[0.06em] sm:tracking-[0.15em] uppercase font-sans"
+          }
+        >
           {variant.body}
         </p>
         <button
           onClick={dismiss}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 hover:opacity-70 transition-opacity"
+          className="absolute right-0 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center hover:opacity-70 transition-opacity"
           aria-label="Dismiss announcement"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
-    );
-  }
-
-  return (
-    <div className="relative bg-charcoal/90 backdrop-blur-sm text-white text-center text-xs py-2.5 px-12 sm:px-10">
-      <p className="font-light tracking-[0.1em] sm:tracking-[0.15em] uppercase font-sans">
-        {variant.body}
-      </p>
-      <button
-        onClick={dismiss}
-        className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 hover:opacity-70 transition-opacity"
-        aria-label="Dismiss announcement"
-      >
-        <X className="h-4 w-4" />
-      </button>
-    </div>
+      <script dangerouslySetInnerHTML={{ __html: script }} />
+    </>
   );
 }

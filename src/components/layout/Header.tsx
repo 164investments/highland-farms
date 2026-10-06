@@ -174,7 +174,7 @@ export function Header() {
               <button
                 onClick={() => setMobileOpen(true)}
                 className={cn(
-                  "lg:hidden p-2 transition-colors",
+                  "lg:hidden -mr-2 flex h-11 w-11 items-center justify-center transition-colors",
                   light ? "text-charcoal" : "text-white"
                 )}
                 aria-label="Open menu"

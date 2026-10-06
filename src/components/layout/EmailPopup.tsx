@@ -12,6 +12,9 @@ const STORAGE_KEYS = {
 
 const DISMISS_DAYS = 30;
 const TRIGGER_DELAY_MS = 45_000;
+/** Touch devices: 30 s AND half the page scrolled, not time alone. */
+const TOUCH_DELAY_MS = 30_000;
+const TOUCH_SCROLL_FRACTION = 0.5;
 const MIN_PAGEVIEWS = 2;
 /** Never interrupt a purchase. */
 const SUPPRESSED_PATHS = ["/shop/cart", "/shop/checkout", "/shop/thank-you", "/shop/order"];
@@ -49,19 +52,55 @@ export function EmailPopup() {
     localStorage.setItem(STORAGE_KEYS.pageviews, String(views));
     const hasEnoughViews = views >= MIN_PAGEVIEWS;
 
-    const timer = setTimeout(() => show(), TRIGGER_DELAY_MS);
+    const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
-    function handleMouseLeave(e: MouseEvent) {
-      if (e.clientY <= 0 && hasEnoughViews) show();
+    // Never interrupt someone who is typing in a form on the page.
+    function fieldFocused() {
+      const el = document.activeElement;
+      return (
+        el instanceof HTMLInputElement ||
+        el instanceof HTMLTextAreaElement ||
+        el instanceof HTMLSelectElement
+      );
     }
 
-    const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    let timeOk = false;
+    let scrollOk = !isTouch;
+    function check() {
+      if (timeOk && scrollOk && !fieldFocused()) show();
+    }
+    function onScroll() {
+      const doc = document.documentElement;
+      const scrollable = doc.scrollHeight - window.innerHeight;
+      if (scrollable > 0 && window.scrollY / scrollable >= TOUCH_SCROLL_FRACTION) {
+        scrollOk = true;
+        check();
+      }
+    }
+
+    const timer = setTimeout(
+      () => {
+        timeOk = true;
+        check();
+      },
+      isTouch ? TOUCH_DELAY_MS : TRIGGER_DELAY_MS,
+    );
+    const onFocusOut = () => setTimeout(check, 0);
+    document.addEventListener("focusout", onFocusOut);
+    if (isTouch) window.addEventListener("scroll", onScroll, { passive: true });
+
+    function handleMouseLeave(e: MouseEvent) {
+      if (e.clientY <= 0 && hasEnoughViews && !fieldFocused()) show();
+    }
+
     if (!isTouch) {
       document.addEventListener("mouseleave", handleMouseLeave);
     }
 
     return () => {
       clearTimeout(timer);
+      document.removeEventListener("focusout", onFocusOut);
+      window.removeEventListener("scroll", onScroll);
       if (!isTouch) {
         document.removeEventListener("mouseleave", handleMouseLeave);
       }

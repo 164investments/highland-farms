@@ -10,6 +10,8 @@ interface ImageCarouselProps {
   images: { src: string; alt: string }[];
   className?: string;
   aspectRatio?: "video" | "photo" | "wide";
+  /** Preload the first slides. Off by default: carousels sit below the hero and must not compete with its LCP image. */
+  eager?: boolean;
 }
 
 const aspectClasses = {
@@ -18,7 +20,7 @@ const aspectClasses = {
   wide: "aspect-[21/9]",
 };
 
-export function ImageCarousel({ images, className, aspectRatio = "video" }: ImageCarouselProps) {
+export function ImageCarousel({ images, className, aspectRatio = "video", eager = false }: ImageCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "start",
@@ -97,7 +99,7 @@ export function ImageCarousel({ images, className, aspectRatio = "video" }: Imag
                   fill
                   sizes="(max-width: 640px) 85vw, (max-width: 1024px) 60vw, 44vw"
                   className="object-cover"
-                  priority={i <= 2}
+                  priority={eager && i <= 2}
                 />
               </div>
             </div>
