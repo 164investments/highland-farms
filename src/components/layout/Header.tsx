@@ -1,51 +1,35 @@
 "use client";
 
-import { useState, useEffect, useRef, useSyncExternalStore } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { Menu, Instagram, ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 import { mainNavItems } from "@/data/navigation";
-import { CONTACT } from "@/lib/constants";
 import { MobileMenu } from "./MobileMenu";
 import { AnnouncementBar } from "./AnnouncementBar";
-import { subscribeSolidHeader, getSolidHeader } from "./header-mode";
+import { CHECK_DATE_HREF, MastheadCheckDate, MastheadLogo } from "./Masthead";
 
-/**
- * Routes with no full-bleed hero photo behind the header. White nav text on a
- * cream page is unreadable, so these get the solid dark-text header from load.
- * Pages with a hero keep the transparent header until scroll. The 404 page
- * asks for solid through header-mode.
- */
-function isLightPage(pathname: string): boolean {
-  return (
-    (pathname.startsWith("/shop/") && pathname !== "/shop/") ||
-    pathname === "/privacy" ||
-    pathname === "/terms" ||
-    pathname === "/accessibility" ||
-    pathname === "/gift-certificates" ||
-    pathname === "/wedding-call" ||
-    pathname.startsWith("/stay/") ||
-    pathname.startsWith("/wedding-portfolio")
-  );
+function isCurrent(pathname: string, href: string): boolean {
+  if (href.startsWith("http")) return false;
+  return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
 }
 
+/**
+ * The paper masthead (Field Guide, approved 2026-10-06), on every page.
+ *
+ * Solid from the first server render: no transparent-over-photo mode, so the
+ * nav is never white text on a light page. Below xl the phone layout (menu,
+ * lettermark, "Check date"); from xl the full nav. Seven nav items do not fit
+ * a third of a 1024-1279px row, so the full nav waits for xl.
+ *
+ * Heights are fixed (60px, 84px from xl, including the 3px double rule) and
+ * mirrored by the static --header-h defaults in globals.css, which the
+ * ResizeObserver below then keeps exact.
+ */
 export function Header() {
-  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname() ?? "";
-  const forcedSolid = useSyncExternalStore(subscribeSolidHeader, getSolidHeader, () => false);
-  const light = scrolled || forcedSolid || isLightPage(pathname);
   const headerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleScroll() {
-      setScrolled(window.scrollY > 20);
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     function updateHeight() {
@@ -65,124 +49,95 @@ export function Header() {
       <div ref={headerRef} className="fixed top-0 left-0 right-0 z-40">
         <AnnouncementBar />
 
-        <header
-          className={cn(
-            "transition-all duration-500",
-            light
-              ? "bg-white/95 backdrop-blur-md shadow-[0_1px_0_rgba(0,0,0,0.04)]"
-              : "bg-gradient-to-b from-black/40 to-transparent"
-          )}
-        >
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between lg:h-18">
-              {/* Logo */}
-              <Link
-                href="/"
-                className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
+        <header className="surface-paper h-[60px] border-b-[3px] border-double border-frame bg-paper text-ink xl:h-[84px]">
+          <div className="mx-auto grid h-full max-w-[1440px] grid-cols-3 items-center pl-1.5 pr-3 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] xl:px-12 min-[1440px]:px-16">
+            {/* Left: menu (phone, tablet) or the full nav (xl) */}
+            <div className="flex items-center">
+              <button
+                type="button"
+                onClick={() => setMobileOpen(true)}
+                className="flex h-11 w-11 items-center justify-center text-ink xl:hidden"
+                aria-label="Open menu"
+                aria-expanded={mobileOpen}
+                aria-haspopup="dialog"
               >
-                <Image
-                  src="/images/logo/HF-logo-white.png"
-                  alt="Highland Farms"
-                  width={44}
-                  height={26}
-                  className={cn(
-                    "h-6 w-auto transition-all duration-500",
-                    light ? "brightness-0 opacity-70" : ""
-                  )}
-                  priority
-                />
-                <span
-                  className={cn(
-                    "text-lg sm:text-xl font-normal transition-colors font-logo",
-                    light ? "text-charcoal" : "text-white"
-                  )}
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  aria-hidden="true"
                 >
-                  Highland Farms
-                </span>
-              </Link>
+                  <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+              </button>
 
-              {/* Desktop nav */}
-              <nav className="hidden lg:flex items-center gap-0.5">
+              <nav
+                aria-label="Main"
+                className="hidden items-center gap-[18px] font-sans text-[13px] tracking-[0.04em] xl:flex min-[1440px]:gap-[26px]"
+              >
                 {mainNavItems.map((item) => (
-                  <div key={item.href} className="relative group">
+                  <div key={item.href} className="group relative">
                     <Link
                       href={item.href}
-                      className={cn(
-                        "flex items-center gap-1 px-3.5 py-2 text-xs font-light tracking-[0.12em] uppercase transition-colors font-sans",
-                        light
-                          ? "text-charcoal/70 hover:text-charcoal"
-                          : "text-white/90 hover:text-white"
-                      )}
+                      aria-current={isCurrent(pathname, item.href) ? "page" : undefined}
+                      className="flex min-h-11 items-center gap-1 whitespace-nowrap text-ink transition-colors hover:text-pine"
                     >
                       {item.label}
-                      {item.children && <ChevronDown className="h-3 w-3 opacity-50" />}
+                      {item.children && (
+                        <ChevronDown className="h-3 w-3 opacity-60" aria-hidden="true" />
+                      )}
                     </Link>
 
                     {item.children && (
-                      <div className="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                        <div className="bg-white/95 backdrop-blur-md rounded-lg shadow-lg border border-black/5 py-2 min-w-[180px]">
-                          {item.children.map((child) =>
-                            child.external ? (
-                              <a
-                                key={child.href}
-                                href={child.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block px-4 py-2 text-xs tracking-wide text-charcoal/70 hover:text-forest hover:bg-sage/5 transition-colors font-sans"
-                              >
-                                {child.label}
-                              </a>
-                            ) : (
-                              <Link
-                                key={child.href}
-                                href={child.href}
-                                className="block px-4 py-2 text-xs tracking-wide text-charcoal/70 hover:text-forest hover:bg-sage/5 transition-colors font-sans"
-                              >
-                                {child.label}
-                              </Link>
-                            )
-                          )}
-                        </div>
+                      <div className="invisible absolute left-0 top-full z-10 pt-1 opacity-0 transition-opacity duration-200 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                        <ul className="min-w-[190px] border border-rule bg-paper-light py-2">
+                          {item.children.map((child) => (
+                            <li key={child.href}>
+                              {child.external ? (
+                                <a
+                                  href={child.href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block px-4 py-2.5 text-[13px] text-ink transition-colors hover:bg-paper hover:text-pine"
+                                >
+                                  {child.label}
+                                </a>
+                              ) : (
+                                <Link
+                                  href={child.href}
+                                  aria-current={pathname === child.href ? "page" : undefined}
+                                  className="block px-4 py-2.5 text-[13px] text-ink transition-colors hover:bg-paper hover:text-pine"
+                                >
+                                  {child.label}
+                                </Link>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     )}
                   </div>
                 ))}
-
-                <a
-                  href={CONTACT.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "ml-2 p-2 transition-colors",
-                    light
-                      ? "text-charcoal/60 hover:text-charcoal"
-                      : "text-white/80 hover:text-white"
-                  )}
-                  aria-label="Follow us on Instagram"
-                >
-                  <Instagram className="h-4 w-4" />
-                </a>
-
-                <Link
-                  href="/contact"
-                  className="ml-3 inline-flex items-center justify-center rounded-full border border-white/50 bg-white/10 backdrop-blur-sm px-5 py-2 text-xs font-light tracking-[0.12em] uppercase text-white transition-all hover:bg-white/20 hover:border-white/70"
-                  style={light ? { borderColor: 'rgba(74,103,65,0.3)', backgroundColor: 'rgba(74,103,65,0.05)', color: '#4A6741' } : {}}
-                >
-                  Inquire
-                </Link>
               </nav>
+            </div>
 
-              {/* Mobile hamburger */}
-              <button
-                onClick={() => setMobileOpen(true)}
-                className={cn(
-                  "lg:hidden -mr-2 flex h-11 w-11 items-center justify-center transition-colors",
-                  light ? "text-charcoal" : "text-white"
-                )}
-                aria-label="Open menu"
+            <MastheadLogo />
+
+            {/* Right: "Check date" (phone, tablet) or the square CTA (xl) */}
+            <div className="flex justify-end">
+              <div className="xl:hidden">
+                <MastheadCheckDate />
+              </div>
+              <Link
+                href={CHECK_DATE_HREF}
+                className="hidden h-10 items-center bg-pine px-[18px] font-sans text-xs font-semibold uppercase tracking-[0.14em] text-paper-light transition-colors hover:bg-pine-dark xl:flex"
               >
-                <Menu className="h-5 w-5" />
-              </button>
+                Check your date
+              </Link>
             </div>
           </div>
         </header>

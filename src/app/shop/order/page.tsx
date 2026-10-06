@@ -19,7 +19,7 @@ const MAIL_HREF = `mailto:${CONTACT.emailAlt}?subject=${encodeURIComponent(
 
 export default function ShopOrderPage() {
   return (
-    <main className="bg-cream pt-32 pb-20 sm:pb-28">
+    <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
       <Container className="max-w-3xl">
         <Link
           href="/shop"

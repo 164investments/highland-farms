@@ -49,7 +49,7 @@ export default async function UnsubscribePage({
   const ok = token ? await unsubscribe(token) : false;
 
   return (
-    <main className="bg-cream pt-32 pb-20">
+    <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20">
       <Container className="max-w-lg text-center">
         {ok ? (
           <>

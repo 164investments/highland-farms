@@ -15,7 +15,7 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <StructuredData pathname="/privacy" />
-      <section className="pt-32 pb-20 lg:pb-28 bg-background">
+      <section className="pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 lg:pb-28 bg-background">
         <Container className="max-w-3xl">
           <h1 className="text-3xl font-normal sm:text-4xl mb-2">
             Privacy Policy

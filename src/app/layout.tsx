@@ -16,17 +16,20 @@ import { CartProvider } from "@/lib/shop/cart";
 import { CartButton } from "@/components/shop/CartButton";
 import "./globals.css";
 
+// 600 costs no extra download: both are variable fonts and Google serves the
+// same woff2 for 400-600 (checked 2026-10-06). The paper masthead and the
+// first screens use 600 for CTAs, list labels and the "Most popular" row.
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
 });
 
 const dancingScript = Dancing_Script({

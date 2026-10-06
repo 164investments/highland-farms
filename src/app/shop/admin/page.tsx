@@ -121,7 +121,7 @@ export default async function AdminPage({
   const { inventory, orders, candidates, error } = await loadData();
 
   return (
-    <main className="bg-cream pt-28 pb-20">
+    <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20">
       <Container className="max-w-6xl">
         <h1 className="font-display text-3xl font-light tracking-tight text-charcoal">
           Farm store
@@ -151,7 +151,7 @@ export default async function AdminPage({
 
 function Gate({ children }: { children: React.ReactNode }) {
   return (
-    <main className="bg-cream pt-32 pb-20">
+    <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20">
       <Container className="max-w-lg">
         <div className="rounded-2xl bg-white p-8 shadow-sm">
           <h1 className="font-display text-2xl font-light text-charcoal">

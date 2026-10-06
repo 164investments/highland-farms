@@ -67,7 +67,7 @@ export default async function ProductPage({
   };
 
   return (
-    <div className="bg-cream pt-32 pb-20 sm:pb-28">
+    <div className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
       <StructuredData pathname={`/shop/${product.slug}`} />
       <script
         type="application/ld+json"

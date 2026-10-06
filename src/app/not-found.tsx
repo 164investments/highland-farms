@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
-import { SolidHeaderMarker } from "@/components/layout/SolidHeaderMarker";
 import { CONTACT } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -19,8 +18,7 @@ const links = [
 
 export default function NotFound() {
   return (
-    <div className="bg-cream pt-36 pb-20 sm:pb-28">
-      <SolidHeaderMarker />
+    <div className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
       <Container className="max-w-3xl text-center">
         <div className="relative mx-auto aspect-[4/3] w-full max-w-md overflow-hidden rounded-2xl shadow-sm">
           <Image

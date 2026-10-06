@@ -53,7 +53,7 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
   const offers = addOns.filter((a) => !inCart.has(a.variantId)).slice(0, 3);
 
   return (
-    <div className="bg-cream pt-32 pb-20 sm:pb-28">
+    <div className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
       <Container className="max-w-3xl">
         <Link
           href="/shop"

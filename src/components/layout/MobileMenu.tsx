@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { X, Phone, Mail, Instagram } from "lucide-react";
 import { mainNavItems } from "@/data/navigation";
 import { CONTACT } from "@/lib/constants";
 import { giftCertificatesHref, nativeCalendarEnabled } from "@/lib/booking/flag";
+import { MastheadCheckDate, MastheadLogo } from "./Masthead";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -47,35 +47,25 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-warm-white"
+      className="surface-paper fixed inset-0 z-50 bg-paper text-ink"
       role="dialog"
       aria-modal="true"
       aria-label="Navigation menu"
       ref={menuRef}
     >
       <div className="flex h-full flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5">
-          <Link href="/" onClick={onClose} className="inline-flex items-center gap-2">
-            <Image
-              src="/images/logo/HF-Lettermark.png"
-              alt="Highland Farms"
-              width={36}
-              height={21}
-              className="h-5 w-auto"
-            />
-            <span className="text-lg font-normal font-logo">
-              Highland Farms
-            </span>
-          </Link>
+        {/* Mirrors the masthead: close where the menu button was, lettermark, Check date */}
+        <div className="grid h-[60px] shrink-0 grid-cols-3 items-center border-b-[3px] border-double border-frame pl-1.5 pr-3">
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="flex h-11 w-11 items-center justify-center -mr-1 hover:opacity-70 transition-opacity"
+            className="flex h-11 w-11 items-center justify-center text-ink transition-opacity hover:opacity-70"
             aria-label="Close menu"
           >
-            <X className="h-5 w-5" aria-hidden="true" />
+            <X className="h-6 w-6" strokeWidth={1.6} aria-hidden="true" />
           </button>
+          <MastheadLogo onClick={onClose} />
+          <MastheadCheckDate onClick={onClose} />
         </div>
 
         {/* Nav links */}
@@ -86,7 +76,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 <Link
                   href={item.href}
                   onClick={onClose}
-                  className="block py-3.5 text-lg font-normal text-charcoal hover:text-forest transition-colors border-b border-cream-dark/20 font-display"
+                  className="block py-3.5 text-xl font-medium text-ink hover:text-pine transition-colors border-b border-rule font-display"
                 >
                   {item.label}
                 </Link>
@@ -102,7 +92,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={onClose}
-                            className="block py-2.5 text-sm text-muted font-light hover:text-forest transition-colors font-sans"
+                            className="block py-2.5 text-sm text-ink-body hover:text-pine transition-colors font-sans"
                           >
                             {child.label}
                           </a>
@@ -110,7 +100,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                           <Link
                             href={child.href}
                             onClick={onClose}
-                            className="block py-2.5 text-sm text-muted font-light hover:text-forest transition-colors font-sans"
+                            className="block py-2.5 text-sm text-ink-body hover:text-pine transition-colors font-sans"
                           >
                             {child.label}
                           </Link>
@@ -126,7 +116,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       ? {}
                       : { target: "_blank", rel: "noopener noreferrer" })}
                     onClick={onClose}
-                    className="block py-3.5 text-lg font-normal text-charcoal hover:text-forest transition-colors border-b border-cream-dark/20 font-display"
+                    className="block py-3.5 text-xl font-medium text-ink hover:text-pine transition-colors border-b border-rule font-display"
                   >
                     Gift Certificates
                   </a>
@@ -139,7 +129,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <Link
                 href="/contact"
                 onClick={onClose}
-                className="block py-3.5 text-lg font-normal text-forest hover:text-forest-light transition-colors font-display"
+                className="block py-3.5 text-xl font-medium text-pine hover:text-pine-dark transition-colors font-display"
               >
                 Get in Touch
               </Link>
@@ -148,11 +138,11 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         </nav>
 
         {/* Footer with contact info */}
-        <div className="border-t border-cream-dark/20 px-6 py-5 space-y-3">
+        <div className="border-t border-rule px-6 py-5 space-y-3">
           <div className="flex items-center gap-3">
             <a
               href={`tel:${CONTACT.phone.replace(/\s/g, "")}`}
-              className="flex items-center gap-2 text-sm text-charcoal/70 hover:text-forest transition-colors font-sans font-light"
+              className="flex min-h-11 items-center gap-2 text-sm text-ink-body hover:text-pine transition-colors font-sans"
             >
               <Phone className="h-3.5 w-3.5 shrink-0" />
               {CONTACT.phone}
@@ -161,7 +151,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           <div className="flex items-center gap-3">
             <a
               href={`mailto:${CONTACT.email}`}
-              className="flex items-center gap-2 text-sm text-charcoal/70 hover:text-forest transition-colors font-sans font-light"
+              className="flex min-h-11 items-center gap-2 text-sm text-ink-body hover:text-pine transition-colors font-sans"
             >
               <Mail className="h-3.5 w-3.5 shrink-0" />
               {CONTACT.email}
@@ -172,7 +162,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               href={CONTACT.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-charcoal/70 hover:text-forest transition-colors font-sans font-light"
+              className="flex min-h-11 items-center gap-2 text-sm text-ink-body hover:text-pine transition-colors font-sans"
             >
               <Instagram className="h-3.5 w-3.5 shrink-0" />
               {CONTACT.instagramHandle}

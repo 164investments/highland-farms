@@ -345,7 +345,7 @@ export function CheckoutBody({
 
   if (cartReady && count === 0) {
     return (
-      <main className="bg-cream pt-32 pb-20">
+      <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20">
         <Container className="max-w-2xl text-center">
           <h1 className="font-display text-3xl font-light text-charcoal">Your cart is empty</h1>
           <Link
@@ -362,7 +362,7 @@ export function CheckoutBody({
   const busy = status === "submitting";
 
   return (
-    <main className="bg-cream pt-32 pb-20 sm:pb-28">
+    <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
       <Container className="max-w-3xl">
         <Link
           href="/shop/cart"
