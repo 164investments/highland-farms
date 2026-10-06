@@ -13,14 +13,14 @@ import { CONTACT } from "@/lib/constants";
 import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
-  title: "Oregon Farm Wedding Venue — All-Inclusive at Mt. Hood",
+  title: { absolute: "Mt. Hood Wedding Venue | All-Inclusive | Highland Farms" },
   description:
-    "Oregon's premier farm wedding venue at the base of Mt. Hood — about an hour from Portland. All-inclusive outdoor weddings with Scottish Highland Cows, on-site lodging for 20 guests, Nordic spa & full event coordination.",
+    "All-inclusive forest weddings with Scottish Highland cows, about an hour from Portland at the base of Mt. Hood. See the venue and real weddings.",
   alternates: { canonical: "/weddings" },
   openGraph: {
-    title: "Oregon Farm Wedding Venue — Highland Farms at Mt. Hood",
+    title: "Mt. Hood Wedding Venue | All-Inclusive | Highland Farms",
     description:
-      "All-inclusive farm and forest wedding venue near Portland, Oregon. Five acres of old-growth forest, Scottish Highland Cows, on-site lodging for 20 guests, and dedicated event coordination.",
+      "All-inclusive forest weddings with Scottish Highland cows, about an hour from Portland at the base of Mt. Hood. See the venue and real weddings.",
     url: "https://highlandfarmsoregon.com/weddings",
     type: "website",
     images: [
@@ -143,17 +143,21 @@ export default function WeddingsPage() {
             Exchange vows under towering evergreens, celebrate with Scottish Highland Cows,
             and host your closest family and friends on-site at the base of Mt. Hood.
           </p>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <div
+            className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
+            data-hero-cta
+          >
             <Button href="#contact" size="lg" className="bg-white text-charcoal hover:bg-cream">
               Check your date
             </Button>
             <Button
-              href="#gallery"
+              href="https://highlandfarmsoregon.com/lookbook.pdf"
+              external
               variant="outline"
               size="lg"
               className="border-white/60 text-white hover:bg-white/10 hover:border-white/80 hover:text-white"
             >
-              View Gallery
+              See the 2027 look book
             </Button>
           </div>
         </div>
@@ -298,6 +302,27 @@ export default function WeddingsPage() {
             title="Check Availability for Your Date"
             subtitle="Now booking 2027 weddings. Every wedding at Highland Farms is unique — tell us your vision and we'll create a custom package."
           />
+          <p className="mx-auto mb-5 max-w-xl text-center text-base text-charcoal font-sans font-light leading-relaxed">
+            Prefer to talk first?{" "}
+            <a
+              href="/wedding-call"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-normal text-forest underline underline-offset-4 hover:text-forest-light"
+            >
+              Book a free 45-minute call with Connor, who owns the farm.
+            </a>{" "}
+            Or{" "}
+            <a
+              href="https://highlandfarmsoregon.com/lookbook.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-forest underline underline-offset-4 hover:text-forest-light"
+            >
+              see the 2027 look book
+            </a>
+            .
+          </p>
           <div className="mx-auto max-w-xl rounded-xl border border-cream-dark bg-white p-6 sm:p-8 shadow-sm">
             <ContactForm
               defaultEventType="wedding"
