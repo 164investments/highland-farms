@@ -233,7 +233,7 @@ export default async function ShopPage() {
                     Pasture-raised
                   </dt>
                   <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
-                    No hormones
+                    Raised at the base of Mt. Hood
                   </dd>
                 </div>
               </div>
@@ -275,7 +275,7 @@ export default async function ShopPage() {
                     Local delivery
                   </dt>
                   <dd className="mt-0.5 hidden text-[0.625rem] uppercase tracking-[0.08em] text-charcoal/55 sm:block">
-                    $15 nearby
+                    $15, orders $50+
                   </dd>
                 </div>
               </div>

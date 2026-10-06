@@ -172,8 +172,8 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
                 </span>
               </div>
               <p className="mt-1.5 text-xs text-muted font-sans">
-                Free pickup at the farm in Brightwood, or $15 delivery around Mt.
-                Hood and east Portland. We don&apos;t ship.
+                Free pickup at the farm in Brightwood, or $15 delivery on orders of $50
+                or more around Mt. Hood and east Portland. We don&apos;t ship.
               </p>
               {/* Goal-gradient: name the actual gap instead of a static rule the
                   shopper has to do arithmetic on. Only shown when it's reachable
@@ -196,7 +196,7 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
               <ul className="mt-4 space-y-1.5 text-xs text-muted font-sans">
                 <li className="flex items-center gap-2">
                   <Star className="h-3 w-3 shrink-0 fill-forest text-forest" aria-hidden />
-                  Loved by {REVIEW_COUNT}+ guests on Google
+                  Loved by {REVIEW_COUNT} guests on Google
                 </li>
                 <li className="flex items-center gap-2">
                   <Lock className="h-3 w-3 shrink-0 text-sage" aria-hidden />

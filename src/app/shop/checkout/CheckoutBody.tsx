@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, Lock, MapPin, Truck } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { useCart } from "@/lib/shop/cart";
-import { formatCents } from "@/lib/shop/money";
+import { formatCents, formatCentsShort } from "@/lib/shop/money";
 import {
   DELIVERY_FEE_CENTS,
   DELIVERY_MINIMUM_CENTS,
@@ -395,7 +395,7 @@ export function CheckoutBody({
                     key: "delivery" as const,
                     icon: Truck,
                     title: "Local delivery",
-                    detail: `${formatCents(DELIVERY_FEE_CENTS)} · Mt. Hood & east Portland`,
+                    detail: `${formatCents(DELIVERY_FEE_CENTS)} · orders ${formatCentsShort(DELIVERY_MINIMUM_CENTS)}+ · Mt. Hood & east Portland`,
                   },
                 ]
               ).map((opt) => {
@@ -590,7 +590,7 @@ export function CheckoutBody({
                 the checkout page is a leak, not a convenience. */}
             <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-xs text-muted font-sans">
               <Star className="h-3 w-3 fill-forest text-forest" aria-hidden />
-              Loved by {REVIEW_COUNT}+ guests on Google
+              Loved by {REVIEW_COUNT} guests on Google
             </p>
           </div>
         </form>
