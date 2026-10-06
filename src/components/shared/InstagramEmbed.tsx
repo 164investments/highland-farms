@@ -1,61 +1,10 @@
-"use client";
-
-import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Heart, MessageCircle, Send, Bookmark, Play, MoreHorizontal } from "lucide-react";
-import { CONTACT } from "@/lib/constants";
+import { Play } from "lucide-react";
+import { CONTACT, INSTAGRAM_FOLLOWERS } from "@/lib/constants";
 
-const PROFILE = {
-  handle: CONTACT.instagramHandle,
-  url: CONTACT.instagram,
-  followers: "18.1K",
-  following: "544",
-  posts: "339",
-  location: "Mt Hood, OR",
-  bio: "Weddings, Retreats, Celebrations, Nordic Spa, Farm Tours and Farm Stays with Scottish Highland Cows",
-  linkText: "Experience Highland Farms",
-  verified: false,
-};
-
-const PROFILE_AVATAR = "/images/farm/instagram-profile.png";
-
-const instagramPosts = [
-  {
-    url: "https://www.instagram.com/reel/DG1WGsSSt9e/",
-    image: "/images/farm/cow-2.jpg",
-    alt: "Scottish Highland Cows at Highland Farms Oregon",
-    caption: "There's nothing quite like a morning with our Scottish Highland Cows at the base of Mt. Hood.",
-    likes: "2,841",
-    comments: "134",
-    timeAgo: "4d",
-    isReel: true,
-    featured: false,
-  },
-  {
-    url: "https://www.instagram.com/reel/DUjsovNjzjf/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
-    image: "/images/farm/goats.jpg",
-    alt: "Highland Farms featured on LivePDX",
-    caption: "What a wild ride it's been! Thank you @livepdx for sharing our farm with Portland.",
-    likes: "4,832",
-    comments: "217",
-    timeAgo: "2w",
-    isReel: true,
-    featured: true,
-    postedBy: "livepdxofficial",
-  },
-  {
-    url: "https://www.instagram.com/reel/C8iizbbv47X/",
-    image: "/images/weddings/hannah-max/01.jpg",
-    alt: "Forest wedding at Highland Farms",
-    caption: "Forest weddings hit different at Highland Farms. Surrounded by old-growth trees, Scottish Highland Cows, and the magic of Mt. Hood.",
-    likes: "1,563",
-    comments: "98",
-    timeAgo: "3w",
-    isReel: true,
-    featured: false,
-  },
-];
+const LIVEPDX_REEL =
+  "https://www.instagram.com/reel/DUjsovNjzjf/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==";
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -75,13 +24,13 @@ export function InstagramEmbed() {
         <SectionHeading
           eyebrow="Follow Along"
           title="See Highland Farms on Instagram"
-          subtitle="Join 18K+ followers for daily farm life, forest weddings, and Highland Cow moments."
+          subtitle={`${INSTAGRAM_FOLLOWERS} people follow ${CONTACT.instagramHandle} for farm life, forest weddings, and Highland cow moments.`}
         />
 
         {/* As Seen On LivePDX banner */}
         <div className="mx-auto mb-8 max-w-2xl">
           <a
-            href="https://www.instagram.com/reel/DUjsovNjzjf/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="
+            href={LIVEPDX_REEL}
             target="_blank"
             rel="noopener noreferrer"
             className="group block rounded-2xl bg-gradient-to-r from-[#0d9488] to-[#14b8a6] p-[1px] shadow-sm hover:shadow-md transition-all duration-500"
@@ -102,7 +51,7 @@ export function InstagramEmbed() {
               </div>
               <div className="text-right hidden sm:block">
                 <p className="text-sm text-charcoal/80 font-sans font-light">
-                  Featured on Portland&apos;s favorite local guide
+                  Featured by LivePDX
                 </p>
                 <p className="text-xs text-[#0d9488] font-sans mt-0.5 group-hover:underline">
                   Watch the feature &rarr;
@@ -117,203 +66,15 @@ export function InstagramEmbed() {
           </a>
         </div>
 
-        {/* Instagram profile header */}
-        <div className="mx-auto mb-10 max-w-2xl rounded-2xl bg-white p-6 shadow-sm border border-cream-dark/30">
-          <div className="flex items-center gap-5">
-            {/* Avatar */}
-            <div className="relative shrink-0">
-              <div className="h-20 w-20 rounded-full bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] p-[3px]">
-                <div className="h-full w-full rounded-full bg-white p-[2px]">
-                  <div className="relative h-full w-full rounded-full overflow-hidden">
-                    <Image
-                      src={PROFILE_AVATAR}
-                      alt="Highland Farms"
-                      fill
-                      sizes="80px"
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-base font-normal text-charcoal font-sans">
-                  {PROFILE.handle}
-                </span>
-              </div>
-
-              {/* Stats */}
-              <div className="mt-2 flex items-center gap-5 text-sm font-sans">
-                <div>
-                  <span className="font-medium text-charcoal">{PROFILE.posts}</span>{" "}
-                  <span className="text-muted font-light">posts</span>
-                </div>
-                <div>
-                  <span className="font-medium text-charcoal">{PROFILE.followers}</span>{" "}
-                  <span className="text-muted font-light">followers</span>
-                </div>
-                <div className="hidden sm:block">
-                  <span className="font-medium text-charcoal">{PROFILE.following}</span>{" "}
-                  <span className="text-muted font-light">following</span>
-                </div>
-              </div>
-
-              <p className="mt-1 text-xs text-muted font-sans font-light hidden sm:block">
-                {PROFILE.location}
-              </p>
-              <p className="mt-0.5 text-sm text-charcoal/80 font-sans font-light hidden sm:block">
-                {PROFILE.bio}
-              </p>
-              <p className="mt-0.5 text-sm text-[#00376b] font-sans font-normal hidden sm:block">
-                {PROFILE.linkText}
-              </p>
-            </div>
-
-            {/* Follow button */}
-            <a
-              href={PROFILE.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-[#0095f6] px-5 py-2 text-sm font-medium text-white hover:bg-[#1877f2] transition-colors"
-            >
-              Follow
-            </a>
-          </div>
-        </div>
-
-        {/* Post cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {instagramPosts.map((post) => (
-            <a
-              key={post.url}
-              href={post.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`group block rounded-2xl bg-white overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 ${
-                post.featured
-                  ? "border-2 border-[#0d9488]/40 ring-1 ring-[#0d9488]/10"
-                  : "border border-cream-dark/30"
-              }`}
-            >
-              {/* Featured badge */}
-              {post.featured && (
-                <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#0d9488] to-[#14b8a6] px-3.5 py-2">
-                  <Play className="h-3 w-3 text-white fill-white" />
-                  <span className="text-xs font-medium text-white tracking-wide font-sans">
-                    As Seen on Live<span className="font-semibold">PDX</span>
-                  </span>
-                </div>
-              )}
-
-              {/* Post header */}
-              <div className="flex items-center gap-2.5 px-3.5 py-2.5">
-                <div className={`h-8 w-8 rounded-full p-[2px] shrink-0 ${
-                  post.featured
-                    ? "bg-gradient-to-br from-[#0d9488] to-[#14b8a6]"
-                    : "bg-gradient-to-br from-[#f09433] via-[#dc2743] to-[#bc1888]"
-                }`}>
-                  <div className="h-full w-full rounded-full bg-white p-[1px]">
-                    <div className="relative h-full w-full rounded-full overflow-hidden">
-                      <Image
-                        src={post.featured ? "/images/farm/goats.jpg" : PROFILE_AVATAR}
-                        alt=""
-                        fill
-                        sizes="32px"
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-charcoal font-sans truncate">
-                    {("postedBy" in post && post.postedBy) || "highlandfarmsor"}
-                  </p>
-                </div>
-                <MoreHorizontal className="h-4 w-4 text-muted/60 shrink-0" />
-              </div>
-
-              {/* Image */}
-              <div className="relative aspect-square overflow-hidden">
-                <Image
-                  src={post.image}
-                  alt={post.alt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-                />
-                {post.isReel && !post.featured && (
-                  <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 backdrop-blur-sm">
-                    <Play className="h-3 w-3 text-white fill-white" />
-                    <span className="text-[10px] font-medium text-white">Reel</span>
-                  </div>
-                )}
-                {post.featured && (
-                  <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-[#0d9488]/90 px-2.5 py-1 backdrop-blur-sm">
-                    <Play className="h-3 w-3 text-white fill-white" />
-                    <span className="text-[10px] font-medium text-white">Reel</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Action bar */}
-              <div className="px-3.5 pt-2.5 pb-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Heart className={`h-[22px] w-[22px] transition-colors ${post.featured ? "text-red-500 fill-red-500" : "text-charcoal hover:text-muted"}`} />
-                    <MessageCircle className="h-[22px] w-[22px] text-charcoal hover:text-muted transition-colors scale-x-[-1]" />
-                    <Send className="h-[20px] w-[20px] text-charcoal hover:text-muted transition-colors -rotate-12" />
-                  </div>
-                  <Bookmark className="h-[22px] w-[22px] text-charcoal hover:text-muted transition-colors" />
-                </div>
-              </div>
-
-              {/* Likes */}
-              <div className="px-3.5 pt-1.5">
-                <p className="text-xs font-medium text-charcoal font-sans">
-                  {post.likes} likes
-                </p>
-              </div>
-
-              {/* Caption */}
-              <div className="px-3.5 pt-1 pb-1">
-                <p className="text-xs text-charcoal font-sans line-clamp-2">
-                  <span className="font-medium">
-                    {("postedBy" in post && post.postedBy) || "highlandfarmsor"}
-                  </span>{" "}
-                  <span className="font-light text-charcoal/80">{post.caption}</span>
-                </p>
-              </div>
-
-              {/* Comments */}
-              <div className="px-3.5 pb-2">
-                <p className="text-[11px] text-muted font-sans font-light">
-                  View all {post.comments} comments
-                </p>
-              </div>
-
-              {/* Time */}
-              <div className="px-3.5 pb-3">
-                <p className="text-[10px] text-muted/70 font-sans font-light uppercase tracking-wide">
-                  {post.timeAgo}
-                </p>
-              </div>
-            </a>
-          ))}
-        </div>
-
-        {/* View more CTA */}
-        <div className="mt-10 text-center">
+        <div className="mt-2 text-center">
           <a
-            href={PROFILE.url}
+            href={CONTACT.instagram}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2.5 rounded-full border border-charcoal/20 bg-white px-6 py-3 text-sm font-light text-charcoal hover:border-charcoal/40 hover:shadow-sm transition-all font-sans tracking-wide"
           >
             <InstagramIcon className="h-4 w-4" />
-            View More on Instagram
+            Follow {CONTACT.instagramHandle} on Instagram
           </a>
         </div>
       </Container>

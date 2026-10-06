@@ -60,7 +60,7 @@ export const CATEGORIES: Category[] = [
     label: "Highland Beef",
     shortLabel: "Highland Beef",
     story:
-      "From our herd. Scottish Highland beef, grass-fed at the base of Mt. Hood — lean and deeply flavorful.",
+      "From our herd. Scottish Highland beef, pasture-raised at the base of Mt. Hood — lean and deeply flavorful.",
   },
   {
     key: "pantry",
@@ -97,7 +97,7 @@ export interface Product {
    * the fulfillment terms in `src/lib/shop/fulfillment.ts`, or the farm facts
    * already live on `/shop` and in `public/llms.txt` — five acres in Brightwood
    * at the base of Mt. Hood, Scottish Highland cattle and Mangalitsa pigs
-   * raised on the property, "Pasture-raised, no hormones", "Family-run since
+   * raised on the property, "Pasture-raised", "Family-run since
    * 2019", and the two named cows the plush are modeled on (Princess Fiona,
    * white; Mr. Finley, red).
    *
@@ -422,7 +422,7 @@ export const PRODUCTS: Product[] = [
     slug: "ground-beef",
     name: "Top Sirloin Ground Beef",
     description:
-      "Ground beef from our own Scottish Highland herd, ground from top sirloin and sold in 1 lb packs. The cattle are raised on our pastures at the base of Mt. Hood — pasture-raised, no hormones.",
+      "Ground beef from our own Scottish Highland herd, ground from top sirloin and sold in 1 lb packs. The cattle are raised on our pastures at the base of Mt. Hood — pasture-raised.",
     category: "beef",
     image: "/images/shop/ground-beef.jpg",
     priceNote: "1 lb",
@@ -435,7 +435,7 @@ export const PRODUCTS: Product[] = [
     slug: "highland-beef-new-york-steak",
     name: "New York Steak",
     description:
-      "A New York steak from our own Scottish Highland herd — the strip cut taken from the short loin. The cattle are pasture-raised with no hormones on five acres in Brightwood, at the base of Mt. Hood.",
+      "A New York steak from our own Scottish Highland herd — the strip cut taken from the short loin. The cattle are pasture-raised on five acres in Brightwood, at the base of Mt. Hood.",
     category: "beef",
     image: "/images/shop/ny-steak.jpg",
     badges: ["From Our Herd"],
@@ -447,7 +447,7 @@ export const PRODUCTS: Product[] = [
     slug: "highland-beef-tenderloin-steak",
     name: "Tenderloin Steak",
     description:
-      "A tenderloin steak from our own Scottish Highland herd, cut from the tenderloin that runs along the backbone — a different cut from the New York strip we also sell. Pasture-raised, no hormones, at the base of Mt. Hood.",
+      "A tenderloin steak from our own Scottish Highland herd, cut from the tenderloin that runs along the backbone — a different cut from the New York strip we also sell. Pasture-raised, at the base of Mt. Hood.",
     category: "beef",
     image: "/images/shop/tenderloin-steak.jpg",
     badges: ["From Our Herd"],
@@ -459,7 +459,7 @@ export const PRODUCTS: Product[] = [
     slug: "a-dozen-eggs",
     name: "Farm Fresh Eggs",
     description:
-      "A dozen eggs from our own hens, laid this week on the farm in Brightwood. Sold by the dozen for free pickup at the farm, or added to a local delivery run through the Mt. Hood corridor and east Portland.",
+      "A dozen eggs from our own hens on the farm in Brightwood. Sold by the dozen for free pickup at the farm, or added to a local delivery run through the Mt. Hood corridor and east Portland.",
     category: "pantry",
     image: "/images/shop/eggs.jpg",
     priceNote: "dozen",

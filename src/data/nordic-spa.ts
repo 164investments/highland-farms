@@ -1,10 +1,18 @@
 import type { FAQItem } from "@/lib/types";
 
+/** The four-row circuit in the /nordic-spa first screen (B-spa board). */
+export const SPA_CIRCUIT = [
+  { term: "Heat", detail: "The wood-burning cedar sauna" },
+  { term: "Steam", detail: "The wet sauna" },
+  { term: "Cold", detail: "The plunge on the deck" },
+  { term: "Rest", detail: "Robes and towels are on us" },
+] as const;
+
 export const nordicSpaFAQ: FAQItem[] = [
   {
     question: "What is the Nordic Spa experience?",
     answer:
-      "Our Nordic spa features a wood burning cedar dry sauna, wet sauna, and cold plunge nestled in the forest among towering evergreens. Enjoy a 90-minute session surrounded by nature.",
+      "Our Nordic spa features a wood burning cedar dry sauna, wet sauna, and cold plunge set in the forest among towering evergreens. Enjoy a 90-minute session surrounded by nature.",
   },
   {
     question: "How many guests per session?",
@@ -17,6 +25,16 @@ export const nordicSpaFAQ: FAQItem[] = [
       "Bring your bathing suit and comfortable walking shoes. We will provide you with a towel and robe for your spa session. Changing areas are available on-site.",
   },
   {
+    question: "Is there a minimum age?",
+    answer:
+      "Yes. Guests must be 16 or older. Because sessions are shared, no one under 16 can join a session.",
+  },
+  {
+    question: "What if it rains, or I'm running late?",
+    answer:
+      "Rain changes nothing: sessions run as booked, rain or shine. Sessions start on time and run a maximum of 90 minutes. If you're more than 15 minutes late, your session may be shortened or cancelled at your expense. Park on the right in the gravel after the gate.",
+  },
+  {
     question: "Is the Nordic Spa wheelchair accessible?",
     answer:
       "Our Nordic Spa is not ADA accessible. It sits in a natural forest setting reached by uneven ground and steps, so it cannot accommodate wheelchairs or mobility devices. Please reach out before booking if you have any questions about access — we're always happy to help.",
@@ -24,7 +42,7 @@ export const nordicSpaFAQ: FAQItem[] = [
   {
     question: "Can I book a spa session with a farm tour?",
     answer:
-      "Yes! We recommend scheduling your spa session the hour time slot before or the hour time slot after your farm tour.",
+      "Yes. Book them as two appointments, at least 1 hour apart.",
   },
   {
     question: "Is the spa available year-round?",
@@ -34,6 +52,6 @@ export const nordicSpaFAQ: FAQItem[] = [
   {
     question: "What is the cancellation policy?",
     answer:
-      "Our cancellation policy is strict. All spa bookings are final: no refunds, no reschedules, no credits, and no transfers, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if Highland Farms has to cancel a session for severe weather or a safety issue on our end, in which case you'll receive a full refund or a new date.",
+      "Our cancellation policy is strict. All spa bookings are final: no refunds, no reschedules, no credits, and no transfers, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if we cancel for severe weather or for the safety of our animals or guests, in which case we will refund or rebook you.",
   },
 ];

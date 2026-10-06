@@ -19,7 +19,7 @@ export default async function ThankYouPage({
   const orderNumber = (order ?? "").slice(0, 32);
 
   return (
-    <main className="bg-cream pt-32 pb-20 sm:pb-28">
+    <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
       <Container className="max-w-2xl text-center">
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-forest text-white">
           <Check className="h-6 w-6" />

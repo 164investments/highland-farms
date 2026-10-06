@@ -19,7 +19,7 @@ const MAIL_HREF = `mailto:${CONTACT.emailAlt}?subject=${encodeURIComponent(
 
 export default function ShopOrderPage() {
   return (
-    <main className="bg-cream pt-32 pb-20 sm:pb-28">
+    <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
       <Container className="max-w-3xl">
         <Link
           href="/shop"
@@ -68,7 +68,7 @@ export default function ShopOrderPage() {
         <div className="mt-6 flex items-start gap-3 rounded-2xl bg-white/60 p-6 text-sm leading-relaxed text-muted font-sans">
           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
           <p>
-            Pickup is at the farm in Brightwood, about 50 minutes from Portland
+            Pickup is at the farm in Brightwood, about an hour from Portland
             at the base of Mt. Hood. Tell us what you&apos;d like and when
             you&apos;re coming, and we&apos;ll have it packed and waiting.
           </p>

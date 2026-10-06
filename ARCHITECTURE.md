@@ -26,8 +26,9 @@ src/
     shop/                  the farm store — see "Commerce" below
     api/                   route handlers; one directory per integration
   components/
-    layout/                shell: Header, Footer, GTM, popups, StructuredData
-    ui/                    primitives: Container, Button, SectionHeading, FadeIn
+    layout/                shell: Header (+ Masthead), Footer, GTM, popups, StructuredData
+    ui/                    primitives: Container, Button, SectionHeading, FadeIn,
+                           FieldGuide (paper system: Plate, FieldRows, CTA classes)
     forms/                 lead capture
     shared/                cross-page blocks (reviews, email capture)
     shop/                  commerce-only UI that lives outside /app/shop
@@ -67,6 +68,24 @@ Accommodation and experience photos use the existing real farm assets.
 | A DB table | append to a `supabase-*.sql` file, then **apply it before deploying** |
 | A one-off or cron script | `scripts/` |
 | A review count, rating, or star badge | import from `src/lib/reviews.ts` — never a literal |
+| A Field Guide (paper) first screen | `src/app/<route>/<Name>Hero.tsx` beside the page, built from `src/components/ui/FieldGuide.tsx`; its list copy in `src/data/` |
+
+## The paper masthead and first screens
+
+Approved 2026-10-06 ("Field Guide", led by weddings). The masthead
+(`Header.tsx`, with `Masthead.tsx` shared by the menu overlay) is solid
+paper on every page from the first render; there is no transparent mode
+and no per-page header switch. Its height is fixed (60px, 84px from xl,
+plus the 44px announcement bar) and the static `--header-h` defaults in
+`globals.css` mirror it, so pages offset with `var(--header-h)` rather
+than a fixed `pt-32`.
+
+The home, /weddings, /farm-tours and /nordic-spa first screens share the
+paper tokens (`--paper`, `--ink*`, `--pine`, `--rule`, `--frame`) and one
+7/5 desktop grid. Each plate is the page's LCP image: a sized frame with
+a `fill` image at high priority (the homepage art-directs two photos with
+`getImageProps` and `<picture>`). Booking actions in them go through
+`BookingButton` / `BookingTextLink` so tracking and the modal stay one path.
 
 ## Social proof (Google reviews)
 

@@ -10,6 +10,7 @@ import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
 import {
   BookingButton,
   BookingModalRoot,
+  BookingTextLink,
   BookingStickyCTA,
 } from "@/components/shared/BookingButton";
 import { TourVideo } from "@/components/shared/TourVideo";
@@ -17,31 +18,27 @@ import { TourSpaCombo } from "@/components/shared/TourSpaCombo";
 import { NextAvailability } from "@/components/shared/NextAvailability";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
+import { KnowBeforeYouBook, BookingPolicyNote } from "@/components/shared/KnowBeforeYouBook";
 import { Button } from "@/components/ui/Button";
-import { farmTourFAQ } from "@/data/farm-tours";
+import { farmTourFAQ, TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { ToursHero } from "./ToursHero";
 
-const GROUP_PRICING = [
-  { guests: 2, total: 150 },
-  { guests: 3, total: 225 },
-  { guests: 4, total: 300 },
-  { guests: 5, total: 375 },
-  { guests: 6, total: 450 },
-];
+const GROUP_PRICING = TOUR_PARTY_SIZES;
 
 export const metadata: Metadata = {
-  title: "Highland Cow Farm Tours — Brightwood, Oregon",
+  title: { absolute: "Highland Cow Farm Tour near Portland | Highland Farms" },
   description:
-    "Book a private Highland Cow farm tour near Portland, Oregon. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, Guinea Fowl, and more. $75 per person, 60-minute private experiences at the base of Mt. Hood in Brightwood.",
+    "Brush, pet and photograph Scottish Highland cows on a private 60-minute farm tour in Brightwood, about an hour from Portland. $150 for two.",
   alternates: { canonical: "/farm-tours" },
   openGraph: {
-    title: "Highland Cow Farm Tours at Highland Farms Oregon",
+    title: "Highland Cow Farm Tour near Portland | Highland Farms",
     description:
-      "Private 60-minute farm tours for up to 6 guests. Meet Scottish Highland Cows and farm animals at the base of Mt. Hood.",
+      "Brush, pet and photograph Scottish Highland cows on a private 60-minute farm tour in Brightwood, about an hour from Portland. $150 for two.",
     url: "https://highlandfarmsoregon.com/farm-tours",
     type: "website",
     images: [
@@ -98,7 +95,7 @@ const features = [
     icon: Users,
     title: "Private & Personal",
     description:
-      "Up to 6 guests per tour. It's just you, your group, and the animals — no crowds.",
+      "2 to 6 guests per tour. It's just you, your group, and the animals — no crowds.",
   },
   {
     icon: Clock,
@@ -110,7 +107,7 @@ const features = [
     icon: Sparkles,
     title: "Perfect for All Ages",
     description:
-      "From toddlers to grandparents, everyone falls in love with our gentle Scottish Highland Cows.",
+      "Ages 5 and up are $75 and kids 4 and under are free. Everyone falls in love with our gentle Scottish Highland Cows.",
   },
 ];
 
@@ -119,44 +116,8 @@ export default function FarmToursPage() {
     <>
       <StructuredData pathname="/farm-tours" />
       <FarmTourSchema />
-      {/* Hero */}
-      <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
-        <Image
-          src="/images/farm/hero.jpg"
-          alt=""
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-black/35" />
-
-        <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
-          <p className="mb-4 text-xl font-normal text-white/80 font-script">
-            Highland Farms Oregon
-          </p>
-          <h1 className="text-4xl font-normal leading-tight sm:text-5xl md:text-6xl">
-            Meet Our Scottish Highland Cows
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light">
-            Private 60-minute tour for up to 6 guests · $75 per person
-            <br />
-            50 minutes from Portland at the base of Mt. Hood
-          </p>
-          <div className="mt-8">
-            <BookingButton
-              href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-hero")}
-              label="Book Your Tour"
-              size="lg"
-              className="bg-white text-charcoal hover:bg-cream"
-            />
-          </div>
-          <div className="mt-6 flex justify-center">
-            <ReviewBadge variant="card" />
-          </div>
-        </div>
-      </section>
+      {/* First screen (Field Guide): the group-size rows open each size's calendar */}
+      <ToursHero />
 
       {/* What to Expect */}
       <section className="py-20 lg:py-28 bg-warm-white">
@@ -204,7 +165,8 @@ export default function FarmToursPage() {
         eyebrow="A glimpse from the field"
         heading="See what a tour feels like"
         body="A short walk through the farm — meet the herd, the guardian dogs, and the views you'll wake up to."
-        bookingHref={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-video")}
+        bookingHref={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-video")}
+        bookingLabel="See open tour dates"
       />
 
       {/* Pricing & Details */}
@@ -235,7 +197,7 @@ export default function FarmToursPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-forest" />
-                  Up to 6 guests per tour
+                  2 to 6 guests per tour
                 </li>
                 <li className="flex items-center gap-2">
                   <Heart className="h-4 w-4 text-forest" />
@@ -273,17 +235,26 @@ export default function FarmToursPage() {
               <NativeBookingSection product="farm-tour" />
               {!nativeCalendarEnabled() && (
                 <>
+                  <KnowBeforeYouBook product="tour" className="mb-5" />
                   <BookingButton
-                    href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-pricing")}
-                    label="Book Your Tour"
+                    href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-pricing")}
+                    label="See open tour dates"
                     size="lg"
                     className="w-full"
+                    title="Book your farm tour"
                   />
-                  <p className="mt-3 text-center text-xs text-muted font-sans">
-                    Strict cancellation policy: all bookings are final &mdash; no
-                    refunds, reschedules, credits, or transfers, including
-                    no-shows.
+                  <p className="mt-3 text-center text-sm text-muted font-sans">
+                    $150 for two &middot; $75 each additional guest
                   </p>
+                  <p className="mt-1 text-center">
+                    <BookingTextLink
+                      href={bookingUrl(BOOKING_LINKS.farmTourAllSizes, "farm-tours-pricing-group")}
+                      label="Bringing 3 to 6 guests? Choose your group size"
+                      title="Choose your tour group size"
+                      className="text-sm text-forest underline underline-offset-4 hover:text-forest-light"
+                    />
+                  </p>
+                  <BookingPolicyNote className="mt-3" />
                 </>
               )}
             </div>
@@ -367,8 +338,8 @@ export default function FarmToursPage() {
         <NativeStickyCTA />
       ) : (
         <BookingStickyCTA
-          label="Book Your Farm Tour"
-          href={bookingUrl(BOOKING_LINKS.farmTour, "farm-tours-sticky-mobile")}
+          label="See open tour dates"
+          href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-sticky-mobile")}
         />
       )}
 

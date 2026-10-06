@@ -247,7 +247,7 @@ function variantA(e: ReminderEmail, sender: Sender): string {
   const middle =
     e.step === 1
       ? `<p style="margin:13px 0 0;font-size:15px;line-height:1.62;color:${CHARCOAL}">
-           I'll be straight with you about us: we're a fifty minute drive up the mountain,
+           I'll be straight with you about us: we're an hour's drive up the mountain,
            we don't ship anywhere, and we run out of cuts regularly. All of that is because
            everything comes off one small herd here in Brightwood. It's the reason the pork
            tastes the way it does, and it's also the reason we're a bit of a hassle.

@@ -539,7 +539,7 @@ export function ShopBody({ stock }: { stock: StockRecord }) {
               <span>21261 East Little River Road, Brightwood, OR</span>
             </div>
             <span className="hidden sm:inline">·</span>
-            <span>50 minutes from Portland</span>
+            <span>About an hour from Portland</span>
           </div>
         </Container>
       </section>

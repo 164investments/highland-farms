@@ -17,7 +17,7 @@ export const properties: Property[] = [
     name: "The Whole Farm",
     tagline: "The full Highland Farms experience",
     description:
-      "Highland Farms, a hidden glen nestled in the heart of Mt. Hood National Forest, where towering ancient cedars, gentle whispering streams, and our beloved Scottish Highland Cows set the stage for unforgettable gatherings with family, friends, and the people who matter most.",
+      "Highland Farms, five acres of old-growth forest at the base of Mt. Hood, where our beloved Scottish Highland Cows set the stage for unforgettable gatherings with family, friends, and the people who matter most.",
     guests: 20,
     bedrooms: 7,
     baths: 3.5,

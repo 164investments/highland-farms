@@ -70,6 +70,12 @@ jobs:
             }
           '
 
+      - name: Check the featured review quotes still match
+        # The homepage and /nordic-spa quote exact sentences from the snapshot.
+        # If an edited review breaks one, stop here (nothing is committed or
+        # deployed) so the quote spec gets fixed first. Dependency-free test.
+        run: node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test scripts/review-quotes.test.mts
+
       - name: Commit if the reviews changed
         run: |
           # fetched_at changes on every run; only the review data is worth a deploy.

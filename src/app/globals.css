@@ -10,7 +10,31 @@
   --forest: #4A6741;
   --forest-light: #4E6B44;
   --charcoal: #3A3A3A;
-  --muted: #6F6F68;
+  --muted: #666660; /* 4.55:1 on cream #E8E4D9, 5.3:1 on #F7F5F0 */
+  --sage-text: #506B4D; /* text-only sage: 4.65:1 on #E8E4D9, 5.4:1 on #F7F5F0, 5.7:1 on #FAFAF8 */
+  /*
+    Field Guide paper system (approved 2026-10-06): the masthead and the
+    first screens of home, /weddings, /farm-tours and /nordic-spa.
+    Text contrast on --paper: ink 13.8:1, ink-body 7.8:1, ink-note 6.0:1,
+    ink-meta 4.8:1, fern 5.2:1, pine 6.6:1. rule/frame/leader are lines only.
+  */
+  --paper: #F2EEE4;
+  --paper-light: #F7F4EC;
+  --paper-shade: #E9E3D3;
+  --ink: #22221E;
+  --ink-body: #4A4943;
+  --ink-note: #5C5A52;
+  --ink-meta: #6B685F;
+  --rule: #CDC5B3;
+  --frame: #BDB49F;
+  --leader: #A9A08B;
+  --fern: #4F6A49;
+  --pine: #3F5A37;
+  --pine-dark: #33492D;
+  --pine-line: #9FB197;
+  --star: #E3A21A;
+  /* Header height before JS measures it: 60px masthead (84px from xl) + 44px announcement bar. */
+  --header-h: 104px;
   --accent: #B8976A;
   --sage: #8BA888;
   --sage-light: #A3BDA0;
@@ -19,6 +43,25 @@
   --gold: #C4A96A;
   --gold-light: #D4BE8A;
   --gold-bright: #FBBC04;
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --header-h: 128px;
+  }
+}
+
+/* Announcement bar dismissed (or absent): set before first paint by an inline script. */
+html[data-bar-hidden] [data-announcement-bar] {
+  display: none;
+}
+html[data-bar-hidden] {
+  --header-h: 60px;
+}
+@media (min-width: 1280px) {
+  html[data-bar-hidden] {
+    --header-h: 84px;
+  }
 }
 
 @theme inline {
@@ -40,6 +83,21 @@
   --color-gold: var(--gold);
   --color-gold-light: var(--gold-light);
   --color-gold-bright: var(--gold-bright);
+  --color-paper: var(--paper);
+  --color-paper-light: var(--paper-light);
+  --color-paper-shade: var(--paper-shade);
+  --color-ink: var(--ink);
+  --color-ink-body: var(--ink-body);
+  --color-ink-note: var(--ink-note);
+  --color-ink-meta: var(--ink-meta);
+  --color-rule: var(--rule);
+  --color-frame: var(--frame);
+  --color-leader: var(--leader);
+  --color-fern: var(--fern);
+  --color-pine: var(--pine);
+  --color-pine-dark: var(--pine-dark);
+  --color-pine-line: var(--pine-line);
+  --color-star: var(--star);
   --font-sans: var(--font-inter);
   --font-display: var(--font-cormorant);
   --font-script: var(--font-cormorant);
@@ -56,6 +114,16 @@ h1, h2, h3 {
   font-family: var(--font-display), Georgia, serif;
   letter-spacing: 0.01em;
   font-weight: 400;
+}
+
+/*
+  Field Guide headlines: Cormorant 500, a touch tight. A class, unlayered, so
+  it outranks the h1-h3 rule above (Tailwind's font-medium is layered and
+  would lose to it).
+*/
+.field-heading {
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 .font-script {
@@ -124,4 +192,15 @@ html {
 :focus-visible {
   outline: 2px solid var(--sage);
   outline-offset: 2px;
+}
+
+/* On paper the sage ring is 2.4:1; pine is 6.6:1. Unlayered, so it beats utilities. */
+.surface-paper:focus-visible,
+.surface-paper :focus-visible {
+  outline-color: var(--pine);
+}
+
+/* sage as TEXT needs 4.5:1; the fill/border sage (#8BA888) stays as is. */
+.text-sage {
+  color: var(--sage-text);
 }

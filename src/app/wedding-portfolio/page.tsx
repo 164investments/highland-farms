@@ -85,7 +85,7 @@ export default function WeddingPortfolioPage() {
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Button href="/weddings">Learn About Weddings</Button>
-            <Button href="/contact" variant="outline">
+            <Button href="/weddings#contact" variant="outline">
               Get Your Custom Quote
             </Button>
           </div>

@@ -1,7 +1,8 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { nativeCalendarEnabled } from "@/lib/booking/flag";
 import { BookingFlow } from "@/components/booking/BookingFlow";
+import { BOOKING_LINKS } from "@/lib/constants";
 import { Container } from "@/components/ui/Container";
 import { StructuredData } from "@/components/layout/StructuredData";
 
@@ -12,9 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default function WeddingCallPage() {
-  if (!nativeCalendarEnabled()) notFound();
+  // Flag off: the live Acuity wedding-call page instead of a 404.
+  if (!nativeCalendarEnabled()) redirect(BOOKING_LINKS.weddingCall);
   return (
-    <Container className="pt-32 pb-16 lg:pb-20">
+    <Container className="pt-[calc(var(--header-h,128px)+1.5rem)] pb-16 lg:pb-20">
       <StructuredData pathname="/wedding-call" />
       <div className="mx-auto max-w-2xl">
         <p className="font-sans text-xs uppercase tracking-[0.28em] text-forest/70">Weddings at Highland Farms</p>

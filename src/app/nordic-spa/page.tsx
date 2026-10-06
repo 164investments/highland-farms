@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fragment, Suspense } from "react";
+import { Suspense } from "react";
 import Image from "next/image";
 import {
   Clock,
@@ -10,7 +10,6 @@ import {
   MapPin,
   Flame,
   Leaf,
-  ArrowRight,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -25,24 +24,28 @@ import {
 import { TourVideo } from "@/components/shared/TourVideo";
 import { NextAvailability } from "@/components/shared/NextAvailability";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
+import { KnowBeforeYouBook, BookingPolicyNote } from "@/components/shared/KnowBeforeYouBook";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { InlineEmailCapture } from "@/components/shared/InlineEmailCapture";
 import { nordicSpaFAQ } from "@/data/nordic-spa";
+import { featuredQuotes } from "@/lib/reviews";
+import { SPA_QUOTE } from "@/lib/review-quotes";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { SpaHero } from "./SpaHero";
 
 export const metadata: Metadata = {
-  title: "Sauna & Cold Plunge Near Portland — Mt. Hood Nordic Spa",
+  title: { absolute: "Nordic Spa: Sauna & Cold Plunge | Highland Farms Oregon" },
   description:
-    "Outdoor wood-burning sauna & cold plunge 50 minutes from Portland, Oregon. Public 90-minute Nordic spa sessions for up to 6 guests at Highland Farms in the Mt. Hood National Forest. $75/person — book your sauna day trip.",
+    "Wood-burning sauna, steam sauna and cold plunge in the forest at the base of Mt. Hood. 90-minute sessions, up to 6 guests, $75 per person.",
   alternates: { canonical: "/nordic-spa" },
   openGraph: {
-    title: "Sauna & Cold Plunge Near Portland — Highland Farms Mt. Hood",
+    title: "Nordic Spa: Sauna & Cold Plunge | Highland Farms Oregon",
     description:
-      "Outdoor wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland. Public 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+      "Wood-burning sauna, steam sauna and cold plunge in the forest at the base of Mt. Hood. 90-minute sessions, up to 6 guests, $75 per person.",
     url: "https://highlandfarmsoregon.com/nordic-spa",
     type: "website",
     images: [
@@ -50,7 +53,7 @@ export const metadata: Metadata = {
         url: "/images/spa/spa-1.jpg",
         width: 1200,
         height: 630,
-        alt: "Outdoor sauna and cold plunge near Portland in the Mt. Hood National Forest",
+        alt: "Outdoor sauna and cold plunge near Portland at the base of Mt. Hood",
       },
     ],
   },
@@ -77,6 +80,10 @@ function NordicSpaSchema() {
   );
 }
 
+const [spaReview] = featuredQuotes([SPA_QUOTE]);
+const spaQuote = spaReview?.quote ?? "";
+const spaAuthor = spaReview?.name ?? "";
+
 const galleryImages = [
   { src: "/images/spa/spa-sauna-interior.jpg", alt: "Cedar sauna interior with Himalayan salt-brick wall" },
   { src: "/images/spa/spa-exterior-cabin.jpg", alt: "Black-clad spa cabin with cedar deck and cold plunge in the forest" },
@@ -90,22 +97,6 @@ const galleryImages = [
   { src: "/images/spa/spa-exterior-wide.jpg", alt: "Wide view of the spa cabin, deck, and cold plunge nestled in old-growth forest" },
   { src: "/images/spa/spa-8.jpg", alt: "Friends laughing together in the cedar sauna" },
   { src: "/images/spa/spa-3.jpg", alt: "Guests in robes relaxing on the spa deck" },
-];
-
-const heroPills = [
-  { icon: Leaf, label: "Peaceful & Restorative" },
-  { icon: Users, label: "Limited to 6 Guests" },
-  { icon: Clock, label: "90-Minute Sessions" },
-  { icon: MapPin, label: "Just 50 Min from Portland" },
-];
-
-const includedItems = [
-  "Wood-Burning Cedar Sauna",
-  "Wet Steam Sauna",
-  "Cold Plunge",
-  "Robes & Towels",
-  "Up to 6 Guests per Session",
-  "Open Year-Round",
 ];
 
 const sessionFeatures = [
@@ -161,116 +152,8 @@ export default function NordicSpaPage() {
       <NordicSpaSchema />
       <StructuredData pathname="/nordic-spa" />
 
-      {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden pt-[var(--header-h,120px)] lg:min-h-[88vh]">
-        <Image
-          src="/images/spa/spa-1.jpg"
-          alt=""
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        {/* Asymmetric gradient — heavier on the left for readable text */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/45 to-black/20" />
-
-        <Container className="relative z-10 flex items-center py-8 lg:min-h-[calc(88vh-var(--header-h,120px))] lg:py-16">
-          <div className="grid w-full grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)] lg:gap-14">
-            {/* Left: hero text — width is unconstrained so the pill row fits on a single line at lg+ */}
-            <div className="text-white">
-              <p className="text-[0.7rem] font-normal uppercase tracking-[0.28em] text-white/70 font-sans">
-                Reset · Restore · Reconnect
-              </p>
-              <h1 className="mt-5 max-w-xl text-4xl font-normal leading-[1.05] sm:text-5xl md:text-6xl">
-                Sauna &amp; Cold Plunge<br className="hidden sm:inline" />{" "}
-                in the Forest
-              </h1>
-              {/* Ornamental leaf separator — decorative, hidden on mobile to lift the CTA */}
-              <div
-                aria-hidden
-                className="mt-6 hidden max-w-[130px] items-center gap-3 lg:flex"
-              >
-                <span className="h-px flex-1 bg-white/35" />
-                <Leaf
-                  className="h-4 w-4 -rotate-12 text-white/65"
-                  strokeWidth={1.5}
-                />
-                <span className="h-px flex-1 bg-white/35" />
-              </div>
-              <p className="mt-4 max-w-lg text-lg text-white/85 leading-relaxed font-sans font-light lg:mt-6">
-                Wood-burning sauna, steam sauna, and cold plunge tucked
-                into old-growth forest — public sessions for up to 6 guests,
-                50&nbsp;minutes from Portland.
-              </p>
-
-              {/* Icon + label pairs — 2×2 grid below lg, single row with separators on lg+ */}
-              <div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-4 lg:mt-8 lg:flex lg:flex-nowrap lg:items-center lg:gap-x-4 lg:gap-y-5">
-                {heroPills.map(({ icon: Icon, label }, i) => (
-                  <Fragment key={label}>
-                    {i > 0 && (
-                      <span
-                        aria-hidden
-                        className="hidden h-10 w-px shrink-0 bg-white/20 lg:block"
-                      />
-                    )}
-                    <div className="flex shrink-0 items-center gap-3">
-                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-cream/25 bg-forest/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-sm">
-                        <Icon
-                          className="h-5 w-5 text-cream"
-                          strokeWidth={1.5}
-                        />
-                      </span>
-                      <span className="max-w-[5.75rem] text-[13px] leading-snug text-white/90 font-sans">
-                        {label}
-                      </span>
-                    </div>
-                  </Fragment>
-                ))}
-              </div>
-
-              {/* Dual CTA */}
-              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 lg:mt-8">
-                <BookingButton
-                  href={heroBookingHref}
-                  label="Book Your Session"
-                  size="lg"
-                  className="bg-white text-charcoal hover:bg-cream"
-                  title="Book your Nordic Spa session"
-                />
-                <a
-                  href="#details"
-                  className="inline-flex items-center gap-1.5 text-[0.75em] font-normal uppercase tracking-[0.18em] text-white/90 underline-offset-4 hover:underline font-sans"
-                >
-                  Learn more <ArrowRight className="h-4 w-4" />
-                </a>
-              </div>
-
-              {/* Trust */}
-              <div className="mt-5 lg:mt-7">
-                <ReviewBadge variant="card" />
-              </div>
-            </div>
-
-            {/* Right: What's Included overlay card (lg+ only) */}
-            <aside className="hidden rounded-2xl border border-white/15 bg-charcoal/55 p-7 text-white shadow-2xl backdrop-blur-md lg:block">
-              <p className="text-[0.7rem] font-normal uppercase tracking-[0.22em] text-white/65 font-sans">
-                What&apos;s Included
-              </p>
-              <ul className="mt-5 space-y-3.5 text-[0.9375rem] font-sans">
-                {includedItems.map((item) => (
-                  <li key={item} className="flex items-center gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sage/30">
-                      <Check className="h-3 w-3 text-white" />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </aside>
-          </div>
-        </Container>
-      </section>
+      {/* ─── FIRST SCREEN (Field Guide) ─── */}
+      <SpaHero bookingHref={heroBookingHref} />
 
       {/* ─── EVERYTHING FOR A PERFECT SESSION ─── */}
       <section id="details" className="bg-cream py-14 sm:py-20 lg:py-28">
@@ -350,8 +233,9 @@ export default function NordicSpaPage() {
 
         Every number below is from the live Acuity account, appointment type
         85942611, pulled 2026-09-17, trailing 12 months of COMPLETED sessions:
-          • 710 sessions completed
-          • Sat 172 + Sun 168 = 340 of 710 → weekends are 48% of sessions
+          • 710 completed (these count GUEST visits, not sessions; shown as
+            "more than 700 guest visits")
+          • Sat 172 + Sun 168 = 340 of 710 → weekends are 48% of visits
             while being 29% of days, i.e. they genuinely go first
           • median booking lead time 14 days
         Six spots per session is the fixed capacity stated site-wide.
@@ -364,11 +248,11 @@ export default function NordicSpaPage() {
         <Container>
           <p className="text-sm text-muted font-sans leading-relaxed">
             <span className="font-normal text-forest">
-              710 sessions in the past year, six guests at a time.
+              More than 700 guest visits in the past year, six guests at a time.
             </span>{" "}
             Nearly half of them were weekends, and Saturdays go first &mdash;
-            the farm&apos;s wedding calendar takes most of them. Most guests
-            book about two weeks ahead.
+            the farm&apos;s wedding calendar takes most of them. The typical
+            guest books about two weeks ahead.
           </p>
         </Container>
       </div>
@@ -460,6 +344,9 @@ export default function NordicSpaPage() {
             <div className="mt-6">
               <NativeBookingSection product="nordic-spa" />
               {!nativeCalendarEnabled() && (
+                <KnowBeforeYouBook product="spa" className="mb-5" />
+              )}
+              {!nativeCalendarEnabled() && (
                 <BookingButton
                   href={pricingBookingHref}
                   label="Book Your Session"
@@ -472,11 +359,7 @@ export default function NordicSpaPage() {
                 Spa days vary week to week &mdash; see the calendar for open times
               </p>
               {!nativeCalendarEnabled() && (
-                <p className="mt-1.5 text-center text-xs text-muted font-sans">
-                  Strict cancellation policy: all bookings are final &mdash; no
-                  refunds, reschedules, credits, or transfers, including
-                  no-shows.
-                </p>
+                <BookingPolicyNote className="mt-1.5" />
               )}
             </div>
           </div>
@@ -488,16 +371,16 @@ export default function NordicSpaPage() {
         <Container className="max-w-4xl">
           <SectionHeading
             eyebrow="Worth the Drive"
-            title="50 Minutes from Portland"
+            title="About an Hour from Portland"
             subtitle="A scenic drive east on US-26 through the Sandy River valley to old-growth forest at the base of Mt. Hood."
           />
 
           <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              { from: "Portland", time: "~50 min" },
-              { from: "Gresham", time: "~30 min" },
-              { from: "Sandy", time: "~15 min" },
-              { from: "Hood River", time: "~40 min" },
+              { from: "Portland", time: "about 1 hour" },
+              { from: "Gresham", time: "about 40 min" },
+              { from: "Sandy", time: "about 20 min" },
+              { from: "Beaverton / Hillsboro", time: "about 1.5 hours" },
             ].map((d) => (
               <div
                 key={d.from}
@@ -585,15 +468,16 @@ export default function NordicSpaPage() {
               </p>
             </div>
 
-            <div className="text-center">
-              <p className="text-lg italic leading-relaxed font-display sm:text-xl">
-                &ldquo;The sauna was great and the surroundings were
-                beautiful. They took wonderful care of us.&rdquo;
-              </p>
-              <p className="mt-4 text-xs font-normal uppercase tracking-[0.18em] text-white/60 font-sans">
-                — Roman S., Google Review
-              </p>
-            </div>
+            {spaQuote && (
+              <div className="text-center">
+                <p className="text-lg italic leading-relaxed font-display sm:text-xl">
+                  &ldquo;{spaQuote}&rdquo;
+                </p>
+                <p className="mt-4 text-xs font-normal uppercase tracking-[0.18em] text-white/60 font-sans">
+                  {spaAuthor}, Google review
+                </p>
+              </div>
+            )}
 
             <div className="flex flex-col items-center gap-3 md:items-end">
               <BookingButton
@@ -604,7 +488,7 @@ export default function NordicSpaPage() {
                 title="Book your Nordic Spa session"
               />
               <p className="text-center text-xs text-white/65 font-sans md:text-right">
-                Spots fill up fast. Reserve your time today.
+                Weekend sessions go first. The typical guest books about two weeks ahead.
               </p>
             </div>
           </div>
@@ -628,9 +512,8 @@ export default function NordicSpaPage() {
             Make It a Full Day
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-base text-muted font-sans font-light leading-relaxed">
-            Meet the Scottish Highland Cows, then unwind at the spa. Most
-            guests book a farm tour + spa session for a half-day escape from
-            Portland.
+            Meet the Scottish Highland Cows, then unwind at the spa. Pair it
+            with a farm tour for a half-day at the farm.
           </p>
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button href="/farm-tours">Book a Farm Tour</Button>
@@ -650,7 +533,7 @@ export default function NordicSpaPage() {
         <NativeStickyCTA />
       ) : (
         <BookingStickyCTA
-          label="Book Now · $75/person"
+          label="See open sessions · $75"
           href={stickyBookingHref}
           title="Book your Nordic Spa session"
         />

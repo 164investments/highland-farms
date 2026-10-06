@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, Lock, MapPin, Truck } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { useCart } from "@/lib/shop/cart";
-import { formatCents } from "@/lib/shop/money";
+import { formatCents, formatCentsShort } from "@/lib/shop/money";
 import {
   DELIVERY_FEE_CENTS,
   DELIVERY_MINIMUM_CENTS,
@@ -345,7 +345,7 @@ export function CheckoutBody({
 
   if (cartReady && count === 0) {
     return (
-      <main className="bg-cream pt-32 pb-20">
+      <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20">
         <Container className="max-w-2xl text-center">
           <h1 className="font-display text-3xl font-light text-charcoal">Your cart is empty</h1>
           <Link
@@ -362,7 +362,7 @@ export function CheckoutBody({
   const busy = status === "submitting";
 
   return (
-    <main className="bg-cream pt-32 pb-20 sm:pb-28">
+    <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
       <Container className="max-w-3xl">
         <Link
           href="/shop/cart"
@@ -395,7 +395,7 @@ export function CheckoutBody({
                     key: "delivery" as const,
                     icon: Truck,
                     title: "Local delivery",
-                    detail: `${formatCents(DELIVERY_FEE_CENTS)} · Mt. Hood & east Portland`,
+                    detail: `${formatCents(DELIVERY_FEE_CENTS)} · orders ${formatCentsShort(DELIVERY_MINIMUM_CENTS)}+ · Mt. Hood & east Portland`,
                   },
                 ]
               ).map((opt) => {
@@ -590,7 +590,7 @@ export function CheckoutBody({
                 the checkout page is a leak, not a convenience. */}
             <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-xs text-muted font-sans">
               <Star className="h-3 w-3 fill-forest text-forest" aria-hidden />
-              Loved by {REVIEW_COUNT}+ guests on Google
+              Loved by {REVIEW_COUNT} guests on Google
             </p>
           </div>
         </form>

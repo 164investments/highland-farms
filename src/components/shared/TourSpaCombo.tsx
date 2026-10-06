@@ -23,9 +23,9 @@ export function TourSpaCombo({ utmContent }: TourSpaComboProps) {
             Pair your tour with the Nordic Forest Spa
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted leading-relaxed font-sans font-light">
-            Many guests book a spa session before or after their farm tour — wood-burning
-            sauna, steam, and cold plunge tucked into the forest. Leave at least an hour
-            between sessions.
+            Add a spa session for a half-day at the farm: wood-burning sauna, steam, and
+            cold plunge tucked into the forest. Book them as two appointments, at least
+            1 hour apart.
           </p>
         </div>
 
@@ -54,7 +54,7 @@ export function TourSpaCombo({ utmContent }: TourSpaComboProps) {
                 </li>
                 <li className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-forest" />
-                  Up to 6 guests · $75 per person
+                  2 to 6 guests · $75 per person
                 </li>
               </ul>
             </div>

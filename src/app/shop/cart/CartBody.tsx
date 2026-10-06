@@ -53,11 +53,11 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
   const offers = addOns.filter((a) => !inCart.has(a.variantId)).slice(0, 3);
 
   return (
-    <main className="bg-cream pt-32 pb-20 sm:pb-28">
+    <div className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
       <Container className="max-w-3xl">
         <Link
           href="/shop"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-forest font-sans"
+          className="mb-8 inline-flex min-h-11 items-center gap-2 text-sm text-muted transition-colors hover:text-forest font-sans"
         >
           <ArrowLeft className="h-4 w-4" />
           Keep shopping
@@ -126,7 +126,7 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
                         type="button"
                         onClick={() => remove(line.variantId)}
                         aria-label={`Remove ${line.name}`}
-                        className="shrink-0 rounded-full p-1.5 text-muted transition-colors hover:bg-cream hover:text-charcoal"
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-cream hover:text-charcoal"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -138,7 +138,7 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
                           type="button"
                           onClick={() => setQuantity(line.variantId, line.quantity - 1)}
                           aria-label={`Decrease quantity of ${line.name}`}
-                          className="rounded-full p-2 text-charcoal transition-colors hover:bg-cream"
+                          className="flex h-11 w-11 items-center justify-center rounded-full text-charcoal transition-colors hover:bg-cream"
                         >
                           <Minus className="h-3.5 w-3.5" />
                         </button>
@@ -149,7 +149,7 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
                           type="button"
                           onClick={() => setQuantity(line.variantId, line.quantity + 1)}
                           aria-label={`Increase quantity of ${line.name}`}
-                          className="rounded-full p-2 text-charcoal transition-colors hover:bg-cream"
+                          className="flex h-11 w-11 items-center justify-center rounded-full text-charcoal transition-colors hover:bg-cream"
                         >
                           <Plus className="h-3.5 w-3.5" />
                         </button>
@@ -172,8 +172,8 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
                 </span>
               </div>
               <p className="mt-1.5 text-xs text-muted font-sans">
-                Free pickup at the farm in Brightwood, or $15 delivery around Mt.
-                Hood and east Portland. We don&apos;t ship.
+                Free pickup at the farm in Brightwood, or $15 delivery on orders of $50
+                or more around Mt. Hood and east Portland. We don&apos;t ship.
               </p>
               {/* Goal-gradient: name the actual gap instead of a static rule the
                   shopper has to do arithmetic on. Only shown when it's reachable
@@ -196,7 +196,7 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
               <ul className="mt-4 space-y-1.5 text-xs text-muted font-sans">
                 <li className="flex items-center gap-2">
                   <Star className="h-3 w-3 shrink-0 fill-forest text-forest" aria-hidden />
-                  Loved by {REVIEW_COUNT}+ guests on Google
+                  Loved by {REVIEW_COUNT} guests on Google
                 </li>
                 <li className="flex items-center gap-2">
                   <Lock className="h-3 w-3 shrink-0 text-sage" aria-hidden />
@@ -249,6 +249,6 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
           </>
         )}
       </Container>
-    </main>
+    </div>
   );
 }

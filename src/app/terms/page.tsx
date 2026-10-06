@@ -15,13 +15,13 @@ export default function TermsOfServicePage() {
   return (
     <>
       <StructuredData pathname="/terms" />
-      <section className="pt-32 pb-20 lg:pb-28 bg-background">
+      <section className="pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 lg:pb-28 bg-background">
         <Container className="max-w-3xl">
           <h1 className="text-3xl font-normal sm:text-4xl mb-2">
             Terms of Service
           </h1>
           <p className="text-sm text-muted font-sans mb-10">
-            Last updated: March 3, 2026
+            Last updated: October 6, 2026
           </p>
 
           <div className="prose prose-neutral max-w-none text-base text-charcoal/90 font-sans leading-relaxed space-y-8">
@@ -32,6 +32,10 @@ export default function TermsOfServicePage() {
                 SMS Messaging Terms &amp; Compliance
               </h2>
               <p className="text-sm text-muted mb-4">Highland Farms Oregon LLC &mdash; Effective Date: January 1, 2026</p>
+
+              <p className="text-sm mb-4">
+                <strong>Marketing text messages:</strong> If you check the marketing text message box on our contact form, you consent to receive marketing text messages from Highland Farms Oregon LLC at the phone number you provided. Frequency may vary. Message and data rates may apply. Text HELP for assistance. Reply STOP to opt out. Consent is not a condition of purchase. Appointment messages (confirmations and reminders) are a separate, optional choice on the same form.
+              </p>
 
               <ol className="list-decimal pl-5 space-y-4 text-sm">
                 <li>
@@ -109,7 +113,7 @@ export default function TermsOfServicePage() {
               </h2>
               <ul className="list-disc pl-5 space-y-2 text-sm">
                 <li>All bookings are subject to availability and confirmation by Highland Farms.</li>
-                <li>A deposit may be required to secure your reservation. Deposit amounts and payment terms are specified at the time of booking.</li>
+                <li>Farm tours and spa sessions are paid in full when you book. For weddings, events and accommodations, any deposit and payment terms are specified at the time of booking.</li>
                 <li>By booking, you agree to the pricing, dates, and specific terms communicated during the reservation process.</li>
                 <li>Farm tour and spa bookings are made through our scheduling partner (Acuity Scheduling) and are subject to their terms of service in addition to ours.</li>
                 <li>Accommodation bookings may be made through our booking partner (Hospitable) and are subject to their terms in addition to ours.</li>
@@ -122,7 +126,7 @@ export default function TermsOfServicePage() {
               </h2>
               <ul className="list-disc pl-5 space-y-2 text-sm">
                 <li>
-                  <strong>Farm tours &amp; spa sessions:</strong> Strict cancellation policy. All bookings are final. We do not offer refunds, reschedules, credits, or transfers for cancellations, date changes, or no-shows. Please confirm your date, time, and guest count before booking. This does not apply when Highland Farms cancels a session (see Weather below).
+                  <strong>Farm tours &amp; spa sessions:</strong> Strict cancellation policy. All bookings are final. We do not offer refunds, reschedules, credits, or transfers for cancellations, date changes, or no-shows. Please confirm your date, time, and guest count before booking. The only exception is if we cancel for severe weather or for the safety of our animals or guests, in which case we will refund or rebook you.
                 </li>
                 <li>
                   <strong>Accommodations:</strong> Cancellation terms vary by property and booking date. Specific cancellation policies are provided at the time of booking.

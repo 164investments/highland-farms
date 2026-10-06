@@ -39,6 +39,7 @@ const nextConfig: NextConfig = {
       { source: "/photoshoots", destination: "/contact", permanent: true },
       { source: "/home", destination: "/", permanent: true },
       { source: "/spa", destination: "/nordic-spa", permanent: true },
+      { source: "/tours", destination: "/farm-tours", permanent: true },
       { source: "/staywithus", destination: "/stay", permanent: true },
       { source: "/cottage", destination: "/stay/cottage", permanent: true },
       { source: "/lodge", destination: "/stay/lodge", permanent: true },

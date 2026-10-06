@@ -11,16 +11,17 @@ import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { CONTACT } from "@/lib/constants";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { WeddingsHero } from "./WeddingsHero";
 
 export const metadata: Metadata = {
-  title: "Oregon Farm Wedding Venue — All-Inclusive at Mt. Hood",
+  title: { absolute: "Mt. Hood Wedding Venue | All-Inclusive | Highland Farms" },
   description:
-    "Oregon's premier farm wedding venue at the base of Mt. Hood — 50 minutes from Portland. All-inclusive outdoor weddings with Scottish Highland Cows, on-site lodging for 20 guests, Nordic spa & full event coordination.",
+    "All-inclusive forest weddings with Scottish Highland cows, about an hour from Portland at the base of Mt. Hood. See the venue and real weddings.",
   alternates: { canonical: "/weddings" },
   openGraph: {
-    title: "Oregon Farm Wedding Venue — Highland Farms at Mt. Hood",
+    title: "Mt. Hood Wedding Venue | All-Inclusive | Highland Farms",
     description:
-      "All-inclusive farm and forest wedding venue near Portland, Oregon. Five acres of old-growth forest, Scottish Highland Cows, on-site lodging for 20 guests, and dedicated event coordination.",
+      "All-inclusive forest weddings with Scottish Highland cows, about an hour from Portland at the base of Mt. Hood. See the venue and real weddings.",
     url: "https://highlandfarmsoregon.com/weddings",
     type: "website",
     images: [
@@ -38,12 +39,12 @@ const weddingFAQ = [
   {
     question: "What type of wedding venue is Highland Farms?",
     answer:
-      "Highland Farms is an all-inclusive farm and forest wedding venue at the base of Mt. Hood in Brightwood, Oregon. You get exclusive use of our private 5-acre property with Scottish Highland Cows, on-site lodging for 20 guests, a Nordic spa, and dedicated event coordination — all just 50 minutes from Portland.",
+      "Highland Farms is an all-inclusive farm and forest wedding venue at the base of Mt. Hood in Brightwood, Oregon. You get exclusive use of our private 5-acre property with Scottish Highland Cows, on-site lodging for 20 guests, a Nordic spa, and dedicated event coordination — all just about an hour from Portland.",
   },
   {
     question: "How far is Highland Farms from Portland?",
     answer:
-      "We're located in Brightwood, Oregon — about 50 minutes east of Portland via US-26 (the Mt. Hood Highway). For Portland-area couples, Highland Farms is a destination wedding experience without a long travel burden for your guests.",
+      "We're located in Brightwood, Oregon — about an hour east of Portland via US-26 (the Mt. Hood Highway). For Portland-area couples, Highland Farms is a destination wedding experience without a long travel burden for your guests.",
   },
   {
     question: "Is Highland Farms an all-inclusive wedding venue?",
@@ -53,7 +54,7 @@ const weddingFAQ = [
   {
     question: "What makes Highland Farms different from other Oregon wedding venues?",
     answer:
-      "Three things: exclusivity, intimacy, and setting. You get the entire 5-acre farm to yourselves — not a shared venue. Our Scottish Highland Cows create one-of-a-kind wedding photos. And our old-growth forest setting is unlike any other Oregon wedding venue. Plus, you're just 50 minutes from Portland.",
+      "Three things: exclusivity, intimacy, and setting. You get the entire 5-acre farm to yourselves — not a shared venue. Our Scottish Highland Cows create one-of-a-kind wedding photos. And our old-growth forest setting is unlike any other Oregon wedding venue. Plus, you're just about an hour from Portland.",
   },
   {
     question: "Is this an outdoor wedding venue?",
@@ -119,45 +120,8 @@ export default function WeddingsPage() {
     <>
       <StructuredData pathname="/weddings" />
       <WeddingsSchema />
-      {/* Hero */}
-      <section className="relative flex min-h-[75vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
-        <Image
-          src="/images/weddings/hero.jpg"
-          alt=""
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-black/35" />
-
-        <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
-          <p className="mb-4 text-xl font-normal text-white/80 font-script">
-            Oregon Farm Wedding Venue
-          </p>
-          <h1 className="text-4xl font-normal leading-tight sm:text-5xl md:text-6xl">
-            Your Dream Wedding in the Forest
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light">
-            Exchange vows under towering evergreens, celebrate with Scottish Highland Cows,
-            and host your closest family and friends on-site at the base of Mt. Hood.
-          </p>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button href="/contact" size="lg" className="bg-white text-charcoal hover:bg-cream">
-              Get Your Custom Quote
-            </Button>
-            <Button
-              href="#gallery"
-              variant="outline"
-              size="lg"
-              className="border-white/60 text-white hover:bg-white/10 hover:border-white/80 hover:text-white"
-            >
-              View Gallery
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* First screen (Field Guide) */}
+      <WeddingsHero />
 
       {/* Why Highland Farms */}
       <section className="py-20 lg:py-28 bg-warm-white">
@@ -207,7 +171,7 @@ export default function WeddingsPage() {
                 Your wedding party can stay on site in the William Wallace Lodge,
                 Bonnie Lass Cottage and The Camp &mdash; 20 beds for your closest
                 people &mdash; while the property hosts weddings of up to 125
-                guests. A true destination wedding, 50 minutes from Portland.
+                guests. A true destination wedding, about an hour from Portland.
               </p>
 
               <ul className="mt-6 space-y-2">
@@ -245,7 +209,7 @@ export default function WeddingsPage() {
       </section>
 
       {/* Gallery */}
-      <section id="gallery" className="py-20 lg:py-28 bg-cream">
+      <section id="gallery" className="scroll-mt-[var(--header-h,120px)] py-20 lg:py-28 bg-cream">
         <Container>
           <SectionHeading
             title="Wedding Gallery"
@@ -264,7 +228,7 @@ export default function WeddingsPage() {
       <GoogleReviewsSection
         topic="wedding"
         max={6}
-        eyebrow="What couples are saying"
+        eyebrow="What wedding couples and guests are saying"
         background="background"
       />
 
@@ -281,7 +245,7 @@ export default function WeddingsPage() {
       </section>
 
       {/* Inquiry Form */}
-      <section id="contact" className="py-20 lg:py-28 bg-background">
+      <section id="contact" className="scroll-mt-[var(--header-h,120px)] py-20 lg:py-28 bg-background">
         <Container className="max-w-4xl">
           <div className="flex justify-center mb-6">
             <Image
@@ -296,8 +260,29 @@ export default function WeddingsPage() {
           <SectionHeading
             eyebrow="Ready to Start Planning?"
             title="Check Availability for Your Date"
-            subtitle="2027 dates are filling quickly. Every wedding at Highland Farms is unique — tell us your vision and we'll create a custom package."
+            subtitle="Now booking 2027 weddings. Every wedding at Highland Farms is unique — tell us your vision and we'll create a custom package."
           />
+          <p className="mx-auto mb-5 max-w-xl text-center text-base text-charcoal font-sans font-light leading-relaxed">
+            Prefer to talk first?{" "}
+            <a
+              href="/wedding-call"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-normal text-forest underline underline-offset-4 hover:text-forest-light"
+            >
+              Book a free 45-minute call with Connor, who owns the farm.
+            </a>{" "}
+            Or{" "}
+            <a
+              href="https://highlandfarmsoregon.com/lookbook.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-forest underline underline-offset-4 hover:text-forest-light"
+            >
+              see the 2027 look book
+            </a>
+            .
+          </p>
           <div className="mx-auto max-w-xl rounded-xl border border-cream-dark bg-white p-6 sm:p-8 shadow-sm">
             <ContactForm
               defaultEventType="wedding"
@@ -317,8 +302,8 @@ export default function WeddingsPage() {
 
       {/* Sticky mobile CTA */}
       <StickyMobileCTA
-        label="Get Your Custom Quote"
-        href="/contact"
+        label="Check your date"
+        href="#contact"
       />
       <div className="h-20 lg:hidden" />
     </>

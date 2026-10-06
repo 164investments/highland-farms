@@ -15,13 +15,13 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <StructuredData pathname="/privacy" />
-      <section className="pt-32 pb-20 lg:pb-28 bg-background">
+      <section className="pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 lg:pb-28 bg-background">
         <Container className="max-w-3xl">
           <h1 className="text-3xl font-normal sm:text-4xl mb-2">
             Privacy Policy
           </h1>
           <p className="text-sm text-muted font-sans mb-10">
-            Last updated: August 13, 2026
+            Last updated: October 6, 2026
           </p>
 
           <div className="prose prose-neutral max-w-none text-base text-charcoal/90 font-sans leading-relaxed space-y-8">
@@ -123,6 +123,11 @@ export default function PrivacyPolicyPage() {
                 including appointment reminders, customer support, and important updates.
               </p>
 
+              <h3 className="text-base font-medium font-sans mb-2">Marketing Text Messages</h3>
+              <p className="text-sm mb-4">
+                If you check the marketing text message box on our contact form, you consent to receive marketing text messages from Highland Farms Oregon LLC at the phone number you provided. Frequency may vary. Message and data rates may apply. Text HELP for assistance. Reply STOP to opt out. Consent is not a condition of purchase. Appointment messages (confirmations and reminders) are a separate, optional choice on the same form.
+              </p>
+
               <h3 className="text-base font-medium font-sans mb-2">Opt-In &amp; Consent</h3>
               <ul className="list-disc pl-5 space-y-1 text-sm">
                 <li>You will only receive messages if you have explicitly opted in</li>
@@ -216,25 +221,37 @@ export default function PrivacyPolicyPage() {
                   conversion reporting, suppression of existing customers, and audience modeling
                 </li>
                 <li>
-                  <strong>Microsoft Clarity</strong> — session analytics when enabled
+                  <strong>Microsoft Clarity</strong>: session analytics when enabled
                 </li>
                 <li>
-                  <strong>Supabase</strong> — secure form data storage
+                  <strong>Supabase</strong>: secure form data storage
                 </li>
                 <li>
-                  <strong>BookedIQ / GoHighLevel</strong> — CRM and appointment management
+                  <strong>BookedIQ / GoHighLevel</strong>: CRM and appointment management
                 </li>
                 <li>
-                  <strong>Acuity Scheduling</strong> — farm tour and spa session booking
+                  <strong>Acuity Scheduling</strong>: farm tour and spa session booking
                 </li>
                 <li>
-                  <strong>Hospitable</strong> — accommodation booking widgets
+                  <strong>Hospitable</strong>: accommodation booking widgets
                 </li>
                 <li>
-                  <strong>Vercel</strong> — website hosting
+                  <strong>Vercel</strong>: website hosting
                 </li>
                 <li>
-                  <strong>SMS aggregators and providers</strong> — solely for delivering messages you&rsquo;ve consented to receive
+                  <strong>Cloudflare Turnstile</strong>: spam protection on our forms
+                </li>
+                <li>
+                  <strong>Square</strong>: farm store payments (card details go directly to Square)
+                </li>
+                <li>
+                  <strong>Instagram (Meta)</strong>: links to our Instagram profile and featured posts; following those links is subject to Instagram&rsquo;s own policies
+                </li>
+                <li>
+                  <strong>Google</strong>: reviewer profile photos shown with Google reviews are loaded from Google&rsquo;s servers, so Google may receive your IP address when they load
+                </li>
+                <li>
+                  <strong>SMS aggregators and providers</strong>: solely for delivering messages you&rsquo;ve consented to receive
                 </li>
               </ul>
               <p className="text-sm mt-3">

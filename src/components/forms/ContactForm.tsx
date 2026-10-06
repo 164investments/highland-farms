@@ -5,9 +5,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle, AlertCircle, Loader2, Phone } from "lucide-react";
 import { inquirySchema, type InquiryFormData } from "@/lib/schemas";
-import { CONTACT } from "@/lib/constants";
+import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { getClientAttribution } from "@/lib/attribution";
+import { nativeCalendarEnabled } from "@/lib/booking/flag";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { TurnstileWidget } from "./TurnstileWidget";
 
@@ -20,6 +21,21 @@ interface ContactFormProps {
   subtitle?: string;
   showTrustSignals?: boolean;
   ctaText?: string;
+}
+
+const WEDDING_EVENT_TYPES = ["wedding", "elopement"];
+
+/** Acuity wedding-call URL prefilled from the submitted inquiry. */
+function weddingCallUrl(d: { name: string; email: string; phone?: string }): string {
+  // After the native-calendar cutover the call is booked on our own page.
+  if (nativeCalendarEnabled()) return "/wedding-call";
+  const url = new URL(bookingUrl(BOOKING_LINKS.weddingCall, "wedding-form-success"));
+  const [first, ...rest] = d.name.trim().split(/\s+/);
+  url.searchParams.set("firstName", first ?? "");
+  if (rest.length) url.searchParams.set("lastName", rest.join(" "));
+  url.searchParams.set("email", d.email);
+  if (d.phone) url.searchParams.set("phone", d.phone);
+  return url.toString();
 }
 
 const inputClasses =
@@ -40,6 +56,7 @@ export function ContactForm({
 }: ContactFormProps) {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [serverError, setServerError] = useState("");
+  const [callUrl, setCallUrl] = useState<string | null>(null);
 
   const {
     register,
@@ -93,6 +110,9 @@ export function ContactForm({
         throw new Error(body.error || "Submission failed");
       }
 
+      setCallUrl(
+        WEDDING_EVENT_TYPES.includes(data.event_type) ? weddingCallUrl(data) : null,
+      );
       setStatus("success");
       reset();
 
@@ -142,6 +162,17 @@ export function ContactForm({
             </li>
           </ol>
         </div>
+
+        {callUrl && (
+          <a
+            href={callUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-forest px-7 py-3 text-sm font-normal uppercase tracking-[0.15em] text-white shadow-sm transition-colors hover:bg-forest-light font-sans"
+          >
+            Pick a call time with Connor
+          </a>
+        )}
 
         <div className="mt-6 flex flex-col items-center gap-3">
           <p className="text-sm text-muted font-sans">

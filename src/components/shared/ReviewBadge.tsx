@@ -140,7 +140,7 @@ export function ReviewBadge({
       <GoogleG className="h-3 w-3 shrink-0" />
       <Stars size="sm" />
       <span>
-        <span className="font-semibold">{FIVE_STAR_COUNT}</span>+ Five-Star
+        <span className="font-semibold">{FIVE_STAR_COUNT}</span> Five-Star
       </span>
     </a>
   );

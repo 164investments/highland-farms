@@ -5,27 +5,28 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FAQAccordion } from "@/components/shared/FAQAccordion";
-import { BookingButton, BookingStickyCTA } from "@/components/shared/BookingButton";
+import { BookingButton, BookingModalRoot, BookingStickyCTA } from "@/components/shared/BookingButton";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
+import { KnowBeforeYouBook, BookingPolicyNote } from "@/components/shared/KnowBeforeYouBook";
 import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
-  title: "Sauna Near Portland, Oregon — Public Outdoor Sauna & Cold Plunge",
+  title: { absolute: "Sauna Near Portland, Outdoor Wood-Fired | Highland Farms" },
   description:
-    "The best sauna near Portland, Oregon. Public wood-burning sauna & cold plunge just 50 minutes from downtown Portland in the Mt. Hood National Forest. $75/person — book online.",
+    "Looking for a sauna near Portland? Wood-burning cedar sauna, steam sauna and cold plunge, about an hour from downtown in Mt. Hood forest. $75 per person.",
   alternates: { canonical: "/sauna-near-portland" },
   openGraph: {
-    title: "Sauna Near Portland — Highland Farms Mt. Hood Nordic Spa",
+    title: "Sauna Near Portland, Outdoor Wood-Fired | Highland Farms",
     description:
-      "Public outdoor sauna & cold plunge 50 minutes from Portland, Oregon. Escape to old-growth forest at the base of Mt. Hood. Book your sauna day trip.",
+      "Looking for a sauna near Portland? Wood-burning cedar sauna, steam sauna and cold plunge, about an hour from downtown in Mt. Hood forest. $75 per person.",
     url: "https://highlandfarmsoregon.com/sauna-near-portland",
     type: "website",
     images: [
       {
-        url: "/images/spa/spa-1.jpg",
+        url: "/images/spa/spa-exterior-plunge-moss.jpg",
         width: 1200,
         height: 630,
-        alt: "Outdoor sauna and cold plunge near Portland Oregon at Highland Farms",
+        alt: "Cold plunge among the moss and evergreens at Highland Farms near Portland, Oregon",
       },
     ],
   },
@@ -35,7 +36,7 @@ const faqItems = [
   {
     question: "How far is the sauna from Portland?",
     answer:
-      "Highland Farms is located in Brightwood, Oregon — approximately 50 minutes east of downtown Portland via US-26 (the Mt. Hood Highway). From Gresham and Troutdale it's about 30 minutes. From Sandy it's just 15 minutes.",
+      "Highland Farms is located in Brightwood, Oregon — approximately an hour east of downtown Portland via US-26 (the Mt. Hood Highway). From Gresham and Troutdale it's about 40 minutes. From Sandy it's about 20 minutes. From Beaverton and Hillsboro it's about 1.5 hours.",
   },
   {
     question: "Is this a public or private sauna near Portland?",
@@ -55,12 +56,12 @@ const faqItems = [
   {
     question: "How much does the sauna near Portland cost?",
     answer:
-      "Sessions are $75 per person for a 90-minute session, with up to 6 guests per session. Book online through our scheduling system — no deposit required at booking.",
+      "Sessions are $75 per person for a 90-minute session, with up to 6 guests per session. Book online through our scheduling system. You pay in full when you book, and all bookings are final.",
   },
   {
     question: "Can I combine the sauna with a Highland Cow farm tour?",
     answer:
-      "Absolutely — it's our most popular combo. Book a farm tour the hour before or after your spa session for the full Highland Farms experience. You'll meet the Scottish Highland Cows, then unwind in the Nordic spa.",
+      "Yes. Book them as two appointments, at least 1 hour apart. You'll meet the Scottish Highland Cows, then unwind in the Nordic spa.",
   },
   {
     question: "Is the sauna available year-round?",
@@ -70,7 +71,7 @@ const faqItems = [
   {
     question: "What's the cancellation policy?",
     answer:
-      "Our cancellation policy is strict. All spa bookings are final: no refunds, no reschedules, no credits, and no transfers, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if Highland Farms has to cancel a session for severe weather or a safety issue on our end, in which case you'll receive a full refund or a new date.",
+      "Our cancellation policy is strict. All spa bookings are final: no refunds, no reschedules, no credits, and no transfers, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if we cancel for severe weather or for the safety of our animals or guests, in which case we will refund or rebook you.",
   },
 ];
 
@@ -93,7 +94,7 @@ function SaunaNearPortlandSchema() {
     "@type": "Service",
     name: "Outdoor Sauna Near Portland — Highland Farms Nordic Spa",
     description:
-      "Public wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+      "Public wood-burning sauna, wet sauna & cold plunge about an hour from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
     url: "https://highlandfarmsoregon.com/sauna-near-portland",
     // Reference the canonical business node rather than inlining a second,
     // thinner LocalBusiness — an inline copy fragments the entity across the
@@ -148,7 +149,7 @@ export default function SaunaNearPortlandPage() {
 
         <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
           <p className="mb-4 text-xl font-normal text-white/80 font-script">
-            50 Minutes from Downtown Portland
+            About an Hour from Downtown Portland
           </p>
           <h1 className="text-4xl font-normal leading-tight sm:text-5xl md:text-6xl">
             Sauna Near Portland
@@ -157,7 +158,10 @@ export default function SaunaNearPortlandPage() {
             Public wood-burning sauna, wet sauna & cold plunge in the Mt. Hood
             forest — Oregon&apos;s best outdoor sauna day trip from Portland.
           </p>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <div
+            className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
+            data-hero-cta
+          >
             <BookingButton
               href={bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-hero")}
               label="Book Your Sauna Session"
@@ -198,7 +202,7 @@ export default function SaunaNearPortlandPage() {
                 few fellow travelers — never a crowd.
               </p>
               <p className="mt-4 text-base text-muted leading-relaxed font-sans">
-                Drive east on US-26 and in 50 minutes you&apos;ll trade city
+                Drive east on US-26 and in about an hour you&apos;ll trade city
                 noise for birdsong, mountain air, and the sound of a mountain
                 creek. It&apos;s the opposite of a city spa — and it&apos;s
                 only $75 per person.
@@ -232,10 +236,10 @@ export default function SaunaNearPortlandPage() {
                 </p>
                 <div className="space-y-3 text-sm font-sans">
                   {[
-                    { from: "Portland (downtown)", time: "~50 min", via: "US-26 East" },
-                    { from: "Gresham / Troutdale", time: "~30 min", via: "US-26 East" },
-                    { from: "Beaverton / Hillsboro", time: "~60 min", via: "US-26 East" },
-                    { from: "Sandy", time: "~15 min", via: "US-26 West" },
+                    { from: "Portland (downtown)", time: "about 1 hour", via: "US-26 East" },
+                    { from: "Gresham / Troutdale", time: "about 40 min", via: "US-26 East" },
+                    { from: "Beaverton / Hillsboro", time: "about 1.5 hours", via: "US-26 East" },
+                    { from: "Sandy", time: "about 20 min", via: "US-26 West" },
                   ].map((d) => (
                     <div key={d.from} className="flex justify-between items-start gap-4">
                       <div>
@@ -349,7 +353,9 @@ export default function SaunaNearPortlandPage() {
               </ul>
             </div>
 
-            <div className="mt-8">
+            <KnowBeforeYouBook product="spa" className="mt-6" />
+
+            <div className="mt-5">
               <BookingButton
                 href={bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-pricing")}
                 label="Book Your Sauna Session"
@@ -357,6 +363,7 @@ export default function SaunaNearPortlandPage() {
                 className="w-full"
                 title="Book your sauna session"
               />
+              <BookingPolicyNote className="mt-3" />
             </div>
           </div>
         </Container>
@@ -399,12 +406,13 @@ export default function SaunaNearPortlandPage() {
       </section>
 
       <BookingStickyCTA
-        label="Book Your Sauna Session"
+        label="See open sessions · $75"
         href={bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-sticky-mobile")}
         title="Book your sauna session"
       />
 
       <div className="h-20 lg:hidden" />
+      <BookingModalRoot />
     </>
   );
 }

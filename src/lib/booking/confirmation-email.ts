@@ -110,9 +110,8 @@ export function renderBookingConfirmation(data: BookingEmailData): string {
     </table>
     ${meetLinkSection(data)}
     <h2 style="font-size:16px;margin-top:24px">Getting here</h2>
-    <p>Highland Farms, Brightwood, OR, at the base of Mt. Hood, about 50 minutes
-    from Portland. Leave Portland an hour before your time and you'll arrive with
-    ten minutes to spare. Wear closed-toe shoes; dress for the weather.</p>
+    <p>Highland Farms, Brightwood, OR, at the base of Mt. Hood, about an hour
+    from Portland. Leave Portland about 70 minutes before your time. Wear closed-toe shoes; dress for the weather.</p>
     <h2 style="font-size:16px;margin-top:24px">Our booking policy</h2>
     <p>All bookings are final: no refunds, credits, or transfers, including
     no-shows. Please double-check your date, time, and guest count now.

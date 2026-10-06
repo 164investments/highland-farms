@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
@@ -26,12 +26,18 @@ declare global {
 
 /**
  * Dispatched anywhere — opens the Acuity booking modal mounted by
- * <BookingModalRoot/>. Falls back to opening the URL in a new tab if the modal
+ * <BookingModalRoot/>. Falls back to navigating to the URL if the modal
  * isn't mounted (e.g. on pages that didn't include it).
  */
 export function openBookingModal(detail: OpenDetail) {
   if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent<OpenDetail>(OPEN_EVENT, { detail }));
+  // A mounted <BookingModalRoot/> calls preventDefault() to claim the event.
+  // dispatchEvent() returns true when nobody did, so navigate instead of
+  // silently doing nothing.
+  const unhandled = window.dispatchEvent(
+    new CustomEvent<OpenDetail>(OPEN_EVENT, { detail, cancelable: true }),
+  );
+  if (unhandled && detail?.src) window.location.href = detail.src;
 }
 
 function bookingTypeFromUrl(url: string): string {
@@ -73,6 +79,8 @@ interface BookingButtonProps {
   variant?: "primary" | "outline" | "ghost" | "soft";
   className?: string;
   title?: string;
+  /** Rich content in place of `label`; `label` still names the tracking event. */
+  children?: ReactNode;
 }
 
 export function BookingButton({
@@ -82,6 +90,7 @@ export function BookingButton({
   variant = "primary",
   className,
   title,
+  children,
 }: BookingButtonProps) {
   const handleClick = () => {
     const src = prepareBookingUrl(href);
@@ -96,8 +105,34 @@ export function BookingButton({
       className={className}
       onClick={handleClick}
     >
-      {label}
+      {children ?? label}
     </Button>
+  );
+}
+
+interface BookingTextLinkProps {
+  href: string;
+  label: string;
+  title?: string;
+  className?: string;
+  /** Rich content in place of `label` (e.g. a price row); `label` still names the tracking event. */
+  children?: ReactNode;
+}
+
+/** Quiet text link that opens the booking modal through the same tracking path. */
+export function BookingTextLink({ href, label, title, className, children }: BookingTextLinkProps) {
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={() => {
+        const src = prepareBookingUrl(href);
+        trackBookingStart(src, title ?? label);
+        openBookingModal({ src, title });
+      }}
+    >
+      {children ?? label}
+    </button>
   );
 }
 
@@ -134,7 +169,10 @@ export function BookingModalRoot() {
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<OpenDetail>).detail;
-      if (detail?.src) setState(detail);
+      if (detail?.src) {
+        e.preventDefault();
+        setState(detail);
+      }
     };
     window.addEventListener(OPEN_EVENT, handler);
     return () => window.removeEventListener(OPEN_EVENT, handler);

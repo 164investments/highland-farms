@@ -7,7 +7,7 @@ import { Container } from "@/components/ui/Container";
 import { PRODUCTS, getProduct, fromPrice, type Product } from "../data";
 import { getStockMap, allSoldOut, type StockMap } from "@/lib/shop/inventory";
 import { toCents, formatCents, formatCentsShort } from "@/lib/shop/money";
-import { DELIVERY_FEE_CENTS, PICKUP_LOCATION } from "@/lib/shop/fulfillment";
+import { DELIVERY_FEE_CENTS, DELIVERY_MINIMUM_CENTS, PICKUP_LOCATION } from "@/lib/shop/fulfillment";
 import { buildProductNode } from "@/lib/shop/product-schema";
 import { AddToCart } from "./AddToCart";
 import { StructuredData } from "@/components/layout/StructuredData";
@@ -67,7 +67,7 @@ export default async function ProductPage({
   };
 
   return (
-    <main className="bg-cream pt-32 pb-20 sm:pb-28">
+    <div className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
       <StructuredData pathname={`/shop/${product.slug}`} />
       <script
         type="application/ld+json"
@@ -102,7 +102,7 @@ export default async function ProductPage({
           </div>
 
           <div>
-            {product.badges && product.badges.length > 0 && (
+            {product.badges && product.badges.length > 0 && !soldOut && (
               <div className="mb-3 flex flex-wrap gap-1.5">
                 {product.badges.map((b) => (
                   <span
@@ -156,7 +156,7 @@ export default async function ProductPage({
                 <Truck className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
                 <div>
                   <dt className="text-charcoal">
-                    Local delivery {formatCents(DELIVERY_FEE_CENTS)}
+                    Local delivery {formatCentsShort(DELIVERY_FEE_CENTS)} on orders of {formatCentsShort(DELIVERY_MINIMUM_CENTS)} or more
                   </dt>
                   <dd className="text-muted">
                     Mt. Hood corridor and east Portland — we check your ZIP at
@@ -169,7 +169,7 @@ export default async function ProductPage({
         </div>
         <GoesWellWith product={product} stock={stock} />
       </Container>
-    </main>
+    </div>
   );
 }
 

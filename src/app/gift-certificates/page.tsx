@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function GiftCertificatesPage() {
   if (!nativeCalendarEnabled()) notFound();
   return (
-    <Container className="pt-32 pb-16 lg:pb-20">
+    <Container className="pt-[calc(var(--header-h,128px)+1.5rem)] pb-16 lg:pb-20">
       <StructuredData pathname="/gift-certificates" />
       <div className="mx-auto max-w-3xl">
         <p className="font-sans text-xs uppercase tracking-[0.28em] text-forest/70">Gift Certificates</p>

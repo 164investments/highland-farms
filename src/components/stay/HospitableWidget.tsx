@@ -13,10 +13,15 @@ export function HospitableWidget({ widgetUrl, propertyName }: HospitableWidgetPr
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       // Validate origin to prevent untrusted postMessage data
-      const trustedOrigins = ["https://app.hospitable.com", "https://hospitable.com"];
-      if (!trustedOrigins.some((o) => event.origin.startsWith(o))) return;
+      let host: string;
+      try {
+        host = new URL(event.origin).hostname;
+      } catch {
+        return;
+      }
+      if (host !== "hospitable.com" && !host.endsWith(".hospitable.com")) return;
 
-      if (event.data.iframeHeight && iframeRef.current) {
+      if (event.data?.iframeHeight && iframeRef.current) {
         iframeRef.current.style.height = event.data.iframeHeight + "px";
       }
     }

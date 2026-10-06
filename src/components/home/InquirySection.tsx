@@ -9,7 +9,7 @@ export function InquirySection() {
         <SectionHeading
           eyebrow="Start Planning"
           title="Check Availability"
-          subtitle="2027 dates are filling quickly. Tell us your vision and we'll check availability for your preferred date."
+          subtitle="Now booking 2027. Tell us your vision and we'll check availability for your preferred date."
         />
 
         <div className="mx-auto max-w-xl rounded-xl border border-cream-dark bg-white p-6 sm:p-8 shadow-sm">

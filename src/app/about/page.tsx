@@ -356,7 +356,7 @@ export default function AboutPage() {
             the infamous Oregon Trail.
           </p>
           <p className="mt-4 text-base text-muted leading-relaxed font-sans">
-            Just 50 minutes from Portland and 20 minutes from Mt. Hood, Highland
+            Just about an hour from Portland and about 25 minutes from Government Camp, Highland
             Farms is accessible yet feels worlds away from the city. Experience the
             Mount Hood Territory at your doorstep.
           </p>
