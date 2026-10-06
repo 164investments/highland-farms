@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, Instagram, ChevronDown } from "lucide-react";
@@ -9,10 +10,31 @@ import { mainNavItems } from "@/data/navigation";
 import { CONTACT } from "@/lib/constants";
 import { MobileMenu } from "./MobileMenu";
 import { AnnouncementBar } from "./AnnouncementBar";
+import { subscribeSolidHeader, getSolidHeader } from "./header-mode";
+
+/**
+ * Routes with no full-bleed hero photo behind the header. White nav text on a
+ * cream page is unreadable, so these get the solid dark-text header from load.
+ * Pages with a hero keep the transparent header until scroll. The 404 page
+ * asks for solid through header-mode.
+ */
+function isLightPage(pathname: string): boolean {
+  return (
+    (pathname.startsWith("/shop/") && pathname !== "/shop/") ||
+    pathname === "/privacy" ||
+    pathname === "/terms" ||
+    pathname === "/accessibility" ||
+    pathname === "/gift-certificates" ||
+    pathname === "/wedding-call"
+  );
+}
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname() ?? "";
+  const forcedSolid = useSyncExternalStore(subscribeSolidHeader, getSolidHeader, () => false);
+  const light = scrolled || forcedSolid || isLightPage(pathname);
   const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,7 +66,7 @@ export function Header() {
         <header
           className={cn(
             "transition-all duration-500",
-            scrolled
+            light
               ? "bg-white/95 backdrop-blur-md shadow-[0_1px_0_rgba(0,0,0,0.04)]"
               : "bg-gradient-to-b from-black/40 to-transparent"
           )}
@@ -63,14 +85,14 @@ export function Header() {
                   height={26}
                   className={cn(
                     "h-6 w-auto transition-all duration-500",
-                    scrolled ? "brightness-0 opacity-70" : ""
+                    light ? "brightness-0 opacity-70" : ""
                   )}
                   priority
                 />
                 <span
                   className={cn(
                     "text-lg sm:text-xl font-normal transition-colors font-logo",
-                    scrolled ? "text-charcoal" : "text-white"
+                    light ? "text-charcoal" : "text-white"
                   )}
                 >
                   Highland Farms
@@ -85,7 +107,7 @@ export function Header() {
                       href={item.href}
                       className={cn(
                         "flex items-center gap-1 px-3.5 py-2 text-xs font-light tracking-[0.12em] uppercase transition-colors font-sans",
-                        scrolled
+                        light
                           ? "text-charcoal/70 hover:text-charcoal"
                           : "text-white/90 hover:text-white"
                       )}
@@ -130,7 +152,7 @@ export function Header() {
                   rel="noopener noreferrer"
                   className={cn(
                     "ml-2 p-2 transition-colors",
-                    scrolled
+                    light
                       ? "text-charcoal/60 hover:text-charcoal"
                       : "text-white/80 hover:text-white"
                   )}
@@ -142,7 +164,7 @@ export function Header() {
                 <Link
                   href="/contact"
                   className="ml-3 inline-flex items-center justify-center rounded-full border border-white/50 bg-white/10 backdrop-blur-sm px-5 py-2 text-xs font-light tracking-[0.12em] uppercase text-white transition-all hover:bg-white/20 hover:border-white/70"
-                  style={scrolled ? { borderColor: 'rgba(74,103,65,0.3)', backgroundColor: 'rgba(74,103,65,0.05)', color: '#4A6741' } : {}}
+                  style={light ? { borderColor: 'rgba(74,103,65,0.3)', backgroundColor: 'rgba(74,103,65,0.05)', color: '#4A6741' } : {}}
                 >
                   Inquire
                 </Link>
@@ -153,7 +175,7 @@ export function Header() {
                 onClick={() => setMobileOpen(true)}
                 className={cn(
                   "lg:hidden p-2 transition-colors",
-                  scrolled ? "text-charcoal" : "text-white"
+                  light ? "text-charcoal" : "text-white"
                 )}
                 aria-label="Open menu"
               >

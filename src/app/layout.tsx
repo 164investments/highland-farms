@@ -80,11 +80,9 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
+    // Title, description and image are deliberately omitted so Next fills
+    // them from each page's own openGraph (twitter:image === og:image).
     card: "summary_large_image",
-    title: "Highland Farms | Oregon's Premier Farm Wedding Venue",
-    description:
-      "All-inclusive farm and forest weddings at the base of Mt. Hood.",
-    images: ["/images/hero/farm-aerial.jpg"],
   },
   icons: {
     icon: [

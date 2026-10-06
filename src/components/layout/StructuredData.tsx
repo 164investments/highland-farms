@@ -194,7 +194,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         foundingDate: "2019",
         founder: { "@id": `${SITE.url}/#connor` },
         image: [
-          `${SITE.url}/images/hero/home.jpg`,
+          `${SITE.url}/images/hero/farm-aerial.jpg`,
           `${SITE.url}/images/weddings/couple.jpg`,
           `${SITE.url}/images/farm/highland-cows-hero.jpg`,
         ],
