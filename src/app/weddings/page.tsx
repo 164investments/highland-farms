@@ -249,7 +249,7 @@ export default function WeddingsPage() {
       </section>
 
       {/* Gallery */}
-      <section id="gallery" className="py-20 lg:py-28 bg-cream">
+      <section id="gallery" className="scroll-mt-[var(--header-h,120px)] py-20 lg:py-28 bg-cream">
         <Container>
           <SectionHeading
             title="Wedding Gallery"
@@ -285,7 +285,7 @@ export default function WeddingsPage() {
       </section>
 
       {/* Inquiry Form */}
-      <section id="contact" className="py-20 lg:py-28 bg-background">
+      <section id="contact" className="scroll-mt-[var(--header-h,120px)] py-20 lg:py-28 bg-background">
         <Container className="max-w-4xl">
           <div className="flex justify-center mb-6">
             <Image

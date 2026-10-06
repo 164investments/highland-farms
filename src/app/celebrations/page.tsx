@@ -130,7 +130,7 @@ export default function CelebrationsPage() {
       </section>
 
       {/* Inquiry Form */}
-      <section id="contact" className="py-20 lg:py-28 bg-background">
+      <section id="contact" className="scroll-mt-[var(--header-h,120px)] py-20 lg:py-28 bg-background">
         <Container className="max-w-4xl">
           <SectionHeading
             eyebrow="Plan Your Celebration"

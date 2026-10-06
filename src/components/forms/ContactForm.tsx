@@ -8,6 +8,7 @@ import { inquirySchema, type InquiryFormData } from "@/lib/schemas";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { getClientAttribution } from "@/lib/attribution";
+import { nativeCalendarEnabled } from "@/lib/booking/flag";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { TurnstileWidget } from "./TurnstileWidget";
 
@@ -26,6 +27,8 @@ const WEDDING_EVENT_TYPES = ["wedding", "elopement"];
 
 /** Acuity wedding-call URL prefilled from the submitted inquiry. */
 function weddingCallUrl(d: { name: string; email: string; phone?: string }): string {
+  // After the native-calendar cutover the call is booked on our own page.
+  if (nativeCalendarEnabled()) return "/wedding-call";
   const url = new URL(bookingUrl(BOOKING_LINKS.weddingCall, "wedding-form-success"));
   const [first, ...rest] = d.name.trim().split(/\s+/);
   url.searchParams.set("firstName", first ?? "");

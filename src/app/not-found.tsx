@@ -19,7 +19,7 @@ const links = [
 
 export default function NotFound() {
   return (
-    <main className="bg-cream pt-36 pb-20 sm:pb-28">
+    <div className="bg-cream pt-36 pb-20 sm:pb-28">
       <SolidHeaderMarker />
       <Container className="max-w-3xl text-center">
         <div className="relative mx-auto aspect-[4/3] w-full max-w-md overflow-hidden rounded-2xl shadow-sm">
@@ -60,6 +60,6 @@ export default function NotFound() {
           .
         </p>
       </Container>
-    </main>
+    </div>
   );
 }

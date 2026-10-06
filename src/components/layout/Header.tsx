@@ -25,7 +25,9 @@ function isLightPage(pathname: string): boolean {
     pathname === "/terms" ||
     pathname === "/accessibility" ||
     pathname === "/gift-certificates" ||
-    pathname === "/wedding-call"
+    pathname === "/wedding-call" ||
+    pathname.startsWith("/stay/") ||
+    pathname.startsWith("/wedding-portfolio")
   );
 }
 

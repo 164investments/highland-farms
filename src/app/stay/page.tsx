@@ -104,7 +104,7 @@ export default function StayPage() {
       </section>
 
       {/* Properties */}
-      <section id="stays" className="scroll-mt-24 py-20 lg:py-28 bg-background">
+      <section id="stays" className="scroll-mt-[var(--header-h,120px)] py-20 lg:py-28 bg-background">
         <Container>
           <SectionHeading
             eyebrow="The Accommodations"
