@@ -1,0 +1,5 @@
+.page h1,
+.page h2,
+.page article h3 {
+  font-family: var(--font-cormorant), Georgia, serif;
+}

@@ -1,7 +1,8 @@
 # Architecture — highlandfarmsoregon.com
 
 Where code goes and why. Update this file in the **same PR** as any structural
-change. Companion docs: `CLAUDE.md` (how we work here), `README.md` (how to run).
+change. Companion docs: `AGENTS.md` (working rules), `CLAUDE.md` (Claude import),
+`README.md` (how to run).
 
 ## What this app is
 
@@ -46,6 +47,14 @@ supabase-*.sql             schema, applied by hand (no migration runner here)
 ```
 
 ### Where does X go?
+
+The seasonal Thanksgiving offer is a server-rendered marketing page at
+`src/app/thanksgiving/page.tsx`, with package content and prefilled email links
+in `src/data/thanksgiving.ts`. It sends inquiries to the address supplied by the
+farm; it does not create bookings, charge payments or apply tour/spa terms to a
+stay package. Discoverability comes from the Stays menu, `/stay` and the sitemap.
+Its generated hero is clearly captioned as an illustration; accommodation and
+experience photos use the existing real farm assets.
 
 | Adding… | Put it in |
 |---|---|

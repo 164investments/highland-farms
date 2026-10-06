@@ -59,6 +59,7 @@ const STATIC_ROUTE_LABELS: Record<string, string> = {
   "/nordic-spa": "Nordic Spa",
   "/sauna-near-portland": "Sauna Near Portland",
   "/stay": "Stay",
+  "/thanksgiving": "Thanksgiving 2026",
   "/wedding-portfolio": "Wedding Portfolio",
   "/celebrations": "Celebrations",
   "/about": "About",
