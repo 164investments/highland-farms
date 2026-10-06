@@ -31,6 +31,9 @@ export const BOOKING_LINKS = {
   farmTourForTwo:
     "https://highlandfarms.as.me/schedule/e759f21b/appointment/48403186/calendar/7539520",
   nordicSpa: "https://highlandfarms.as.me/schedule/e759f21b/appointment/85942611/calendar/13047082",
+  /** Live Acuity "Highland Farms Wedding Call" (type 78277096, calendar 12109481). */
+  weddingCall:
+    "https://highlandfarms.as.me/schedule/e759f21b/appointment/78277096/calendar/12109481",
   giftCertificates: "https://highlandfarms.as.me/catalog/e759f21b",
 } as const;
 

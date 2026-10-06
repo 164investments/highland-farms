@@ -192,7 +192,7 @@ export default async function WeddingDetailPage({
       <StructuredData pathname={`/wedding-portfolio/${couple.slug}`} />
 
       {/* Back link + Title */}
-      <section className="pt-24 pb-8 bg-background">
+      <section className="pt-[calc(var(--header-h,120px)+1rem)] pb-8 bg-background">
         <Container>
           <Link
             href="/wedding-portfolio"
@@ -308,7 +308,7 @@ export default async function WeddingDetailPage({
             we&apos;ll create the perfect all-inclusive package.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button href="/contact">Get Your Custom Quote</Button>
+            <Button href="/weddings#contact">Get Your Custom Quote</Button>
             <Button href="/weddings" variant="outline">
               Learn About Weddings
             </Button>

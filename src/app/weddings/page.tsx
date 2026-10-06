@@ -144,8 +144,8 @@ export default function WeddingsPage() {
             and host your closest family and friends on-site at the base of Mt. Hood.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button href="/contact" size="lg" className="bg-white text-charcoal hover:bg-cream">
-              Get Your Custom Quote
+            <Button href="#contact" size="lg" className="bg-white text-charcoal hover:bg-cream">
+              Check your date
             </Button>
             <Button
               href="#gallery"
@@ -317,8 +317,8 @@ export default function WeddingsPage() {
 
       {/* Sticky mobile CTA */}
       <StickyMobileCTA
-        label="Get Your Custom Quote"
-        href="/contact"
+        label="Check your date"
+        href="#contact"
       />
       <div className="h-20 lg:hidden" />
     </>

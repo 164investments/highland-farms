@@ -92,7 +92,7 @@ export default function CelebrationsPage() {
             life&apos;s big moments.
           </p>
           <div className="mt-8">
-            <Button href="/contact" size="lg" className="bg-white text-charcoal hover:bg-cream">
+            <Button href="#contact" size="lg" className="bg-white text-charcoal hover:bg-cream">
               Plan Your Event
             </Button>
           </div>
@@ -130,7 +130,7 @@ export default function CelebrationsPage() {
       </section>
 
       {/* Inquiry Form */}
-      <section className="py-20 lg:py-28 bg-background">
+      <section id="contact" className="py-20 lg:py-28 bg-background">
         <Container className="max-w-4xl">
           <SectionHeading
             eyebrow="Plan Your Celebration"

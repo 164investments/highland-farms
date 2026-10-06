@@ -151,7 +151,7 @@ export default async function PropertyPage({
       <StructuredData pathname={`/stay/${property.slug}`} />
 
       {/* Back link + Hero */}
-      <section className="pt-24 pb-4 bg-background">
+      <section className="pt-[calc(var(--header-h,120px)+1rem)] pb-4 bg-background">
         <Container>
           <Link
             href="/stay"
