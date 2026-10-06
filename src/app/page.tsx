@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { HeroSection } from "@/components/home/HeroSection";
-import { SocialProofBar } from "@/components/home/SocialProofBar";
+import { HomeHero } from "@/components/home/HomeHero";
 import { WeddingHighlights } from "@/components/home/WeddingHighlights";
 import { InquirySection } from "@/components/home/InquirySection";
 import { TestimonialSection } from "@/components/home/TestimonialSection";
@@ -12,6 +11,7 @@ import { InstagramEmbed } from "@/components/shared/InstagramEmbed";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { CHECK_DATE_HREF } from "@/components/layout/Masthead";
 
 export const metadata: Metadata = {
   title: "Highland Farms | Oregon's Premier Farm Wedding Venue",
@@ -40,8 +40,8 @@ export default function Home() {
   return (
     <>
       <StructuredData pathname="/" />
-      <HeroSection />
-      <SocialProofBar />
+      {/* The first screen carries the review stars, so the separate review strip is gone. */}
+      <HomeHero />
       <FadeIn>
         <WeddingHighlights />
       </FadeIn>
@@ -65,10 +65,10 @@ export default function Home() {
       </FadeIn>
       <FinalCTA />
 
-      {/* Sticky mobile CTA for Meta ad traffic */}
+      {/* Sticky mobile CTA: hidden while the hero's own CTA (data-hero-cta) is on screen */}
       <StickyMobileCTA
-        label="Plan Your Wedding"
-        href="/weddings"
+        label="Check your date"
+        href={CHECK_DATE_HREF}
       />
       {/* Bottom padding for sticky CTA on mobile */}
       <div className="h-20 lg:hidden" />

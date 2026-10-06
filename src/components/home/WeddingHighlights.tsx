@@ -14,8 +14,9 @@ const highlights = [
   {
     title: "Scottish Highland Cow Moments",
     description: "Unforgettable photo moments with our gentle Scottish Highland Cows against the ethereal Pacific Northwest forest.",
-    image: "/images/weddings/ceremony-3.jpg",
-    alt: "Wedding couple kissing with Highland Cow calf on forest bridge",
+    // ceremony-3 is the homepage hero plate on desktop; a different real photo here.
+    image: "/images/weddings/ceremony-1.jpg",
+    alt: "A bride and groom embrace beside a Highland cow at the farm",
   },
   {
     title: "Celebrations & Corporate",
