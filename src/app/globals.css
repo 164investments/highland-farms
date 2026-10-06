@@ -31,6 +31,9 @@
 }
 
 /* Announcement bar dismissed (or absent): set before first paint by an inline script. */
+html[data-bar-hidden] [data-announcement-bar] {
+  display: none;
+}
 html[data-bar-hidden] {
   --header-h: 64px;
 }

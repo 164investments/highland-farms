@@ -15,9 +15,11 @@ type Variant = {
 
 function AnnouncementBookingLink({
   href,
+  title,
   children,
 }: {
   href: string;
+  title: string;
   children: ReactNode;
 }) {
   return (
@@ -29,10 +31,10 @@ function AnnouncementBookingLink({
         window.dataLayer.push({
           event: "booking_start",
           booking_url: event.currentTarget.href,
-          booking_title: typeof children === "string" ? children : undefined,
+          booking_title: title,
         });
       }}
-      className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1"
+      className={LINK_CLASS}
     >
       {children}
     </a>
@@ -40,27 +42,32 @@ function AnnouncementBookingLink({
 }
 
 const LINK_CLASS =
-  "underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors ml-1";
+  "ml-1 shrink-0 whitespace-nowrap underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors";
 
-// Every variant is ONE line at 375px: a short message, a short link label, and
-// the longer wording only from sm up. Keep it that way; the header height
-// (--header-h in globals.css) assumes a single 44px line.
+// Every variant is ONE line: a short message, a short link label, and the
+// longer wording only from lg up (xl for the shop strip). The message span
+// truncates; the link never shrinks, so the CTA is always visible. The header
+// height (--header-h in globals.css) assumes a single 44px line.
+const Msg = ({ children }: { children: ReactNode }) => (
+  <span className="min-w-0 truncate">{children}</span>
+);
+
 const SHOP: Variant = {
   id: "hf-shop-promo-dismissed",
   layout: "shop",
   body: (
     <>
-      <span className="inline-flex items-center gap-1.5">
+      <span className="inline-flex shrink-0 items-center gap-1.5">
         <Truck className="h-3.5 w-3.5" aria-hidden />
-        Free farm pickup<span className="hidden sm:inline">&nbsp;in Brightwood, Oregon</span>
+        Free farm pickup<span className="hidden xl:inline">&nbsp;in Brightwood, Oregon</span>
       </span>
-      <span aria-hidden className="hidden sm:inline opacity-50">·</span>
-      <span className="hidden sm:inline">Local delivery available</span>
-      <span aria-hidden className="hidden sm:inline opacity-50">·</span>
-      <span className="hidden sm:inline">Pasture-raised &amp; family-run since 2019</span>
+      <span aria-hidden className="hidden xl:inline opacity-50">·</span>
+      <span className="hidden xl:inline">Local delivery available</span>
+      <span aria-hidden className="hidden xl:inline opacity-50">·</span>
+      <span className="hidden xl:inline">Pasture-raised &amp; family-run since 2019</span>
       <Link
         href="/shop#cat-featured"
-        className="underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors"
+        className="shrink-0 whitespace-nowrap underline underline-offset-4 decoration-gold/70 hover:decoration-gold transition-colors"
       >
         Shop Bestsellers
       </Link>
@@ -73,12 +80,15 @@ const FARM_TOURS: Variant = {
   layout: "single",
   body: (
     <>
-      <span className="hidden sm:inline">Meet the Highland Coos &middot; </span>
-      Private farm tours &middot; $150 for two{" "}
+      <Msg>
+        <span className="hidden lg:inline">Meet the Highland Coos &middot; </span>
+        Private farm tours &middot; $150 for two
+      </Msg>
       <AnnouncementBookingLink
         href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "announcement-bar-farm-tours")}
+        title="Announcement bar: book a farm tour"
       >
-        Book<span className="hidden sm:inline">&nbsp;Your Tour</span>
+        Book<span className="hidden lg:inline">&nbsp;Your Tour</span>
       </AnnouncementBookingLink>
     </>
   ),
@@ -89,27 +99,35 @@ const NORDIC_SPA: Variant = {
   layout: "single",
   body: (
     <>
-      Sauna + cold plunge &middot; from $75<span className="hidden sm:inline"> &middot; 90 min &middot; Weekends go first</span>{" "}
+      <Msg>
+        Sauna + cold plunge &middot; from $75
+        <span className="hidden lg:inline"> &middot; 90 min &middot; Weekends go first</span>
+      </Msg>
       <AnnouncementBookingLink
         href={bookingUrl(BOOKING_LINKS.nordicSpa, "announcement-bar-nordic-spa")}
+        title="Announcement bar: reserve a spa session"
       >
-        Reserve<span className="hidden sm:inline">&nbsp;Your Session</span>
+        Reserve<span className="hidden lg:inline">&nbsp;Your Session</span>
       </AnnouncementBookingLink>
     </>
   ),
 };
 
 const SAUNA_NEAR_PDX: Variant = {
-  id: "hf-bar-sauna-near-pdx-2026-10",
+  id: "hf-bar-sauna-near-pdx-2026-10b",
   layout: "single",
   body: (
     <>
-      <span className="hidden sm:inline">About an Hour From Portland &middot; </span>
-      Forest sauna + cold plunge &middot; from $75{" "}
+      <Msg>
+        <span className="hidden lg:inline">About an Hour From Portland &middot; </span>
+        <span className="lg:hidden">Forest sauna &middot; from $75</span>
+        <span className="hidden lg:inline">Forest sauna + cold plunge &middot; from $75</span>
+      </Msg>
       <AnnouncementBookingLink
         href={bookingUrl(BOOKING_LINKS.nordicSpa, "announcement-bar-sauna-near-portland")}
+        title="Announcement bar: reserve a sauna session"
       >
-        Reserve<span className="hidden sm:inline">&nbsp;Your Session</span>
+        Reserve<span className="hidden lg:inline">&nbsp;Your Session</span>
       </AnnouncementBookingLink>
     </>
   ),
@@ -120,10 +138,12 @@ const WEDDINGS: Variant = {
   layout: "single",
   body: (
     <>
-      <span className="hidden sm:inline">All-Inclusive Forest Weddings &middot; </span>
-      Now booking 2027<span className="sm:hidden"> weddings</span>{" "}
+      <Msg>
+        <span className="hidden lg:inline">All-Inclusive Forest Weddings &middot; </span>
+        Now booking 2027<span className="lg:hidden"> weddings</span>
+      </Msg>
       <Link href="/weddings#contact" className={LINK_CLASS}>
-        Check<span className="hidden sm:inline">&nbsp;your date</span>
+        Check<span className="hidden lg:inline">&nbsp;your date</span>
       </Link>
     </>
   ),
@@ -134,8 +154,10 @@ const CELEBRATIONS: Variant = {
   layout: "single",
   body: (
     <>
-      <span className="hidden sm:inline">Anniversaries &middot; Birthdays &middot; </span>
-      Family gatherings at Mt. Hood{" "}
+      <Msg>
+        <span className="hidden lg:inline">Anniversaries &middot; Birthdays &middot; </span>
+        Family gatherings at Mt. Hood
+      </Msg>
       <Link href="/contact" className={LINK_CLASS}>
         Inquire
       </Link>
@@ -148,11 +170,13 @@ const STAY: Variant = {
   layout: "single",
   body: (
     <>
-      <span className="hidden sm:inline">William Wallace Lodge, Bonnie Lass Cottage &amp; The Camp</span>
-      <span className="sm:hidden">Farm stays</span> &middot; Up to 20 guests{" "}
+      <Msg>
+        <span className="hidden lg:inline">William Wallace Lodge, Bonnie Lass Cottage &amp; The Camp</span>
+        <span className="lg:hidden">Farm stays</span> &middot; Up to 20 guests
+      </Msg>
       <Link href="/stay" className={LINK_CLASS}>
-        <span className="sm:hidden">See stays</span>
-        <span className="hidden sm:inline">Plan Your Stay</span>
+        <span className="lg:hidden">See stays</span>
+        <span className="hidden lg:inline">Plan Your Stay</span>
       </Link>
     </>
   ),
@@ -163,8 +187,10 @@ const DEFAULT: Variant = {
   layout: "single",
   body: (
     <>
-      <span className="hidden sm:inline">Forest Weddings &middot; </span>
-      Now booking 2027<span className="sm:hidden"> weddings</span>{" "}
+      <Msg>
+        <span className="hidden lg:inline">Forest Weddings &middot; </span>
+        Now booking 2027<span className="lg:hidden"> weddings</span>
+      </Msg>
       <Link href="/weddings" className={LINK_CLASS}>
         Inquire
       </Link>
@@ -177,7 +203,9 @@ const THANKSGIVING: Variant = {
   layout: "single",
   body: (
     <>
-      Thanksgiving on the farm<span className="hidden sm:inline"> &middot; November 24–28, 2026</span>{" "}
+      <Msg>
+        Thanksgiving on the farm<span className="hidden lg:inline"> &middot; November 24–28, 2026</span>
+      </Msg>
       <Link href="/thanksgiving#packages" className={LINK_CLASS}>
         See Packages
       </Link>
@@ -267,8 +295,8 @@ export function AnnouncementBar() {
         <p
           className={
             variant.layout === "shop"
-              ? "flex items-center justify-center gap-x-3 whitespace-nowrap overflow-hidden font-light tracking-[0.06em] uppercase font-sans sm:gap-x-5 sm:tracking-[0.14em]"
-              : "whitespace-nowrap overflow-hidden font-light tracking-[0.06em] sm:tracking-[0.15em] uppercase font-sans"
+              ? "flex min-w-0 max-w-full items-center justify-center gap-x-3 whitespace-nowrap overflow-hidden font-light tracking-[0.06em] uppercase font-sans sm:gap-x-5 sm:tracking-[0.14em]"
+              : "flex min-w-0 max-w-full items-center justify-center whitespace-nowrap font-light tracking-[0.06em] sm:tracking-[0.15em] uppercase font-sans"
           }
         >
           {variant.body}

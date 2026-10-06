@@ -10,7 +10,7 @@ interface ImageCarouselProps {
   images: { src: string; alt: string }[];
   className?: string;
   aspectRatio?: "video" | "photo" | "wide";
-  /** Preload the first slides. Off by default: carousels sit below the hero and must not compete with its LCP image. */
+  /** Preload the first slide (the above-the-fold hero carousel). Off by default: carousels sit below the hero and must not compete with its LCP image. */
   eager?: boolean;
 }
 
@@ -99,7 +99,7 @@ export function ImageCarousel({ images, className, aspectRatio = "video", eager 
                   fill
                   sizes="(max-width: 640px) 85vw, (max-width: 1024px) 60vw, 44vw"
                   className="object-cover"
-                  priority={eager && i <= 2}
+                  priority={eager && i === 0}
                 />
               </div>
             </div>

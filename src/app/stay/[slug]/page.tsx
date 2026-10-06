@@ -176,7 +176,7 @@ export default async function PropertyPage({
       {/* Gallery */}
       <section className="pb-12 bg-background">
         <Container>
-          <ImageCarousel images={carouselImages} aspectRatio="video" />
+          <ImageCarousel images={carouselImages} aspectRatio="video" eager />
         </Container>
       </section>
 
