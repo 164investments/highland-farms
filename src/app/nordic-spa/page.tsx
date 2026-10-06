@@ -39,12 +39,12 @@ import { StructuredData } from "@/components/layout/StructuredData";
 export const metadata: Metadata = {
   title: "Sauna & Cold Plunge Near Portland — Mt. Hood Nordic Spa",
   description:
-    "Outdoor wood-burning sauna & cold plunge 50 minutes from Portland, Oregon. Public 90-minute Nordic spa sessions for up to 6 guests at Highland Farms in the Mt. Hood National Forest. $75/person — book your sauna day trip.",
+    "Outdoor wood-burning sauna & cold plunge about an hour from Portland, Oregon. Public 90-minute Nordic spa sessions for up to 6 guests at Highland Farms at the base of Mt. Hood. $75/person — book your sauna day trip.",
   alternates: { canonical: "/nordic-spa" },
   openGraph: {
     title: "Sauna & Cold Plunge Near Portland — Highland Farms Mt. Hood",
     description:
-      "Outdoor wood-burning sauna, wet sauna & cold plunge 50 minutes from Portland. Public 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+      "Outdoor wood-burning sauna, wet sauna & cold plunge about an hour from Portland. Public 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
     url: "https://highlandfarmsoregon.com/nordic-spa",
     type: "website",
     images: [
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
         url: "/images/spa/spa-1.jpg",
         width: 1200,
         height: 630,
-        alt: "Outdoor sauna and cold plunge near Portland in the Mt. Hood National Forest",
+        alt: "Outdoor sauna and cold plunge near Portland at the base of Mt. Hood",
       },
     ],
   },
@@ -102,7 +102,7 @@ const heroPills = [
   { icon: Leaf, label: "Peaceful & Restorative" },
   { icon: Users, label: "Limited to 6 Guests" },
   { icon: Clock, label: "90-Minute Sessions" },
-  { icon: MapPin, label: "Just 50 Min from Portland" },
+  { icon: MapPin, label: "About 1 Hour from Portland" },
 ];
 
 const includedItems = [
@@ -207,7 +207,7 @@ export default function NordicSpaPage() {
               <p className="mt-4 max-w-lg text-lg text-white/85 leading-relaxed font-sans font-light lg:mt-6">
                 Wood-burning sauna, steam sauna, and cold plunge tucked
                 into old-growth forest — public sessions for up to 6 guests,
-                50&nbsp;minutes from Portland.
+                about an hour from Portland.
               </p>
 
               {/* Icon + label pairs — 2×2 grid below lg, single row with separators on lg+ */}
@@ -494,16 +494,16 @@ export default function NordicSpaPage() {
         <Container className="max-w-4xl">
           <SectionHeading
             eyebrow="Worth the Drive"
-            title="50 Minutes from Portland"
+            title="About an Hour from Portland"
             subtitle="A scenic drive east on US-26 through the Sandy River valley to old-growth forest at the base of Mt. Hood."
           />
 
           <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              { from: "Portland", time: "~50 min" },
-              { from: "Gresham", time: "~30 min" },
-              { from: "Sandy", time: "~15 min" },
-              { from: "Hood River", time: "~40 min" },
+              { from: "Portland", time: "about 1 hour" },
+              { from: "Gresham", time: "about 40 min" },
+              { from: "Sandy", time: "about 20 min" },
+              { from: "Beaverton / Hillsboro", time: "about 1.5 hours" },
             ].map((d) => (
               <div
                 key={d.from}

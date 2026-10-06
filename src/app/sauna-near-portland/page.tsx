@@ -12,7 +12,7 @@ import { StructuredData } from "@/components/layout/StructuredData";
 export const metadata: Metadata = {
   title: "Sauna Near Portland, Oregon — Public Outdoor Sauna & Cold Plunge",
   description:
-    "The best sauna near Portland, Oregon. Public wood-burning sauna & cold plunge just 50 minutes from downtown Portland in the Mt. Hood National Forest. $75/person — book online.",
+    "The best sauna near Portland, Oregon. Public wood-burning sauna & cold plunge just 50 minutes from downtown Portland at the base of Mt. Hood. $75/person — book online.",
   alternates: { canonical: "/sauna-near-portland" },
   openGraph: {
     title: "Sauna Near Portland — Highland Farms Mt. Hood Nordic Spa",

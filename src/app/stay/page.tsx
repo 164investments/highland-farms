@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Stay at Highland Farms — Farm Stays in Brightwood, Oregon",
     description:
-      "Four unique forest accommodations at the base of Mt. Hood. Book direct for the best rate.",
+      "Three unique forest stays at the base of Mt. Hood, or book the whole farm. Book direct for the best rate.",
     url: "https://highlandfarmsoregon.com/stay",
     type: "website",
     images: [
@@ -96,7 +96,6 @@ export default function StayPage() {
           <SectionHeading
             eyebrow="The Accommodations"
             title="Find Your Perfect Stay"
-            subtitle="(Summer Dates Open April 1st)"
           />
 
           <div className="space-y-16">
