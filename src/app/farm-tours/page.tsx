@@ -18,6 +18,7 @@ import { TourSpaCombo } from "@/components/shared/TourSpaCombo";
 import { NextAvailability } from "@/components/shared/NextAvailability";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
+import { KnowBeforeYouBook, BookingPolicyNote } from "@/components/shared/KnowBeforeYouBook";
 import { Button } from "@/components/ui/Button";
 import { farmTourFAQ } from "@/data/farm-tours";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
@@ -35,14 +36,14 @@ const GROUP_PRICING = [
 ];
 
 export const metadata: Metadata = {
-  title: "Highland Cow Farm Tours — Brightwood, Oregon",
+  title: { absolute: "Highland Cow Farm Tour near Portland | Highland Farms" },
   description:
-    "Book a private Highland Cow farm tour near Portland, Oregon. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, Guinea Fowl, and more. $75 per person, 60-minute private experiences at the base of Mt. Hood in Brightwood.",
+    "Brush, pet and photograph Scottish Highland cows on a private 60-minute farm tour in Brightwood, about an hour from Portland. $150 for two.",
   alternates: { canonical: "/farm-tours" },
   openGraph: {
-    title: "Highland Cow Farm Tours at Highland Farms Oregon",
+    title: "Highland Cow Farm Tour near Portland | Highland Farms",
     description:
-      "Private 60-minute farm tours for 2 to 6 guests. Meet Scottish Highland Cows and farm animals at the base of Mt. Hood.",
+      "Brush, pet and photograph Scottish Highland cows on a private 60-minute farm tour in Brightwood, about an hour from Portland. $150 for two.",
     url: "https://highlandfarmsoregon.com/farm-tours",
     type: "website",
     images: [
@@ -111,7 +112,7 @@ const features = [
     icon: Sparkles,
     title: "Perfect for All Ages",
     description:
-      "From toddlers to grandparents, everyone falls in love with our gentle Scottish Highland Cows.",
+      "Ages 5 and up are $75 and kids 4 and under are free. Everyone falls in love with our gentle Scottish Highland Cows.",
   },
 ];
 
@@ -145,7 +146,7 @@ export default function FarmToursPage() {
             <br />
             About an hour from Portland at the base of Mt. Hood
           </p>
-          <div className="mt-8">
+          <div className="mt-8" data-hero-cta>
             <BookingButton
               href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-hero")}
               label="See open tour dates"
@@ -285,6 +286,7 @@ export default function FarmToursPage() {
               <NativeBookingSection product="farm-tour" />
               {!nativeCalendarEnabled() && (
                 <>
+                  <KnowBeforeYouBook product="tour" className="mb-5" />
                   <BookingButton
                     href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-pricing")}
                     label="See open tour dates"
@@ -303,11 +305,7 @@ export default function FarmToursPage() {
                       className="text-sm text-forest underline underline-offset-4 hover:text-forest-light"
                     />
                   </p>
-                  <p className="mt-3 text-center text-xs text-muted font-sans">
-                    Strict cancellation policy: all bookings are final &mdash; no
-                    refunds, reschedules, credits, or transfers, including
-                    no-shows. The only exception is if we cancel for severe weather or for the safety of our animals or guests, in which case we will refund or rebook you.
-                  </p>
+                  <BookingPolicyNote className="mt-3" />
                 </>
               )}
             </div>

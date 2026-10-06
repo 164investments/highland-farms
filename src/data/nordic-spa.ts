@@ -17,6 +17,16 @@ export const nordicSpaFAQ: FAQItem[] = [
       "Bring your bathing suit and comfortable walking shoes. We will provide you with a towel and robe for your spa session. Changing areas are available on-site.",
   },
   {
+    question: "Is there a minimum age?",
+    answer:
+      "Yes. Guests must be 16 or older. Because sessions are shared, no one under 16 can join a session.",
+  },
+  {
+    question: "What if it rains, or I'm running late?",
+    answer:
+      "Rain changes nothing: sessions run as booked, rain or shine. Sessions start on time and run a maximum of 90 minutes. If you're more than 15 minutes late, your session may be shortened or cancelled at your expense. Park on the right in the gravel after the gate.",
+  },
+  {
     question: "Is the Nordic Spa wheelchair accessible?",
     answer:
       "Our Nordic Spa is not ADA accessible. It sits in a natural forest setting reached by uneven ground and steps, so it cannot accommodate wheelchairs or mobility devices. Please reach out before booking if you have any questions about access — we're always happy to help.",

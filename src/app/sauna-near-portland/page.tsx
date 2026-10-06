@@ -7,25 +7,26 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FAQAccordion } from "@/components/shared/FAQAccordion";
 import { BookingButton, BookingModalRoot, BookingStickyCTA } from "@/components/shared/BookingButton";
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
+import { KnowBeforeYouBook, BookingPolicyNote } from "@/components/shared/KnowBeforeYouBook";
 import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
-  title: "Sauna Near Portland, Oregon — Public Outdoor Sauna & Cold Plunge",
+  title: { absolute: "Sauna Near Portland, Outdoor Wood-Fired | Highland Farms" },
   description:
-    "The best sauna near Portland, Oregon. Public wood-burning sauna & cold plunge just about an hour from downtown Portland at the base of Mt. Hood. $75/person — book online.",
+    "Looking for a sauna near Portland? Wood-burning cedar sauna, steam sauna and cold plunge, about an hour from downtown in Mt. Hood forest. $75 per person.",
   alternates: { canonical: "/sauna-near-portland" },
   openGraph: {
-    title: "Sauna Near Portland — Highland Farms Mt. Hood Nordic Spa",
+    title: "Sauna Near Portland, Outdoor Wood-Fired | Highland Farms",
     description:
-      "Public outdoor sauna & cold plunge about an hour from Portland, Oregon. Escape to old-growth forest at the base of Mt. Hood. Book your sauna day trip.",
+      "Looking for a sauna near Portland? Wood-burning cedar sauna, steam sauna and cold plunge, about an hour from downtown in Mt. Hood forest. $75 per person.",
     url: "https://highlandfarmsoregon.com/sauna-near-portland",
     type: "website",
     images: [
       {
-        url: "/images/spa/spa-1.jpg",
+        url: "/images/spa/spa-exterior-plunge-moss.jpg",
         width: 1200,
         height: 630,
-        alt: "Outdoor sauna and cold plunge near Portland Oregon at Highland Farms",
+        alt: "Cold plunge among the moss and evergreens at Highland Farms near Portland, Oregon",
       },
     ],
   },
@@ -35,7 +36,7 @@ const faqItems = [
   {
     question: "How far is the sauna from Portland?",
     answer:
-      "Highland Farms is located in Brightwood, Oregon — approximately an hour east of downtown Portland via US-26 (the Mt. Hood Highway). From Gresham and Troutdale it's about 30 minutes. From Sandy it's just 15 minutes.",
+      "Highland Farms is located in Brightwood, Oregon — approximately an hour east of downtown Portland via US-26 (the Mt. Hood Highway). From Gresham and Troutdale it's about 40 minutes. From Sandy it's just 15 minutes.",
   },
   {
     question: "Is this a public or private sauna near Portland?",
@@ -157,7 +158,10 @@ export default function SaunaNearPortlandPage() {
             Public wood-burning sauna, wet sauna & cold plunge in the Mt. Hood
             forest — Oregon&apos;s best outdoor sauna day trip from Portland.
           </p>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <div
+            className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
+            data-hero-cta
+          >
             <BookingButton
               href={bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-hero")}
               label="Book Your Sauna Session"
@@ -349,7 +353,9 @@ export default function SaunaNearPortlandPage() {
               </ul>
             </div>
 
-            <div className="mt-8">
+            <KnowBeforeYouBook product="spa" className="mt-6" />
+
+            <div className="mt-5">
               <BookingButton
                 href={bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-pricing")}
                 label="Book Your Sauna Session"
@@ -357,6 +363,7 @@ export default function SaunaNearPortlandPage() {
                 className="w-full"
                 title="Book your sauna session"
               />
+              <BookingPolicyNote className="mt-3" />
             </div>
           </div>
         </Container>

@@ -24,12 +24,27 @@ export const farmTourFAQ: FAQItem[] = [
   {
     question: "Is the tour suitable for children?",
     answer:
-      "Absolutely! Our farm tours are perfect for all ages. Children love interacting with the gentle Scottish Highland Cows and other animals.",
+      "Yes. Children love interacting with the gentle Scottish Highland Cows. Ages 5 and up are $75, and kids 4 and under come free and don't count toward your group. The farm paths aren't stroller friendly, so plan to walk.",
+  },
+  {
+    question: "What does a tour cost, and what is the minimum group?",
+    answer:
+      "Tours are $75 per person for ages 5 and up, so $150 for two. Kids 4 and under are free. Online booking covers two or more paying guests. If you're coming as one adult with a little one, call (971) 236-2551 and we'll set it up.",
+  },
+  {
+    question: "Are the tours wheelchair or stroller accessible?",
+    answer:
+      "No. The tour is not ADA accessible. The farm paths cannot be used with a wheelchair, walker or stroller, and there is no shorter or seated version. Please reach out before booking if you have any questions about access.",
+  },
+  {
+    question: "Where do I park and where do we meet?",
+    answer:
+      "Pull through the gate, park on the right in the gravel, and look for the parking sign. Your guide meets you at the Highland Farm cow statue. If you're more than 10 minutes late, your tour may be shortened or cancelled at your expense.",
   },
   {
     question: "What should I wear?",
     answer:
-      "Closed-toe shoes are required — please wear something comfortable suitable for walking on uneven ground. Dress for the weather — we're in the Pacific Northwest, so layers are always a good idea.",
+      "Closed-toe shoes are required — please wear something comfortable suitable for walking on uneven ground. Dress for the weather. We're in the Pacific Northwest, so layers are always a good idea. Tours run rain or shine, so from October to March bring rain boots and a rain jacket.",
   },
   {
     question: "Can I combine a farm tour with a spa session?",

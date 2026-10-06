@@ -25,6 +25,7 @@ import {
 import { TourVideo } from "@/components/shared/TourVideo";
 import { NextAvailability } from "@/components/shared/NextAvailability";
 import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
+import { KnowBeforeYouBook, BookingPolicyNote } from "@/components/shared/KnowBeforeYouBook";
 import { ReviewBadge } from "@/components/shared/ReviewBadge";
 import { InlineEmailCapture } from "@/components/shared/InlineEmailCapture";
 import { nordicSpaFAQ } from "@/data/nordic-spa";
@@ -37,14 +38,14 @@ import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
 import { StructuredData } from "@/components/layout/StructuredData";
 
 export const metadata: Metadata = {
-  title: "Sauna & Cold Plunge Near Portland — Mt. Hood Nordic Spa",
+  title: { absolute: "Nordic Spa: Sauna & Cold Plunge | Highland Farms Oregon" },
   description:
-    "Outdoor wood-burning sauna & cold plunge about an hour from Portland, Oregon. Public 90-minute Nordic spa sessions for up to 6 guests at Highland Farms at the base of Mt. Hood. $75/person — book your sauna day trip.",
+    "Wood-burning sauna, steam sauna and cold plunge in the forest at the base of Mt. Hood. 90-minute sessions, up to 6 guests, $75 per person.",
   alternates: { canonical: "/nordic-spa" },
   openGraph: {
-    title: "Sauna & Cold Plunge Near Portland — Highland Farms Mt. Hood",
+    title: "Nordic Spa: Sauna & Cold Plunge | Highland Farms Oregon",
     description:
-      "Outdoor wood-burning sauna, wet sauna & cold plunge about an hour from Portland. Public 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+      "Wood-burning sauna, steam sauna and cold plunge in the forest at the base of Mt. Hood. 90-minute sessions, up to 6 guests, $75 per person.",
     url: "https://highlandfarmsoregon.com/nordic-spa",
     type: "website",
     images: [
@@ -236,7 +237,10 @@ export default function NordicSpaPage() {
               </div>
 
               {/* Dual CTA */}
-              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 lg:mt-8">
+              <div
+                className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 lg:mt-8"
+                data-hero-cta
+              >
                 <BookingButton
                   href={heroBookingHref}
                   label="Book Your Session"
@@ -356,8 +360,9 @@ export default function NordicSpaPage() {
 
         Every number below is from the live Acuity account, appointment type
         85942611, pulled 2026-09-17, trailing 12 months of COMPLETED sessions:
-          • 710 sessions completed
-          • Sat 172 + Sun 168 = 340 of 710 → weekends are 48% of sessions
+          • 710 completed (these count GUEST visits, not sessions; shown as
+            "more than 700 guest visits")
+          • Sat 172 + Sun 168 = 340 of 710 → weekends are 48% of visits
             while being 29% of days, i.e. they genuinely go first
           • median booking lead time 14 days
         Six spots per session is the fixed capacity stated site-wide.
@@ -370,7 +375,7 @@ export default function NordicSpaPage() {
         <Container>
           <p className="text-sm text-muted font-sans leading-relaxed">
             <span className="font-normal text-forest">
-              710 sessions in the past year, six guests at a time.
+              More than 700 guest visits in the past year, six guests at a time.
             </span>{" "}
             Nearly half of them were weekends, and Saturdays go first &mdash;
             the farm&apos;s wedding calendar takes most of them. Most guests
@@ -466,6 +471,9 @@ export default function NordicSpaPage() {
             <div className="mt-6">
               <NativeBookingSection product="nordic-spa" />
               {!nativeCalendarEnabled() && (
+                <KnowBeforeYouBook product="spa" className="mb-5" />
+              )}
+              {!nativeCalendarEnabled() && (
                 <BookingButton
                   href={pricingBookingHref}
                   label="Book Your Session"
@@ -478,11 +486,7 @@ export default function NordicSpaPage() {
                 Spa days vary week to week &mdash; see the calendar for open times
               </p>
               {!nativeCalendarEnabled() && (
-                <p className="mt-1.5 text-center text-xs text-muted font-sans">
-                  Strict cancellation policy: all bookings are final &mdash; no
-                  refunds, reschedules, credits, or transfers, including
-                  no-shows. The only exception is if we cancel for severe weather or for the safety of our animals or guests, in which case we will refund or rebook you.
-                </p>
+                <BookingPolicyNote className="mt-1.5" />
               )}
             </div>
           </div>
