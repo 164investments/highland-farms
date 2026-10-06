@@ -55,10 +55,9 @@ export function KnowBeforeYouBook({
 export function BookingPolicyNote({ className = "" }: { className?: string }) {
   return (
     <p className={`text-center text-xs text-muted font-sans ${className}`}>
-      Rain or shine, your visit runs. If we ever close the farm for severe weather
-      or for the safety of our animals or guests, you choose a new date or a full
-      refund. All other bookings are final, so check your date and group size
-      before you pay.
+      Rain or shine, your visit runs. If we cancel for severe weather or for the
+      safety of our animals or guests, we will refund or rebook you. All other
+      bookings are final, so check your date and group size before you pay.
     </p>
   );
 }
