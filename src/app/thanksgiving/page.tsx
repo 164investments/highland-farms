@@ -18,9 +18,9 @@ export const metadata: Metadata = {
     description: "November 24–28, 2026. Four nights, a farm-to-table Thanksgiving dinner, forest spa and time together at the base of Mt. Hood. Lodge $5,000; whole farm $11,000.",
     url: "https://highlandfarmsoregon.com/thanksgiving",
     type: "website",
-    images: [{ url: "/images/thanksgiving/highland-farms-thanksgiving-table.jpg", width: 1536, height: 1024, alt: "Watercolor illustration of a Thanksgiving table in an Oregon cedar forest" }],
+    images: [{ url: "/images/thanksgiving/highland-farms-lodge-thanksgiving-dining.jpg", width: 1536, height: 1024, alt: "William Wallace Lodge dining room styled for Thanksgiving" }],
   },
-  twitter: { card: "summary_large_image", title: thanksgiving.title, description: "A four-night holiday on the farm, November 24–28, 2026.", images: ["/images/thanksgiving/highland-farms-thanksgiving-table.jpg"] },
+  twitter: { card: "summary_large_image", title: thanksgiving.title, description: "A four-night holiday on the farm, November 24–28, 2026.", images: ["/images/thanksgiving/highland-farms-lodge-thanksgiving-dining.jpg"] },
 };
 
 const inquiryClass = "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-forest px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-charcoal focus-visible:outline-forest";
@@ -43,8 +43,8 @@ export default function ThanksgivingPage() {
               </div>
             </div>
             <figure>
-              <Image src="/images/thanksgiving/highland-farms-thanksgiving-table.jpg" alt="Watercolor Thanksgiving table with autumn produce in a cedar forest, with a Highland cow in the distance" width={1536} height={1024} sizes="(max-width: 1024px) 100vw, 55vw" priority fetchPriority="high" className="h-auto w-full rounded-lg" />
-              <figcaption className="mt-2 text-right text-xs text-white/75">A Thanksgiving illustration inspired by life on the farm</figcaption>
+              <Image src="/images/thanksgiving/highland-farms-lodge-thanksgiving-dining.jpg" alt="William Wallace Lodge dining room styled with a Thanksgiving feast, autumn flowers and candlelight" width={1536} height={1024} sizes="(max-width: 1024px) 100vw, 55vw" priority fetchPriority="high" className="h-auto w-full rounded-lg" />
+              <figcaption className="mt-2 text-right text-xs text-white/75">The Lodge dining room, styled for Thanksgiving</figcaption>
             </figure>
           </div>
         </Container>
@@ -66,8 +66,13 @@ export default function ThanksgivingPage() {
           <div className="grid gap-7 md:grid-cols-2">
             {thanksgiving.packages.map((pkg) => (
               <article key={pkg.id} className="overflow-hidden rounded-xl border border-cream-dark bg-warm-white">
-                <div className="relative aspect-[16/9]">
-                  <Image src={pkg.image} alt={pkg.alt} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+                <div className={`grid aspect-[16/9] ${pkg.images.length > 1 ? "grid-cols-3 gap-1" : "grid-cols-1"}`}>
+                  {pkg.images.map((photo) => (
+                    <div key={photo.src} className="relative min-w-0">
+                      <Image src={photo.src} alt={photo.alt} fill sizes={pkg.images.length > 1 ? "(max-width: 768px) 60vw, 25vw" : "(max-width: 768px) 100vw, 50vw"} className="object-cover" />
+                      {pkg.images.length > 1 && <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-forest/90 px-3 py-1 text-xs font-medium text-white">{photo.label}</span>}
+                    </div>
+                  ))}
                 </div>
                 <div className="flex h-auto flex-col p-6 sm:p-8">
                   <p className="text-sm text-forest">{pkg.accommodation} <span aria-hidden>·</span> Family of {pkg.guests}</p>
@@ -114,7 +119,7 @@ export default function ThanksgivingPage() {
         <Container>
           <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
             <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-              <Image src="/images/spa/spa-exterior-deck-plunge.jpg" alt="Nordic spa sauna deck and cold plunge among the trees at Highland Farms" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
+              <Image src="/images/spa/spa-4.jpg" alt="Nordic spa cabin with guests visible through the window and smoke rising from its chimney" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
             </div>
             <div>
               <h2 className="font-display text-4xl sm:text-5xl">A few extra comforts</h2>

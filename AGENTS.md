@@ -22,7 +22,8 @@ npm run indexnow # only when live indexing is authorized
 
 ## Key Paths
 - Pages: `src/app/` (about, celebrations, contact, farm-tours, nordic-spa, shop, stay, thanksgiving, weddings, wedding-portfolio, sauna-near-portland)
-- Thanksgiving 2026: `src/data/thanksgiving.ts` owns the seasonal package copy and email-inquiry links. Keep four-night dates, the supplied package prices and optional upgrades distinct. The team confirms stay booking terms and group spa arrangements; tour/spa cancellation policy is not a stay-package policy. Hero artwork is explicitly illustrated; use real farm photos for accommodation/experience proof.
+- Thanksgiving 2026: `src/data/thanksgiving.ts` owns the seasonal package copy, accommodation photo sets and email-inquiry links. Keep four-night dates, the supplied package prices and optional upgrades distinct. The team confirms stay booking terms and group spa arrangements; tour/spa cancellation policy is not a stay-package policy. The hero is an edit of the real Lodge dining-room photo, captioned as Thanksgiving styling; preserve the actual room and use real farm photos for accommodation/experience proof.
+- Accommodation photo identity follows `properties.ts` and the stay-page galleries. Legacy filenames are reversed: `properties/cottage.jpg` is William Wallace Lodge, and `properties/lodge.jpg` is Bonnie Lass Cottage. Do not infer identity from filenames or rename live files.
 - Dynamic: `src/app/stay/[slug]/page.tsx` (4 properties), `src/app/wedding-portfolio/[slug]/page.tsx`
 - API routes: `src/app/api/` (inquiries, acuity/webhook, meta/webhook, subscribe, cron/daily-report)
 - Data: `src/data/` (properties, farm-tours, nordic-spa, navigation, wedding-portfolio)

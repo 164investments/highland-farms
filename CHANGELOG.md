@@ -2,6 +2,13 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.2.0.1] - 2026-10-06
+
+### Changed
+
+- Show the actual Lodge dining room styled for Thanksgiving in the page hero and social previews.
+- Show the Lodge, Cottage and Camp up close in the whole-farm package, and use clearer Lodge-interior and sauna photos.
+
 ## [0.2.0.0] - 2026-10-06
 
 ### Added

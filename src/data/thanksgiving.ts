@@ -14,8 +14,9 @@ export const thanksgiving = {
       guests: 8,
       price: 5000,
       description: "Bring your family together in the Lodge, with space for eight and a table to gather around.",
-      image: "/images/properties/lodge-dining-pro.jpg",
-      alt: "Wood dining table and chairs beneath the cedar ceiling of William Wallace Lodge",
+      images: [
+        { src: "/images/properties/lodge-living-pro.jpg", alt: "Leather sofas beneath the timber ceiling in William Wallace Lodge", label: "Lodge" },
+      ],
     },
     {
       id: "whole-farm",
@@ -24,8 +25,11 @@ export const thanksgiving = {
       guests: 20,
       price: 11000,
       description: "Make the farm yours for the holiday, with the Lodge, Cottage and Camp reserved together.",
-      image: "/images/properties/whole-farm.jpg",
-      alt: "Highland Farms accommodations and grounds surrounded by Oregon evergreens",
+      images: [
+        { src: "/images/properties/cottage.jpg", alt: "Cedar-sided William Wallace Lodge with its wrap-around deck", label: "Lodge" },
+        { src: "/images/properties/lodge.jpg", alt: "Bonnie Lass Cottage with its cedar exterior, metal roof and outdoor patio", label: "Cottage" },
+        { src: "/images/properties/camp-1.jpg", alt: "Silver Airstream and outdoor seating at the Highland Farms Camp", label: "Camp" },
+      ],
     },
   ],
   inclusions: [
