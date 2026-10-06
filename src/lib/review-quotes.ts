@@ -46,6 +46,27 @@ export const HOME_QUOTES: QuoteSpec[] = [
   { author: "Emily Enns", date: "2025-06-20", firstSentences: 2, topic: "Farm stay" },
 ];
 
+/**
+ * Wedding quote in the home and /weddings first screens. Olivia Brown's review
+ * (2025-07-29) opens "I got married at highland farms just a few days ago and
+ * Connor & his team made it so I didn’t have to lift a finger all day." The
+ * quote is that sentence from "Connor" on, verbatim; she married here in 2025.
+ */
+export const WEDDING_QUOTE: QuoteSpec = {
+  author: "Olivia Brown",
+  date: "2025-07-29",
+  sentenceStartsWith: "Connor & his team made it",
+  topic: "Married here in 2025",
+};
+
+/** "Olivia Brown" -> "Olivia B.". A single name is returned as is. */
+export function shortName(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length < 2) return parts[0] ?? "";
+  const last = parts[parts.length - 1];
+  return `${parts[0]} ${last.charAt(0).toUpperCase()}.`;
+}
+
 /** Quote on /nordic-spa. */
 export const SPA_QUOTE: QuoteSpec = {
   author: "Roman Sannikov",

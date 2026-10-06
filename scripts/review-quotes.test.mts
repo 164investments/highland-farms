@@ -5,6 +5,8 @@ import {
   buildQuote,
   HOME_QUOTES,
   SPA_QUOTE,
+  WEDDING_QUOTE,
+  shortName,
   type QuoteSpec,
 } from "../src/lib/review-quotes.ts";
 
@@ -37,4 +39,26 @@ test("homepage testimonials are verbatim Google reviews", () => {
 
 test("nordic-spa quote is one intact sentence from the real review", () => {
   check(SPA_QUOTE);
+});
+
+test("wedding first-screen quote is Olivia Brown's words, verbatim", () => {
+  check(WEDDING_QUOTE);
+  const r = snapshot.reviews.find(
+    (x) => x.author_name === WEDDING_QUOTE.author && x.publish_time?.startsWith(WEDDING_QUOTE.date),
+  )!;
+  // The approved boards print exactly this; a reworded review must fail here, not ship.
+  assert.equal(
+    buildQuote(r.text, WEDDING_QUOTE),
+    "Connor & his team made it so I didn’t have to lift a finger all day.",
+  );
+  // "Married here in 2025": the review says she married "just a few days ago".
+  assert.ok(r.publish_time.startsWith("2025-"));
+  assert.match(r.text, /got married at highland farms just a few days ago/i);
+});
+
+test("shortName shows a first name and last initial", () => {
+  assert.equal(shortName("Olivia Brown"), "Olivia B.");
+  assert.equal(shortName("  Mary  Ann  smith "), "Mary S.");
+  assert.equal(shortName("Maya C"), "Maya C.");
+  assert.equal(shortName("Cher"), "Cher");
 });
