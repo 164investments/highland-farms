@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { FieldArrow } from "@/components/ui/FieldGuide";
+import { ensureChatLauncherStyles } from "@/components/field/ChatLauncher";
 
 /*
  * The bottom sticky action on phones (CONSISTENCY #13, shared board 4 r2).
@@ -117,56 +118,6 @@ export function useStickyVisibility({ hideWhenVisible, enabled = true }: StickyV
 
   const past = heroes === "none" ? scrolled : heroes === "past";
   return enabled && past && !targetOnScreen && !typing;
-}
-
-/* ---------------------------------------------------------------- */
-/* The chat launcher lift                                             */
-/* ---------------------------------------------------------------- */
-
-// The LeadConnector launcher lives in the <chat-widget> shadow root, out of
-// reach of page CSS. Custom properties do cross that boundary, so one rule
-// adopted into the shadow root reads --hf-chat-lift and --hf-chat-visibility
-// from <html> (set in globals.css). It changes position and visibility only;
-// the widget itself is loaded and behaves exactly as before.
-const CHAT_RULE =
-  ".lc_text-widget--bubble:not(.active){translate:0 calc(-1 * var(--hf-chat-lift, 0px));transition:translate .3s ease;visibility:var(--hf-chat-visibility, visible)}";
-
-const styledRoots = new WeakSet<ShadowRoot>();
-let chatWatch: MutationObserver | null = null;
-
-function styleChatWidgets() {
-  document.querySelectorAll("chat-widget").forEach((el) => {
-    const root = el.shadowRoot;
-    if (!root || styledRoots.has(root)) return;
-    styledRoots.add(root);
-    try {
-      if ("replaceSync" in CSSStyleSheet.prototype && "adoptedStyleSheets" in root) {
-        const sheet = new CSSStyleSheet();
-        sheet.replaceSync(CHAT_RULE);
-        root.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet];
-      } else {
-        const style = document.createElement("style");
-        style.textContent = CHAT_RULE;
-        root.appendChild(style);
-      }
-    } catch {
-      styledRoots.delete(root);
-    }
-  });
-}
-
-/** Teach the chat launcher to follow --hf-chat-lift / --hf-chat-visibility. Idempotent. */
-export function ensureChatLauncherStyles() {
-  if (typeof window === "undefined" || chatWatch) return;
-  styleChatWidgets();
-  chatWatch = new MutationObserver(styleChatWidgets);
-  chatWatch.observe(document.body, { childList: true });
-  if ("customElements" in window) {
-    void customElements.whenDefined("chat-widget").then(() => {
-      styleChatWidgets();
-      window.setTimeout(styleChatWidgets, 1500);
-    });
-  }
 }
 
 /** How far the launcher must rise to sit 12px above the bar. */

@@ -699,6 +699,45 @@ interface FieldDoorListProps {
   listClassName?: string;
 }
 
+/** The row classes of a door (for a door wrapped in another link component). */
+export function fieldDoorRowClass(size: "lg" | "md" = "lg"): string {
+  return cn(
+    "group flex items-center justify-between gap-3 border-b border-rule text-ink",
+    size === "lg" ? "min-h-[52px]" : "min-h-11 lg:min-h-[52px]",
+  );
+}
+
+/** The inside of a door row: Cormorant name, Inter hint (or "You are here"). */
+export function FieldDoorInner({
+  title,
+  note,
+  current,
+  size = "lg",
+}: {
+  title: ReactNode;
+  note?: ReactNode;
+  current?: boolean;
+  size?: "lg" | "md";
+}) {
+  return (
+    <>
+      <span
+        className={cn(
+          "font-display font-semibold leading-none transition-colors group-hover:text-pine",
+          size === "lg" ? "text-[22px]" : "text-[20px] lg:text-[22px]",
+        )}
+      >
+        {title}
+      </span>
+      {current ? (
+        <span className="font-display text-[15px] italic text-fern">You are here</span>
+      ) : (
+        note && <span className="text-right font-sans text-[13px] leading-snug text-ink-note">{note}</span>
+      )}
+    </>
+  );
+}
+
 /** Ruled rows of doors: name on the left, a short hint on the right. Menu, footer, 404. */
 export function FieldDoorList({ rows, size = "lg", label, className, listClassName }: FieldDoorListProps) {
   return (
@@ -713,28 +752,9 @@ export function FieldDoorList({ rows, size = "lg", label, className, listClassNa
               href={row.href}
               external={row.external}
               aria-current={row.current ? "page" : undefined}
-              className={cn(
-                "group flex items-center justify-between gap-3 border-b border-rule text-ink",
-                size === "lg" ? "min-h-[52px]" : "min-h-11 lg:min-h-[52px]",
-              )}
+              className={fieldDoorRowClass(size)}
             >
-              <span
-                className={cn(
-                  "font-display font-semibold leading-none transition-colors group-hover:text-pine",
-                  size === "lg" ? "text-[22px]" : "text-[20px] lg:text-[22px]",
-                )}
-              >
-                {row.title}
-              </span>
-              {row.current ? (
-                <span className="font-display text-[15px] italic text-fern">You are here</span>
-              ) : (
-                row.note && (
-                  <span className="text-right font-sans text-[13px] leading-snug text-ink-note">
-                    {row.note}
-                  </span>
-                )
-              )}
+              <FieldDoorInner title={row.title} note={row.note} current={row.current} size={size} />
             </FieldLink>
           </li>
         ))}

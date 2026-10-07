@@ -3,147 +3,183 @@
 import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
-import { mainNavItems } from "@/data/navigation";
+import { useCart } from "@/lib/shop/cart";
+import { giftCertificatesHref } from "@/lib/booking/flag";
 import { MobileMenu } from "./MobileMenu";
 import { AnnouncementBar } from "./AnnouncementBar";
-import { CHECK_DATE_HREF, MastheadCheckDate, MastheadLogo } from "./Masthead";
+import { MastheadAction, MastheadCart, MastheadName, MenuIcon } from "./Masthead";
+import { isQuietChrome, pageActionFor, pageTypeFor } from "./chrome";
 
 function isCurrent(pathname: string, href: string): boolean {
-  if (href.startsWith("http")) return false;
+  if (!href.startsWith("/")) return false;
   return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
 }
 
+const NAV_LEFT = [
+  { label: "Weddings", href: "/weddings" },
+  { label: "Real weddings", href: "/wedding-portfolio" },
+  { label: "Farm tours", href: "/farm-tours" },
+  { label: "Nordic spa", href: "/nordic-spa" },
+  { label: "Stays", href: "/stay" },
+];
+
+const NAV_LINK =
+  "flex min-h-11 items-center whitespace-nowrap font-sans text-[13px] tracking-[0.03em] text-ink decoration-1 underline-offset-[7px] transition-colors hover:text-pine aria-[current=page]:underline";
+
 /**
- * The paper masthead (Field Guide, approved 2026-10-06), on every page.
+ * The paper masthead (Field Guide, round 2), on every page.
  *
- * Solid from the first server render: no transparent-over-photo mode, so the
- * nav is never white text on a light page. Below xl the phone layout (menu,
- * lettermark, "Check date"); from xl the full nav. Seven nav items do not fit
- * a third of a 1024-1279px row, so the full nav waits for xl.
+ * Lockup B in the centre: the name in words on every page and screen size.
+ * Left: the menu (below xl) or Weddings · Real weddings · Farm tours ·
+ * Nordic spa · Stays (xl). Right: Shop · Gifts (xl) and the page's own
+ * action (chrome.ts). Weddings come first; About, Celebrations and Contact
+ * live in the menu and footer.
  *
- * Heights are fixed (60px, 84px from xl, including the 3px double rule) and
- * mirrored by the static --header-h defaults in globals.css, which the
- * ResizeObserver below then keeps exact.
+ * Heights are fixed: the 40px bar (when the page has one) plus the name row,
+ * 60px or 96px from xl, 3px double rule included. The --header-h defaults in
+ * globals.css mirror them and the ResizeObserver below keeps them exact.
+ * Past 40px of scroll the whole masthead moves up 40px, so the bar scrolls
+ * away and the name row stays pinned; pages keep their padding.
+ *
+ * Checkout gets the quiet variant: the name, a way back to the cart, and
+ * "Secure". No bar, no nav, no menu.
  */
 export function Header() {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname() ?? "";
-  const headerRef = useRef<HTMLDivElement>(null);
+  const type = pageTypeFor(pathname);
+  const action = pageActionFor(type);
+  const { count } = useCart();
+  const wrap = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function updateHeight() {
-      if (headerRef.current) {
-        const h = headerRef.current.offsetHeight;
-        document.documentElement.style.setProperty("--header-h", `${h}px`);
+      if (wrap.current) {
+        document.documentElement.style.setProperty("--header-h", `${wrap.current.offsetHeight}px`);
       }
     }
     updateHeight();
     const observer = new ResizeObserver(updateHeight);
-    if (headerRef.current) observer.observe(headerRef.current);
+    if (wrap.current) observer.observe(wrap.current);
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  if (type === "checkout") {
+    return (
+      <div ref={wrap} data-masthead={type} className="fixed inset-x-0 top-0 z-40">
+        <AnnouncementBar type={type} />
+        <header className="surface-paper border-b-[3px] border-double border-frame bg-paper pl-2 pr-4 text-ink lg:px-16">
+          <div className="mx-auto grid h-[60px] max-w-[1180px] grid-cols-[1fr_auto_1fr] items-center gap-x-2 lg:h-[84px]">
+            <Link
+              href="/shop/cart"
+              className="flex min-h-11 items-center gap-1.5 justify-self-start font-sans text-[13px] text-ink-note transition-colors hover:text-pine"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+                <path d="M19 12H5M11 18l-6-6 6-6" />
+              </svg>
+              Cart
+            </Link>
+            <MastheadName size="checkout" />
+            <p className="m-0 flex items-center gap-1.5 justify-self-end font-sans text-[12px] font-medium text-fern">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+                <rect x="5" y="11" width="14" height="10" rx="1" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
+              Secure
+            </p>
+          </div>
+        </header>
+      </div>
+    );
+  }
+
+  const quiet = isQuietChrome(type);
+
   return (
     <>
-      <div ref={headerRef} className="fixed top-0 left-0 right-0 z-40">
-        <AnnouncementBar />
+      <div
+        ref={wrap}
+        data-masthead={type}
+        data-scrolled={scrolled ? "" : undefined}
+        className="fixed inset-x-0 top-0 z-40 transition-transform duration-300"
+      >
+        <AnnouncementBar type={type} />
 
-        <header className="surface-paper h-[60px] border-b-[3px] border-double border-frame bg-paper text-ink xl:h-[84px]">
-          <div className="mx-auto grid h-full max-w-[1440px] grid-cols-3 items-center pl-1.5 pr-3 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] xl:px-10 min-[90rem]:px-16">
-            {/* Left: menu (phone, tablet) or the full nav (xl) */}
+        <header className="surface-paper border-b-[3px] border-double border-frame bg-paper text-ink">
+          <div className="mx-auto grid h-[60px] max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-x-3 pl-1.5 pr-2 xl:h-[96px] xl:px-16">
             <div className="flex items-center">
               <button
                 type="button"
-                onClick={() => setMobileOpen(true)}
-                className="flex h-11 w-11 items-center justify-center text-ink xl:hidden"
+                onClick={() => setMenuOpen(true)}
+                className="flex h-11 w-11 items-center justify-center text-ink transition-opacity hover:opacity-70 xl:hidden"
                 aria-label="Open menu"
-                aria-expanded={mobileOpen}
+                aria-expanded={menuOpen}
                 aria-haspopup="dialog"
               >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M4 7h16M4 12h16M4 17h16" />
-                </svg>
+                <MenuIcon />
               </button>
-
-              <nav
-                aria-label="Main"
-                className="hidden items-center gap-[14px] font-sans text-[13px] tracking-[0.04em] xl:flex min-[90rem]:gap-[22px]"
-              >
-                {mainNavItems.map((item) => (
-                  <div key={item.href} className="group relative">
-                    <Link
-                      href={item.href}
-                      aria-current={isCurrent(pathname, item.href) ? "page" : undefined}
-                      className="flex min-h-11 items-center gap-1 whitespace-nowrap text-ink transition-colors hover:text-pine"
-                    >
-                      {item.label}
-                      {item.children && (
-                        <ChevronDown className="h-3 w-3 opacity-60" aria-hidden="true" />
-                      )}
-                    </Link>
-
-                    {item.children && (
-                      <div className="invisible absolute left-0 top-full z-10 pt-[21px] opacity-0 transition-opacity duration-200 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-                        <ul className="min-w-[190px] border border-t-0 border-rule bg-paper-light py-2">
-                          {item.children.map((child) => (
-                            <li key={child.href}>
-                              {child.external ? (
-                                <a
-                                  href={child.href}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="block px-4 py-2.5 text-[13px] text-ink transition-colors hover:bg-paper hover:text-pine"
-                                >
-                                  {child.label}
-                                </a>
-                              ) : (
-                                <Link
-                                  href={child.href}
-                                  aria-current={pathname === child.href ? "page" : undefined}
-                                  className="block px-4 py-2.5 text-[13px] text-ink transition-colors hover:bg-paper hover:text-pine"
-                                >
-                                  {child.label}
-                                </Link>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
+              <nav aria-label="Main" className="hidden items-center gap-[26px] xl:flex">
+                {NAV_LEFT.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={isCurrent(pathname, item.href) ? "page" : undefined}
+                    className={NAV_LINK}
+                  >
+                    {item.label}
+                  </Link>
                 ))}
               </nav>
             </div>
 
-            <MastheadLogo />
+            <MastheadName />
 
-            {/* Right: "Check date" (phone, tablet) or the square CTA (xl) */}
-            <div className="flex justify-end">
-              <div className="xl:hidden">
-                <MastheadCheckDate />
-              </div>
+            <div className="flex items-center justify-self-end xl:gap-[26px]">
               <Link
-                href={CHECK_DATE_HREF}
-                className="hidden h-10 items-center bg-pine px-[18px] font-sans text-xs font-semibold uppercase tracking-[0.14em] text-paper-light transition-colors hover:bg-pine-dark xl:flex"
+                href="/shop"
+                aria-current={isCurrent(pathname, "/shop") ? "page" : undefined}
+                className={`hidden xl:flex ${NAV_LINK}`}
               >
-                Check your date
+                Shop
               </Link>
+              <GiftsNavLink pathname={pathname} />
+              {!quiet && action === "cart" && <MastheadCart count={count} />}
+              {!quiet && action && action !== "cart" && <MastheadAction action={action} />}
             </div>
           </div>
         </header>
       </div>
 
-      <MobileMenu isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} type={type} pathname={pathname} />
     </>
+  );
+}
+
+function GiftsNavLink({ pathname }: { pathname: string }) {
+  const href = giftCertificatesHref();
+  if (href.startsWith("/")) {
+    return (
+      <Link
+        href={href}
+        aria-current={isCurrent(pathname, href) ? "page" : undefined}
+        className={`hidden xl:flex ${NAV_LINK}`}
+      >
+        Gifts
+      </Link>
+    );
+  }
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={`hidden xl:flex ${NAV_LINK}`}>
+      Gifts
+      <span className="sr-only"> (opens in a new tab)</span>
+    </a>
   );
 }

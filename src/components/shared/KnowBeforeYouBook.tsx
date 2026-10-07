@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { CONTACT } from "@/lib/constants";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
+import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { FieldRows } from "@/components/ui/FieldGuide";
 
 type Product = "tour" | "spa";
@@ -52,11 +53,11 @@ function tourRows(): KnowRow[] {
   ];
 }
 
-/** Spa rows. The private-session sentence needs the per-person price from the spa data. */
+/** Spa rows. Duration, seats and price from BOOKING_PRODUCTS (the same $75, 90 minutes, 6 seats as Acuity). */
 function spaRows(spaPricePerPerson?: number): KnowRow[] {
-  const session = spaPricePerPerson
-    ? `90 minutes, up to 6 guests. Want it to yourselves? Book all 6 spots for a private session, $${spaPricePerPerson * 6}.`
-    : "90 minutes, up to 6 guests.";
+  const spa = BOOKING_PRODUCTS["nordic-spa"];
+  const each = spaPricePerPerson ?? spa.pricePerPersonCents / 100;
+  const session = `${spa.durationMin} minutes, up to ${spa.maxParty} guests. Want it to yourselves? Book all ${spa.maxParty} spots for a private session, $${each * spa.maxParty}.`;
   return [
     { term: "Ages", detail: "Guests 16 and up." },
     { term: "Bring", detail: "A swimsuit. We provide robes and towels, and there are changing areas on site." },
@@ -77,7 +78,7 @@ interface KnowBeforeYouBookProps {
   product?: Product;
   /** Rows from the page's data file; replaces the product defaults. */
   rows?: readonly KnowRow[];
-  /** Spa only: adds "Book all 6 spots for a private session, $X." to the Session row. */
+  /** Spa only: overrides the per-person price in the private-session sentence (default from BOOKING_PRODUCTS). */
   spaPricePerPerson?: number;
   heading?: string;
   /** The paper-light frame (default). Off when the section itself is the frame. */
