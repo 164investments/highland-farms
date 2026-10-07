@@ -64,7 +64,7 @@ export function InquirySuccess({
           body: (
             <>
               We write back to
-              <span className="block font-medium text-ink">{email}</span>
+              <span className="block text-ink max-[374px]:text-[14px]">{email}</span>
             </>
           ),
         },

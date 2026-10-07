@@ -32,7 +32,7 @@ export function WeddingsHero() {
             priority
             fetchPriority="high"
             sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
-            className="object-cover object-[50%_30%] max-lg:[@media(max-height:600px)]:object-[50%_65%] lg:object-[58%_50%]"
+            className="object-cover object-[50%_30%] max-lg:[@media(max-height:600px)]:object-[50%_32%] lg:object-[58%_50%]"
           />
         </Plate>
 

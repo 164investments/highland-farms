@@ -158,7 +158,7 @@ export default async function ProductPage({
               <div
                 className={cn(
                   "relative overflow-hidden lg:aspect-square lg:h-auto",
-                  isApparel ? "h-[208px] max-[359px]:h-[140px]" : "h-[176px] max-[359px]:h-[128px]",
+                  isApparel ? "h-[216px] max-[359px]:h-[140px]" : "h-[176px] max-[359px]:h-[128px]",
                 )}
               >
                 <Image
@@ -170,7 +170,7 @@ export default async function ProductPage({
                   className={cn(
                     "object-cover",
                     isApparel
-                      ? "object-cover object-[50%_58%] lg:object-[50%_68%]"
+                      ? "object-cover object-[50%_38%] lg:object-[50%_68%]"
                       : "object-[50%_48%]",
                     soldOut && "opacity-60",
                   )}
