@@ -50,10 +50,10 @@ export default function NotFound() {
         <p className="mt-8 text-sm text-muted font-sans">
           Or call us at{" "}
           <a
-            href={`tel:${CONTACT.phoneAlt.replace(/[^\d+]/g, "")}`}
+            href={`tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`}
             className="text-forest underline underline-offset-4"
           >
-            {CONTACT.phoneAlt}
+            {CONTACT.phone}
           </a>
           .
         </p>

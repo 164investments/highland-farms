@@ -10,7 +10,7 @@ import { StructuredData } from "@/components/layout/StructuredData";
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Contact Highland Farms for weddings, farm tours, Nordic spa sessions, and farm stays in Brightwood, Oregon. Located about an hour from Portland at the base of Mt. Hood. Call (831) 214-2053.",
+    "Contact Highland Farms for weddings, farm tours, Nordic spa sessions, and farm stays in Brightwood, Oregon. Located about an hour from Portland at the base of Mt. Hood. Call (971) 236-2551.",
   alternates: { canonical: "/contact" },
   openGraph: {
     title: "Contact Us — Highland Farms Oregon",
@@ -79,11 +79,7 @@ export default function ContactPage() {
                     <a href={`tel:${CONTACT.phone.replace(/\s/g, "")}`} className="block text-base text-muted hover:text-forest transition-colors font-sans">
                       {CONTACT.phone}
                     </a>
-                    <span className="block text-xs text-muted/70 font-sans">Weddings &amp; Events</span>
-                    <a href={`tel:${CONTACT.phoneAlt.replace(/[^\d+]/g, "")}`} className="block text-base text-muted hover:text-forest transition-colors font-sans mt-1">
-                      {CONTACT.phoneAlt}
-                    </a>
-                    <span className="block text-xs text-muted/70 font-sans">General Inquiries</span>
+                    <span className="block text-xs text-muted/70 font-sans">Weddings, visits and general questions</span>
                   </div>
                 </div>
 

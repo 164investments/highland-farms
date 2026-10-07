@@ -103,12 +103,12 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href={`tel:${CONTACT.phoneAlt.replace(/[^\d+]/g, "")}`}
+                  href={`tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`}
                   className="flex min-h-11 items-center gap-2.5 text-sm text-white/65 hover:text-white/80 transition-colors font-light font-sans"
                 >
                   <Phone className="h-3.5 w-3.5 shrink-0 opacity-65" />
                   <span>
-                    {CONTACT.phoneAlt}{" "}
+                    {CONTACT.phone}{" "}
                     <span className="text-white/45 text-xs">
                       — General Inquiries
                     </span>

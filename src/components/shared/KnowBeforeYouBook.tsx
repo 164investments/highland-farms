@@ -4,7 +4,7 @@ type Product = "tour" | "spa";
 
 const TOUR_ITEMS: string[] = [
   "Ages 5 and up are $75. Kids 4 and under come free and don't count toward your group.",
-  `Online booking covers two or more paying guests. Coming as one adult with a little one? Call us at ${CONTACT.phoneAlt} and we'll set it up.`,
+  `Online booking covers two or more paying guests. Coming as one adult with a little one? Call us at ${CONTACT.phone} and we'll set it up.`,
   "Wear closed-toe shoes you don't mind getting muddy. October to March, bring rain boots and a rain jacket. Tours run rain or shine.",
   "The farm paths aren't stroller or wheelchair friendly.",
   "Pull through the gate, park on the right in the gravel, and meet your guide at the Highland cow statue. If you're more than 10 minutes late, your tour may be shortened or cancelled at your expense.",

@@ -1,11 +1,11 @@
 # Highland Farms Oregon
 
-> All-inclusive farm and forest wedding venue and outdoor Nordic sauna spa at the base of Mt. Hood — 21261 East Little River Road, Brightwood, Oregon 97011, about an hour from Portland and about 25 minutes from Government Camp. The five-acre property is home to Scottish Highland Cows and old-growth forest, with on-site lodging for up to 20 guests, private Highland Cow farm tours, and a wood-burning cedar sauna + cold plunge. Contact: events@highlandfarms-oregon.com or +1 (831) 214-2053.
+> All-inclusive farm and forest wedding venue and outdoor Nordic sauna spa at the base of Mt. Hood — 21261 East Little River Road, Brightwood, Oregon 97011, about an hour from Portland and about 25 minutes from Government Camp. The five-acre property is home to Scottish Highland Cows and old-growth forest, with on-site lodging for up to 20 guests, private Highland Cow farm tours, and a wood-burning cedar sauna + cold plunge. Contact: events@highlandfarms-oregon.com or +1 (971) 236-2551.
 
 Name: Highland Farms Oregon
 Base: https://highlandfarmsoregon.com
 Last-Updated: 2026-10-06
-Contact: events@highlandfarms-oregon.com | +1 (831) 214-2053
+Contact: events@highlandfarms-oregon.com | +1 (971) 236-2551
 Sitemap: https://highlandfarmsoregon.com/sitemap.xml
 
 ## About
@@ -88,7 +88,7 @@ Highland Farms was featured by LivePDX and has 29,000+ Instagram followers at @h
 
 - [Contact](https://highlandfarmsoregon.com/contact): Inquiry form for weddings, events, farm tours, spa sessions, and farm stays.
 - [About](https://highlandfarmsoregon.com/about): The story of Highland Farms — from cedar mill to farm and forest venue.
-- Phone: +1 (831) 214-2053 or (971) 236-2551
+- Phone: +1 (971) 236-2551
 - Email: events@highlandfarms-oregon.com or info@highlandfarms-oregon.com
 - Address: 21261 East Little River Road, Brightwood, OR 97011
 - Coordinates: 45.3689°N, 122.0278°W
