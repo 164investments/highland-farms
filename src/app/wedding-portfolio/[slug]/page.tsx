@@ -219,10 +219,17 @@ function GridPlates({ plates, numbered }: { plates: WeddingPhoto[]; numbered?: b
     <>
       {plates.map((photo, i) => {
         const wide = i < 2;
+        // A short last row of narrow plates is centred on the 6-column grid, never left with a hole.
+        const narrowCount = Math.max(plates.length - 2, 0);
+        const lastRowStart = 2 + narrowCount - (narrowCount % 3);
+        const centreStart =
+          i === lastRowStart && narrowCount % 3 === 2 ? "lg:col-start-2" : i === lastRowStart && narrowCount % 3 === 1 ? "lg:col-start-3" : "";
+        // Phones: the lead is full width, then pairs; an odd one out at the end goes full width too.
+        const loneOnPhone = i > 0 && i === plates.length - 1 && (plates.length - 1) % 2 === 1;
         return (
           <Plate
             key={photo.src}
-            className={cn(i === 0 && "col-span-2", wide ? "lg:col-span-3" : "lg:col-span-2")}
+            className={cn((i === 0 || loneOnPhone) && "col-span-2", wide ? "lg:col-span-3" : "lg:col-span-2", centreStart)}
             frameClassName={cn(
               i === 0 ? "aspect-[3/2]" : "aspect-[4/5]",
               wide ? "lg:aspect-[3/2]" : "lg:aspect-[4/5]",
@@ -242,7 +249,7 @@ function GridPlates({ plates, numbered }: { plates: WeddingPhoto[]; numbered?: b
           >
             <PlateImage
               photo={photo}
-              sizes={`(min-width: 1024px) ${wide ? "46vw" : "30vw"}, ${i === 0 ? "calc(100vw - 40px)" : "46vw"}`}
+              sizes={`(min-width: 1024px) ${wide ? "46vw" : "30vw"}, ${i === 0 || loneOnPhone ? "calc(100vw - 40px)" : "46vw"}`}
             />
           </Plate>
         );
