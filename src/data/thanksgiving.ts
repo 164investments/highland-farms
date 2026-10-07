@@ -20,7 +20,6 @@ export const thanksgiving = {
         "William Wallace Lodge: four bedrooms, a full kitchen, a wood fireplace, a cedar hot tub and a dining room that seats ten.",
       stay: "William Wallace Lodge",
       spa: "1 session",
-      cta: "Check availability",
     },
     {
       id: "whole-farm",
@@ -32,7 +31,6 @@ export const thanksgiving = {
         "The Lodge, Bonnie Lass Cottage and the Camp, with a cedar hot tub at the Lodge and another at the Cottage.",
       stay: "Lodge, Cottage and Camp",
       spa: "2 sessions",
-      cta: "Check availability",
     },
   ],
   // The three stays, shown above the package comparison.
@@ -149,12 +147,17 @@ export const thanksgiving = {
     {
       question: "How do we book?",
       answer:
-        "Tap any \"Check availability\" button to open a ready-to-send email, write to info@highlandfarms-oregon.com, or call (971) 236-2551. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes, payment and the stay's cancellation terms before you commit. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
+        "Tap any \"Check\" button to open a ready-to-send email, write to info@highlandfarms-oregon.com, or call (971) 236-2551. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes, payment and the stay's cancellation terms before you commit. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
     },
   ],
 } as const;
 
 export type ThanksgivingPackage = (typeof thanksgiving.packages)[number];
+
+/** Button label that carries the choice and the price: "Check the Lodge, $5,000". Price comes from the data. */
+export function packageCtaLabel(pkg: ThanksgivingPackage) {
+  return `Check ${pkg.name.replace(/^The /, "the ")}, $${pkg.price.toLocaleString("en-US")}`;
+}
 
 /** Price per guest when every bed is filled, rounded to the dollar. */
 export function perGuest(pkg: ThanksgivingPackage) {

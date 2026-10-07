@@ -19,7 +19,7 @@ import { FieldReviewTier, resolveFieldQuote } from "@/components/field/Reviews";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
 import { BookingCard } from "@/components/stay/BookingCard";
-import { RoomPlates, RoomPreview } from "@/components/stay/RoomPlates";
+import { RoomPlates } from "@/components/stay/RoomPlates";
 import { StayKnowRows, StayLaterStayLine } from "@/components/stay/StayLines";
 import { FieldArrowBack, FieldArrowDown, StayPhoto } from "@/components/stay/StayParts";
 import { STAY_CONTENT, capitalize, numberWord, roomCount, type StayContent } from "@/components/stay/stay-content";
@@ -102,22 +102,21 @@ function StayRow({ property, content, grid }: { property: Property; content: Sta
   );
 }
 
-/** One of the whole farm's three stays, with its own photographs in place (the bedrooms first). */
+/** One of the whole farm's three stays: one plate, its name, what it sleeps and a link to that stay. */
 function IncludedStay({ property, content }: { property: Property; content: StayContent }) {
   return (
-    <article aria-labelledby={`included-${property.slug}`} className="mt-7 border-t border-rule pt-5 lg:mt-10 lg:pt-6">
-      <h3 id={`included-${property.slug}`} className="m-0">
-        <Link
-          href={property.bookingUrl}
-          className="flex min-h-11 items-center gap-2 font-display text-[26px] font-semibold leading-[1.05] text-ink hover:text-pine lg:text-[32px]"
-        >
+    <li className="m-0 border-t border-rule pt-5 lg:pt-6">
+      <Link href={property.bookingUrl} className="group block">
+        <Plate frameClassName="h-[168px] min-[380px]:h-[190px] lg:h-[260px]">
+          <StayPhoto photo={content.thumb} sizes="(min-width: 1024px) 28vw, calc(100vw - 56px)" />
+        </Plate>
+        <span className="mt-2 flex min-h-11 items-center gap-2 font-display text-[24px] font-semibold leading-[1.05] text-ink group-hover:text-pine lg:text-[28px]">
           {property.name}
           <FieldArrow className="text-pine" />
-        </Link>
-      </h3>
-      <p className="m-0 font-sans text-[12px] text-ink-note lg:text-[14px]">{content.otherLine(property)}</p>
-      <RoomPreview groups={content.page.groups} label={property.name} />
-    </article>
+        </span>
+        <span className="block font-sans text-[12px] text-ink-note lg:text-[14px]">Sleeps {property.guests}</span>
+      </Link>
+    </li>
   );
 }
 
@@ -232,10 +231,10 @@ export default async function PropertyPage({
                   key={f.label}
                   className={cn(
                     "flex flex-col justify-center py-2.5 lg:py-3.5",
-                    i > 0 && "border-l border-rule pl-3 lg:pl-5",
+                    i > 0 && "border-l border-rule pl-3 max-[359px]:pl-2 lg:pl-5",
                   )}
                 >
-                  <dt className="order-2 font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-ink-meta lg:text-[11px]">
+                  <dt className="order-2 font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-ink-meta max-[359px]:text-[9px] max-[359px]:tracking-[0.04em] lg:text-[11px]">
                     {f.label}
                   </dt>
                   <dd
@@ -338,20 +337,23 @@ export default async function PropertyPage({
                 >
                   {capitalize(numberWord(included.length))} stays
                 </h2>
-                {included.map((h) => (
-                  <IncludedStay key={h.slug} property={h} content={STAY_CONTENT[h.slug]} />
-                ))}
+                <ul className="m-0 mt-5 grid list-none gap-6 p-0 lg:mt-8 lg:grid-cols-3 lg:gap-8">
+                  {included.map((h) => (
+                    <IncludedStay key={h.slug} property={h} content={STAY_CONTENT[h.slug]} />
+                  ))}
+                </ul>
               </section>
             )}
 
-            {/* Know before you book: the parent page's name and order (the minimum stay and the price live
-                in the booking card, so they are not repeated here). */}
+            {/* Know before you book: the parent page's name and order (the minimum stay is here once; the booking card
+                keeps only its price sentence). */}
             <section aria-labelledby="know-title" className={SPLIT_SECTION_CLASS}>
               <h2 id="know-title" className={GROUP_HEAD_CLASS}>
                 Know before you book
               </h2>
               <StayKnowRows
                 variant="slug"
+                slug={property.slug}
                 className="mt-4 lg:mt-1"
                 pendingNote={`PENDING JALENE: ${property.name}'s exact cancellation terms, to state here and in the booking card`}
               />

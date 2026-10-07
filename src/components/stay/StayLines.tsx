@@ -3,6 +3,7 @@ import { FieldRows, PendingSlot } from "@/components/ui/FieldGuide";
 import { cn } from "@/lib/utils";
 import {
   PHONE_TEL,
+  stayMinimumFor,
   STAY_CANCELLATION,
   STAY_GETTING_HERE,
   STAY_LATER_MONTHS_NOTE,
@@ -61,15 +62,18 @@ const KNOW_LAYOUT = {
 
 /**
  * "Know before you book" as a two-column list on every screen size. /stay
- * shows all five rows; a stay page leaves out the minimum and the price,
- * which its booking card already states.
+ * shows all five rows; a stay page shows its own minimum (once) and leaves
+ * out the price, which its booking card states.
  */
 export function StayKnowRows({
   variant,
+  slug,
   pendingNote,
   className,
 }: {
   variant: "index" | "slug";
+  /** The stay whose minimum a slug page states (the Camp has none). */
+  slug?: string;
   /** Whole-element slot for the exact terms (PendingSlot renders nothing in production). */
   pendingNote: string;
   className?: string;
@@ -90,7 +94,9 @@ export function StayKnowRows({
           { term: "Minimum", detail: STAY_MINIMUM },
           { term: "Price", detail: STAY_PRICE_PLAIN },
         ]
-      : []),
+      : slug && stayMinimumFor(slug)
+        ? [{ term: "Minimum", detail: stayMinimumFor(slug) }]
+        : []),
     cancellation,
     { term: "Pets", detail: STAY_PETS },
     { term: "Getting here", detail: STAY_GETTING_HERE },

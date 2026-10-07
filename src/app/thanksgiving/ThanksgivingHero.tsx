@@ -37,8 +37,7 @@ export function ThanksgivingHero() {
 
         <p className="m-0 mt-2.5 font-sans text-[14px] leading-[1.5] text-ink-body lg:col-start-1 lg:row-start-4 lg:mt-5 lg:max-w-[600px] lg:text-[17px] lg:leading-[1.6]">
           This year, the host is a guest too. Our in-house chef cooks your family&apos;s Thanksgiving
-          dinner, nobody is stuck with the dishes, and you get four nights together on a private forest
-          farm with Scottish Highland cows.
+          dinner, and nobody is stuck with the dishes.
         </p>
 
         <p className="m-0 mt-3 font-sans text-[12px] text-ink-note lg:col-start-1 lg:row-start-5 lg:mt-3 lg:text-[13px] lg:uppercase lg:tracking-[0.1em] max-lg:order-last">
@@ -82,11 +81,11 @@ export function ThanksgivingHero() {
           className="mt-5 lg:col-start-2 lg:row-start-1 lg:row-end-10 lg:mt-0 lg:self-center"
           frameClassName="h-[140px] max-[359px]:h-[112px] sm:h-[260px] lg:aspect-[4/3] lg:h-auto"
           captionClassName="mt-px text-[14px] lg:mt-0.5 lg:text-[17px]"
-          caption="The Lodge dining room, styled for Thanksgiving."
+          caption="The Lodge dining room, with Thanksgiving styling added digitally."
         >
           <Image
             src="/images/thanksgiving/highland-farms-lodge-thanksgiving-dining.jpg"
-            alt="William Wallace Lodge dining room styled with a Thanksgiving feast, autumn flowers and candlelight"
+            alt="William Wallace Lodge dining room with a Thanksgiving feast, autumn flowers and candlelight added digitally"
             fill
             priority
             fetchPriority="high"

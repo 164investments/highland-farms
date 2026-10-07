@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { FieldArrow, Plate, fieldCtaClass } from "@/components/ui/FieldGuide";
 import { FieldReview } from "@/components/field/Reviews";
 import { THANKSGIVING_QUOTE } from "@/lib/review-quotes";
-import { perGuest, thanksgiving, thanksgivingInquiryHref } from "@/data/thanksgiving";
+import { packageCtaLabel, perGuest, thanksgiving, thanksgivingInquiryHref } from "@/data/thanksgiving";
 
 const SLEEPS_WORD: Record<number, string> = { 8: "eight", 20: "twenty" };
 const labelRow =
@@ -79,7 +79,7 @@ export function PackageCompare() {
                     data-cta={`tg-${pkg.id}`}
                     className={cn(fieldCtaClass, "mt-4 w-full text-center")}
                   >
-                    {pkg.cta}
+                    {packageCtaLabel(pkg)}
                   </a>
                 </article>
               ))}
@@ -179,7 +179,7 @@ export function PackageCompare() {
                           "h-auto min-h-[52px] w-full px-3 py-2.5 text-center text-[14px] leading-tight lg:px-5 lg:text-[15px]",
                         )}
                       >
-                        {pkg.cta}
+                        {packageCtaLabel(pkg)}
                         <FieldArrow className="hidden lg:block" />
                       </a>
                     </td>

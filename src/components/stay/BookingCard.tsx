@@ -1,11 +1,8 @@
-import { PendingSlot } from "@/components/ui/FieldGuide";
 import { HospitableWidget } from "./HospitableWidget";
-import { StayCancellationLine } from "./StayLines";
 import {
   STAY_CALENDAR_NOTE,
   STAY_PRICE_CARD,
   STAY_PRICE_CARD_LEAD,
-  stayMinimumFor,
 } from "./stay-facts";
 
 interface BookingCardProps {
@@ -17,8 +14,8 @@ interface BookingCardProps {
 /**
  * Our pine-framed booking card around the Hospitable embed. The iframe itself
  * cannot be restyled (it is Hospitable's page), so the card carries the steps,
- * the price line, the minimum stay and the point-of-sale policy line
- * (CONSISTENCY #10: the same sentence as "Know before you book"). `id="book"` is
+ * and the price sentence only. The minimum stay and the cancellation
+ * terms appear once, under "Know before you book". `id="book"` is
  * the in-page "Check dates and price" target for the masthead, the hero button
  * and the phone bar.
  */
@@ -60,14 +57,6 @@ export function BookingCard({ widgetUrl, propertyName, propertySlug }: BookingCa
           <p className="m-0">
             <strong className="font-semibold text-ink">{STAY_PRICE_CARD_LEAD}</strong> {STAY_PRICE_CARD}
           </p>
-          {stayMinimumFor(propertySlug) && <p className="m-0 mt-2">{stayMinimumFor(propertySlug)}</p>}
-          <p className="m-0 mt-2">
-            <StayCancellationLine />
-          </p>
-          <PendingSlot
-            className="mt-2"
-            note={`PENDING JALENE: ${propertyName}'s exact cancellation terms, to replace the cancellation sentence here and in "Know before you book"`}
-          />
         </div>
       </div>
     </section>

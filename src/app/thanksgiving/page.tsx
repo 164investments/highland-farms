@@ -34,7 +34,7 @@ export const metadata: Metadata = {
       "This year, the host is a guest too. Four nights on a private forest farm near Mt. Hood, with Thanksgiving dinner cooked for you. Lodge for 8, $5,000. Whole farm for 20, $11,000.",
     url: "https://highlandfarmsoregon.com/thanksgiving",
     type: "website",
-    images: [{ url: OG_IMAGE, width: 1536, height: 1024, alt: "William Wallace Lodge dining room styled for Thanksgiving" }],
+    images: [{ url: OG_IMAGE, width: 1536, height: 1024, alt: "William Wallace Lodge dining room with Thanksgiving styling added digitally" }],
   },
   twitter: {
     card: "summary_large_image",
