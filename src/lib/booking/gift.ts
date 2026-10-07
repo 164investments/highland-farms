@@ -36,10 +36,11 @@ export const GIFT_PRODUCTS: GiftProduct[] = [
   {
     id: "spa-for-two",
     name: "Nordic Spa for Two",
-    amountCents: 20000,
+    // $75 per person (Hayden, 2026-10-06: gifts cost what booking costs).
+    amountCents: 15000,
     kind: "value",
     productScope: "nordic-spa",
-    units: 20000,
+    units: 15000,
     blurb: "A 90-minute Nordic Forest Spa session for two guests.",
   },
   {

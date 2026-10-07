@@ -1,34 +1,40 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
-import { Clock, Users, Heart, Sparkles } from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { ImageCarousel } from "@/components/gallery/ImageCarousel";
-import { FAQAccordion } from "@/components/shared/FAQAccordion";
-import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
-import {
-  BookingButton,
-  BookingModalRoot,
-  BookingTextLink,
-  BookingStickyCTA,
-} from "@/components/shared/BookingButton";
-import { TourVideo } from "@/components/shared/TourVideo";
-import { TourSpaCombo } from "@/components/shared/TourSpaCombo";
-import { NextAvailability } from "@/components/shared/NextAvailability";
-import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
-import { ReviewBadge } from "@/components/shared/ReviewBadge";
-import { KnowBeforeYouBook, BookingPolicyNote } from "@/components/shared/KnowBeforeYouBook";
-import { Button } from "@/components/ui/Button";
-import { farmTourFAQ, TOUR_PARTY_SIZES } from "@/data/farm-tours";
-import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
-import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
-import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
-import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { FieldReview, FieldReviewTier, GOOGLE_REVIEW_LINK } from "@/components/field/Reviews";
+import { FieldStickyBar } from "@/components/field/StickyBar";
+import { JsonLd, cancellationAnswer, faqPageJsonLd } from "@/components/field/Faq";
+import { BookingModalRoot } from "@/components/shared/BookingButton";
+import { HighlandDayBlock } from "@/components/shared/HighlandDayBlock";
+import { BookingPolicyNote, KnowBeforeYouBook, type KnowRow } from "@/components/shared/KnowBeforeYouBook";
+import { NextAvailability } from "@/components/shared/NextAvailability";
+import { TourPicker } from "@/components/shared/VisitPickers";
+import { VisitFaq } from "@/components/shared/VisitFaq";
+import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
+import {
+  FieldArrow,
+  FieldCatalogue,
+  FieldDrawing,
+  FieldLink,
+  FieldSection,
+  FieldSectionHeader,
+  FieldSequence,
+  PendingSlot,
+  Plate,
+} from "@/components/ui/FieldGuide";
+import { TOUR_LEAD_TIME, TOUR_PARTY_SIZES, TOUR_TIMES, farmTourFAQ } from "@/data/farm-tours";
+import { nativeCalendarEnabled } from "@/lib/booking/flag";
+import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { ToursHero } from "./ToursHero";
-
-const GROUP_PRICING = TOUR_PARTY_SIZES;
+import {
+  TOURS_COWS_QUOTE,
+  TOURS_HUG_QUOTE,
+  TOURS_NOTES,
+  TOURS_RAIN_QUOTE,
+  TOURS_SCOTLAND_QUOTE,
+} from "./quotes";
 
 export const metadata: Metadata = {
   title: { absolute: "Highland Cow Farm Tour near Portland | Highland Farms" },
@@ -52,302 +58,436 @@ export const metadata: Metadata = {
   },
 };
 
-function FarmTourSchema() {
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: farmTourFAQ.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer,
-      },
-    })),
-  };
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-    />
-  );
-}
+const TOUR_FOR_TWO = TOUR_PARTY_SIZES[0].total;
+const EACH_ADDITIONAL = TOUR_PARTY_SIZES[1].total - TOUR_PARTY_SIZES[0].total;
+const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
 
-const galleryImages = [
-  { src: "/images/farm/farm-animals.jpg", alt: "Guests petting a Highland Cow during a barn tour" },
-  { src: "/images/farm/cow-calf.jpg", alt: "Young girl feeding a Highland Cow calf" },
-  { src: "/images/farm/agritourism-stay.jpg", alt: "Couple meeting Scottish Highland Cows in the forest" },
-  { src: "/images/farm/white-peacock.jpg", alt: "White peacock perched in the barn" },
-  { src: "/images/farm/farm-life.jpg", alt: "Farm guide walking with a Highland Cow calf in the forest" },
-  { src: "/images/farm/cows.jpg", alt: "Highland Cow mama and calf near the barn" },
-  { src: "/images/farm/farmer-with-highland-cow.jpg", alt: "Farmer bonding with a resting Highland Cow" },
-  { src: "/images/farm/farm-visit.jpg", alt: "Highland Cow close-up with shaggy hair and horns" },
+const body15 = "m-0 mt-2.5 max-w-[560px] font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[17px]";
+const hook =
+  "field-heading m-0 font-display text-[34px] leading-[1.02] text-ink lg:text-[48px]";
+
+/** "Know before you book" rows for the tour (board 5; prices from TOUR_PARTY_SIZES). */
+const knowRows: KnowRow[] = [
+  {
+    term: "Ages",
+    detail: `5 and up are $${EACH_ADDITIONAL}. Kids 4 and under come free and don't count toward your group.`,
+  },
+  {
+    term: "Group",
+    detail: (
+      <>
+        Online booking covers two or more paying guests. One adult with a little one? Call{" "}
+        <a href={TEL} className="whitespace-nowrap text-pine underline underline-offset-4">
+          {CONTACT.phone}
+        </a>{" "}
+        and we&apos;ll set it up.
+      </>
+    ),
+  },
+  {
+    term: "Wear",
+    detail: "Closed-toe shoes are required. Dress in layers; October to March, bring rain boots and a rain jacket.",
+  },
+  {
+    term: "Access",
+    detail: "Not ADA accessible. The paths can't take a wheelchair, walker or stroller, and there is no seated version.",
+  },
+  {
+    term: "Arrival",
+    detail:
+      "Park on the right in the gravel past the gate and meet your guide at the cow statue. More than 10 minutes late, and your tour may be shortened or cancelled at your expense.",
+  },
+  { term: "Timing", detail: "Book at least a day ahead. Dates open about three to four months out." },
 ];
 
-const features = [
+const meet = [
   {
-    icon: Heart,
-    title: "Meet the Animals",
-    description:
-      "Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl.",
+    id: "icelandic-sheep",
+    drawing: "icelandic-sheep" as const,
+    title: "Icelandic sheep",
+    subtitle: "Ovis aries, Icelandic breed",
+    body: "At the end of the fern-forest trail. A northern breed with a thick double fleece.",
   },
   {
-    icon: Users,
-    title: "Private & Personal",
-    description:
-      "2 to 6 guests per tour. It's just you, your group, and the animals — no crowds.",
+    id: "white-peacock",
+    drawing: "white-peacock" as const,
+    title: "White peacocks",
+    subtitle: "Pavo cristatus, white form",
+    body: "White from crest to tail. Look up when you walk into the barn: they like a high perch.",
   },
   {
-    icon: Clock,
-    title: "60-Minute Experience",
-    description:
-      "Plenty of time to brush, pet, and photograph the Scottish Highland Cows and explore the farm.",
+    id: "guardian-dog",
+    drawing: "guardian-dog" as const,
+    title: "Guardian dogs",
+    subtitle: "Canis familiaris, on duty",
+    body: "They work for a living, watching over the herd and the flock. Please leave your own at home: no pets or outside animals on the farm.",
   },
   {
-    icon: Sparkles,
-    title: "Perfect for All Ages",
-    description:
-      "Ages 5 and up are $75 and kids 4 and under are free. Everyone falls in love with our gentle Scottish Highland Cows.",
+    id: "hen",
+    drawing: "hen" as const,
+    title: "Hens and guinea fowl",
+    subtitle: "Gallus gallus · Numida meleagris",
+    body: "You'll hear the guinea fowl before you see them.",
   },
 ];
 
 export default function FarmToursPage() {
+  const native = nativeCalendarEnabled();
+  const policy = cancellationAnswer(farmTourFAQ);
+
   return (
     <>
       <StructuredData pathname="/farm-tours" />
-      <FarmTourSchema />
-      {/* First screen (Field Guide): the group-size rows open each size's calendar */}
+      <JsonLd data={faqPageJsonLd(farmTourFAQ)} />
+
+      {/* S1 First screen: the group-size rows are the CTA */}
       <ToursHero />
 
-      {/* What to Expect */}
-      <section className="py-20 lg:py-28 bg-warm-white">
-        <Container>
-          <SectionHeading
-            eyebrow="What to Expect"
-            title="A Private Farm Experience"
-            subtitle="Your 60-minute tour is an intimate, hands-on experience with our animals."
-          />
-
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map((feature) => (
-              <div key={feature.title} className="text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-cream">
-                  <feature.icon className="h-6 w-6 text-forest" />
-                </div>
-                <h3 className="mt-5 text-lg font-normal text-charcoal font-display">
-                  {feature.title}
-                </h3>
-                <p className="mt-2 text-sm text-muted leading-relaxed font-sans font-light">
-                  {feature.description}
+      <div className="surface-paper bg-paper font-sans text-ink">
+        {/* S2 The short version: message match for the ads */}
+        <FieldSection
+          rule="double"
+          aria-label="The short version"
+          innerClassName="lg:grid lg:grid-cols-12 lg:gap-x-16"
+        >
+          <div className="lg:col-span-7 lg:col-start-6 lg:row-start-1 lg:self-center">
+            <h2 className="m-0 font-display text-[20px] italic text-fern lg:text-[24px]">The short version</h2>
+            <ul role="list" className="m-0 mt-3 list-none border-t border-rule p-0">
+              <li className="border-b border-rule py-6 lg:py-8">
+                <h3 className={hook}>Yes, you can hug them.</h3>
+                <p className={body15}>
+                  You go into the pen with your guide to feed, brush and pet the Highland cows. Bring a phone with
+                  room for photos.
                 </p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* Gallery */}
-      <section className="py-20 lg:py-28 bg-background">
-        <Container>
-          <SectionHeading
-            title="Life on the Farm"
-            subtitle="Get a glimpse of the animals you'll meet on your tour."
-          />
-          <ImageCarousel images={galleryImages} aspectRatio="photo" />
-        </Container>
-      </section>
-
-      {/* Tour Video */}
-      <TourVideo
-        videoSrc="/videos/farm-tour-pov.mp4"
-        posterSrc="/videos/farm-tour-pov-poster.jpg"
-        posterAlt="A guest meeting the Highland cows during a tour"
-        eyebrow="A glimpse from the field"
-        heading="See what a tour feels like"
-        body="A short walk through the farm — meet the herd, the guardian dogs, and the views you'll wake up to."
-        bookingHref={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-video")}
-        bookingLabel="See open tour dates"
-      />
-
-      {/* Pricing & Details */}
-      <section className="py-20 lg:py-28 bg-cream">
-        <Container className="max-w-3xl">
-          <SectionHeading
-            eyebrow="Book Your Tour"
-            title="Tour Details & Pricing"
-          />
-
-          <div className="rounded-xl bg-white p-8 shadow-sm">
-            <div className="mb-5 flex justify-center">
-              <ReviewBadge variant="pill" />
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-cream-light pb-4">
-                <span className="text-base font-normal text-charcoal font-sans">
-                  Private Highland Cow Farm Tour
-                </span>
-                <span className="text-lg font-normal text-forest font-sans">
-                  $75 per person
-                </span>
-              </div>
-              <ul className="space-y-2.5 text-sm text-muted font-sans">
-                <li className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-forest" />
-                  60-minute private experience
-                </li>
-                <li className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-forest" />
-                  2 to 6 guests per tour
-                </li>
-                <li className="flex items-center gap-2">
-                  <Heart className="h-4 w-4 text-forest" />
-                  Hands-on interaction with all animals
-                </li>
-              </ul>
-            </div>
-
-            <div className="mt-6 rounded-lg bg-cream/60 p-5">
-              <p className="mb-3 text-xs font-normal uppercase tracking-[0.18em] text-sage font-sans">
-                Total for your group
-              </p>
-              <ul className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-charcoal font-sans sm:grid-cols-3">
-                {GROUP_PRICING.map(({ guests, total }) => (
-                  <li
-                    key={guests}
-                    className="flex items-baseline justify-between"
-                  >
-                    <span className="text-muted">
-                      {guests} guests
-                    </span>
-                    <span className="font-normal text-forest">${total}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="mt-6 flex justify-center">
-              <Suspense fallback={null}>
-                <NextAvailability />
-              </Suspense>
-            </div>
-
-            <div className="mt-6">
-              <NativeBookingSection product="farm-tour" />
-              {!nativeCalendarEnabled() && (
-                <>
-                  <KnowBeforeYouBook product="tour" className="mb-5" />
-                  <BookingButton
-                    href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-pricing")}
-                    label="See open tour dates"
-                    size="lg"
-                    className="w-full"
-                    title="Book your farm tour"
+                <FieldReview spec={TOURS_HUG_QUOTE} role="Farm tour" size="sm" rule className="mt-4" />
+                <Plate
+                  className="mt-5 lg:hidden"
+                  frameClassName="h-[250px]"
+                  caption="A guide, two guests and a calf, in the barn."
+                >
+                  <Image
+                    src="/images/farm/cow-2.jpg"
+                    alt="A guide and two guests petting a shaggy Highland calf in the barn"
+                    fill
+                    sizes="calc(100vw - 54px)"
+                    className="object-cover object-[50%_62%]"
                   />
-                  <p className="mt-3 text-center text-sm text-muted font-sans">
-                    $150 for two &middot; $75 each additional guest
+                </Plate>
+              </li>
+              <li className="border-b border-rule py-6 lg:py-8">
+                <h3 className={hook}>Not a petting zoo.</h3>
+                <p className={body15}>
+                  Every tour is private: your group of two to six, your own guide, and sixty minutes on a working
+                  farm in the forest. No crowd at the fence.
+                </p>
+              </li>
+              <li className="border-b border-rule py-6 lg:py-8">
+                <h3 className={hook}>No passport needed.</h3>
+                <p className={body15}>Scottish Highland cows in Brightwood, Oregon, about an hour from Portland.</p>
+                <FieldReview spec={TOURS_SCOTLAND_QUOTE} role="Farm tour" size="sm" rule className="mt-4" />
+              </li>
+            </ul>
+          </div>
+          <Plate
+            className="hidden lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:flex"
+            frameClassName="lg:h-[640px]"
+            caption="A guide, two guests and a calf, in the barn."
+          >
+            <Image
+              src="/images/farm/cow-2.jpg"
+              alt="A guide and two guests petting a shaggy Highland calf in the barn"
+              fill
+              sizes="(min-width: 1440px) 520px, 40vw"
+              className="object-cover object-[50%_62%] lg:object-[50%_50%]"
+            />
+          </Plate>
+        </FieldSection>
+
+        {/* S3 Who you'll meet: the field guide (plates are the index) */}
+        <FieldSection
+          id="meet"
+          eyebrow="A field guide to the farm"
+          title="Who you'll meet"
+          intro="The Highland cows are the main event: you go into the pen with them. Here's who else you'll meet along the way."
+        >
+          <article className="mt-8 grid grid-cols-[1fr_128px] items-start gap-4 border-t border-rule pt-6 lg:mt-14 lg:grid-cols-12 lg:gap-x-16 lg:pt-10">
+            <div className="lg:col-span-7 lg:self-center">
+              <p className="m-0 font-sans text-[11px] uppercase tracking-[0.16em] text-ink-meta">No. 1</p>
+              <h3 className="field-heading m-0 mt-1 font-display text-[32px] leading-[1.02] text-ink lg:text-[52px]">
+                Highland cows
+              </h3>
+              <p className="m-0 mt-1 font-display text-[16px] italic text-ink-note lg:text-[20px]">
+                Bos taurus, Highland breed. From Scotland.
+              </p>
+              <p className={cn(body15, "mt-3")}>
+                The reason you came. Your guide takes you into the pen and shows you how to feed and brush them.
+                Then it&apos;s your turn.
+              </p>
+              <FieldReview
+                spec={TOURS_COWS_QUOTE}
+                role="Farm tour"
+                size="sm"
+                rule
+                className="mt-4 max-w-[560px]"
+              />
+              <PendingSlot
+                className="mt-3"
+                note="PENDING CONNOR: a row naming two of the herd, one true trait each"
+              />
+            </div>
+            <FieldDrawing
+              name="highland-cow"
+              className="w-[128px] lg:col-span-5 lg:w-[420px] lg:justify-self-end"
+              sizes="(min-width: 1024px) 420px, 128px"
+            />
+          </article>
+
+          <FieldCatalogue
+            className="mt-6 lg:mt-12"
+            start={2}
+            columns={4}
+            mediaLayout="side"
+            ruled
+            items={meet.map((m) => ({
+              id: m.id,
+              title: m.title,
+              subtitle: m.subtitle,
+              body: m.body,
+              media: (
+                <FieldDrawing
+                  name={m.drawing}
+                  className="h-[92px] w-[92px] lg:h-[200px] lg:w-full"
+                  sizes="(min-width: 1024px) 300px, 92px"
+                />
+              ),
+            }))}
+          />
+        </FieldSection>
+
+        {/* S4 The hour, in order */}
+        <FieldSection
+          id="hour"
+          aria-label="The hour, in order"
+          innerClassName="lg:grid lg:grid-cols-12 lg:gap-x-16"
+        >
+          <div className="lg:col-span-6">
+            <FieldSectionHeader eyebrow="Sixty minutes, start to finish" title="The hour, in order" />
+            <FieldSequence
+              className="mt-7"
+              items={[
+                {
+                  id: "gate",
+                  title: "The gate",
+                  body: "Pull through the gate, park on the right in the gravel and look for the parking sign.",
+                  footer: (
+                    <Plate
+                      className="mt-5 lg:hidden"
+                      frameClassName="h-[210px]"
+                      caption="The carved Highland cow and the Highland Farms sign."
+                    >
+                      <Image
+                        src="/images/farm/hero.jpg"
+                        alt="The carved wooden Highland cow holding the Highland Farms sign, the Lodge behind"
+                        fill
+                        sizes="calc(100vw - 54px)"
+                        className="object-cover object-[38%_45%]"
+                      />
+                    </Plate>
+                  ),
+                },
+                {
+                  id: "statue",
+                  title: "The cow statue",
+                  body: `Your guide meets you at the Highland cow statue. Tours start at ${TOUR_TIMES}, on the hour.`,
+                },
+                {
+                  id: "pen",
+                  title: "The pen",
+                  body: "In with the Highland cows. Your guide hands you the brush and the feed, and tells you who's who.",
+                },
+                {
+                  id: "ferns",
+                  title: "The fern forest",
+                  body: "Walk the trail through the fern forest to the Icelandic sheep.",
+                  footer: (
+                    <Plate className="mt-5 lg:hidden" frameClassName="h-[210px]" caption="Ferns along the creek.">
+                      <Image
+                        src="/images/farm/forest-creek.jpg"
+                        alt="A small stream running between sword ferns and mossy rocks"
+                        fill
+                        sizes="calc(100vw - 54px)"
+                        className="object-cover object-[50%_55%]"
+                      />
+                    </Plate>
+                  ),
+                },
+                {
+                  id: "rest",
+                  title: "The rest of the farm",
+                  body: "Say hello to the peacocks, the guardian dogs, the hens and the guinea fowl. Ask your guide anything.",
+                },
+              ]}
+            />
+
+            <div className="mt-8 bg-paper-shade px-5 py-6 lg:mt-10 lg:px-8 lg:py-8">
+              <h3 className="m-0 font-display text-[26px] font-semibold leading-tight text-ink lg:text-[30px]">
+                Rain or shine
+              </h3>
+              <p className="m-0 mt-2 font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[16px]">
+                Rain changes nothing: the tour runs as booked and the cows are out on every tour. From October to
+                March, wear rain boots and a rain jacket. Winter is coat season: the herd is at its shaggiest from
+                November to March.
+              </p>
+              <FieldReview
+                spec={TOURS_RAIN_QUOTE}
+                role="Farm tour"
+                size="sm"
+                rule
+                className="mt-4"
+                quoteClassName="lg:text-[21px]"
+              />
+            </div>
+          </div>
+
+          <div className="hidden lg:col-span-6 lg:flex lg:flex-col lg:gap-10">
+            <Plate frameClassName="lg:h-[460px]" caption="The carved Highland cow and the Highland Farms sign.">
+              <Image
+                src="/images/farm/hero.jpg"
+                alt="The carved wooden Highland cow holding the Highland Farms sign, the Lodge behind"
+                fill
+                sizes="(min-width: 1440px) 600px, 45vw"
+                className="object-cover object-[38%_45%]"
+              />
+            </Plate>
+            <Plate frameClassName="lg:h-[560px]" caption="Ferns along the creek.">
+              <Image
+                src="/images/farm/forest-creek.jpg"
+                alt="A small stream running between sword ferns and mossy rocks"
+                fill
+                sizes="(min-width: 1440px) 600px, 45vw"
+                className="object-cover object-[50%_55%]"
+              />
+            </Plate>
+          </div>
+        </FieldSection>
+
+        {/* S5 Field notes from guests */}
+        <FieldSection
+          id="notes"
+          eyebrow="In their words"
+          title="Field notes from guests"
+          aside={<FieldReviewTier tier="compact" />}
+        >
+          <ul
+            role="list"
+            className="m-0 mt-7 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-2 lg:gap-x-16 lg:border-t-0"
+          >
+            {TOURS_NOTES.map((spec) => (
+              <li
+                key={spec.author}
+                className="border-b border-rule py-6 lg:border-b-0 lg:border-t lg:py-8"
+              >
+                <FieldReview spec={spec} role="Farm tour" size="lg" stars />
+              </li>
+            ))}
+          </ul>
+          <a
+            href={GOOGLE_REVIEW_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine"
+          >
+            <span className="border-b border-pine-line pb-0.5">Read every review on Google</span>
+            <FieldArrow />
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </FieldSection>
+
+        {/* S6 Book: the picker, the strict line at the point of sale, Know before you book */}
+        <FieldSection
+          id="choose"
+          rule="double"
+          tone="light"
+          eyebrow="Book your tour"
+          title="Pick your group, then your date"
+          intro="Private tour · 60 minutes · 2 to 6 guests · Rain or shine"
+          introClassName="max-w-none text-[12px] uppercase tracking-[0.1em] text-ink lg:text-[13px]"
+        >
+          <div className="lg:grid lg:grid-cols-12 lg:gap-x-16">
+            <div className="mt-7 lg:col-span-6 lg:col-start-7 lg:row-start-1 lg:mt-12">
+              {native ? (
+                <NativeBookingSection product="farm-tour" />
+              ) : (
+                <>
+                  <TourPicker
+                    where="pricing"
+                    label="How many are coming? Pick to see dates"
+                    labelId="book-size-label"
+                  />
+                  <FieldReviewTier tier="nearCta" className="mt-3" />
+                  <p className="m-0 mt-1 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
+                    <Suspense fallback={null}>
+                      <NextAvailability variant="text" label="Next open tour:" />
+                    </Suspense>{" "}
+                    Tours at {TOUR_TIMES}.
+                    {TOUR_LEAD_TIME && ` The typical tour is booked ${TOUR_LEAD_TIME} ahead.`}
                   </p>
-                  <p className="mt-1 text-center">
-                    <BookingTextLink
-                      href={bookingUrl(BOOKING_LINKS.farmTourAllSizes, "farm-tours-pricing-group")}
-                      label="Bringing 3 to 6 guests? Choose your group size"
-                      title="Choose your tour group size"
-                      className="text-sm text-forest underline underline-offset-4 hover:text-forest-light"
-                    />
+                  <p className="m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-body lg:text-[14px]">
+                    Booking for two? You can add a dozen eggs for $8 at checkout.
                   </p>
-                  <BookingPolicyNote className="mt-3" />
+                  <BookingPolicyNote
+                    text={policy}
+                    className="mt-5 border-t border-rule pt-4 text-[12px] text-ink-body lg:text-[13px]"
+                  />
                 </>
               )}
             </div>
+            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:mt-12">
+              <KnowBeforeYouBook framed={false} rows={knowRows} />
+            </div>
           </div>
-        </Container>
-      </section>
+        </FieldSection>
 
-      {/* Gift Certificates */}
-      <section className="py-20 lg:py-28 bg-background">
-        <Container className="max-w-3xl text-center">
-          <div className="flex justify-center mb-6">
-            <Image
-              src="/images/illustrations/highland-cow-white.png"
-              alt=""
-              width={200}
-              height={160}
-              className="h-28 w-auto opacity-60"
-              aria-hidden="true"
-            />
-          </div>
-          <h2 className="text-3xl font-normal sm:text-4xl">
-            Give the Gift of Highland Farms
-          </h2>
-          <p className="mx-auto mt-4 max-w-lg text-base text-muted font-sans font-light leading-relaxed">
-            Farm tours and spa sessions make unforgettable gifts. Purchase a
-            gift certificate for someone special.
-          </p>
-          <div className="mt-8">
-            {nativeCalendarEnabled() ? (
-              <Button href={giftCertificatesHref()} variant="outline">
-                Purchase Gift Certificates
-              </Button>
-            ) : (
-              <BookingButton
-                href={bookingUrl(BOOKING_LINKS.giftCertificates, "farm-tours-gift")}
-                label="Purchase Gift Certificates"
-                variant="outline"
-                title="Purchase a gift certificate"
-              />
-            )}
-          </div>
-        </Container>
-      </section>
+        <HighlandDayBlock utmPrefix="farm-tours-day" />
 
-      {/* FAQ */}
-      <section className="py-20 lg:py-28 bg-warm-white">
-        <Container className="max-w-3xl">
-          <SectionHeading
-            title="Frequently Asked Questions"
-            subtitle="Everything you need to know about our farm tours."
-          />
-          <div className="mb-8 rounded-lg border border-cream-dark/50 bg-cream/40 p-5 text-sm text-charcoal font-sans font-light leading-relaxed sm:p-6">
-            <p className="mb-2 text-xs font-normal uppercase tracking-[0.18em] text-sage">
-              Before you arrive
-            </p>
-            <p>
-              Closed-toe shoes are required — dress in layers. We&rsquo;re at
-              the base of Mt. Hood and the weather can shift quickly. Tours run
-              rain or shine, with covered areas throughout the farm.
-            </p>
-          </div>
-          <FAQAccordion items={farmTourFAQ} />
-        </Container>
-      </section>
+        {/* S7b Give a farm tour */}
+        <FieldSection
+          id="give"
+          pad="compact"
+          eyebrow={<span data-season-only="gift">For the holidays</span>}
+          title="Give a farm tour"
+          size="lg"
+          titleClassName="text-[32px] leading-[1.02] lg:text-[48px]"
+          intro={`$${TOUR_FOR_TWO} for two, the same price as booking it. They pick the date.`}
+        >
+          <FieldLink
+            href="/gift-certificates"
+            className="mt-2 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine"
+          >
+            <span className="border-b border-pine-line pb-0.5">See gift certificates</span>
+            <FieldArrow />
+          </FieldLink>
+        </FieldSection>
 
-      {/* Social Proof */}
-      <GoogleReviewsSection
-        topic="tour"
-        max={6}
-        eyebrow="What tour guests are saying"
-        background="cream"
+        <VisitFaq items={farmTourFAQ} />
+      </div>
+
+      <FieldStickyBar
+        primary={
+          native
+            ? { label: "See tour dates", sublabel: `$${TOUR_FOR_TWO} for two`, href: "#book" }
+            : {
+                label: "See tour dates",
+                sublabel: `$${TOUR_FOR_TWO} for two`,
+                booking: { title: "Book your farm tour" },
+                href: bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-sticky-mobile"),
+              }
+        }
+        hideWhenVisible="#choose"
       />
 
-      {/* Tour + Spa Combo Upsell */}
-      <TourSpaCombo utmContent="farm-tours-combo" />
-
-      <EventCategoryCards />
-
-      {/* Sticky Mobile CTA */}
-      {nativeCalendarEnabled() ? (
-        <NativeStickyCTA />
-      ) : (
-        <BookingStickyCTA
-          label="See open tour dates"
-          href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-sticky-mobile")}
-        />
-      )}
-
-      {/* Modal mount — listens for openBookingModal() calls from every CTA */}
+      {/* Modal mount: listens for openBookingModal() calls from every CTA */}
       <BookingModalRoot />
-
-      {/* Bottom padding for sticky CTA on mobile */}
-      <div className="h-20 lg:hidden" />
     </>
   );
 }

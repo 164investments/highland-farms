@@ -1,549 +1,273 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
-import {
-  Clock,
-  Users,
-  Droplets,
-  TreePine,
-  Check,
-  MapPin,
-  Flame,
-  Leaf,
-} from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { Button } from "@/components/ui/Button";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { ImageCarousel } from "@/components/gallery/ImageCarousel";
-import { FAQAccordion } from "@/components/shared/FAQAccordion";
-import {
-  BookingButton,
-  BookingModalRoot,
-  BookingStickyCTA,
-} from "@/components/shared/BookingButton";
-import { TourVideo } from "@/components/shared/TourVideo";
-import { NextAvailability } from "@/components/shared/NextAvailability";
-import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
-import { KnowBeforeYouBook, BookingPolicyNote } from "@/components/shared/KnowBeforeYouBook";
-import { ReviewBadge } from "@/components/shared/ReviewBadge";
-import { InlineEmailCapture } from "@/components/shared/InlineEmailCapture";
-import { nordicSpaFAQ } from "@/data/nordic-spa";
-import { featuredQuotes } from "@/lib/reviews";
-import { SPA_QUOTE } from "@/lib/review-quotes";
-import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
-import { nativeCalendarEnabled, giftCertificatesHref } from "@/lib/booking/flag";
-import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
-import { NativeStickyCTA } from "@/components/booking/NativeStickyCTA";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { FieldReview, FieldReviewTier } from "@/components/field/Reviews";
+import { FieldStickyBar } from "@/components/field/StickyBar";
+import { JsonLd, cancellationAnswer, faqPageJsonLd } from "@/components/field/Faq";
+import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
+import { HighlandDayBlock } from "@/components/shared/HighlandDayBlock";
+import { BookingPolicyNote, KnowBeforeYouBook, type KnowRow } from "@/components/shared/KnowBeforeYouBook";
+import { NextAvailability } from "@/components/shared/NextAvailability";
+import { SpaPicker } from "@/components/shared/VisitPickers";
+import { VisitFaq } from "@/components/shared/VisitFaq";
+import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
+import {
+  FieldDrawing,
+  FieldSection,
+  FieldSectionHeader,
+  FieldSequence,
+  PendingSlot,
+  Plate,
+} from "@/components/ui/FieldGuide";
+import {
+  SPA_MAX_PARTY,
+  SPA_PRICE_PER_PERSON,
+  SPA_PRIVATE_PRICE,
+  SPA_SESSION_TIMES,
+  SPA_WEEKEND,
+  nordicSpaFAQ,
+} from "@/data/nordic-spa";
+import { BOOKING_PRODUCTS } from "@/lib/booking/products";
+import { nativeCalendarEnabled } from "@/lib/booking/flag";
+import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 import { SpaHero } from "./SpaHero";
+import { SPA_BEST_HOUR_QUOTE, SPA_CLEAN_QUOTE } from "./quotes";
+
+const DESCRIPTION = `Wood-burning cedar sauna, wet sauna and cold plunge in the forest in Brightwood, Oregon. ${BOOKING_PRODUCTS["nordic-spa"].durationMin}-minute sessions, up to ${SPA_MAX_PARTY} guests, $${SPA_PRICE_PER_PERSON} per person.`;
 
 export const metadata: Metadata = {
   title: { absolute: "Nordic Spa: Sauna & Cold Plunge | Highland Farms Oregon" },
-  description:
-    "Wood-burning sauna, steam sauna and cold plunge in the forest at the base of Mt. Hood. 90-minute sessions, up to 6 guests, $75 per person.",
+  description: DESCRIPTION,
   alternates: { canonical: "/nordic-spa" },
   openGraph: {
     title: "Nordic Spa: Sauna & Cold Plunge | Highland Farms Oregon",
-    description:
-      "Wood-burning sauna, steam sauna and cold plunge in the forest at the base of Mt. Hood. 90-minute sessions, up to 6 guests, $75 per person.",
+    description: DESCRIPTION,
     url: "https://highlandfarmsoregon.com/nordic-spa",
     type: "website",
     images: [
       {
-        url: "/images/spa/spa-1.jpg",
+        // The hero photo. /sauna-near-portland uses spa-1, so the two pages do not share one.
+        url: "/images/spa/spa-exterior-plunge-moss.jpg",
         width: 1200,
         height: 630,
-        alt: "Outdoor sauna and cold plunge near Portland at the base of Mt. Hood",
+        alt: "The cold plunge on the cedar deck beside a moss-covered tree at Highland Farms",
       },
     ],
   },
 };
 
-function NordicSpaSchema() {
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: nordicSpaFAQ.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer,
-      },
-    })),
-  };
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-    />
-  );
-}
+const isProduction = process.env.NODE_ENV === "production";
 
-const [spaReview] = featuredQuotes([SPA_QUOTE]);
-const spaQuote = spaReview?.quote ?? "";
-const spaAuthor = spaReview?.name ?? "";
-
-const galleryImages = [
-  { src: "/images/spa/spa-sauna-interior.jpg", alt: "Cedar sauna interior with Himalayan salt-brick wall" },
-  { src: "/images/spa/spa-exterior-cabin.jpg", alt: "Black-clad spa cabin with cedar deck and cold plunge in the forest" },
-  { src: "/images/spa/spa-relaxation-towels.jpg", alt: "Spa relaxation room with white shiplap, cedar ceiling, and rolled towels" },
-  { src: "/images/spa/spa-exterior-plunge-moss.jpg", alt: "Cold plunge tub set into the cedar deck beside a moss-covered old-growth tree" },
-  { src: "/images/spa/spa-sauna-stove.jpg", alt: "Harvia wood-burning sauna stove visible from the spa entry" },
-  { src: "/images/spa/spa-communal-table.jpg", alt: "Cedar communal table and bench seating between sauna sessions" },
-  { src: "/images/spa/spa-exterior-deck-plunge.jpg", alt: "Cedar deck with cold plunge tub surrounded by ferns and old-growth forest" },
-  { src: "/images/spa/spa-relaxation-view.jpg", alt: "Spa lounge looking out to the cedar deck and the forest" },
-  { src: "/images/spa/spa-bench-towels.jpg", alt: "Bench seating with fresh towels and view into the cedar sauna" },
-  { src: "/images/spa/spa-exterior-wide.jpg", alt: "Wide view of the spa cabin, deck, and cold plunge nestled in old-growth forest" },
-  { src: "/images/spa/spa-8.jpg", alt: "Friends laughing together in the cedar sauna" },
-  { src: "/images/spa/spa-3.jpg", alt: "Guests in robes relaxing on the spa deck" },
-];
-
-const sessionFeatures = [
+/** "Know before you book" rows (round 3 board). The Check-in row is a whole pending row: absent in production. */
+const knowRows: KnowRow[] = [
+  { term: "Ages", detail: "16 and up. Sessions are shared, so no one under 16 can join one." },
+  { term: "Bring", detail: "A swimsuit and walking shoes. Robes, towels and a changing area are here." },
   {
-    icon: Flame,
-    title: "Wood-Burning Sauna",
-    desc: "Cedar dry sauna heated by a wood stove, nestled in the trees",
+    term: "Session",
+    detail: `Shared, up to six guests, and it ends at ${BOOKING_PRODUCTS["nordic-spa"].durationMin} minutes.`,
   },
   {
-    icon: Droplets,
-    title: "Wet Sauna",
-    desc: "Soothing steam sauna to open and relax",
+    term: "Arrival",
+    detail:
+      "Park on the right in the gravel past the gate. More than 15 minutes late, and your session may be shortened or cancelled at your expense.",
   },
-  {
-    icon: TreePine,
-    title: "Cold Plunge",
-    desc: "Invigorating cold water immersion surrounded by forest",
-  },
-  {
-    icon: Users,
-    title: "Never Crowded",
-    desc: "Limited to just 6 guests — unlike packed Portland spas",
-  },
-  {
-    icon: Clock,
-    title: "90 Full Minutes",
-    desc: "Cycle between heat and cold at your own pace",
-  },
-  {
-    icon: Check,
-    title: "Robes & Towels",
-    desc: "Provided for every guest — just bring a swimsuit",
-  },
+  ...(isProduction
+    ? []
+    : [
+        {
+          term: "Check-in",
+          detail: <PendingSlot inline note="PENDING CONNOR: where spa guests check in; the whole row hides until answered" />,
+        },
+      ]),
+  { term: "Access", detail: "Not ADA accessible. The spa is reached over uneven ground and steps." },
+  { term: "Timing", detail: "Book at least a day ahead." },
 ];
 
 export default function NordicSpaPage() {
-  const heroBookingHref = bookingUrl(BOOKING_LINKS.nordicSpa, "nordic-spa-hero");
-  const pricingBookingHref = bookingUrl(
-    BOOKING_LINKS.nordicSpa,
-    "nordic-spa-pricing",
-  );
-  const closingBookingHref = bookingUrl(
-    BOOKING_LINKS.nordicSpa,
-    "nordic-spa-closing",
-  );
-  const stickyBookingHref = bookingUrl(
-    BOOKING_LINKS.nordicSpa,
-    "nordic-spa-sticky-mobile",
-  );
+  const native = nativeCalendarEnabled();
+  const policy = cancellationAnswer(nordicSpaFAQ);
 
   return (
     <>
-      <NordicSpaSchema />
       <StructuredData pathname="/nordic-spa" />
+      <JsonLd data={faqPageJsonLd(nordicSpaFAQ)} />
 
-      {/* ─── FIRST SCREEN (Field Guide) ─── */}
-      <SpaHero bookingHref={heroBookingHref} />
+      {/* S1 First screen: the spot picker is the CTA */}
+      <SpaHero />
 
-      {/* ─── EVERYTHING FOR A PERFECT SESSION ─── */}
-      <section id="details" className="bg-cream py-14 sm:py-20 lg:py-28">
-        <Container className="max-w-7xl">
-          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.55fr_1fr] lg:gap-14">
-            {/* Left: heading + features */}
-            <div>
-              <div className="text-center">
-                <h2 className="text-3xl font-light tracking-tight sm:text-4xl lg:text-[2.5rem]">
-                  Everything for a Perfect Session
-                </h2>
-                <div
-                  aria-hidden
-                  className="mx-auto mt-4 flex max-w-[110px] items-center gap-3"
-                >
-                  <span className="h-px flex-1 bg-forest/30" />
-                  <Leaf
-                    className="h-3.5 w-3.5 -rotate-12 text-forest/55"
-                    strokeWidth={1.5}
-                  />
-                  <span className="h-px flex-1 bg-forest/30" />
-                </div>
-              </div>
-
-              <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-9 sm:grid-cols-3 lg:grid-cols-6 lg:gap-x-4">
-                {sessionFeatures.map((item) => (
-                  <div key={item.title} className="text-center">
-                    <item.icon
-                      className="mx-auto h-7 w-7 text-forest"
-                      strokeWidth={1.5}
-                    />
-                    <h3 className="mt-3 text-[0.6875rem] font-medium uppercase tracking-[0.12em] leading-tight text-charcoal font-sans">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 text-xs text-muted leading-snug font-sans">
-                      {item.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right: two photo cards */}
-            <div className="grid grid-cols-2 gap-3 lg:gap-4">
-              <div className="relative aspect-[3/4] overflow-hidden rounded-2xl shadow-sm">
-                <Image
-                  src="/images/spa/spa-3.jpg"
-                  alt="Guest soaking in the cedar cold plunge surrounded by old-growth forest"
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 22vw"
-                  className="object-cover"
-                />
-              </div>
-              <div className="relative aspect-[3/4] overflow-hidden rounded-2xl shadow-sm">
-                <Image
-                  src="/images/spa/spa-2.jpg"
-                  alt="Cedar spa deck at dusk with string lights and the cold plunge tub"
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 22vw"
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* ─── DEMAND / SCARCITY NUDGE ─── */}
-      {/*
-        Replaced the unsourced "80% of our spa guests come back" on 2026-09-17.
-        That claim had no basis anywhere in the repo and the booking data
-        contradicted it: across 774 non-cancelled spa appointments in the live
-        Acuity account, 381 distinct bookers produced 5 who booked a second
-        date — 1.3%, not 80%. (Shared 6-guest sessions mean only the booking
-        party's contact is captured, so guest-level repeat is undercounted —
-        but not by a factor of sixty.)
-
-        Every number below is from the live Acuity account, appointment type
-        85942611, pulled 2026-09-17, trailing 12 months of COMPLETED sessions:
-          • 710 completed (these count GUEST visits, not sessions; shown as
-            "more than 700 guest visits")
-          • Sat 172 + Sun 168 = 340 of 710 → weekends are 48% of visits
-            while being 29% of days, i.e. they genuinely go first
-          • median booking lead time 14 days
-        Six spots per session is the fixed capacity stated site-wide.
-
-        ⛔ These are real but they are a SNAPSHOT. Re-pull before restating
-        them, and do not round them upward. The whole point of this block is
-        that it replaced a number nobody could stand behind.
-      */}
-      <div className="border-y border-cream-dark/30 bg-warm-white py-5 text-center">
-        <Container>
-          <p className="text-sm text-muted font-sans leading-relaxed">
-            <span className="font-normal text-forest">
-              More than 700 guest visits in the past year, six guests at a time.
-            </span>{" "}
-            Nearly half of them were weekends, and Saturdays go first &mdash;
-            the farm&apos;s wedding calendar takes most of them. The typical
-            guest books about two weeks ahead.
-          </p>
-        </Container>
-      </div>
-
-      {/* ─── SOCIAL PROOF ─── */}
-      <GoogleReviewsSection
-        topic="spa"
-        max={6}
-        eyebrow="What spa guests are saying"
-        background="cream"
-      />
-
-      {/* ─── GALLERY ─── */}
-      <section className="bg-background py-14 sm:py-20 lg:py-28">
-        <Container>
-          <SectionHeading
-            title="The Spa"
-            subtitle="A peaceful retreat surrounded by quiet beauty."
+      <div className="surface-paper bg-paper font-sans text-ink">
+        {/* S2 One spa quote */}
+        <FieldSection rule="double" pad="none" innerClassName="py-10 lg:py-20" aria-label="What spa guests say">
+          <FieldReview
+            spec={SPA_BEST_HOUR_QUOTE}
+            role="Nordic spa"
+            size="lg"
+            className="max-w-[900px]"
+            quoteClassName="text-[26px] leading-[1.22] lg:text-[40px]"
+            metaClassName="mt-3 lg:text-[11px]"
           />
-          <ImageCarousel images={galleryImages} aspectRatio="video" />
-        </Container>
-      </section>
+        </FieldSection>
 
-      {/* ─── SPA VIDEO ─── */}
-      <TourVideo
-        videoSrc="/videos/spa-meta-ad.mp4"
-        posterSrc="/videos/spa-meta-ad-poster.jpg"
-        posterAlt="The Nordic spa deck and cedar sauna nestled in the forest"
-        eyebrow="A few quiet minutes"
-        heading="What 90 minutes in the forest feels like"
-        body="A short clip from the spa — wood smoke from the sauna, the cold plunge through the trees, then quiet on the cedar deck."
-        bookingHref={bookingUrl(BOOKING_LINKS.nordicSpa, "nordic-spa-video")}
-        bookingLabel="Book Your Session"
-        background="warm-white"
-      />
-
-      {/* ─── PRICING + BOOKING ─── */}
-      <section className="bg-cream py-14 sm:py-20 lg:py-28">
-        <Container className="max-w-3xl">
-          <SectionHeading
-            eyebrow="Book Your Session"
-            title="Session Details & Pricing"
-          />
-
-          <div className="rounded-xl bg-white p-8 shadow-sm">
-            <div className="mb-5 flex justify-center">
-              <ReviewBadge variant="pill" />
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-cream-light pb-4">
-                <span className="text-base font-normal text-charcoal font-sans">
-                  Nordic Spa Session
-                </span>
-                <span className="text-lg font-normal text-forest font-sans">
-                  $75 per person
-                </span>
-              </div>
-              <ul className="space-y-2.5 text-sm text-muted font-sans">
-                <li className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-forest" />
-                  90-minute session
-                </li>
-                <li className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-forest" />
-                  Up to 6 guests per session
-                </li>
-                <li className="flex items-center gap-2">
-                  <Droplets className="h-4 w-4 text-forest" />
-                  Dry sauna, wet sauna &amp; cold plunge
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-forest" />
-                  Robes &amp; towels provided
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-forest" />
-                  Open year-round, rain or shine
-                </li>
-              </ul>
-            </div>
-
-            <div className="mt-6 flex justify-center">
-              <Suspense fallback={null}>
-                <NextAvailability product="spa" />
-              </Suspense>
-            </div>
-
-            <div className="mt-6">
-              <NativeBookingSection product="nordic-spa" />
-              {!nativeCalendarEnabled() && (
-                <KnowBeforeYouBook product="spa" className="mb-5" />
-              )}
-              {!nativeCalendarEnabled() && (
-                <BookingButton
-                  href={pricingBookingHref}
-                  label="Book Your Session"
-                  size="lg"
-                  className="w-full"
-                  title="Book your Nordic Spa session"
-                />
-              )}
-              <p className="mt-3 text-center text-xs text-muted font-sans">
-                Spa days vary week to week &mdash; see the calendar for open times
-              </p>
-              {!nativeCalendarEnabled() && (
-                <BookingPolicyNote className="mt-1.5" />
-              )}
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* ─── WORTH THE DRIVE ─── */}
-      <section className="bg-warm-white py-14 sm:py-20 lg:py-28">
-        <Container className="max-w-4xl">
-          <SectionHeading
-            eyebrow="Worth the Drive"
-            title="About an Hour from Portland"
-            subtitle="A scenic drive east on US-26 through the Sandy River valley to old-growth forest at the base of Mt. Hood."
-          />
-
-          <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[
-              { from: "Portland", time: "about 1 hour" },
-              { from: "Gresham", time: "about 40 min" },
-              { from: "Sandy", time: "about 20 min" },
-              { from: "Beaverton / Hillsboro", time: "about 1.5 hours" },
-            ].map((d) => (
-              <div
-                key={d.from}
-                className="rounded-lg bg-cream p-4 text-center"
-              >
-                <span className="block text-lg font-normal text-forest">
-                  {d.time}
-                </span>
-                <span className="mt-1 block text-xs text-muted font-sans">
-                  from {d.from}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <p className="mx-auto max-w-xl text-center text-sm text-muted leading-relaxed font-sans">
-            Our Nordic spa near Portland is one of Oregon&apos;s most intimate
-            outdoor sauna experiences — limited to just 6 guests per session,
-            surrounded by old-growth forest instead of city walls.
-          </p>
-
-          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted font-sans">
-            <MapPin className="h-4 w-4 shrink-0 text-forest" />
-            <span>
-              {CONTACT.address}, {CONTACT.city}, {CONTACT.state} {CONTACT.zip}
-            </span>
-          </div>
-          <p className="mt-1 text-center text-xs text-muted font-sans">
-            Free on-site parking · Directions in your booking confirmation
-          </p>
-        </Container>
-      </section>
-
-      {/* ─── FAQ ─── */}
-      <section className="bg-background py-14 sm:py-20 lg:py-28">
-        <Container className="max-w-3xl">
-          <SectionHeading
-            title="Frequently Asked Questions"
-            subtitle="Everything you need to know before your visit."
-          />
-          <FAQAccordion items={nordicSpaFAQ} />
-        </Container>
-      </section>
-
-      {/* ─── NOT-READY CAPTURE (catches the long-research-cycle visitor) ─── */}
-      <InlineEmailCapture
-        source="spa-page"
-        eyebrow="Not ready to book?"
-        heading="Get first dibs on weekend openings"
-        body="Six spots per session, and our open days shift with the farm's wedding and event calendar — Saturdays especially. Leave your email and we'll let you know the moment new sessions open up."
-        buttonLabel="Notify Me"
-        background="sage"
-      />
-
-      {/* ─── CLOSING: TAGLINE + TESTIMONIAL + CTA + SCARCITY ─── */}
-      <section className="relative overflow-hidden bg-forest text-white">
-        <div className="absolute inset-0 opacity-15">
-          <Image
-            src="/images/spa/spa-2.jpg"
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-        </div>
-        <div className="absolute inset-0 bg-forest/85" />
-
-        <Container className="relative z-10 py-16 lg:py-20">
-          <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[1fr_1.4fr_1fr] md:gap-12">
-            <div className="text-center md:text-left">
-              <span
-                aria-hidden
-                className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-full border border-cream/35"
-              >
-                <Leaf
-                  className="h-5 w-5 text-cream"
-                  strokeWidth={1.5}
-                />
-              </span>
-              <p className="text-xl font-normal leading-snug font-display sm:text-2xl">
-                More than a spa—it&rsquo;s a return to nature.
-              </p>
-              <p className="mt-3 text-sm text-white/70 font-sans leading-relaxed">
-                Leave feeling refreshed, reconnected, and renewed.
-              </p>
-            </div>
-
-            {spaQuote && (
-              <div className="text-center">
-                <p className="text-lg italic leading-relaxed font-display sm:text-xl">
-                  &ldquo;{spaQuote}&rdquo;
-                </p>
-                <p className="mt-4 text-xs font-normal uppercase tracking-[0.18em] text-white/60 font-sans">
-                  {spaAuthor}, Google review
-                </p>
-              </div>
-            )}
-
-            <div className="flex flex-col items-center gap-3 md:items-end">
-              <BookingButton
-                href={closingBookingHref}
-                label="Book Your Session"
-                size="lg"
-                className="bg-cream text-charcoal hover:bg-white"
-                title="Book your Nordic Spa session"
-              />
-              <p className="text-center text-xs text-white/65 font-sans md:text-right">
-                Weekend sessions go first. The typical guest books about two weeks ahead.
-              </p>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* ─── FARM TOUR UPSELL ─── */}
-      <section className="bg-cream py-14 sm:py-20 lg:py-28">
-        <Container className="max-w-3xl text-center">
-          <div className="mb-5 flex justify-center">
-            <Image
-              src="/images/illustrations/highland-cow-mirrored.png"
-              alt=""
-              width={200}
-              height={160}
-              className="h-24 w-auto opacity-60"
-              aria-hidden="true"
+        {/* S3 The ritual (a sequence in time) */}
+        <FieldSection id="ritual" aria-label="The ritual" innerClassName="lg:grid lg:grid-cols-12 lg:gap-x-16">
+          <div className="lg:col-span-6">
+            <FieldSectionHeader
+              eyebrow="The ritual, at your own pace"
+              title="Ninety minutes, hot and cold, in the forest"
+              titleClassName="lg:text-[60px]"
+            />
+            <FieldSequence
+              className="mt-7"
+              items={[
+                { id: "heat", title: "Heat", body: "The dry cedar sauna, heated by a wood-burning stove." },
+                { id: "steam", title: "Steam", body: "The wet sauna, for a softer heat." },
+                { id: "cold", title: "Cold", body: "The cold plunge, outside on the cedar deck." },
+                {
+                  id: "rest",
+                  title: "Rest",
+                  body: "Robe on, out on the deck or in the lounge. Then round again until the ninety minutes are up.",
+                },
+              ]}
             />
           </div>
-          <h2 className="text-2xl font-normal sm:text-3xl">
-            Make It a Full Day
-          </h2>
-          <p className="mx-auto mt-3 max-w-lg text-base text-muted font-sans font-light leading-relaxed">
-            Meet the Scottish Highland Cows, then unwind at the spa. Pair it
-            with a farm tour for a half-day at the farm.
-          </p>
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Button href="/farm-tours">Book a Farm Tour</Button>
-            <Button
-              href={giftCertificatesHref()}
-              variant="outline"
-              external={!nativeCalendarEnabled()}
+          <div className="mt-9 lg:col-span-6 lg:mt-0">
+            <FieldReview
+              spec={SPA_CLEAN_QUOTE}
+              role="Nordic spa"
+              size="sm"
+              rule
+              quoteClassName="text-[20px] lg:text-[24px]"
+            />
+            <Plate
+              className="mt-6"
+              frameClassName="h-[240px] lg:h-[520px]"
+              caption="Robes on, out on the deck."
             >
-              Gift Certificates
-            </Button>
+              <Image
+                src="/images/spa/spa-3.jpg"
+                alt="Three guests in white robes leaning on the deck rail among ferns"
+                fill
+                sizes="(min-width: 1440px) 600px, (min-width: 1024px) 45vw, calc(100vw - 54px)"
+                className="object-cover object-[45%_40%]"
+              />
+            </Plate>
           </div>
-        </Container>
-      </section>
+        </FieldSection>
 
-      {/* Sticky mobile CTA */}
-      {nativeCalendarEnabled() ? (
-        <NativeStickyCTA />
-      ) : (
-        <BookingStickyCTA
-          label="See open sessions · $75"
-          href={stickyBookingHref}
-          title="Book your Nordic Spa session"
-        />
-      )}
+        {/* S4 One spot, or all six */}
+        <FieldSection
+          id="six"
+          aria-label="One spot, or all six"
+          innerClassName="lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16"
+        >
+          <Plate
+            className="lg:col-span-5"
+            frameClassName="h-[280px] lg:h-[620px]"
+            caption="A shared session on the cedar benches."
+          >
+            <Image
+              src="/images/spa/spa-8.jpg"
+              alt="Guests in swimsuits talking on the cedar sauna benches"
+              fill
+              sizes="(min-width: 1440px) 520px, (min-width: 1024px) 40vw, calc(100vw - 54px)"
+              className="object-cover object-[50%_45%]"
+            />
+          </Plate>
+          <div className="mt-8 lg:col-span-7 lg:mt-0">
+            <FieldSectionHeader
+              eyebrow="How a session works"
+              title="One spot, or all six"
+              intro={`Each session has six spots. Book one or a few, and you may share the sauna with another small party. Bring five friends and book all six: the session is yours alone, $${SPA_PRIVATE_PRICE} for the six of you.`}
+              introClassName="lg:mt-3"
+            />
+            <p className="m-0 mt-3 font-sans text-[14px] leading-[1.55] text-ink-note lg:text-[15px]">
+              Sessions start at {SPA_SESSION_TIMES}. Open days change week to week, so check the calendar.
+            </p>
+            <div className="mt-7 grid grid-cols-[64px_1fr] items-center gap-4 border-t border-rule pt-6 lg:grid-cols-[96px_1fr]">
+              <FieldDrawing name="vine-maple-leaf" className="h-16 w-16 lg:h-24 lg:w-24" sizes="96px" />
+              <p className="m-0 font-display text-[21px] italic leading-[1.3] text-ink lg:text-[26px]">
+                October to March is sauna season. Rain changes nothing here: sessions run as booked, all year.
+              </p>
+            </div>
+          </div>
+        </FieldSection>
 
-      {/* Modal mount — listens for openBookingModal() calls from every CTA */}
+        {/* S5 Book (#availability is the masthead action's target) */}
+        <FieldSection
+          id="availability"
+          rule="double"
+          tone="light"
+          eyebrow="Book your session"
+          title="Pick your spots, then a time"
+          intro={`$${SPA_PRICE_PER_PERSON} per person · ${BOOKING_PRODUCTS["nordic-spa"].durationMin} minutes · Up to ${SPA_MAX_PARTY} guests · Ages 16+`}
+          introClassName="max-w-none text-[12px] uppercase tracking-[0.1em] text-ink lg:text-[13px]"
+        >
+          <div className="lg:grid lg:grid-cols-12 lg:gap-x-16">
+            <div className="mt-7 lg:col-span-6 lg:col-start-7 lg:row-start-1 lg:mt-12">
+              {native ? (
+                <NativeBookingSection product="nordic-spa" />
+              ) : (
+                <>
+                  <SpaPicker
+                    where="pricing"
+                    prefix="nordic-spa"
+                    label="How many are coming? Pick to see sessions"
+                    labelId="book-size-label"
+                  />
+                  <p className="m-0 mt-3 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
+                    <Suspense fallback={null}>
+                      <NextAvailability product="spa" variant="text" label="Next open:" />
+                    </Suspense>
+                    {SPA_WEEKEND && ` ${SPA_WEEKEND}`} Booking all six? Choose 6 spots on the calendar.
+                  </p>
+                  <FieldReviewTier tier="nearCta" className="mt-2" />
+                  <BookingPolicyNote
+                    text={policy}
+                    className="mt-5 border-t border-rule pt-4 text-[12px] text-ink-body lg:text-[13px]"
+                  />
+                  <PendingSlot className="mt-4" note="DECIDE D4: visit packs line (3 for $199, 5 for $299, 10 for $549, six months). Show only after Hayden decides and the Acuity pack copy says 90 minutes">
+                    <p className="m-0 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
+                      Coming back this winter? Visit packs: 3 for $199, 5 for $299, 10 for $549, each good for six
+                      months.{" "}
+                      <BookingTextLink
+                        href={bookingUrl(BOOKING_LINKS.giftCertificates, "nordic-spa-packs")}
+                        label="See visit packs"
+                        title="Spa visit packs"
+                        className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap font-medium text-pine underline underline-offset-4"
+                      />
+                    </p>
+                  </PendingSlot>
+                </>
+              )}
+            </div>
+            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:mt-12">
+              <KnowBeforeYouBook framed={false} rows={knowRows} />
+            </div>
+          </div>
+        </FieldSection>
+
+        <HighlandDayBlock utmPrefix="nordic-spa-day" />
+
+        <VisitFaq items={nordicSpaFAQ} />
+      </div>
+
+      <FieldStickyBar
+        primary={
+          native
+            ? { label: "See open sessions", sublabel: `$${SPA_PRICE_PER_PERSON} per person`, href: "#book" }
+            : {
+                label: "See open sessions",
+                sublabel: `$${SPA_PRICE_PER_PERSON} per person`,
+                booking: { title: "Book your Nordic Spa session" },
+                href: bookingUrl(BOOKING_LINKS.nordicSpa, "nordic-spa-sticky-mobile"),
+              }
+        }
+        hideWhenVisible="#availability"
+      />
+
+      {/* Modal mount: listens for openBookingModal() calls from every CTA */}
       <BookingModalRoot />
-
-      {/* Bottom padding for sticky CTA on mobile */}
-      <div className="h-20 lg:hidden" />
     </>
   );
 }

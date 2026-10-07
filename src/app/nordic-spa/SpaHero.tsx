@@ -1,18 +1,18 @@
 import { Suspense } from "react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { FieldArrow, FieldRows, Plate, fieldCtaClass } from "@/components/ui/FieldGuide";
-import { BookingButton } from "@/components/shared/BookingButton";
+import { Plate } from "@/components/ui/FieldGuide";
+import { FieldReviewTier } from "@/components/field/Reviews";
 import { NextAvailability } from "@/components/shared/NextAvailability";
-import { SPA_CIRCUIT } from "@/data/nordic-spa";
+import { SpaPicker } from "@/components/shared/VisitPickers";
+import { nativeCalendarEnabled } from "@/lib/booking/flag";
 
 /**
- * /nordic-spa first screen (B-spa board, approved 2026-10-06): plate, the
- * Heat / Steam / Cold / Rest circuit, price line, "See open sessions"
- * through the existing BookingButton (same tracking and modal), and the
- * live next-open date. Desktop follows the Field Guide 7/5 grid.
+ * /nordic-spa first screen (round 3 board): ad-hook H1, the hero-tier proof
+ * line, and the spot picker as the CTA. Every row opens the spa calendar
+ * (Acuity type 85942611) through BookingTextLink, with its own utm_content
+ * and a party size on booking_start. Desktop follows the Field Guide 7/5 grid.
  */
-export function SpaHero({ bookingHref }: { bookingHref: string }) {
+export function SpaHero() {
   return (
     <section
       aria-labelledby="spa-hero-title"
@@ -21,8 +21,8 @@ export function SpaHero({ bookingHref }: { bookingHref: string }) {
       <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-[18px] lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(5,auto)_1fr] lg:gap-x-16 lg:px-10 lg:pb-10 lg:pt-11 xl:px-10 min-[90rem]:px-16">
         <Plate
           className="lg:col-start-2 lg:row-start-1 lg:row-end-8"
-          frameClassName="h-[200px] lg:h-auto lg:min-h-0 lg:flex-1"
-          captionClassName="mt-px lg:mt-0.5"
+          frameClassName="h-[190px] max-[359px]:h-[120px] lg:h-auto lg:min-h-0 lg:flex-1"
+          captionClassName="mt-px max-[359px]:hidden lg:mt-0.5"
           caption="The cold plunge, out on the deck."
         >
           <Image
@@ -38,42 +38,33 @@ export function SpaHero({ bookingHref }: { bookingHref: string }) {
 
         <h1
           id="spa-hero-title"
-          className="field-heading mt-3.5 text-[34px] leading-[1.02] text-ink lg:col-start-1 lg:row-start-2 lg:mt-0 lg:text-[48px] xl:text-[56px] min-[90rem]:text-[60px]"
+          className="field-heading mt-3.5 text-[34px] leading-[1.02] text-ink max-[359px]:text-[29px] lg:col-start-1 lg:row-start-2 lg:mt-0 lg:text-[48px] xl:text-[56px] min-[90rem]:text-[60px]"
         >
-          Ninety minutes, hot and cold, in the forest
+          Six people. Ninety minutes. Rain or shine.
         </h1>
 
-        <FieldRows
-          rows={SPA_CIRCUIT}
-          termClassName="w-[58px] text-[21px] lg:w-[96px] lg:text-[24px]"
-          rowClassName="min-h-10 gap-2.5"
-          className="mt-3.5 lg:col-start-1 lg:row-start-3 lg:mt-7 lg:max-w-[600px]"
-        />
-
-        <p className="m-0 mt-3.5 font-sans text-[12px] uppercase tracking-[0.08em] text-ink lg:col-start-1 lg:row-start-4 lg:mt-6 lg:text-[13px]">
-          $75 each &middot; Up to 6 guests &middot; Ages 16+
+        <p className="m-0 mt-2.5 font-sans text-[14px] leading-[1.5] text-ink-body lg:col-start-1 lg:row-start-3 lg:mt-5 lg:max-w-[600px] lg:text-[17px] lg:leading-[1.6]">
+          A wood-burning cedar sauna, a wet sauna and a cold plunge in the forest. $75 per person, ages 16 and up.
+          Robes and towels are on us.
         </p>
 
-        <div data-hero-cta className="mt-3 flex lg:col-start-1 lg:row-start-5 lg:mt-6">
-          <BookingButton
-            href={bookingHref}
-            label="See open sessions"
-            title="Book your Nordic Spa session"
-            className={cn(
-              fieldCtaClass,
-              "w-full rounded-none py-0 normal-case shadow-none hover:shadow-none lg:w-auto",
-            )}
-          >
-            See open sessions
-            <FieldArrow />
-          </BookingButton>
+        <FieldReviewTier tier="hero" className="mt-2.5 lg:col-start-1 lg:row-start-4 lg:mt-5" />
+
+        <div data-hero-cta className="mt-3.5 lg:col-start-1 lg:row-start-5 lg:mt-7 lg:max-w-[600px]">
+          <SpaPicker
+            where="hero"
+            prefix="nordic-spa"
+            label="How many are coming? Pick to see sessions"
+            labelId="spa-size-label"
+            native={nativeCalendarEnabled()}
+          />
         </div>
 
-        <p className="m-0 mt-2 text-center font-sans text-[12px] text-ink-note lg:col-start-1 lg:row-start-6 lg:mt-3 lg:text-left lg:text-[14px]">
+        <p className="m-0 mt-2.5 font-sans text-[12px] leading-[1.5] text-ink-note lg:col-start-1 lg:row-start-6 lg:mt-4 lg:text-[14px]">
           <Suspense fallback={null}>
             <NextAvailability product="spa" variant="text" label="Next open:" />
           </Suspense>{" "}
-          Bring a swimsuit.
+          You pick the number of spots on the calendar. Bring a swimsuit.
         </p>
       </div>
     </section>

@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
 import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
+import { bookingTrackingFromUrl } from "@/lib/booking/tracking";
 
 const OPEN_EVENT = "hf:open-booking";
 
@@ -50,14 +51,21 @@ function prepareBookingUrl(href: string): string {
   return appendAttributionToUrl(href, getClientAttribution());
 }
 
-function trackBookingStart(href: string, title?: string) {
+/**
+ * `href` is the link as written; `src` the same URL with the visitor's stored
+ * attribution applied (which overwrites utm_content). The party-size and
+ * gift fields come from the written link.
+ */
+function trackBookingStart(href: string, title: string | undefined, written: string) {
   if (typeof window === "undefined") return;
 
   const bookingType = bookingTypeFromUrl(href);
+  const extras = bookingTrackingFromUrl(written);
   const payload = {
     booking_type: bookingType,
     booking_url: href,
     booking_title: title,
+    ...extras,
   };
 
   window.dataLayer = window.dataLayer || [];
@@ -69,6 +77,7 @@ function trackBookingStart(href: string, title?: string) {
   window.fbq?.("track", "InitiateCheckout", {
     content_category: bookingType,
     content_name: title ?? bookingType,
+    ...(extras.value !== undefined ? { value: extras.value, currency: extras.currency } : {}),
   });
 }
 
@@ -94,7 +103,7 @@ export function BookingButton({
 }: BookingButtonProps) {
   const handleClick = () => {
     const src = prepareBookingUrl(href);
-    trackBookingStart(src, title ?? label);
+    trackBookingStart(src, title ?? label, href);
     openBookingModal({ src, title });
   };
 
@@ -127,7 +136,7 @@ export function BookingTextLink({ href, label, title, className, children }: Boo
       className={className}
       onClick={() => {
         const src = prepareBookingUrl(href);
-        trackBookingStart(src, title ?? label);
+        trackBookingStart(src, title ?? label, href);
         openBookingModal({ src, title });
       }}
     >
@@ -145,7 +154,7 @@ interface BookingStickyCTAProps {
 export function BookingStickyCTA({ href, label, title }: BookingStickyCTAProps) {
   const handleClick = () => {
     const src = prepareBookingUrl(href);
-    trackBookingStart(src, title ?? label);
+    trackBookingStart(src, title ?? label, href);
     openBookingModal({ src, title });
   };
 

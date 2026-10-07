@@ -1,53 +1,49 @@
 import type { FAQItem } from "@/lib/types";
+import { CONTACT } from "@/lib/constants";
 
-/** The four-row circuit in the /nordic-spa first screen (B-spa board). */
-export const SPA_CIRCUIT = [
-  { term: "Heat", detail: "The wood-burning cedar sauna" },
-  { term: "Steam", detail: "The wet sauna" },
-  { term: "Cold", detail: "The plunge on the deck" },
-  { term: "Rest", detail: "Robes and towels are on us" },
+/** Spa price per person (Acuity type 85942611 and BOOKING_PRODUCTS["nordic-spa"]). */
+export const SPA_PRICE_PER_PERSON = 75;
+export const SPA_MAX_PARTY = 6;
+/** All six spots: a private session (ops fact 10; 6 x $75, no discount). */
+export const SPA_PRIVATE_PRICE = SPA_PRICE_PER_PERSON * SPA_MAX_PARTY;
+
+/**
+ * "Weekend sessions go first." 12-month Acuity check, type 85942611,
+ * appointments 2025-10-06 to 2026-10-05: 729 guest bookings, weekend share 48%,
+ * weekend slots that filled did so a median 20 d ahead vs 3.1 d Mon-Thu
+ * (DATA-BRIEF 3b). Refresh monthly, or set to null to drop the line.
+ */
+export const SPA_WEEKEND: string | null = "Weekend sessions go first.";
+
+/** Session start times (ops fact 18). */
+export const SPA_SESSION_TIMES = "9, 11, 1, 3 and 5";
+
+/** The spot picker shared by the /nordic-spa and /sauna-near-portland booking blocks and hero. */
+export const SPA_SPOT_ROWS = [
+  { key: "1", label: "1 person", price: `$${SPA_PRICE_PER_PERSON}` },
+  { key: "2", label: "2 people", price: `$${SPA_PRICE_PER_PERSON * 2}` },
+  { key: "3to5", label: "3 to 5 people", price: `$${SPA_PRICE_PER_PERSON} per person` },
+  { key: "6", label: "All six spots", price: `$${SPA_PRIVATE_PRICE}`, tag: "A private session", tagExtra: "girls\u2019 day" },
 ] as const;
 
+/**
+ * Round 3 board: four entries, none repeating a row on the page. The
+ * cancellation answer is one of the six identical copies; keep its exact
+ * sentence. (Year-round, ages, bring, access and "with a farm tour" now live
+ * in the ritual, "Know before you book" and the Highland Day block.)
+ */
 export const nordicSpaFAQ: FAQItem[] = [
   {
-    question: "What is the Nordic Spa experience?",
-    answer:
-      "Our Nordic spa features a wood burning cedar dry sauna, wet sauna, and cold plunge set in the forest among towering evergreens. Enjoy a 90-minute session surrounded by nature.",
+    question: "Staying the night, and your date isn\u2019t open yet?",
+    answer: `Overnight guests can book further ahead by phone: call ${CONTACT.phone} and we\u2019ll book it for you.`,
   },
   {
-    question: "How many guests per session?",
-    answer:
-      "Our Nordic Spa is a public, shared experience that holds up to 6 guests per 90-minute session. One party or several smaller parties may book the available slots, so you may share your session with other guests.",
+    question: "Can I give a spa session as a gift?",
+    answer: "Yes. Gift certificates for the Nordic spa are on our gift certificates page.",
   },
   {
-    question: "What should I bring?",
-    answer:
-      "Bring your bathing suit and comfortable walking shoes. We will provide you with a towel and robe for your spa session. Changing areas are available on-site.",
-  },
-  {
-    question: "Is there a minimum age?",
-    answer:
-      "Yes. Guests must be 16 or older. Because sessions are shared, no one under 16 can join a session.",
-  },
-  {
-    question: "What if it rains, or I'm running late?",
-    answer:
-      "Rain changes nothing: sessions run as booked, rain or shine. Sessions start on time and run a maximum of 90 minutes. If you're more than 15 minutes late, your session may be shortened or cancelled at your expense. Park on the right in the gravel after the gate.",
-  },
-  {
-    question: "Is the Nordic Spa wheelchair accessible?",
-    answer:
-      "Our Nordic Spa is not ADA accessible. It sits in a natural forest setting reached by uneven ground and steps, so it cannot accommodate wheelchairs or mobility devices. Please reach out before booking if you have any questions about access — we're always happy to help.",
-  },
-  {
-    question: "Can I book a spa session with a farm tour?",
-    answer:
-      "Yes. Book them as two appointments, at least 1 hour apart.",
-  },
-  {
-    question: "Is the spa available year-round?",
-    answer:
-      "Yes! Winter soaks under the evergreens up against our waterfall is especially magical.",
+    question: "I can't find my confirmation email.",
+    answer: `Call ${CONTACT.phone} rather than waiting for a resend.`,
   },
   {
     question: "What is the cancellation policy?",
