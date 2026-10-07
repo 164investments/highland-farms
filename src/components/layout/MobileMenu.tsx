@@ -122,7 +122,7 @@ function Chevron() {
   return <ChevronRight aria-hidden="true" size={18} strokeWidth={1.6} className="shrink-0 text-ink-meta" />;
 }
 
-/** A wedding step: icon, name, and "PDF" on the look book. */
+/** A wedding step: icon, name, and "Free PDF" on the look book (it downloads with no form). */
 function StepRow({ door, pathname, onClose }: { door: ChromeDoor; pathname: string; onClose: () => void }) {
   const current = door.current?.(pathname) ?? false;
   const Icon = STEP_ICONS[door.title];
@@ -145,7 +145,7 @@ function StepRow({ door, pathname, onClose }: { door: ChromeDoor; pathname: stri
       {current ? (
         <YouAreHere />
       ) : (
-        door === LOOKBOOK_DOOR && <span className="shrink-0 text-[11px] font-medium tracking-[0.08em] text-ink-meta">PDF</span>
+        door === LOOKBOOK_DOOR && <span className="shrink-0 text-[11px] font-medium tracking-[0.04em] text-ink-meta">Free PDF</span>
       )}
     </DoorLink>
   );
