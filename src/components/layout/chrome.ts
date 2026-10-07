@@ -215,8 +215,8 @@ const WEDDING_GUESTS = 125;
 export const WEDDING_MENU_NOTE = `Up to ${WEDDING_GUESTS} guests, plus the coos`;
 
 /**
- * The menu's wedding price line. Owner-approved by Hayden on 2026-10-07 ("If hormozi wants the
- * starting price then add one"), overriding Connor's no-price-anchor rule for the menu only.
+ * The menu's wedding price line, added at Hayden's request on 2026-10-07. Wedding prices may be
+ * shown anywhere since he removed the earlier no-price rule that day; each must match the workbook.
  * Source: the Confirmed Weddings workbook, 2027 tab: all 13 two-night weddings are $13,000 or
  * more. Twelve-hour weekday weddings start lower ($6,500), so the line names the two-night wedding.
  */

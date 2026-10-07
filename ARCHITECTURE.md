@@ -144,9 +144,9 @@ A tap on the page, a swipe left, Escape or the close button dismisses it; it
 stays mounted for the 300ms slide out, and motion is off under reduced motion.
 Top row: close, the name, tap to call. Weddings leads as a framed photo plate
 (a couple between two coos) captioned with the Google review count, then the
-coos line (`WEDDING_MENU_NOTE`), the two-night price (`WEDDING_PRICE_NOTE`,
-owner-approved by Hayden 2026-10-07 for the menu only, overriding the
-no-price-anchor rule) and the September 2026 sell-out (`WEDDING_DEMAND_NOTE`),
+coos line (`WEDDING_MENU_NOTE`), the two-night price (`WEDDING_PRICE_NOTE`;
+wedding prices are allowed since Hayden removed the no-price rule on
+2026-10-07, and each must match the workbook) and the September 2026 sell-out (`WEDDING_DEMAND_NOTE`),
 both sourced from the Confirmed Weddings workbook in `chrome.ts`, and three
 icon steps (see N real weddings, the free 20-page look book, the free call).
 `MenuFacts` (review count, confirmed-couple count) is resolved in the server
