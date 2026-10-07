@@ -29,13 +29,17 @@ src/
     layout/                shell: Header (+ Masthead, AnnouncementBar, MobileMenu),
                            Footer, EmailPopup, BookedIQWidget, GTM, StructuredData;
                            chrome.ts = page types, actions, bars, seasons, door rows
-    ui/                    primitives: Container, Button, SectionHeading, FadeIn,
-                           FieldGuide (paper system atoms; client-safe, no data)
+    ui/                    primitives: Container, Button, FieldGuide (paper
+                           system atoms and PendingSlot; client-safe, no data)
     field/                 Field Guide pieces that read data or open bookings:
                            Reviews (server only), Faq, PriceRows, StickyBar,
                            WeddingCallLink, ChatLauncher
-    forms/                 lead capture
-    shared/                cross-page blocks (reviews, email capture)
+    home/                  the homepage sections, its data and its quotes.ts
+    forms/                 lead capture (InquiryForm, ContactForm, fields)
+    shared/                booking buttons + Acuity modal, visit pickers,
+                           Highland Day block, Know before you book, visit FAQ
+    stay/                  stay pages: booking card, Hospitable widget, facts
+    booking/               native calendar UI (behind the flag)
     shop/                  commerce-only UI that lives outside /app/shop
   lib/
     shop/                  ALL farm-store domain logic (see below)
@@ -76,6 +80,19 @@ Accommodation and experience photos use the existing real farm assets.
 | A Field Guide (paper) first screen | `src/app/<route>/<Name>Hero.tsx` beside the page, built from `src/components/ui/FieldGuide.tsx`; its list copy in `src/data/` |
 | A section, list, quote, price row, FAQ or sticky bar | the shared primitives in `src/components/ui/FieldGuide.tsx` and `src/components/field/` (API: `finish/notes/PRIMITIVES.md`); never a page-local copy |
 | A masthead action, bar or menu/footer row for a page type | `src/components/layout/chrome.ts` |
+| A review quote on a page | a `QuoteSpec` (author + review date) in that page's own `quotes.ts`, kept pure (type-only imports). `scripts/review-quotes.test.mts` globs every `src/**/quotes.ts` and proves each quote verbatim from the snapshot |
+| A fact the farm has not confirmed yet | wrap the whole element (a row, a sentence, a block) in `PendingSlot` (`ui/FieldGuide.tsx`); it renders nothing in production. Never words inside a sentence: the page must read complete and true with every slot removed |
+| Customer-facing copy | no em dashes (titles use ` · `); the one public phone line is `CONTACT.phone` |
+
+**The tours and spa cancellation policy** is strict, and its exception sentence
+("The only exception is if we cancel for severe weather or for the safety of our
+animals or guests, in which case we will refund or rebook you.") must read the
+same everywhere: `src/data/farm-tours.ts`, `src/data/nordic-spa.ts`,
+`src/data/gift-certificates.ts`, `src/app/sauna-near-portland/page.tsx`,
+`src/app/terms/page.tsx`, `src/components/shared/KnowBeforeYouBook.tsx` and
+`public/llms.txt`. Point-of-sale lines render it through `cancellationAnswer()`.
+Stays have their own line ("Cancellation terms are provided at the time of
+booking."); the tours/spa policy never applies to lodging.
 
 ## The paper masthead and first screens
 
@@ -141,10 +158,16 @@ visit; never on a form or booking page. It promises no email; success hands
 over `/lookbook.pdf` and the call. Pushes `lookbook_email_submit` (plus the
 existing `email_subscribe`) and `lookbook_open`.
 
-**The bottom sticky bar** (`field/StickyShell.tsx`, used by `FieldStickyBar`
-and the older `StickyMobileCTA`) sets `<html data-sticky>` while mounted, which
-adds its height under `[data-site-footer]` so it never covers content, and
-`data-sticky-shown` while visible. **The chat launcher** (`field/ChatLauncher.tsx`,
+**The bottom sticky bar** (`field/StickyShell.tsx`, used by `FieldStickyBar`)
+is the page's one phone action. It appears once the first-screen CTA
+(`data-hero-cta`) scrolls away, or from load with `showOnLoad` on pages that
+have no first-screen button (the wedding portfolio and couple pages). It hides
+while its `hideWhenVisible` target or any `[data-sticky-stop]` element is on
+screen, and while a text field has focus. It sets `<html data-sticky>` while
+mounted, which adds its height under `[data-site-footer]` and to
+`scroll-padding-bottom` so it never covers content or focus, and
+`data-sticky-shown` while visible. The chat lift is measured from the bubble's
+resting position (`field/chatLift.ts`), so it never stacks. **The chat launcher** (`field/ChatLauncher.tsx`,
 mounted by `BookedIQWidget`) adopts one rule into the LeadConnector shadow root
 so the launcher follows `--hf-chat-lift` (above the bar) and
 `--hf-chat-visibility` (hidden under any `aria-modal` dialog, cart and
@@ -171,17 +194,18 @@ Google Business Profile v4 API
   └─ scripts/pull-gmb-reviews.mjs        (weekly, via GitHub Actions)
        └─ src/data/google-reviews.json   (committed → Vercel auto-deploys)
             └─ src/lib/reviews.ts        (the only module that reads the JSON)
-                 ├─ ReviewBadge          hero / near-CTA / compact tiers
-                 ├─ GoogleReviewsSection  topic-filtered review cards
-                 ├─ TestimonialSection
+                 ├─ field/Reviews.tsx    FieldReviewTier (hero / near-CTA /
+                 │                       compact tiers), FieldReview and
+                 │                       FieldReviewList (quotes from each
+                 │                       page's quotes.ts via review-quotes.ts)
                  └─ StructuredData        aggregateRating JSON-LD
 ```
 
 ### The rules that keep this honest
 
 1. **`src/lib/reviews.ts` is the single source of truth.** Nothing else imports
-   `google-reviews.json`. `GoogleReviewsSection` re-exports its constants only
-   so older import sites keep working.
+   `google-reviews.json`. `field/Reviews.tsx` is server-only so the snapshot
+   never ships to the browser; client components receive resolved props.
 2. ⛔ **Never hardcode a review count or a rating.** They went stale for three
    months precisely because `188` and `"4.9"` were typed into three files.
    Import `REVIEW_COUNT` / `FIVE_STAR_COUNT` / `REVIEW_RATING` instead.
@@ -452,7 +476,9 @@ src/app/api/booking/
   availability/route.ts   GET — offered slots per product (or combo pairs)
   checkout/route.ts       POST — the one transactional booking endpoint
   gift/checkout/route.ts  POST — gift certificate purchase (charge, then issue)
-src/app/gift-certificates/page.tsx + GiftBody.tsx   gift certificate purchase page
+src/app/gift-certificates/page.tsx   flag off: StaticGifts.tsx (each gift links to
+                                     its Acuity catalog product); flag on:
+                                     GiftBody.tsx (native purchase)
 src/app/wedding-call/page.tsx   wedding-call scheduling page (mounts BookingFlow
                                  directly — no pricing card, the product is free)
 src/app/api/cron/booking-reminders/route.ts   expired-hold sweep + reminder sends
