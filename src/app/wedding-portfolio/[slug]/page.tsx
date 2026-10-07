@@ -69,11 +69,11 @@ export function generateMetadata({
     const description = buildDescription(couple);
     const confirmed = isConfirmed(couple);
     return {
-      title: confirmed ? `${couple.names} — Wedding Portfolio` : `${displayName(couple)} at Highland Farms`,
+      title: confirmed ? `${couple.names} · Wedding Portfolio` : `${displayName(couple)} at Highland Farms`,
       description,
       alternates: { canonical: `/wedding-portfolio/${slug}` },
       openGraph: {
-        title: confirmed ? `${couple.names} — Highland Farms Wedding` : `${displayName(couple)} at Highland Farms`,
+        title: confirmed ? `${couple.names} · Highland Farms Wedding` : `${displayName(couple)} at Highland Farms`,
         description,
         images: [
           {

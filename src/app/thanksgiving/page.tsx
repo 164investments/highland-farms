@@ -20,7 +20,7 @@ import { thanksgiving, thanksgivingInquiryHref } from "@/data/thanksgiving";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Thanksgiving Stay Package 2026 — Mt. Hood, Oregon",
+  title: "Thanksgiving Stay Package 2026 · Mt. Hood, Oregon",
   description: "Spend November 24–28 at Highland Farms. A four-night Thanksgiving stay with dinner, breakfast, Nordic spa, a farm tour and family photos. Packages for 8 or 20 guests.",
   alternates: { canonical: "/thanksgiving" },
   openGraph: {

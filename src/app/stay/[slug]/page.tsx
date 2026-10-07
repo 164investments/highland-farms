@@ -54,11 +54,11 @@ export function generateMetadata({
     if (!property) return { title: "Not Found" };
 
     return {
-      title: `${property.name} — Farm Stay`,
+      title: `${property.name} · Farm Stay`,
       description: property.description,
       alternates: { canonical: `/stay/${slug}` },
       openGraph: {
-        title: `${property.name} — Farm Stay at Highland Farms Oregon`,
+        title: `${property.name} · Farm Stay at Highland Farms Oregon`,
         description: property.description,
         images: [
           {

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     "Contact Highland Farms for weddings, farm tours, Nordic spa sessions, and farm stays in Brightwood, Oregon. Located about an hour from Portland at the base of Mt. Hood. Call (971) 236-2551.",
   alternates: { canonical: "/contact" },
   openGraph: {
-    title: "Contact Us — Highland Farms Oregon",
+    title: "Contact Us · Highland Farms Oregon",
     description:
       "Contact Highland Farms for weddings, farm tours, Nordic spa sessions, and farm stays in Brightwood, Oregon.",
     images: [
