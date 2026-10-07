@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Contact Highland Farms for weddings, farm tours, Nordic spa sessions, and farm stays in Brightwood, Oregon. Located about an hour from Portland at the base of Mt. Hood. Call (971) 236-2551.",
+    "Contact Highland Farms for weddings, farm tours, Nordic spa sessions, and farm stays in Brightwood, Oregon. About an hour from Portland. Call (971) 236-2551.",
   alternates: { canonical: "/contact" },
   openGraph: {
     title: "Contact Us · Highland Farms Oregon",
@@ -108,7 +108,7 @@ const steps = [
   },
   {
     title: "Meeting point.",
-    body: "For a tour, wait at the carved Highland cow out front. Your guide meets you there.",
+    body: "For a tour, wait at the cow statue out front. Your guide meets you there.",
   },
 ] as const;
 
@@ -124,7 +124,9 @@ export default function ContactPage() {
       <div className="surface-paper bg-paper pt-[var(--header-h)] font-sans text-ink">
         <section aria-labelledby="contact-title" className="px-5 pb-10 pt-4 lg:px-16 lg:pb-20 lg:pt-12">
           <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-16">
-            {/* First screen: promise, proof, a couple with a calf, one primary. */}
+            {/* First screen: promise, proof, a couple with a calf, one primary.
+                The photo is from a styled session (wedding-portfolio.ts: status "styled"):
+                its caption and alt name no couple and claim no real wedding (CONSISTENCY #3). */}
             <div className="lg:col-start-1 lg:row-start-1">
               <p className={cn(fieldEyebrowClass, "m-0 text-[17px] lg:text-[20px]")}>Contact Highland Farms</p>
               <h1
@@ -144,7 +146,7 @@ export default function ContactPage() {
                     <div className="relative h-full w-full overflow-hidden">
                       <Image
                         src="/images/weddings/hannah-max/02.jpg"
-                        alt="Hannah and Max embrace under tall mossy trees while a fluffy Highland calf stands at their feet"
+                        alt="Two people in wedding clothes embrace under tall mossy trees, a Highland calf at their feet"
                         fill
                         priority
                         sizes="(min-width: 1024px) 180px, 118px"
@@ -160,7 +162,7 @@ export default function ContactPage() {
                       Our events team checks your date.
                     </span>
                     <span className="mt-2 block font-display text-[14px] italic leading-snug text-ink-note lg:text-[16px]">
-                      Hannah and Max, with a calf at their feet.
+                      A couple and a calf among the mossy trees.
                     </span>
                   </figcaption>
                 </figure>
@@ -202,7 +204,8 @@ export default function ContactPage() {
               <div className="border border-frame bg-paper px-4 py-7 lg:p-10">
                 <ContactForm
                   heading="Check your date"
-                  subtitle="Tell us your month and guest count, and we'll write back with what's open. No commitment."
+                  headingLevel="h2"
+                  subtitle="Tell us your month and guest count, and we'll check the farm calendar for you. No commitment."
                   placement="contact"
                   softPathsForAll
                 />

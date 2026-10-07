@@ -5,7 +5,11 @@
  */
 import type { QuoteSpec } from "../../lib/review-quotes";
 
-/** No. 1, The coos: a parent of the bride on Connor and the herd. */
+/**
+ * No. 4, Connor: a parent of the bride on Connor and the herd. Placed beside
+ * Connor's own photo, never beside a named couple's (her family's wedding is
+ * not one the site names).
+ */
 export const WEDDINGS_COOS_QUOTE: QuoteSpec = {
   author: "Mellani Calvin",
   date: "2025-09-08",

@@ -38,11 +38,15 @@ export default function Home() {
       <StructuredData pathname="/" />
       {/* The first screen carries the review stars, so there is no separate review strip. */}
       <HomeHero />
-      <HomeReasons />
-      <HomeRealWeddings />
-      <InquirySection />
-      <HomeVisitIndex />
-      <HomeClosing />
+      {/* The rest of the page on the paper surface too (the hero carries its own), so focus rings are
+          pine (6.6:1) rather than the sage default (2.5:1), and the ground matches the board. */}
+      <div className="surface-paper bg-paper text-ink">
+        <HomeReasons />
+        <HomeRealWeddings />
+        <InquirySection />
+        <HomeVisitIndex />
+        <HomeClosing />
+      </div>
 
       {/* Phone sticky action: after the hero CTA scrolls away, hidden while the form is on screen.
           The bar reserves its own height; no page spacer. */}

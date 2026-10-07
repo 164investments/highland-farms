@@ -282,7 +282,7 @@ export default async function WeddingDetailPage({
               className="order-1 inline-flex min-h-11 items-center gap-2 self-start font-sans text-[14px] font-medium text-pine lg:col-span-12"
             >
               <FieldArrow size={16} className="rotate-180" />
-              All real weddings
+              {confirmed ? "All real weddings" : "The wedding portfolio"}
             </Link>
             <div className="order-2 mt-1 lg:col-span-7 lg:mt-6">
               <p className="font-display text-[17px] italic text-fern lg:text-[22px]">{eyebrow}</p>
@@ -324,6 +324,17 @@ export default async function WeddingDetailPage({
                     <p className="font-sans text-[13px] text-ink-note">Photographed by [name from Connor]</p>
                   </PendingSlot>
                 ))}
+              {/* First-screen proof: the photographer's own sentence, under her credit. It is the page's
+                  only quote while the bride's review waits on PF-01 (a quote appears once per page). */}
+              {isMaya && (
+                <FieldReview
+                  spec={COUPLE_KATE_QUOTE}
+                  fullName
+                  role="Wedding"
+                  className="mt-3 lg:mt-6 lg:max-w-[40rem]"
+                  quoteClassName="text-[19px] leading-[1.3] lg:text-[26px]"
+                />
+              )}
             </div>
             <div className="order-4 mt-4 lg:order-3 lg:col-span-5 lg:mt-0">
               <p className="font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]">
@@ -344,7 +355,7 @@ export default async function WeddingDetailPage({
             </div>
             <Plate
               className="order-3 mt-4 lg:order-4 lg:col-span-12 lg:mt-12"
-              frameClassName="aspect-square p-[7px] lg:aspect-[21/10] lg:p-2.5"
+              frameClassName="aspect-[4/3] p-[7px] lg:aspect-[21/10] lg:p-2.5"
               caption={couple.lead.caption}
             >
               <Image
@@ -385,70 +396,57 @@ export default async function WeddingDetailPage({
             )}
           </section>
 
-          {/* In their words. Shipped today: the photographer's sentence. PF-01 (pending): the bride's own review above it. */}
-          {isMaya && (
-            <section
-              aria-labelledby="words-title"
-              className="mt-12 border-t-[3px] border-double border-frame bg-paper-light lg:mt-20"
+          {/* In her words (PF-01, pending): the bride's full review. The whole section renders nothing in
+              production until Connor confirms Maya C. is this bride; Kate Holt's sentence sits on the first screen. */}
+          {isMaya && opening && rest && (
+            <PendingSlot
+              className="mx-5 mt-12 lg:mx-16 lg:mt-20"
+              note="PENDING CONNOR PF-01: confirm Maya C. is this bride. Hides the whole section (eyebrow, heading, stars, full review, link)."
             >
-              <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:px-16 lg:py-20">
-                {opening && rest && (
-                  <PendingSlot
-                    className="lg:col-span-12"
-                    note="PENDING CONNOR PF-01: confirm Maya C. is this bride. Hides the whole block (eyebrow, heading, stars, full review, link)."
-                  >
-                    <p className="font-display text-[18px] italic text-fern lg:text-[22px]">In her words</p>
-                    <h2 className="field-heading mt-1 font-display text-[32px] leading-[1.04] text-ink lg:mt-2 lg:text-[48px]">
-                      The bride&apos;s review
-                    </h2>
-                    <figure className="m-0 mt-4">
-                      <FieldStars size={15} />
-                      <blockquote className="m-0 mt-3">
-                        <p className="m-0 font-display text-[22px] italic leading-[1.3] text-ink lg:text-[28px]">
-                          &ldquo;{opening.quote}
-                        </p>
-                        <p className="m-0 mt-2 font-display text-[18px] italic leading-[1.4] text-ink-body lg:text-[20px]">
-                          {rest.quote}&rdquo;
-                        </p>
-                      </blockquote>
-                      <figcaption className="mt-3 flex flex-wrap items-center gap-x-4 font-sans text-[11px] uppercase tracking-[0.08em] text-ink-meta lg:text-[12px]">
-                        <span>
-                          {opening.name} &middot; Wedding &middot; {opening.when} &middot; Google review
-                        </span>
-                        <a
-                          href={GOOGLE_REVIEW_LINK}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex min-h-11 items-center text-[14px] font-medium normal-case tracking-normal text-pine underline decoration-pine-line underline-offset-4"
-                        >
-                          Read it on Google<span className="sr-only"> (opens in a new tab)</span>
-                        </a>
-                      </figcaption>
-                    </figure>
-                  </PendingSlot>
-                )}
-                <div className="lg:col-span-4">
+              <section
+                aria-labelledby="words-title"
+                className="border-t-[3px] border-double border-frame bg-paper-light"
+              >
+                <div className="mx-auto max-w-[1440px] px-5 py-12 lg:px-16 lg:py-20">
+                  <p className="font-display text-[18px] italic text-fern lg:text-[22px]">In her words</p>
                   <h2
                     id="words-title"
-                    className="field-heading font-display text-[32px] leading-[1.04] text-ink lg:mt-2 lg:text-[48px]"
+                    className="field-heading mt-1 font-display text-[32px] leading-[1.04] text-ink lg:mt-2 lg:text-[48px]"
                   >
-                    From their photographer
+                    The bride&apos;s review
                   </h2>
+                  <figure className="m-0 mt-4">
+                    <FieldStars size={15} />
+                    <blockquote className="m-0 mt-3">
+                      <p className="m-0 font-display text-[22px] italic leading-[1.3] text-ink lg:text-[28px]">
+                        &ldquo;{opening.quote}
+                      </p>
+                      <p className="m-0 mt-2 font-display text-[18px] italic leading-[1.4] text-ink-body lg:text-[20px]">
+                        {rest.quote}&rdquo;
+                      </p>
+                    </blockquote>
+                    <figcaption className="mt-3 flex flex-wrap items-center gap-x-4 font-sans text-[11px] uppercase tracking-[0.08em] text-ink-meta lg:text-[12px]">
+                      <span>
+                        {opening.name} &middot; Wedding &middot; {opening.when} &middot; Google review
+                      </span>
+                      <a
+                        href={GOOGLE_REVIEW_LINK}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-11 items-center text-[14px] font-medium normal-case tracking-normal text-pine underline decoration-pine-line underline-offset-4"
+                      >
+                        Read it on Google<span className="sr-only"> (opens in a new tab)</span>
+                      </a>
+                    </figcaption>
+                  </figure>
                 </div>
-                <FieldReview
-                  spec={COUPLE_KATE_QUOTE}
-                  fullName
-                  role="Wedding"
-                  className="mt-5 lg:col-span-8 lg:mt-0 lg:self-end"
-                  quoteClassName="text-[22px] leading-[1.3] lg:text-[30px]"
-                />
-              </div>
-            </section>
+              </section>
+            </PendingSlot>
           )}
         </article>
 
         {/* Planning yours? The ask, right after their words, with the coos */}
-        <section id="plan" aria-labelledby="plan-title" className={cn("border-t border-rule", !isMaya && "mt-12 lg:mt-20")}>
+        <section id="plan" aria-labelledby="plan-title" className="mt-12 border-t border-rule lg:mt-20">
           <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:py-20">
             <Plate
               className="lg:col-span-5"
@@ -534,6 +532,8 @@ export default async function WeddingDetailPage({
         </section>
       </div>
 
+      {/* TODO(showOnLoad): this page has no hero button, so the sticky should show from load (conversion r3).
+          Add `showOnLoad` here once FieldStickyBar/StickyShell accept it (shared-components fix). */}
       <FieldStickyBar primary={{ label: "Check your date", href: "/weddings#contact" }} hideWhenVisible="#plan" />
     </>
   );

@@ -24,7 +24,7 @@ import { CASEY_CARD_QUOTE, MAYA_CARD_QUOTE, PORTFOLIO_KATE_QUOTE } from "./quote
 export const metadata: Metadata = {
   title: "Wedding Portfolio",
   description:
-    "Browse real weddings at Highland Farms, Oregon. See how couples have celebrated their love in our forest and farm setting at the base of Mt. Hood.",
+    "Browse real weddings at Highland Farms, Oregon. See how couples have celebrated their love in our forest and farm setting, about an hour from Portland.",
   alternates: { canonical: "/wedding-portfolio" },
   openGraph: {
     title: "Wedding Portfolio | Highland Farms Oregon",
@@ -172,7 +172,7 @@ export default function WeddingPortfolioPage() {
             spec={PORTFOLIO_KATE_QUOTE}
             fullName
             role="Wedding"
-            className="mt-3 lg:col-span-5 lg:mt-0 lg:border-l lg:border-rule lg:pl-10"
+            className="hidden lg:col-span-5 lg:block lg:border-l lg:border-rule lg:pl-10"
             quoteClassName="text-[20px] leading-[1.2] lg:text-[30px]"
             metaClassName="mt-1 tracking-[0.06em] lg:mt-2 lg:tracking-[0.08em]"
           />
@@ -194,7 +194,7 @@ export default function WeddingPortfolioPage() {
             <div className="max-w-[40rem]">
               <p className={cn(eyebrowClass, "text-[18px] lg:text-[22px]")}>Also photographed here</p>
               <h2 id="more-title" className="field-heading mt-1 font-display text-[30px] leading-[1.04] text-ink lg:mt-2 lg:text-[44px]">
-                From the farm&apos;s photographers
+                Made at the farm
               </h2>
               <p className="mt-3 font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[17px]">
                 Two more sets made at the farm, credited to the photographers who took them.
@@ -204,8 +204,8 @@ export default function WeddingPortfolioPage() {
               {styled.map((set) => {
                 const cover = set.journal[0];
                 return (
-                  <Link key={set.slug} href={`/wedding-portfolio/${set.slug}`} className="group flex gap-4 lg:gap-6">
-                    <div className="aspect-[4/5] w-[42%] shrink-0 border border-frame bg-paper-light p-[6px] lg:w-[46%] lg:p-2.5">
+                  <Link key={set.slug} href={`/wedding-portfolio/${set.slug}`} className="group flex gap-3 min-[380px]:gap-4 lg:gap-6">
+                    <div className="aspect-[4/5] w-[38%] shrink-0 border border-frame bg-paper-light p-[6px] min-[380px]:w-[42%] lg:w-[46%] lg:p-2.5">
                       <div className="relative h-full w-full overflow-hidden">
                         <Image
                           src={cover.src}
@@ -217,8 +217,8 @@ export default function WeddingPortfolioPage() {
                         />
                       </div>
                     </div>
-                    <div className="flex flex-col justify-center">
-                      <h3 className="field-heading font-display text-[24px] leading-tight text-ink group-hover:text-pine lg:text-[32px]">
+                    <div className="flex min-w-0 flex-1 flex-col justify-center">
+                      <h3 className="field-heading font-display text-[22px] leading-tight text-ink [overflow-wrap:anywhere] group-hover:text-pine min-[380px]:text-[24px] lg:text-[32px]">
                         By {set.photographer?.name}
                       </h3>
                       <p className="mt-2 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
@@ -273,6 +273,8 @@ export default function WeddingPortfolioPage() {
         </section>
       </div>
 
+      {/* TODO(showOnLoad): no hero button here, so the sticky should show from load (conversion r3).
+          Add `showOnLoad` once FieldStickyBar/StickyShell accept it (shared-components fix). */}
       <FieldStickyBar primary={{ label: "Check your date", href: "/weddings#contact" }} hideWhenVisible="#plan" />
     </>
   );

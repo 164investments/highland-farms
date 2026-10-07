@@ -136,8 +136,8 @@ const q = (
  * is on another page (home keeps Emily Enns, Maya C.; celebrations its own).
  */
 export const STAY_SHEET_QUOTES: Record<string, StayQuote> = {
-  "whole-farm": q("Leanna Little", "2026-01-01", "Highland Farms offers multiple", "Wedding"),
-  lodge: q("Kamakila Waiwaiole", "2025-06-23", "My family and I spent", "Stay"),
+  "whole-farm": q("Leanna Little", "2026-01-01", "As soon as you arrive", "Wedding"),
+  lodge: q("Kamakila Waiwaiole", "2025-06-23", "Truly one of the most serene", "Stay"),
   cottage: q("Lauren Case", "2025-11-25", "Our 2 yr old", "Stay"),
   camp: q("Debbie Brunhoff", "2025-09-19", "Slept in the airstream", "Stay"),
 };
@@ -229,7 +229,7 @@ const LODGE: StayContent = {
     },
     fourth: { label: "Hot tub", value: "Cedar" },
     house: () =>
-      "Best for groups who want to cook and eat together. A warm cedar lodge built for gathering. Cook together in the full kitchen, eat at a dining table that seats ten, settle in by the wood fireplace, then take the evening out to the wrap-around deck and the cedar hot tub. There is a BBQ and a Blackstone for the cook, a game room with a full-length shuffleboard table, and the farm and the forest are right outside.",
+      "A warm cedar lodge built for gathering. Cook in the full kitchen, eat at a dining table that seats ten, settle in by the wood fireplace, then take the evening out to the wrap-around deck and the cedar hot tub. There is a BBQ and a Blackstone for the cook, a game room with a full-length shuffleboard table, and the farm and the forest are right outside.",
     quoteEyebrow: "A guest who stayed at the Lodge",
     quote: STAY_PAGE_QUOTES.lodge,
     rooms: "rooms",

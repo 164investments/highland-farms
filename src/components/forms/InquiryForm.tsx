@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -59,6 +59,8 @@ export interface InquiryFormProps {
   className?: string;
   /** Form header. Default "Check your date"; "" hides it (the page draws its own). */
   heading?: string;
+  /** Header level: h3 under a section h2 (default), h2 where the page's h1 sits directly above. */
+  headingLevel?: "h2" | "h3";
   /** Line under the header. Default depends on wedding or event; "" hides it. */
   subtitle?: string;
   /** Five stars and the five-star count under the button. */
@@ -75,6 +77,29 @@ export interface InquiryFormProps {
   placement?: string;
   /** From the server wrapper (FIVE_STAR_COUNT), so the review JSON stays off the client. */
   fiveStarCount?: number;
+  /**
+   * Year options as the server rendered them (the server wrapper computes them
+   * at build time). Hydration uses this list, so prerendered HTML and the client
+   * agree after January 1; the visitor's own clock takes over right after.
+   */
+  yearOptions?: string[];
+}
+
+const noSubscribe = () => () => {};
+
+/**
+ * The year list: the server's list while hydrating, then this browser's
+ * current years. useSyncExternalStore re-renders after hydration when the two
+ * differ, with no hydration mismatch. Joined to a string so the snapshot is
+ * stable between renders.
+ */
+function useEventYears(serverYears?: string[]): string[] {
+  const key = useSyncExternalStore(
+    noSubscribe,
+    () => eventYearOptions().join(","),
+    () => (serverYears ?? eventYearOptions()).join(","),
+  );
+  return key.split(",");
 }
 
 interface Submitted {
@@ -121,6 +146,7 @@ export function InquiryForm({
   defaultEventType = "",
   className,
   heading = "Check your date",
+  headingLevel = "h3",
   subtitle,
   showTrustSignals = true,
   ctaText = "Check my date",
@@ -129,6 +155,7 @@ export function InquiryForm({
   softPathsForAll = false,
   placement,
   fiveStarCount,
+  yearOptions,
 }: InquiryFormProps) {
   const uid = useId();
   const id = (name: string) => `${uid}-${name}`;
@@ -139,7 +166,7 @@ export function InquiryForm({
   const [submitted, setSubmitted] = useState<Submitted | null>(null);
   const [turnstileReset, setTurnstileReset] = useState(0);
   const serverErrorRef = useRef<HTMLDivElement>(null);
-  const [years] = useState(() => eventYearOptions());
+  const years = useEventYears(yearOptions);
 
   const {
     register,
@@ -279,14 +306,15 @@ export function InquiryForm({
       : "Tell us what you're planning, and we'll write back. No commitment.");
 
   const submitting = status === "submitting";
+  const Heading = headingLevel;
 
   return (
     <div className={className}>
       {heading && (
         <div className="mb-7">
-          <h3 className="field-heading font-display text-[32px] leading-[1.05] text-ink sm:text-[38px]">
+          <Heading className="field-heading font-display text-[32px] leading-[1.05] text-ink sm:text-[38px]">
             {heading}
-          </h3>
+          </Heading>
           {intro && (
             <p className="mt-2 font-sans text-[15px] leading-relaxed text-ink-body">{intro}</p>
           )}

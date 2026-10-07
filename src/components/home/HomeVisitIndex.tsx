@@ -98,7 +98,7 @@ function buildDoors(): VisitDoor[] {
         alt: "Mr. Finley, a ginger Highland cow plush with the farm’s leather ear tag",
         position: "object-[50%_50%]",
       },
-      blurb: "Highland cow plush, farm tees, eggs from our hens, and gift certificates for a tour or the spa.",
+      blurb: "Highland cow plush, farm tees and eggs from our hens.",
       facts: "Farm pickup or local delivery · we don’t ship",
       cta: "Browse the store",
     },
@@ -168,15 +168,17 @@ export function HomeVisitIndex() {
               </div>
               <div className="flex min-w-0 flex-col lg:mt-5">
                 <FieldNo n={i + 1} />
-                <p className="m-0 flex items-baseline gap-2">
+                {/* Under 390px the text column is too narrow for name, leader and price on one line
+                    (it clipped at 320 and 375), so the price drops under the name and the leader hides. */}
+                <p className="m-0 flex flex-wrap items-baseline gap-x-2 min-[390px]:flex-nowrap">
                   <FieldLink
                     href={d.href}
                     className="shrink-0 font-display text-[22px] font-medium leading-tight text-ink lg:text-[26px]"
                   >
                     {d.name}
                   </FieldLink>
-                  <FieldLeader className="mb-1 translate-y-[-3px]" />
-                  <span className="shrink-0 font-sans text-[13px] font-medium text-pine lg:text-[14px]">
+                  <FieldLeader className="mb-1 hidden translate-y-[-3px] min-[390px]:block" />
+                  <span className="basis-full font-sans text-[13px] font-medium text-pine min-[390px]:shrink-0 min-[390px]:basis-auto lg:text-[14px]">
                     {d.price}
                   </span>
                 </p>

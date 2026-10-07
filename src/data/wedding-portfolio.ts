@@ -184,7 +184,7 @@ export const weddingPortfolio: WeddingCouple[] = [
         src: "/images/weddings/maya-justin/04.jpg",
         alt: "A man in a grey suit with a rose boutonniere stands arm in arm with a woman in a sage dress on a wooden footbridge",
         position: "62% 35%",
-        caption: "On the footbridge, in grey with a rose boutonniere.",
+        caption: "In grey, with a rose boutonniere.",
       },
       {
         src: "/images/weddings/maya-justin/05.jpg",
@@ -426,7 +426,7 @@ export const weddingPortfolio: WeddingCouple[] = [
     plates: [
       {
         src: "/images/weddings/hannah-max/02.jpg",
-        alt: "Two people in wedding clothes stand among very tall mossy trees with a golden dog at their feet",
+        alt: "Two people in wedding clothes embrace among very tall mossy trees, a Highland calf at their feet",
         position: "50% 50%",
         caption: "Among the tall trees.",
       },
@@ -457,7 +457,7 @@ export const weddingPortfolio: WeddingCouple[] = [
     ],
     images: [
       { src: "/images/weddings/hannah-max/01.jpg", alt: "A couple kisses beside a Highland calf on a halter" },
-      { src: "/images/weddings/hannah-max/02.jpg", alt: "Two people among very tall trees with a dog" },
+      { src: "/images/weddings/hannah-max/02.jpg", alt: "Two people among very tall trees with a Highland calf" },
       { src: "/images/weddings/hannah-max/03.jpg", alt: "A strawberry on a gilt frame" },
       { src: "/images/weddings/hannah-max/04.jpg", alt: "A wedding stationery suite" },
       { src: "/images/weddings/hannah-max/05.jpg", alt: "A picnic under the trees" },

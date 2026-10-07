@@ -107,7 +107,7 @@ export function HomeHero() {
         </div>
 
         <nav
-          aria-label="Visit the farm"
+          aria-label="Farm experiences"
           className="mt-1 grid grid-cols-3 border-t border-rule max-[359px]:grid-cols-1 lg:col-span-2 lg:col-start-1 lg:row-start-7 lg:mt-0 lg:h-[74px] lg:grid-cols-[auto_repeat(3,minmax(0,1fr))] lg:items-center lg:gap-8"
         >
           <p className="m-0 hidden font-display text-[19px] italic text-fern lg:block">

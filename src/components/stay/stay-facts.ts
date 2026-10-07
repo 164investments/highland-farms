@@ -27,9 +27,15 @@ export const STAY_DIRECT_LINE =
 export const STAY_PETS =
   "No outside pets. Service animals are permitted in accordance with ADA requirements.";
 
-/** The one published stay-cancellation sentence (llms.txt, live site). Pending the exact terms from Jalene. */
-export const STAY_CANCELLATION =
-  "Cancellation terms vary by property and booking date, and are provided at the time of booking.";
+/**
+ * The interim stay-cancellation sentence, pending the exact terms from Jalene.
+ * The Terms page says terms "vary by property and booking date"; ops fact #30
+ * says stays are final sale. This is the part true under both (truth r3).
+ */
+export const STAY_CANCELLATION = "Cancellation terms are provided at the time of booking.";
+
+/** Said beside the cancellation line, so an anxious booker has a person to ask. */
+export const STAY_QUESTIONS_LEAD = "Questions before you book? Call";
 
 export const STAY_DRIVE = "About an hour from Portland and about 25 minutes from Government Camp";
 export const STAY_GETTING_HERE_FARM = `${STAY_DRIVE}, with free parking on the farm.`;
@@ -59,7 +65,8 @@ export function thanksgivingPackage(id: "lodge" | "whole-farm") {
   };
 }
 
-export const THANKSGIVING_DATES = thanksgiving.dates;
+/** "November 24 to 28, 2026": the site's phrasing (CONSISTENCY #2), not the data file's en dash. */
+export const THANKSGIVING_DATES = thanksgiving.dates.replace(/(\d+)\s*[–-]\s*(\d+)/, "$1 to $2");
 const NIGHTS_WORD = ["zero", "one", "two", "three", "four", "five"][thanksgiving.nights] ?? String(thanksgiving.nights);
 /** "Four nights" / "four nights" (4 in thanksgiving.ts: November 24 to 28). */
 export const THANKSGIVING_NIGHTS = { cap: `${NIGHTS_WORD[0].toUpperCase()}${NIGHTS_WORD.slice(1)} nights`, lower: `${NIGHTS_WORD} nights` };

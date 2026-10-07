@@ -137,7 +137,13 @@ export default function AboutPage() {
             <Plate
               className="mt-3 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
               frameClassName="h-[166px] lg:h-[640px]"
-              caption="Connor and one of the calves, on the forest path."
+              caption={
+                <>
+                  {/* The phone frame (about 2.2:1) shows Connor but not the calf; name only what each crop shows. */}
+                  <span className="lg:hidden">Connor McWilliams, who owns the farm, on the forest path.</span>
+                  <span className="hidden lg:inline">Connor and one of the calves, on the forest path.</span>
+                </>
+              }
             >
               <Image
                 src="/images/farm/farm-life.jpg"
@@ -247,8 +253,7 @@ export default function AboutPage() {
               </div>
               <div className="lg:max-w-[460px]">
                 <p className="m-0 mt-3 text-[15px] leading-[1.6] text-ink-body lg:mt-0 lg:text-[16px]">
-                  Every farm tour goes into the pen with the herd, and the coos are our honorary wedding guests. These
-                  are the ones guests write home about.
+                  Every farm tour goes into the pen with the herd. These are the ones guests write home about.
                 </p>
                 <PendingSlot
                   note="PENDING CONNOR: confirm who is on the farm now; names come from guest reviews, 2025 to 2026"
@@ -296,23 +301,11 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 4. The wedding ask */}
-        <section aria-labelledby="about-wedding-title" className="px-5 pb-12 pt-2 lg:px-16 lg:pb-24 lg:pt-4">
-          <div className="mx-auto max-w-[1312px] pt-2 lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-x-16 lg:pt-6">
-            <Plate
-              frameClassName="h-[250px] lg:h-[520px]"
-              caption="Two honorary guests, at the pasture fence."
-            >
-              <Image
-                src="/images/weddings/details.jpg"
-                alt="A bride and groom kiss at the pasture fence between a black Highland cow and a white Highland cow"
-                fill
-                loading="lazy"
-                sizes="(min-width: 1024px) 700px, 100vw"
-                className="object-cover object-[50%_55%]"
-              />
-            </Plate>
-            <div className="mt-6 lg:mt-0">
+        {/* 4. The wedding ask, as type. No photo: a cow photo right after the cow plates breaks CONSISTENCY #11,
+            and the pasture-fence frame is Riley & Jordan's, already captioned with their names elsewhere. */}
+        <section aria-labelledby="about-wedding-title" className="px-5 pb-12 pt-6 lg:px-16 lg:pb-24 lg:pt-12">
+          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end lg:gap-x-16">
+            <div>
               <p className={eyebrow}>Bring them to your wedding</p>
               <h2
                 id="about-wedding-title"
@@ -320,7 +313,9 @@ export default function AboutPage() {
               >
                 Your wedding, with the coos as honorary guests.
               </h2>
-              <p className="m-0 mt-3 text-[15px] leading-[1.6] text-ink-body lg:mt-5 lg:text-[17px]">
+            </div>
+            <div className="mt-3 lg:mt-0">
+              <p className="m-0 text-[15px] leading-[1.6] text-ink-body lg:text-[17px]">
                 Whimsical forest weddings for up to 125 guests. Your wedding is a weekend, not a day: up to 20 of your
                 people can stay on the farm.
               </p>
@@ -391,8 +386,8 @@ export default function AboutPage() {
                 Connor and his team.
               </h2>
               <p className="m-0 mt-4 text-[15px] leading-[1.65] text-ink-body lg:mt-6 lg:max-w-[600px] lg:text-[17px]">
-                Connor McWilliams owns and runs Highland Farms. Tour guests are met at the carved Highland cow out
-                front by his team, who know every animal by name.
+                Connor McWilliams owns and runs Highland Farms. Tour guests are met at the cow statue out front by his
+                team, who know every animal by name.
               </p>
             </div>
             <div className="mt-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-2">

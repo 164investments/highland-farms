@@ -25,6 +25,7 @@ import { CELEBRATION_FORM_QUOTE, CELEBRATION_QUOTES } from "@/components/stay/st
 import { PHONE_TEL, SPA_PRIVATE_SESSION, STAY_MINIMUM, TOUR_EACH_ADDITIONAL, TOUR_FOR_TWO } from "@/components/stay/stay-facts";
 import { properties } from "@/data/properties";
 import { farmTourFAQ } from "@/data/farm-tours";
+import { nordicSpaFAQ } from "@/data/nordic-spa";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +43,7 @@ export const metadata: Metadata = {
         url: "/images/events/celebrations-hero.jpg",
         width: 1200,
         height: 630,
-        alt: "Celebration event at Highland Farms",
+        alt: "A long table on the lawn at Highland Farms, with every glass raised",
       },
     ],
   },
@@ -62,9 +63,13 @@ const BANDS = {
   gathering: `${wholeFarm.guests + 1} to ${GATHERING_MAX_GUESTS}`,
 };
 
+/**
+ * The same frame as weddings/olivia-connor/01.jpg (a wedding dinner), so the
+ * caption says so: it never passes a wedding off as a birthday or reunion.
+ */
 const HERO_PHOTO = {
   src: "/images/events/celebrations-hero.jpg",
-  alt: "Guests raise their glasses along one long table set on the lawn under string lights, with a cabin and tall firs behind",
+  alt: "Wedding guests raise their glasses along one long table set on the lawn under string lights, with a cabin and tall firs behind",
   position: "50% 45%",
 };
 
@@ -86,6 +91,13 @@ const bring: { drawing: FieldDrawingName; title: string; body: string }[] = [
   },
 ];
 
+/** The first-screen headcount picker (phone and desktop): one short line each, so all three rows fit in 660px. */
+const HEADCOUNT_ROWS = [
+  { band: BANDS.house, title: "One house", note: "The Lodge or the Cottage", href: "#one-house" },
+  { band: BANDS.farm, title: "The whole farm", note: `All three stays, sleeps ${wholeFarm.guests}`, href: "/stay/whole-farm#book" },
+  { band: BANDS.gathering, title: "A gathering", note: "Check your date with us", href: "#contact" },
+];
+
 const ladderLinkClass = cn("mt-1 inline-flex min-h-11 items-center gap-1.5 text-[14px] lg:text-[15px]", fieldTextLinkClass);
 const sizeNumClass = "font-display text-[34px] font-medium leading-none text-ink lg:text-[56px]";
 const ladderRowClass =
@@ -96,7 +108,9 @@ export default function CelebrationsPage() {
     const q = resolveFieldQuote(quote.spec, { role: quote.role });
     return q ? [{ occasion, q }] : [];
   });
-  const strictPolicy = cancellationAnswer(farmTourFAQ);
+  // Both visits are sold on this page, so both strict lines show, word for word from their data files.
+  const tourPolicy = cancellationAnswer(farmTourFAQ);
+  const spaPolicy = cancellationAnswer(nordicSpaFAQ);
 
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
@@ -113,7 +127,7 @@ export default function CelebrationsPage() {
           </div>
           <div className="mt-4 lg:mt-10">
             <Plate
-              caption="A long-table dinner on the lawn by the Lodge."
+              caption="A wedding dinner at one long table on the lawn by the Lodge."
               captionClassName="lg:text-center"
               frameClassName="h-[192px] min-[380px]:h-[214px] lg:h-[500px]"
             >
@@ -124,11 +138,7 @@ export default function CelebrationsPage() {
           <nav aria-label="Choose by group size" data-hero-cta className="lg:hidden">
             <p className={cn("m-0 mt-1 font-medium", fieldLabelClass)}>How many are coming?</p>
             <div className="mt-2 flex flex-col border-t border-ink/70">
-              {[
-                { band: BANDS.house, title: "One house", note: "The Lodge or the Cottage · book online", href: "#one-house" },
-                { band: BANDS.farm, title: "The whole farm", note: `All three stays, ${wholeFarm.guests} overnight · book online`, href: "/stay/whole-farm#book" },
-                { band: BANDS.gathering, title: "A gathering", note: "Check your date with us", href: "#contact" },
-              ].map((r) => (
+              {HEADCOUNT_ROWS.map((r) => (
                 <ClientLink key={r.title} href={r.href} className="flex min-h-[60px] items-center gap-3 border-b border-rule py-2">
                   <span className="w-[92px] shrink-0 font-display text-[24px] font-medium leading-none text-ink">{r.band}</span>
                   <span className="flex min-w-0 flex-1 flex-col">
@@ -143,7 +153,7 @@ export default function CelebrationsPage() {
             </div>
           </nav>
           <p className="m-0 mt-4 font-sans text-[15px] leading-[1.55] text-ink-body lg:hidden">
-            Up to {wholeFarm.guests} can stay the night and up to {GATHERING_MAX_GUESTS} can gather, on a private forest farm about an hour from Portland. Add a private farm tour or a Nordic spa session for your group.
+            A private forest farm, about an hour from Portland.
           </p>
           <div className="hidden lg:mx-auto lg:mt-10 lg:block lg:max-w-[1100px]">
             <div className="flex items-baseline justify-between gap-10">
@@ -151,11 +161,7 @@ export default function CelebrationsPage() {
               <FieldReviewTier tier="hero" link />
             </div>
             <nav aria-label="Choose by group size" data-hero-cta className="mt-3 grid grid-cols-3 gap-10">
-              {[
-                { band: BANDS.house, title: "One house", note: "The Lodge or the Cottage · book online", href: "#one-house" },
-                { band: BANDS.farm, title: "The whole farm", note: `All three stays, ${wholeFarm.guests} overnight · book online`, href: "/stay/whole-farm#book" },
-                { band: BANDS.gathering, title: "A gathering", note: "Check your date with us", href: "#contact" },
-              ].map((r) => (
+              {HEADCOUNT_ROWS.map((r) => (
                 <ClientLink key={r.title} href={r.href} className="flex flex-col gap-2 border-t border-ink/70 pt-4">
                   <span className="font-display text-[44px] font-medium leading-none text-ink">{r.band}</span>
                   <span className="flex items-center justify-between gap-3">
@@ -169,7 +175,7 @@ export default function CelebrationsPage() {
               ))}
             </nav>
             <p className="mx-auto mt-8 max-w-[760px] text-center font-sans text-[17px] leading-[1.6] text-ink-body">
-              Up to {wholeFarm.guests} can stay the night and up to {GATHERING_MAX_GUESTS} can gather, on a private forest farm about an hour from Portland. Add a private farm tour or a Nordic spa session for your group.
+              A private forest farm, about an hour from Portland.
             </p>
           </div>
         </div>
@@ -181,7 +187,7 @@ export default function CelebrationsPage() {
         className="border-t-[3px] border-double border-frame px-5 pt-9 pb-10 lg:px-16 lg:pt-16 lg:pb-20"
       >
         <div className="mx-auto max-w-[1312px]">
-          <FieldSectionHeader id="plan-title" size="md" eyebrow="How many are coming?" title="Plan it by headcount" />
+          <FieldSectionHeader id="plan-title" size="md" eyebrow="Three ways to gather" title="Plan it by headcount" />
           <ol className="m-0 mt-6 flex list-none flex-col border-t border-ink/70 p-0 lg:mt-10">
             <li id="one-house" className={ladderRowClass}>
               <BandHead band={BANDS.house} />
@@ -328,7 +334,8 @@ export default function CelebrationsPage() {
             detailClassName="text-[15px] leading-[1.55] lg:text-[16px]"
             rows={[
               { term: "Stays", detail: `${STAY_MINIMUM} No outside pets.` },
-              ...(strictPolicy ? [{ term: "Tours and spa", detail: strictPolicy }] : []),
+              ...(tourPolicy ? [{ term: "Farm tours", detail: tourPolicy }] : []),
+              ...(spaPolicy ? [{ term: "Nordic spa", detail: spaPolicy }] : []),
               { term: "Ages", detail: `The spa is for guests 16 and up. On farm tours, kids 4 and under are free.` },
               { term: "Access", detail: "Farm tours and the spa aren't wheelchair, walker or stroller accessible." },
             ]}

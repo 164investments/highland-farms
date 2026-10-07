@@ -21,7 +21,7 @@ interface BookingCardProps {
  */
 export function BookingCard({ widgetUrl, propertyName, propertySlug, note }: BookingCardProps) {
   return (
-    <aside
+    <section
       id="book"
       aria-label="Check dates and price"
       className="scroll-mt-[var(--header-h,104px)] pt-5 lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:pt-10"
@@ -62,6 +62,6 @@ export function BookingCard({ widgetUrl, propertyName, propertySlug, note }: Boo
           <p className="m-0 mt-2">{STAY_MINIMUM}</p>
         </div>
       </div>
-    </aside>
+    </section>
   );
 }

@@ -37,14 +37,14 @@ import {
 } from "./quotes";
 
 export const metadata: Metadata = {
-  title: { absolute: "Mt. Hood Forest Wedding Venue with Highland Cows | Highland Farms" },
+  title: { absolute: "Forest Wedding Venue near Mt. Hood, with Highland Cows | Highland Farms" },
   description:
-    "Whimsical forest weddings with Scottish Highland cows as honorary guests, about an hour from Portland at the base of Mt. Hood. See real weddings and check your date.",
+    "Whimsical forest weddings with Scottish Highland cows as honorary guests, about an hour from Portland. See real weddings and check your date.",
   alternates: { canonical: "/weddings" },
   openGraph: {
-    title: "Mt. Hood Forest Wedding Venue with Highland Cows | Highland Farms",
+    title: "Forest Wedding Venue near Mt. Hood, with Highland Cows | Highland Farms",
     description:
-      "Whimsical forest weddings with Scottish Highland cows as honorary guests, about an hour from Portland at the base of Mt. Hood. See real weddings and check your date.",
+      "Whimsical forest weddings with Scottish Highland cows as honorary guests, about an hour from Portland. See real weddings and check your date.",
     url: "https://highlandfarmsoregon.com/weddings",
     type: "website",
     images: [
@@ -64,8 +64,6 @@ const CONNOR_REVIEW_COUNT = REVIEWS.filter((r) => /conner|connor|conor/i.test(r.
 const sectionLabel = fieldLabelClass;
 const h2Class = "field-heading font-display text-[36px] leading-[1.02] text-ink lg:text-[56px]";
 const bodyLarge = "font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]";
-const inlineLinkClass =
-  "inline-flex min-h-11 items-center font-medium text-pine underline decoration-pine-line underline-offset-4";
 
 const SLEEP = [
   { drawing: "lodge", name: "William Wallace Lodge", detail: "Sleeps 8" },
@@ -128,7 +126,8 @@ export default function WeddingsPage() {
 
       <WeddingsHero />
 
-      {/* No. 1 The coos (Connor's first reason, and the ad's hook) */}
+      {/* No. 1 The coos (Connor's first reason, and the ad's hook). No quote here: a quote beside
+          Riley & Jordan's photo reads as theirs, and none of the snapshot's reviews is confirmed as theirs. */}
       <section aria-labelledby="coos-title" className="surface-paper border-t border-rule bg-paper text-ink">
         <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:px-16 lg:py-24">
           <div className="lg:col-span-5 lg:self-center">
@@ -140,17 +139,6 @@ export default function WeddingsPage() {
               Our Scottish Highland coos are your honorary wedding guests. They stand for portraits at the
               pasture fence, and your guests get to meet them too.
             </p>
-            <div className="mt-8 hidden border-t border-rule pt-6 lg:block">
-              <p className="font-sans text-[12px] uppercase tracking-[0.1em] text-ink-meta">
-                A parent of the bride, on Connor and the herd
-              </p>
-              <FieldReview
-                spec={WEDDINGS_COOS_QUOTE}
-                role="Wedding"
-                className="mt-2"
-                quoteClassName="text-[24px] leading-[1.28]"
-              />
-            </div>
           </div>
           <div className="mt-7 lg:col-span-7 lg:mt-0">
             <Plate
@@ -165,17 +153,6 @@ export default function WeddingsPage() {
                 className="object-cover object-[52%_60%]"
               />
             </Plate>
-          </div>
-          <div className="mt-8 border-t border-rule pt-5 lg:hidden">
-            <p className="font-sans text-[11px] uppercase tracking-[0.1em] text-ink-meta">
-              A parent of the bride, on Connor and the herd
-            </p>
-            <FieldReview
-              spec={WEDDINGS_COOS_QUOTE}
-              role="Wedding"
-              className="mt-2"
-              quoteClassName="text-[21px] leading-[1.28]"
-            />
           </div>
         </div>
       </section>
@@ -192,8 +169,8 @@ export default function WeddingsPage() {
             </div>
             <div className="lg:col-span-5 lg:col-start-8">
               <p className={cn(bodyLarge, "mt-4 lg:mt-0")}>
-                Five private acres of tall evergreens, sword ferns and moss in Brightwood, Oregon. You marry on
-                a flagstone patio under a timber arch, beside the pond, and dinner is set at long tables on the
+                Five private acres of tall evergreens, sword ferns and moss in Brightwood, Oregon. Couples here
+                have married on the flagstone patio beside the pond and sat down to dinner at long tables on the
                 lawn among the trees.
               </p>
             </div>
@@ -213,18 +190,20 @@ export default function WeddingsPage() {
               />
             </Plate>
             <div className="mt-6 lg:col-span-4 lg:mt-0 lg:flex lg:flex-col lg:gap-8">
+              {/* Neutral imagery beside Kristen B.'s quote: her family's wedding is not one the page names. */}
               <Plate
                 className="hidden lg:flex"
                 frameClassName="aspect-[5/4] lg:p-2.5"
                 captionClassName="lg:text-[17px]"
-                caption="Maya & Justin, September 2025."
+                caption="A fern trail under the old trees."
               >
                 <Image
-                  src="/images/weddings/maya-justin/01.jpg"
-                  alt="Maya and Justin, small among tall mossy trees and ferns, her veil lifting"
+                  src="/images/farm/contact-hero.jpg"
+                  alt="A narrow dirt trail through sword ferns under tall, moss-covered trees"
                   fill
+                  loading="lazy"
                   sizes="30vw"
-                  className="object-cover object-[40%_62%]"
+                  className="object-cover object-[50%_70%]"
                 />
               </Plate>
               <FieldReview
@@ -313,14 +292,14 @@ export default function WeddingsPage() {
                 className="mt-3 lg:mt-4"
                 frameClassName="aspect-[4/5] p-[5px] lg:p-2.5"
                 captionClassName="text-[14px] leading-snug lg:text-[17px]"
-                caption="The trail to the Nordic spa."
+                caption="A calf and two of the herd, by the barn."
               >
                 <Image
-                  src="/images/spa/spa-5.jpg"
-                  alt="A small group walks a forest trail toward the black spa cabin"
+                  src="/images/farm/cows.jpg"
+                  alt="A Highland calf and two shaggy Highland cows stand on straw beside a wooden barn"
                   fill
                   sizes="(min-width: 1024px) 28vw, 40vw"
-                  className="object-cover object-[62%_50%]"
+                  className="object-cover object-[50%_60%]"
                 />
               </Plate>
               <div className="mt-3">
@@ -362,22 +341,21 @@ export default function WeddingsPage() {
                 <span className="sr-only"> (opens in a new tab)</span>
               </a>
             </div>
+            {/* Each row holds only dt and dd (a valid <dl>); the decorative drawing sits inside the dt. */}
             <dl className="m-0 mt-5 grid grid-cols-3 gap-x-3 lg:col-span-9 lg:mt-0 lg:gap-x-8">
               {SLEEP.map((s) => (
-                <div key={s.name} className="flex flex-col items-start">
-                  <FieldDrawing
-                    name={s.drawing}
-                    className="w-full"
-                    sizes="(min-width: 1024px) 22vw, 30vw"
-                  />
-                  <div className="mt-1">
-                    <dt className="font-display text-[17px] font-semibold leading-tight text-ink lg:text-[24px]">
-                      {s.name}
-                    </dt>
-                    <dd className="m-0 mt-0.5 font-sans text-[13px] leading-snug text-ink-body lg:text-[15px]">
-                      {s.detail}
-                    </dd>
-                  </div>
+                <div key={s.name}>
+                  <dt className="font-display text-[17px] font-semibold leading-tight text-ink lg:text-[24px]">
+                    <FieldDrawing
+                      name={s.drawing}
+                      className="block w-full"
+                      sizes="(min-width: 1024px) 22vw, 30vw"
+                    />
+                    <span className="mt-1 block">{s.name}</span>
+                  </dt>
+                  <dd className="m-0 mt-0.5 font-sans text-[13px] leading-snug text-ink-body lg:text-[15px]">
+                    {s.detail}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -421,7 +399,7 @@ export default function WeddingsPage() {
             className="lg:col-span-4"
             frameClassName="mx-auto aspect-[4/5] w-[78%] p-[7px] lg:w-full lg:p-2.5"
             captionClassName="mx-auto w-[78%] lg:w-full"
-            caption="Connor, with one of the calves."
+            caption="Connor and one of the calves, on the forest path."
           >
             <Image
               src="/images/farm/farm-life.jpg"
@@ -454,6 +432,13 @@ export default function WeddingsPage() {
             <div className="mt-6 border-t border-rule pt-6">
               <FieldReview
                 spec={WEDDINGS_CONNOR_QUOTE}
+                role="Wedding"
+                quoteClassName="text-[20px] leading-[1.28] lg:text-[22px]"
+              />
+            </div>
+            <div className="mt-6 border-t border-rule pt-6">
+              <FieldReview
+                spec={WEDDINGS_COOS_QUOTE}
                 role="Wedding"
                 quoteClassName="text-[20px] leading-[1.28] lg:text-[22px]"
               />
@@ -559,7 +544,7 @@ export default function WeddingsPage() {
         </div>
       </section>
 
-      {/* FAQ: the real anxieties; rain and cost start open */}
+      {/* FAQ: the real anxieties; only rain starts open (CONSISTENCY #10: at most one) */}
       <section aria-labelledby="faq-title" className="surface-paper border-t border-rule bg-paper text-ink">
         <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:px-16 lg:py-24">
           <div className="lg:col-span-4">
@@ -580,16 +565,8 @@ export default function WeddingsPage() {
               />
               <p className="mt-4">{RAIN_CLOSE}</p>
             </FaqRow>
-            <FaqRow question={weddingFAQ[1].question} open>
+            <FaqRow question={weddingFAQ[1].question}>
               <p>{COST_ANSWER}</p>
-              <p className="mt-2 flex flex-wrap gap-x-6">
-                <a href="#contact" className={inlineLinkClass}>
-                  Check your date
-                </a>
-                <a href="/lookbook.pdf" target="_blank" rel="noopener noreferrer" className={inlineLinkClass}>
-                  See the 2027 look book<span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              </p>
             </FaqRow>
             <FaqRow question={weddingFAQ[2].question}>
               <p>{VENDORS_ANSWER}</p>

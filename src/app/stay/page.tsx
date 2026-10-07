@@ -31,6 +31,7 @@ import {
   SPA_PER_PERSON,
   SPA_PRIVATE_SESSION,
   STAY_CANCELLATION,
+  STAY_QUESTIONS_LEAD,
   STAY_DIRECT_LINE,
   STAY_GETTING_HERE_FARM,
   STAY_LATER_MONTHS_NOTE,
@@ -341,7 +342,7 @@ export default function StayPage() {
           })}
 
           {/* Seasonal: hidden after 2026-11-28 by html[data-season]. Real photo only (the styled image stays on /thanksgiving). */}
-          <aside
+          <section
             aria-label="Thanksgiving package"
             data-season-only="thanksgiving-links"
             className="border-t-[3px] border-double border-frame py-8 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-16 lg:py-14"
@@ -380,7 +381,7 @@ export default function StayPage() {
                 <FieldArrow size={16} />
               </Link>
             </div>
-          </aside>
+          </section>
         </div>
       </section>
 
@@ -401,7 +402,11 @@ export default function StayPage() {
                 term: "Cancellation",
                 detail: (
                   <>
-                    {STAY_CANCELLATION.replace(/^Cancellation terms/, "Terms")}
+                    {STAY_CANCELLATION.replace(/^Cancellation terms/, "Terms")} {STAY_QUESTIONS_LEAD}{" "}
+                    <a href={PHONE_TEL} className="whitespace-nowrap font-medium text-pine underline underline-offset-4">
+                      {CONTACT.phone}
+                    </a>
+                    .
                     <PendingSlot
                       className="mt-2"
                       note="PENDING JALENE: the exact cancellation terms for each stay, to state here and on each stay page"

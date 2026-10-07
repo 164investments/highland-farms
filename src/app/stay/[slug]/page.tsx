@@ -28,9 +28,9 @@ import {
   PHONE_TEL,
   SPA_PER_PERSON,
   STAY_CANCELLATION,
+  STAY_QUESTIONS_LEAD,
   STAY_GETTING_HERE_PAGE,
   STAY_LATER_MONTHS_NOTE,
-  STAY_PARKING,
   STAY_PETS,
   THANKSGIVING_DATES,
   THANKSGIVING_NIGHTS,
@@ -407,10 +407,11 @@ export default async function PropertyPage({
               </div>
             </section>
 
-            {/* Good to know (the minimum stay and the price live in the booking card). */}
+            {/* Know before you book: the parent page's name and order (the minimum stay and the price live
+                in the booking card, so they are not repeated here). */}
             <section aria-labelledby="know-title" className={SPLIT_SECTION_CLASS}>
               <h2 id="know-title" className={GROUP_HEAD_CLASS}>
-                Good to know
+                Know before you book
               </h2>
               <FieldRows
                 size="list"
@@ -419,13 +420,15 @@ export default async function PropertyPage({
                 termClassName="w-auto lg:w-[150px] lg:text-[21px]"
                 detailClassName="text-[14px] leading-[1.55] lg:text-[15px]"
                 rows={[
-                  { term: "Getting here", detail: STAY_GETTING_HERE_PAGE },
-                  { term: "Parking", detail: STAY_PARKING },
                   {
                     term: "Cancellation",
                     detail: (
                       <>
-                        {STAY_CANCELLATION}
+                        {STAY_CANCELLATION} {STAY_QUESTIONS_LEAD}{" "}
+                        <a href={PHONE_TEL} className="whitespace-nowrap font-medium text-pine underline underline-offset-4">
+                          {CONTACT.phone}
+                        </a>
+                        .
                         <PendingSlot
                           className="mt-2"
                           note={`PENDING JALENE: ${property.name}'s exact cancellation terms, to state here`}
@@ -434,6 +437,7 @@ export default async function PropertyPage({
                     ),
                   },
                   { term: "Pets", detail: STAY_PETS },
+                  { term: "Getting here", detail: `${STAY_GETTING_HERE_PAGE} Parking is free, on the farm.` },
                 ]}
               />
             </section>
