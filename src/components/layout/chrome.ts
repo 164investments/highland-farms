@@ -101,7 +101,8 @@ const ACTIONS: Record<PageType, PageAction | "cart" | null> = {
   sauna: { phone: "See sessions", label: "See open sessions", href: "#book" },
   stays: { phone: "Check dates", label: "Check dates and price", href: "#stays" },
   stay: { phone: "Check dates", label: "Check dates and price", href: "#book" },
-  thanksgiving: { phone: "Packages", label: "See the packages", href: "#packages" },
+  // The Thanksgiving design (#27) has one action, "Check availability", in its inquiry block.
+  thanksgiving: { phone: "Check dates", label: "Check availability", href: "#inquire" },
   gifts: { phone: "Gifts", label: "Choose a gift", href: "#choose" },
   shop: "cart",
   cart: null,

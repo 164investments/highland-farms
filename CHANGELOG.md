@@ -2,6 +2,36 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.0.0] - 2026-10-07
+
+### Changed
+
+- Redesign every page in the Field Guide style, led by weddings: the name "Highland Farms, Brightwood, Oregon" in words at the top of every page, a paper masthead, menu and footer, and one bottom action on phones that never covers a picker or a form.
+- Rebuild the wedding and contact forms: date and guest count first, month and year with "We're flexible", guest bands that match the venue, and text consent shown only after a phone number is typed.
+- Rebuild home, weddings, the real-weddings journal and its couple pages, farm tours, the Nordic spa, the sauna page, stays and each stay, celebrations, gifts, about, contact, the legal pages, the 404 and every shop page.
+- Bring the Thanksgiving page (0.2.1.0) onto the shared FAQ, quote and sticky-bar parts, keeping its content and click tracking.
+- Use only facts the farm has confirmed: unanswered details stay hidden, every guest quote is word for word from Google, and the one public phone line is (971) 236-2551.
+
+### Added
+
+- A gifts page that links each gift to its own Acuity certificate.
+- Field-guide drawings of the herd and the buildings, used as decoration beside real photos.
+
+### Fixed
+
+- Count each website lead once in GA4 (`generate_lead` was sent by both GTM and the server).
+- Send old `/shop/p/` product links to the matching product instead of the expired Squarespace store.
+
+## [0.2.1.0] - 2026-10-06
+
+### Changed
+
+- Rebuild the Thanksgiving page in the Field Guide style: paper ground, framed photos, ruled lists and one "Check availability" action, with the whole offer readable on a phone's first screen.
+- Spell out what the package includes, using the farm team's details: the chef-cooked dinner with a menu you shape, dishes and leftovers handled, a 1-hour welcome farm tour, a 1-hour photoshoot with 35 edited photos, 1 or 2 spa sessions (16+, not on Thanksgiving Day), eggs and sausage in the fridge, and an itinerary planned before you arrive.
+- Offer one optional upgrade, a chef-cooked Friday country breakfast, and drop the wine pairing and spa charcuterie.
+- Compare the two packages side by side, with per-guest pricing and the only two differences (where you sleep, spa sessions).
+- Answer breakfast, spa, kids, meals, pets and packing questions plainly, and prefill the inquiry email with the guest split and allergies the team needs.
+
 ## [0.2.0.1] - 2026-10-06
 
 ### Changed

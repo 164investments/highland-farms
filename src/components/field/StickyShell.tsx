@@ -279,6 +279,8 @@ export interface StickyActionSpec {
   external?: boolean;
   /** Client parents only (e.g. the shop). Wins over href. */
   onClick?: () => void;
+  /** Sets data-cta for click tracking (GTM reads it, e.g. "tg-sticky"). */
+  cta?: string;
 }
 
 export const stickyPrimaryClass =
@@ -331,14 +333,14 @@ export function StickyAction({
   );
   if (action.onClick || !action.href) {
     return (
-      <button type="button" onClick={action.onClick} className={cls}>
+      <button type="button" onClick={action.onClick} data-cta={action.cta} className={cls}>
         {content}
       </button>
     );
   }
   if (action.external) {
     return (
-      <a href={action.href} target="_blank" rel="noopener noreferrer" className={cls}>
+      <a href={action.href} target="_blank" rel="noopener noreferrer" data-cta={action.cta} className={cls}>
         {content}
         <span className="sr-only"> (opens in a new tab)</span>
       </a>
@@ -346,13 +348,13 @@ export function StickyAction({
   }
   if (action.href.startsWith("/") && !action.href.startsWith("//")) {
     return (
-      <Link href={action.href} className={cls}>
+      <Link href={action.href} data-cta={action.cta} className={cls}>
         {content}
       </Link>
     );
   }
   return (
-    <a href={action.href} className={cls}>
+    <a href={action.href} data-cta={action.cta} className={cls}>
       {content}
     </a>
   );

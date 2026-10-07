@@ -77,7 +77,7 @@ export function thanksgivingPackage(id: "lodge" | "whole-farm") {
   const pkg = thanksgiving.packages.find((p) => p.id === id)!;
   return {
     name: pkg.name,
-    guests: pkg.guests,
+    guests: pkg.sleeps,
     price: pkg.price,
     priceLabel: `$${pkg.price.toLocaleString("en-US")}`,
   };
