@@ -15,6 +15,7 @@ import {
   FieldSectionHeader,
   PendingSlot,
   Plate,
+  fieldCtaClass,
   fieldEyebrowClass,
   fieldLabelClass,
   fieldTextLinkClass,
@@ -64,14 +65,14 @@ const BANDS = {
 };
 
 /**
- * RULINGS #8: no wedding photo in this hero. A real non-wedding group on the
- * farm, captioned with only what it shows (the event itself is unconfirmed).
- * Not a first screen anywhere else (CONSISTENCY #12).
+ * Board C hero: a real guest photo, no wedding. The caption says only what the
+ * frame shows (a gold 3 balloon, a cowboy hat and a Highland cow).
  */
 const HERO_PHOTO = {
-  src: "/images/events/forest-yoga.jpg",
-  alt: "A group resting on blankets on the flagstone patio under tall firs",
-  position: "50% 85%",
+  src: "/images/farm/events-retreats.jpg",
+  alt: "A child in a white cowboy hat and fringed denim jacket holds a gold 3 balloon beside a Highland cow",
+  position: "50% 21%",
+  caption: "A gold 3 balloon, a cowboy hat and a Highland cow.",
 };
 
 const bring: { drawing: FieldDrawingName; title: string; body: string }[] = [
@@ -90,13 +91,6 @@ const bring: { drawing: FieldDrawingName; title: string; body: string }[] = [
     title: "Five acres of forest",
     body: "Tall firs and ferns, a flagstone patio and a pond.",
   },
-];
-
-/** The first-screen headcount picker (phone and desktop): one short line each, so all three rows fit in 660px. */
-const HEADCOUNT_ROWS = [
-  { band: BANDS.house, title: "One house", note: "The Lodge or the Cottage", href: "#one-house" },
-  { band: BANDS.farm, title: "The whole farm", note: `All three stays, sleeps ${wholeFarm.guests}`, href: "/stay/whole-farm#book" },
-  { band: BANDS.gathering, title: "A gathering", note: "Check your date with us", href: "#contact" },
 ];
 
 const ladderLinkClass = cn("mt-1 inline-flex min-h-11 items-center gap-1.5 text-[14px] lg:text-[15px]", fieldTextLinkClass);
@@ -122,77 +116,47 @@ export default function CelebrationsPage() {
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
       <StructuredData pathname="/celebrations" />
 
-      {/* 1. Hero: centred, then the headcount picker as the first step (no form first). */}
+      {/* 1. Hero (board C): the promise, the largest coo photo and one button. The headcount ladder is screen 2. */}
       <section className="px-5 pt-5 pb-9 lg:px-16 lg:pt-14 lg:pb-16">
         <div className="mx-auto max-w-[1312px]">
           <div className="lg:mx-auto lg:max-w-[860px] lg:text-center">
             <p className={cn("m-0 text-[17px] lg:text-[22px]", fieldEyebrowClass)}>Birthdays, reunions and retreats</p>
-            <h1 className="field-heading m-0 mt-1 font-display text-[33px] leading-[1.02] text-ink lg:mt-3 lg:text-[64px]">
+            <h1 className="field-heading m-0 mt-1 font-display text-[33px] leading-[1.02] text-ink max-[359px]:text-[29px] lg:mt-3 lg:text-[64px]">
               Gather your people on a Highland cow farm.
             </h1>
           </div>
-          <div className="mt-4 lg:mt-10">
-            {/* Phone: about 2:1, so the "21 to 125" row clears 660px (measured 646 at 393x660). */}
+          <div className="mt-3 lg:mt-10">
             <Plate
-              caption="A group resting on the flagstone patio under the firs."
+              caption={HERO_PHOTO.caption}
               captionClassName="lg:text-center"
-              frameClassName="h-[160px] min-[380px]:h-[176px] lg:h-[500px]"
+              frameClassName="h-[290px] max-[359px]:h-[218px] lg:h-[560px]"
             >
               <StayPhoto photo={HERO_PHOTO} sizes="(min-width: 1440px) 1312px, 100vw" priority />
             </Plate>
           </div>
           {/* Plain text, as on the other visit pages: no link out to Google on the first screen. */}
-          <FieldReviewTier tier="hero" className="mt-2.5 lg:hidden" />
-          <nav aria-label="Choose by group size" data-hero-cta className="lg:hidden">
-            <p className={cn("m-0 mt-3 font-medium", fieldLabelClass)}>How many are coming?</p>
-            <div className="mt-2 flex flex-col border-t border-ink/70">
-              {HEADCOUNT_ROWS.map((r) => (
-                <ClientLink key={r.title} href={r.href} className="flex min-h-[60px] items-center gap-3 border-b border-rule py-2">
-                  <span className="w-[92px] shrink-0 font-display text-[24px] font-medium leading-none text-ink">{r.band}</span>
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="font-display text-[19px] font-semibold leading-tight text-ink">{r.title}</span>
-                    <span className="font-sans text-[12px] text-ink-note">{r.note}</span>
-                  </span>
-                  <span className="text-pine">
-                    <FieldArrow />
-                  </span>
-                </ClientLink>
-              ))}
-            </div>
-          </nav>
-          <p className="m-0 mt-4 font-sans text-[15px] leading-[1.55] text-ink-body lg:hidden">
-            A private forest farm, about an hour from Portland.
-          </p>
-          <div className="hidden lg:mx-auto lg:mt-10 lg:block lg:max-w-[1100px]">
-            <div className="flex items-baseline justify-between gap-10">
-              <p className={cn("m-0 font-medium", fieldLabelClass)}>How many are coming?</p>
-              <FieldReviewTier tier="hero" />
-            </div>
-            <nav aria-label="Choose by group size" data-hero-cta className="mt-3 grid grid-cols-3 gap-10">
-              {HEADCOUNT_ROWS.map((r) => (
-                <ClientLink key={r.title} href={r.href} className="flex flex-col gap-2 border-t border-ink/70 pt-4">
-                  <span className="font-display text-[44px] font-medium leading-none text-ink">{r.band}</span>
-                  <span className="flex items-center justify-between gap-3">
-                    <span className="font-display text-[22px] font-semibold leading-tight text-ink">{r.title}</span>
-                    <span className="text-pine">
-                      <FieldArrow />
-                    </span>
-                  </span>
-                  <span className="font-sans text-[14px] text-ink-note">{r.note}</span>
-                </ClientLink>
-              ))}
-            </nav>
-            <p className="mx-auto mt-8 max-w-[760px] text-center font-sans text-[17px] leading-[1.6] text-ink-body">
-              A private forest farm, about an hour from Portland.
-            </p>
+          <FieldReviewTier tier="hero" className="mt-2.5 lg:mt-5 lg:justify-center" />
+          <div data-hero-cta className="mt-3.5 flex flex-col items-stretch lg:mt-8 lg:items-center">
+            <a href="#contact" className={cn(fieldCtaClass, "w-full lg:w-auto")}>
+              Check your date
+              <FieldArrow />
+            </a>
+            <a
+              href="#headcount"
+              className="mt-1 inline-flex min-h-11 items-center justify-center gap-1.5 self-center font-sans text-[14px] text-ink-note lg:text-[15px]"
+            >
+              Or choose by headcount
+              <FieldArrowDown size={16} />
+            </a>
           </div>
         </div>
       </section>
 
       {/* 2. Plan it by headcount: true capacities. */}
       <section
+        id="headcount"
         aria-labelledby="plan-title"
-        className="border-t-[3px] border-double border-frame px-5 pt-9 pb-10 lg:px-16 lg:pt-16 lg:pb-20"
+        className="scroll-mt-[var(--header-h,104px)] border-t-[3px] border-double border-frame px-5 pt-9 pb-10 lg:px-16 lg:pt-16 lg:pb-20"
       >
         <div className="mx-auto max-w-[1312px]">
           <FieldSectionHeader id="plan-title" size="md" eyebrow="Three ways to gather" title="Plan it by headcount" />
@@ -207,17 +171,13 @@ export default function CelebrationsPage() {
                 }}
               />
               <div className="mt-3 lg:order-2 lg:mt-0">
-                <LadderTitle>One house for the weekend</LadderTitle>
+                <LadderTitle>One house</LadderTitle>
                 <p className="m-0 mt-1.5 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
-                  The Lodge or the Cottage, each sleeping {ONE_HOUSE_MAX} with a cedar hot tub. Book it online today, then add a private farm tour or the Nordic spa.
+                  The Lodge or the Cottage, each sleeping {ONE_HOUSE_MAX} with a cedar hot tub.
                 </p>
                 <div className="mt-1 flex flex-col items-start">
-                  <Link href="/stay/lodge#book" className={ladderLinkClass}>
-                    Check the Lodge&apos;s dates
-                    <FieldArrow size={16} />
-                  </Link>
-                  <Link href="/stay/cottage#book" className={ladderLinkClass}>
-                    Check the Cottage&apos;s dates
+                  <Link href="/stay" className={ladderLinkClass}>
+                    See the Lodge and Cottage
                     <FieldArrow size={16} />
                   </Link>
                 </div>
@@ -235,11 +195,11 @@ export default function CelebrationsPage() {
               <div className="mt-3 lg:order-2 lg:mt-0">
                 <LadderTitle>The whole farm</LadderTitle>
                 <p className="m-0 mt-1.5 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
-                  The Lodge, the Cottage and the Camp together sleep {wholeFarm.guests}, with two cedar hot tubs and the Lodge&apos;s dining table for ten. Book it online today.
+                  The Lodge, the Cottage and the Camp together sleep {wholeFarm.guests}.
                 </p>
                 <div className="mt-1 flex flex-col items-start">
                   <Link href="/stay/whole-farm#book" className={ladderLinkClass}>
-                    Check whole-farm dates
+                    See the whole farm
                     <FieldArrow size={16} />
                   </Link>
                 </div>
@@ -266,7 +226,7 @@ export default function CelebrationsPage() {
                 />
                 <div className="mt-1 flex flex-col items-start">
                   <a href="#contact" className={ladderLinkClass}>
-                    Check your date
+                    Tell us your date
                     <FieldArrowDown size={16} />
                   </a>
                 </div>
@@ -467,25 +427,9 @@ export default function CelebrationsPage() {
           sublabel: `Up to ${GATHERING_MAX_GUESTS} gather · up to ${wholeFarm.guests} stay the night`,
           href: "#contact",
         }}
-        hideWhenVisible="#contact"
+        hideWhenVisible={["#contact", "#headcount"]}
       />
     </div>
-  );
-}
-
-/** A row link: a site path through next/link, a hash as a plain anchor. */
-function ClientLink({ href, className, children }: { href: string; className: string; children: ReactNode }) {
-  if (href.startsWith("/")) {
-    return (
-      <Link href={href} className={className}>
-        {children}
-      </Link>
-    );
-  }
-  return (
-    <a href={href} className={className}>
-      {children}
-    </a>
   );
 }
 
