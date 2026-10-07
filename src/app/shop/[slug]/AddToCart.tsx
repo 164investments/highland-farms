@@ -2,9 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Bell, Check, ShoppingBag } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { FieldStickyBar } from "@/components/field/StickyBar";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents } from "@/lib/shop/money";
+import { QtyStepper } from "@/components/shop/QtyStepper";
+import { WaitlistForm } from "@/components/shop/WaitlistForm";
+import { pushEvent, scarcityLabel } from "@/components/shop/track";
 
 export interface VariantView {
   id: string;
@@ -14,41 +18,49 @@ export interface VariantView {
   stock: number | null;
 }
 
-function pushEvent(event: string, payload: Record<string, unknown>) {
-  if (typeof window === "undefined") return;
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ event, ...payload });
-}
-
-/** Nudge only when it's true and useful — not on every product. */
-function scarcityLabel(stock: number | null): string | null {
-  if (stock === null || stock > 5 || stock <= 0) return null;
-  return stock === 1 ? "Only 1 left" : `Only ${stock} left`;
-}
-
+/**
+ * The buy box: price, pack, live stock, size chips (apparel), quantity and
+ * Add to cart, the pickup line, and the one bottom bar on phones.
+ *
+ * Apparel (`optionName === "Size"`) has no default size: the button reads
+ * "Choose a size" until one is picked. A sold-out size stays selectable so the
+ * shopper can ask to be emailed when it is back.
+ */
 export function AddToCart({
   productName,
+  productTitle,
   slug,
   category,
   optionName,
   variants,
+  pack,
 }: {
   productName: string;
+  productTitle: string;
   slug: string;
   category: string;
   optionName?: string;
   variants: VariantView[];
+  /** "1 lb pack": shown beside the price. */
+  pack?: string;
 }) {
-  const { add } = useCart();
+  const { add, count, subtotalCents, ready } = useCart();
+  const needsPick = optionName === "Size" && variants.length > 1;
   const firstAvailable = variants.find((v) => v.stock !== 0) ?? variants[0];
-  const [selectedId, setSelectedId] = useState(firstAvailable.id);
-  const [justAdded, setJustAdded] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(needsPick ? null : firstAvailable.id);
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
 
-  const selected = variants.find((v) => v.id === selectedId) ?? firstAvailable;
+  const selected = variants.find((v) => v.id === selectedId) ?? null;
+  const priced = selected ?? firstAvailable;
+  const allOut = variants.every((v) => v.stock === 0);
+  const selectedOut = selected ? selected.stock === 0 : false;
+  const max = selected?.stock && selected.stock > 0 ? Math.min(99, selected.stock) : 99;
+  const scarcity = selected ? scarcityLabel(selected.stock) : null;
+  const multi = variants.length > 1;
 
-  // view_item completes the GA4 item funnel. Without it there is no measurable
-  // step between the grid and add-to-cart, which is exactly where the sold-out
-  // and variant-choice questions get answered.
+  // view_item completes the GA4 item funnel (grid, then item, then add).
   const viewLogged = useRef(false);
   useEffect(() => {
     if (viewLogged.current) return;
@@ -69,19 +81,19 @@ export function AddToCart({
       },
     });
   }, [slug, productName, category, firstAvailable.priceCents]);
-  const soldOut = selected.stock === 0;
-  const allSoldOut = variants.every((v) => v.stock === 0);
-  const scarcity = scarcityLabel(selected.stock);
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
   function handleAdd() {
-    if (soldOut) return;
-    add(selected.id, 1);
-    setJustAdded(true);
-    window.setTimeout(() => setJustAdded(false), 2500);
+    if (!selected || selectedOut) return;
+    add(selected.id, qty);
+    setAdded(true);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setAdded(false), 3000);
     pushEvent("add_to_cart", {
       ecommerce: {
         currency: "USD",
-        value: selected.priceCents / 100,
+        value: (selected.priceCents * qty) / 100,
         items: [
           {
             item_id: slug,
@@ -89,44 +101,74 @@ export function AddToCart({
             item_category: category,
             item_variant: selected.label,
             price: selected.priceCents / 100,
-            quantity: 1,
+            quantity: qty,
           },
         ],
       },
     });
   }
 
-  return (
-    <div className="mt-5">
-      <p className="text-2xl font-medium text-forest font-sans">
-        {formatCents(selected.priceCents)}
-      </p>
+  const total = formatCents(priced.priceCents * qty).replace(/\.00$/, "");
+  const addLabel = allOut || selectedOut
+    ? "Sold out"
+    : !selected
+      ? `Choose a ${(optionName ?? "size").toLowerCase()}`
+      : `Add to cart · ${total}`;
+  const disabled = allOut || selectedOut;
+  const cartHasItems = ready && count > 0;
+  const buttonClass = cn(
+    "inline-flex h-[52px] flex-1 items-center justify-center gap-2.5 px-5 text-[15px] font-semibold tracking-[0.02em] transition-colors",
+    disabled ? "cursor-not-allowed bg-paper-shade text-ink-note" : "bg-pine text-paper-light hover:bg-pine-dark",
+  );
 
-      {variants.length > 1 && (
-        <fieldset className="mt-6">
-          <legend className="mb-2.5 text-xs uppercase tracking-[0.12em] text-muted font-sans">
+  return (
+    <>
+      <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 lg:mt-4">
+        <span className="text-[24px] font-semibold lg:text-[28px]">
+          {multi && !selected ? "from " : ""}
+          {formatCents(priced.priceCents).replace(/\.00$/, "")}
+        </span>
+        {pack && <span className="text-[14px] text-ink-note">{pack}</span>}
+        <span className="ml-auto inline-flex items-center gap-1.5 text-[13px] font-medium text-fern" aria-live="polite">
+          {allOut ? (
+            <span className="text-ink-note">Sold out</span>
+          ) : (
+            <>
+              <span className="h-2 w-2 bg-fern" aria-hidden="true" />
+              {scarcity ?? (selectedOut ? "Sold out" : "In stock")}
+            </>
+          )}
+        </span>
+      </div>
+
+      {multi && (
+        <fieldset className="m-0 mt-4 border-0 p-0 lg:mt-6">
+          <legend className="p-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">
             {optionName ?? "Choose"}
           </legend>
-          <div className="flex flex-wrap gap-2">
+          <div className="mt-2 flex flex-wrap gap-2">
             {variants.map((v) => {
               const out = v.stock === 0;
-              const isSelected = v.id === selectedId;
+              const on = v.id === selectedId;
+              const name = v.label ?? "Standard";
               return (
                 <button
                   key={v.id}
                   type="button"
-                  onClick={() => setSelectedId(v.id)}
-                  disabled={out}
-                  aria-pressed={isSelected}
-                  className={`rounded-full border px-4 py-2 text-sm transition-all font-sans ${
-                    isSelected
-                      ? "border-forest bg-forest text-white shadow-sm"
-                      : out
-                        ? "cursor-not-allowed border-cream-dark bg-cream text-muted/60 line-through"
-                        : "border-cream-dark bg-white text-charcoal hover:border-forest/40 hover:text-forest"
-                  }`}
+                  aria-pressed={on}
+                  aria-label={out ? `${name}, sold out` : name}
+                  onClick={() => {
+                    setSelectedId(v.id);
+                    setQty(1);
+                  }}
+                  className={cn(
+                    "flex h-12 min-w-12 items-center justify-center border px-3 text-[15px] font-medium",
+                    on ? "border-pine bg-pine text-paper-light" : "border-frame bg-paper-light text-ink hover:border-pine",
+                    out && !on && "text-ink-note line-through",
+                    out && on && "line-through",
+                  )}
                 >
-                  {v.label ?? "Standard"}
+                  {name}
                 </button>
               );
             })}
@@ -134,138 +176,58 @@ export function AddToCart({
         </fieldset>
       )}
 
-      {scarcity && !soldOut && (
-        <p className="mt-4 text-sm font-medium text-forest font-sans">{scarcity}</p>
-      )}
-
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={soldOut}
-          className={`inline-flex min-h-[54px] items-center justify-center gap-2.5 rounded-full px-8 text-sm uppercase tracking-[0.12em] transition-all font-sans ${
-            soldOut
-              ? "cursor-not-allowed bg-cream-dark text-muted"
-              : "bg-forest text-white shadow-sm hover:shadow-md"
-          }`}
-        >
-          {justAdded ? (
-            <>
-              <Check className="h-4 w-4" />
-              Added
-            </>
+      {!allOut && (
+        <div className="mt-4 flex gap-2.5 lg:mt-7">
+          <QtyStepper value={qty} min={1} max={max} size="pdp" label={productTitle.toLowerCase()} onChange={(n) => setQty(Math.max(1, n))} />
+          {added ? (
+            <Link
+              href="/shop/cart"
+              data-hero-cta=""
+              className={buttonClass}
+              aria-live="polite"
+            >
+              Added · View cart ({count})
+            </Link>
           ) : (
-            <>
-              <ShoppingBag className="h-4 w-4" />
-              {soldOut ? "Sold out" : "Add to cart"}
-            </>
+            <button
+              id="buy"
+              type="button"
+              data-hero-cta=""
+              onClick={handleAdd}
+              disabled={disabled}
+              className={buttonClass}
+            >
+              {addLabel}
+            </button>
           )}
-        </button>
-
-        {justAdded && (
-          <Link
-            href="/shop/cart"
-            className="text-sm text-forest underline underline-offset-4 font-sans"
-          >
-            View cart
-          </Link>
-        )}
-      </div>
-
-      {allSoldOut && <BackInStock variantId={selected.id} />}
-    </div>
-  );
-}
-
-/**
- * Sold-out capture.
- *
- * Without this the page is a dead end: it says stock comes back and gives the
- * customer no way to hear about it. Seven products sit here at any time.
- */
-function BackInStock({ variantId }: { variantId: string }) {
-  const [email, setEmail] = useState("");
-  const [website, setWebsite] = useState("");
-  const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle");
-  const [message, setMessage] = useState<string | null>(null);
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setState("saving");
-    try {
-      const res = await fetch("/api/shop/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ variantId, email, website: website || undefined }),
-      });
-      const body = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        setMessage(body.error ?? "Couldn't save that. Try again?");
-        setState("error");
-        return;
-      }
-      setState("done");
-    } catch {
-      setMessage("Couldn't reach the farm. Try again?");
-      setState("error");
-    }
-  }
-
-  if (state === "done") {
-    return (
-      <p className="mt-5 flex items-center gap-2 rounded-xl bg-white p-4 text-sm text-charcoal font-sans">
-        <Check className="h-4 w-4 shrink-0 text-forest" />
-        We&apos;ll email you the day it&apos;s back.
-      </p>
-    );
-  }
-
-  return (
-    <form onSubmit={submit} className="mt-5 rounded-xl bg-white p-4">
-      <p className="flex items-center gap-2 text-sm text-charcoal font-sans">
-        <Bell className="h-4 w-4 shrink-0 text-sage" />
-        Out right now. Want to know when it&apos;s back?
-      </p>
-      <div className="mt-3 flex gap-2">
-        <label className="sr-only" htmlFor={`wl-${variantId}`}>
-          Email address
-        </label>
-        <input
-          id={`wl-${variantId}`}
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@email.com"
-          autoComplete="email"
-          className="min-w-0 flex-1 rounded-full border border-cream-dark px-4 py-2.5 text-sm outline-none focus:border-forest font-sans"
-        />
-        <button
-          type="submit"
-          disabled={state === "saving"}
-          className="shrink-0 rounded-full bg-forest px-5 text-xs uppercase tracking-[0.1em] text-white transition-shadow hover:shadow-md disabled:opacity-60 font-sans"
-        >
-          {state === "saving" ? "…" : "Tell me"}
-        </button>
-      </div>
-      <input
-        type="text"
-        tabIndex={-1}
-        aria-hidden="true"
-        autoComplete="off"
-        value={website}
-        onChange={(e) => setWebsite(e.target.value)}
-        className="absolute left-[-9999px] h-0 w-0 opacity-0"
-      />
-      {message && (
-        <p role="alert" className="mt-2 text-xs text-charcoal font-sans">
-          {message}
-        </p>
+        </div>
       )}
-      <p className="mt-2.5 text-xs text-muted font-sans">
-        Or <Link href="/shop" className="text-forest underline underline-offset-4">see what else is in</Link>.
+
+      {selectedOut && !allOut && selected && (
+        <WaitlistForm key={selected.id} variantIds={[selected.id]} name={selected.label ?? productTitle} className="mt-3" />
+      )}
+      {allOut && (
+        <WaitlistForm variantIds={variants.map((v) => v.id)} name={productTitle} className="mt-3" />
+      )}
+
+      <p className="m-0 mt-2.5 text-[13px] leading-[1.45] text-ink-note">
+        Free pickup at the farm in Brightwood. We call you when it&apos;s packed.
       </p>
-    </form>
+
+      {/* The one bottom action on phones: add once the buy button scrolls away, view cart once the cart has items. */}
+      <FieldStickyBar
+        enabled={!allOut}
+        primary={
+          cartHasItems
+            ? {
+                label: `View cart · ${count} ${count === 1 ? "item" : "items"} · ${formatCents(subtotalCents)}`,
+                href: "/shop/cart",
+              }
+            : !selected || disabled
+              ? { label: addLabel, href: "#buy" }
+              : { label: addLabel, onClick: handleAdd }
+        }
+      />
+    </>
   );
 }

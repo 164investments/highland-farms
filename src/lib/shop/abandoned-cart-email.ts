@@ -334,7 +334,7 @@ function variantB(e: ReminderEmail, sender: Sender): string {
     <tr><td style="padding:14px 24px 26px">
       <p style="margin:0;font-size:13px;line-height:1.55;color:${MUTED}">
         Order tonight and it's in your skillet Saturday. Questions about a cut, or want to
-        change the order? Call or text ${esc(CONTACT.phone)}.</p>
+        change the order? Call ${esc(CONTACT.phone)}.</p>
       ${signature(sender)}
     </td></tr>`,
   );
@@ -425,7 +425,7 @@ Subtotal: ${formatCents(e.subtotalCents)}
 Finish your order: ${recoveryUrl(e)}
 
 Free pickup at the farm. $15 local delivery. We don't ship.
-Questions? Call or text ${CONTACT.phone}.
+Questions? Call ${CONTACT.phone}.
 
 ${sender.name}
 ${sender.role}

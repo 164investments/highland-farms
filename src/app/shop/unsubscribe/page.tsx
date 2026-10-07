@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
-import { Check } from "lucide-react";
-import { Container } from "@/components/ui/Container";
+import { fieldCtaClass } from "@/components/ui/FieldGuide";
 import { CONTACT } from "@/lib/constants";
 
 /**
@@ -49,40 +48,34 @@ export default async function UnsubscribePage({
   const ok = token ? await unsubscribe(token) : false;
 
   return (
-    <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20">
-      <Container className="max-w-lg text-center">
-        {ok ? (
-          <>
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-forest text-white">
-              <Check className="h-5 w-5" />
-            </span>
-            <h1 className="mt-5 font-display text-2xl font-light text-charcoal">
-              You&apos;re unsubscribed
-            </h1>
-            <p className="mt-3 text-sm text-muted font-sans">
-              We won&apos;t send you any more cart reminders. Order confirmations
-              still come through, since those are receipts for something you
-              bought.
-            </p>
-          </>
-        ) : (
-          <>
-            <h1 className="font-display text-2xl font-light text-charcoal">
-              We couldn&apos;t find that link
-            </h1>
-            <p className="mt-3 text-sm text-muted font-sans">
-              It may have already been used. Call or text {CONTACT.phone} and
-              we&apos;ll take care of it.
-            </p>
-          </>
-        )}
-        <Link
-          href="/shop"
-          className="mt-7 inline-flex min-h-[48px] items-center rounded-full bg-forest px-7 text-sm uppercase tracking-[0.12em] text-white font-sans"
-        >
-          Back to the farm store
-        </Link>
-      </Container>
-    </main>
+    <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
+      <section className="px-5 pb-16 pt-10 lg:px-16 lg:pt-20">
+        <div className="mx-auto max-w-[560px]">
+          {ok ? (
+            <>
+              <h1 className="field-heading m-0 font-display text-[32px] leading-[1.05] lg:text-[44px]">
+                You&apos;re unsubscribed
+              </h1>
+              <p className="m-0 mt-3 text-[15px] leading-[1.6] text-ink-body">
+                We won&apos;t send you any more cart reminders. Order confirmations still come through, since those
+                are receipts for something you bought.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="field-heading m-0 font-display text-[32px] leading-[1.05] lg:text-[44px]">
+                We couldn&apos;t find that link
+              </h1>
+              <p className="m-0 mt-3 text-[15px] leading-[1.6] text-ink-body">
+                It may have already been used. Call {CONTACT.phone} and we&apos;ll take care of it.
+              </p>
+            </>
+          )}
+          <Link href="/shop" className={`${fieldCtaClass} mt-7`}>
+            Back to the farm store
+          </Link>
+        </div>
+      </section>
+    </div>
   );
 }

@@ -1,548 +1,207 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Check } from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { BOOKING_LINKS } from "@/lib/constants";
-import { giftCertificatesHref, nativeCalendarEnabled } from "@/lib/booking/flag";
-import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
+import { ChevronDownIcon } from "@/components/shop/icons";
 import {
-  CATEGORIES,
-  PRODUCTS,
-  fromPrice,
-  hasChoices,
-  type CategoryKey,
-  type Product,
-} from "./data";
-import { formatCentsShort, toCents } from "@/lib/shop/money";
-import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
-import { ReviewBadge } from "@/components/shared/ReviewBadge";
+  FieldArrow,
+  FieldLeader,
+  FieldNo,
+  FieldQuoteView,
+  type ResolvedFieldQuote,
+} from "@/components/ui/FieldGuide";
+import { LedgerRow, SoldOutRow, priceText } from "@/components/shop/LedgerRow";
+import { QuickAdd } from "@/components/shop/QuickAdd";
+import { isSoldOut, pushEvent, toGA4Item, type StockRecord } from "@/components/shop/track";
+import { CATEGORIES, PRODUCTS, hasChoices, type Category, type Product } from "./data";
 
-type NavKey = "featured" | CategoryKey;
+/** Where a photo crop differs from the centre (the hoodie is shot high). */
+const CROPS: Record<string, string> = {
+  "highland-farms-the-dream-hoodie": "50% 30%",
+  "highland-farm-the-dream-hoodie-olive-green": "35% 35%",
+  "highland-farms-the-dream-t-shirt": "50% 35%",
+  "highland-farms-the-dream-t-shirt-j7bx6": "50% 35%",
+  "highland-farms-the-dream-t-shirt-j7bx6-appl6": "50% 40%",
+  "highland-farms-logo-keychain-leather-branded": "50% 60%",
+  "firewood": "50% 65%",
+};
 
-declare global {
-  interface Window {
-    dataLayer?: Record<string, unknown>[];
-  }
-}
-
-function pushEvent(event: string, payload: Record<string, unknown>) {
-  if (typeof window === "undefined") return;
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ event, ...payload });
-}
-
-function trackedAcuityUrl(href: string) {
-  return appendAttributionToUrl(href, getClientAttribution());
-}
-
-/** variant id -> units left; null means unlimited. Serialised from the server. */
-type StockRecord = Record<string, number | null>;
-
-function isSoldOut(stock: StockRecord, product: Product): boolean {
-  return product.variants.every((v) => stock[v.id] === 0);
-}
-
-function toGA4Item(p: Product, index: number) {
+/** In stock first, catalogue order within each group. */
+export function shelfProducts(cat: Category, stock: StockRecord): { open: Product[]; out: Product[] } {
+  const all = PRODUCTS.filter((p) => p.category === cat.key);
   return {
-    item_id: p.slug,
-    item_name: p.name,
-    item_category: p.category,
-    price: fromPrice(p),
-    index,
+    open: all.filter((p) => !isSoldOut(stock, p)),
+    out: all.filter((p) => isSoldOut(stock, p)),
   };
 }
 
-function ProductCard({
-  product,
-  index,
-  stock,
-}: {
-  product: Product;
-  index: number;
-  stock: StockRecord;
-}) {
-  const soldOut = isSoldOut(stock, product);
+function metaLine(cat: Category, total: number, open: number): string {
+  const noun = total === 1 ? cat.unit.one : cat.unit.many;
+  if (open === total) {
+    return `${total} ${noun} · ${cat.allInStockNote ?? (total === 2 ? "both in stock" : "all in stock")}`;
+  }
+  return `${total} ${noun} · ${open} in stock now`;
+}
+
+function Favorite({ product, stock, index }: { product: Product; stock: StockRecord; index: number }) {
+  const card = product.card ?? { title: product.title, note: product.subtitle ?? "" };
+  const choices = hasChoices(product);
   return (
-    <Link
-      href={`/shop/${product.slug}`}
-      onClick={() =>
-        pushEvent("select_item", {
-          ecommerce: { items: [toGA4Item(product, index)] },
-        })
-      }
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-    >
-      <div className="relative aspect-square overflow-hidden bg-cream">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
-            soldOut ? "opacity-60" : ""
-          }`}
-        />
-        {product.badges && product.badges.length > 0 && !soldOut && (
-          <div className="absolute left-2.5 top-2.5 flex flex-col gap-1.5">
-            {product.badges.map((badge) => (
-              <span
-                key={badge}
-                className="rounded-full bg-white/95 px-2.5 py-0.5 text-[0.625rem] font-normal uppercase tracking-[0.12em] text-forest shadow-sm font-sans"
-              >
-                {badge}
-              </span>
-            ))}
+    <li className="flex flex-col">
+      <Link
+        href={`/shop/${product.slug}`}
+        onClick={() => pushEvent("select_item", { ecommerce: { items: [toGA4Item(product, index)] } })}
+        className="block"
+      >
+        <div className="border border-frame bg-paper-light p-[7px] lg:p-2.5">
+          <div className="relative aspect-square overflow-hidden">
+            <Image
+              src={product.image}
+              alt={product.title}
+              fill
+              sizes="(min-width: 1312px) 300px, (min-width: 1024px) 22vw, 46vw"
+              className="object-cover"
+              style={{ objectPosition: CROPS[product.slug] ?? "50% 50%" }}
+            />
           </div>
-        )}
-        {soldOut && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="rounded-full bg-charcoal/90 px-4 py-1.5 text-xs font-normal uppercase tracking-[0.15em] text-white font-sans">
-              Sold Out
-            </span>
-          </div>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col p-3.5 sm:p-4">
-        <h3 className="text-[0.9375rem] font-normal leading-tight text-charcoal font-sans">
-          {product.name}
+        </div>
+        <p className="m-0 mt-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-fern lg:text-[11px]">
+          {CATEGORIES.find((c) => c.key === product.category)?.shortLabel}
+        </p>
+        <h3 className="m-0 mt-0.5 font-display text-[20px] font-medium leading-[1.1] text-ink lg:text-[24px]">
+          {card.title}
         </h3>
-        <div className="mt-auto pt-2.5">
-          <p className="text-[1.0625rem] font-medium text-forest font-sans">
-            {hasChoices(product) && (
-              <span className="mr-1 text-[0.6875rem] font-normal uppercase tracking-wider text-muted">
-                from
-              </span>
-            )}
-            {formatCentsShort(toCents(fromPrice(product)))}
-            {product.priceNote && (
-              <span className="ml-1.5 text-[0.6875rem] font-normal uppercase tracking-wider text-muted">
-                {product.priceNote}
-              </span>
-            )}
-          </p>
-        </div>
+        <p className="m-0 mt-1 flex items-baseline gap-2 text-[13px] lg:text-[14px]">
+          <span className="text-ink-note">{card.note}</span>
+          <FieldLeader className="min-w-3" />
+          <span className="font-semibold">{priceText(product)}</span>
+        </p>
+      </Link>
+      <div className="mt-2.5">
+        {choices ? (
+          <Link
+            href={`/shop/${product.slug}`}
+            aria-label={`Choose a size of the ${card.note.toLowerCase()} ${card.title}`}
+            className="flex h-11 w-full items-center justify-center border border-pine text-[14px] font-semibold text-pine hover:bg-paper-shade"
+          >
+            Choose a size
+          </Link>
+        ) : (
+          <QuickAdd product={product} stock={stock} display="label" />
+        )}
       </div>
-    </Link>
+    </li>
   );
 }
 
-interface PillSpec {
-  key: NavKey;
-  label: string;
-  count: number;
-}
-
-function CategoryNav({
-  pills,
-  active,
-  onJump,
+export function ShopBody({
+  stock,
+  quote,
+  tourForTwo,
 }: {
-  pills: PillSpec[];
-  active: NavKey | null;
-  onJump: (key: NavKey) => void;
+  stock: StockRecord;
+  /** Farm tour for two, in dollars (TOUR_PARTY_SIZES). */
+  tourForTwo: number;
+  /** Brit L.'s sentence, resolved on the server. */
+  quote: ResolvedFieldQuote | null;
 }) {
-  return (
-    <div className="sticky top-[var(--header-h,80px)] z-30 border-y border-cream-dark/40 bg-background/95 backdrop-blur-md">
-      <Container>
-        <div className="flex gap-2 overflow-x-auto py-3 sm:justify-center [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {pills.map((p) => {
-            const isActive = active === p.key;
-            return (
-              <button
-                key={p.key}
-                onClick={() => onJump(p.key)}
-                className={`shrink-0 rounded-full border px-4 py-1.5 text-[0.7rem] font-normal uppercase tracking-[0.12em] transition-all duration-200 font-sans ${
-                  isActive
-                    ? "border-forest bg-forest text-white shadow-sm"
-                    : "border-cream-dark bg-white text-charcoal hover:border-forest/40 hover:text-forest"
-                }`}
-              >
-                {p.label}
-                <span
-                  className={`ml-1.5 text-[0.625rem] ${
-                    isActive ? "text-white/70" : "text-muted"
-                  }`}
-                >
-                  {p.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </Container>
-    </div>
-  );
-}
-
-export function ShopBody({ stock }: { stock: StockRecord }) {
-  const nativeOn = nativeCalendarEnabled();
-  const giftHref = giftCertificatesHref();
-  const [active, setActive] = useState<NavKey | null>("featured");
-  const sectionRefs = useRef<Record<NavKey, HTMLElement | null>>({
-    featured: null,
-    plush: null,
-    apparel: null,
-    mangalitsa: null,
-    beef: null,
-    pantry: null,
-  });
-  const viewLogged = useRef(false);
-
-  const featured = PRODUCTS.filter((p) => p.featured && !isSoldOut(stock, p));
-  const totalCount = PRODUCTS.length;
-
-  const pills: PillSpec[] = [
-    { key: "featured", label: "Favorites", count: featured.length },
-    ...CATEGORIES.map((c) => ({
-      key: c.key as NavKey,
-      label: c.shortLabel,
-      count: PRODUCTS.filter((p) => p.category === c.key).length,
-    })),
-  ];
-
+  const logged = useRef(false);
   useEffect(() => {
-    if (viewLogged.current) return;
-    viewLogged.current = true;
+    if (logged.current) return;
+    logged.current = true;
     pushEvent("view_item_list", {
-      ecommerce: {
-        item_list_name: "Farm Store",
-        items: PRODUCTS.map((p, i) => toGA4Item(p, i)),
-      },
+      ecommerce: { item_list_name: "Farm Store", items: PRODUCTS.map((p, i) => toGA4Item(p, i)) },
     });
   }, []);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) {
-          const key = visible.target.getAttribute("data-cat") as NavKey | null;
-          if (key) setActive(key);
-        }
-      },
-      {
-        rootMargin: "-25% 0px -55% 0px",
-        threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
-      }
-    );
-
-    (Object.keys(sectionRefs.current) as NavKey[]).forEach((k) => {
-      const el = sectionRefs.current[k];
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  const jumpTo = (key: NavKey) => {
-    const el = sectionRefs.current[key];
-    if (!el) return;
-    pushEvent("select_promotion", {
-      promotion_id: `shop_category_${key}`,
-      promotion_name:
-        key === "featured"
-          ? "Favorites"
-          : CATEGORIES.find((c) => c.key === key)?.label,
-      creative_slot: "sticky_pill_nav",
-    });
-    const headerOffset = 140;
-    const top = el.getBoundingClientRect().top + window.scrollY - headerOffset;
-    window.scrollTo({ top, behavior: "smooth" });
-  };
+  const favorites = PRODUCTS.filter((p) => p.featured && !isSoldOut(stock, p));
 
   return (
     <>
-      {/* Trust strip now lives in the hero (page.tsx) */}
-
-      {/* Sticky category nav — above everything */}
-      <CategoryNav pills={pills} active={active} onJump={jumpTo} />
-
-      {/* Featured Row */}
-      <section
-        ref={(el) => {
-          sectionRefs.current.featured = el;
-        }}
-        data-cat="featured"
-        id="cat-featured"
-        className="scroll-mt-32 bg-background py-10 lg:py-14"
-      >
-        <Container>
-          <div className="mb-6 flex items-baseline justify-between gap-4 sm:mb-8">
-            <div>
-              <p className="text-xs font-normal uppercase tracking-[0.18em] text-sage sm:text-[0.8125rem]">
-                Bestsellers
+      {favorites.length > 0 && (
+        <section id="favorites" className="scroll-mt-32 px-5 pb-2 pt-6 lg:scroll-mt-40 lg:px-16 lg:pb-4 lg:pt-16">
+          <div className="mx-auto max-w-[1312px]">
+            <div className="flex items-end justify-between gap-4 border-b border-ink pb-2.5">
+              <h2 className="field-heading m-0 font-display text-[30px] leading-none lg:text-[44px]">Farm favorites</h2>
+              <p className="m-0 text-right text-[12px] leading-snug text-ink-meta lg:text-[13px]">
+                Ordered most
+                <br className="lg:hidden" /> since August
               </p>
-              <h2 className="mt-1 text-[1.75rem] font-light leading-tight tracking-tight sm:text-[2rem]">
-                Farm Favorites
-              </h2>
             </div>
-            <p className="shrink-0 text-xs text-muted font-sans sm:text-sm">
-              {totalCount} products in store
-            </p>
+            <ul className="m-0 mt-5 grid list-none grid-cols-2 gap-x-3.5 gap-y-7 p-0 lg:mt-8 lg:grid-cols-4 lg:gap-x-8">
+              {favorites.map((p, i) => (
+                <Favorite key={p.slug} product={p} stock={stock} index={i} />
+              ))}
+            </ul>
           </div>
-          <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
-            {featured.map((p, i) => (
-              <ProductCard key={p.name} product={p} index={i}
-                  stock={stock} />
-            ))}
-          </div>
-        </Container>
-      </section>
+        </section>
+      )}
 
-      {/* Categorized sections */}
-      <div className="bg-background">
-        {CATEGORIES.map((cat, catIdx) => {
-          // In-stock first, catalog order preserved within each group. Sold-out
-          // items stay visible (breadth is real provenance signal) but must not
-          // hold the anchor slots — the first cards get the attention, and
-          // Mangalitsa was opening with two SOLD OUT bacon cards.
-          const inCategory = PRODUCTS.filter((p) => p.category === cat.key)
-            .map((p, i) => ({ p, i, out: isSoldOut(stock, p) }))
-            .sort((a, b) => Number(a.out) - Number(b.out) || a.i - b.i)
-            .map((x) => x.p);
-          if (inCategory.length === 0) return null;
-          return (
-            <section
-              key={cat.key}
-              ref={(el) => {
-                sectionRefs.current[cat.key] = el;
-              }}
-              data-cat={cat.key}
-              id={`cat-${cat.key}`}
-              className={`scroll-mt-32 py-10 lg:py-14 ${
-                catIdx % 2 === 0 ? "bg-cream/30" : ""
-              }`}
-            >
-              <Container>
-                <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
-                  <div className="max-w-2xl">
-                    <h2 className="text-[1.75rem] font-light leading-tight tracking-tight sm:text-[2rem]">
-                      {cat.label}
-                    </h2>
-                    <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted font-sans">
-                      {cat.story}
-                    </p>
-                  </div>
-                  <p className="shrink-0 text-xs text-muted font-sans sm:text-sm">
-                    {inCategory.length} {inCategory.length === 1 ? "item" : "items"}
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
-                  {inCategory.map((p, i) => (
-                    <ProductCard key={p.name} product={p} index={i}
-                  stock={stock} />
+      {CATEGORIES.map((cat, i) => {
+        const { open, out } = shelfProducts(cat, stock);
+        const total = open.length + out.length;
+        if (total === 0) return null;
+        const fold = out.length >= 3;
+        return (
+          <section key={cat.key} id={cat.key} className="scroll-mt-32 px-5 pt-10 lg:scroll-mt-40 lg:px-16 lg:pt-24">
+            <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
+              <header className="lg:sticky lg:top-[170px] lg:self-start">
+                <FieldNo n={i + 1} />
+                <h2 className="field-heading m-0 mt-1 font-display text-[32px] leading-none lg:text-[44px]">{cat.label}</h2>
+                <p className="m-0 mt-2.5 font-display text-[18px] italic leading-[1.35] text-ink-body lg:text-[20px]">
+                  {cat.story}
+                </p>
+                <p className="m-0 mt-2 text-[12px] text-ink-meta">{metaLine(cat, total, open.length)}</p>
+              </header>
+              <div className="mt-4 lg:mt-0">
+                <ul className="m-0 list-none border-t border-ink p-0">
+                  {open.map((p, n) => (
+                    <LedgerRow key={p.slug} product={p} stock={stock} index={n} objectPosition={CROPS[p.slug]} />
                   ))}
-                </div>
-              </Container>
-            </section>
-          );
-        })}
-      </div>
-
-      {/* Google Reviews — social proof */}
-      <GoogleReviewsSection topic="all" max={6} />
-
-
-      {/* Gift Certificates - photo cards, per-card CTA, trust strip, social proof */}
-      <section className="bg-forest py-14 lg:py-20 text-white">
-        <Container>
-          <div className="mb-10 text-center">
-            <p className="mb-2 text-xs font-normal uppercase tracking-[0.18em] text-sage-light sm:text-[0.8125rem]">
-              Gift the farm · Birthdays, anniversaries & holidays
-            </p>
-            <h2 className="text-[1.75rem] font-light leading-tight tracking-tight sm:text-[2rem]">
-              Gift Certificates
-            </h2>
-            <p className="mx-auto mt-2.5 max-w-xl text-[0.9375rem] leading-relaxed text-white/80 font-sans">
-              Give a tour, a sauna ritual, or a night under the cedars.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
-            {[
-              {
-                image: "/images/farm/cows.jpg",
-                title: "Farm Tour",
-                desc: "Private 60-min Highland Cow encounter for up to six.",
-                price: "From $150",
-                utm: "farm-tour",
-              },
-              {
-                image: "/images/spa/spa-1.jpg",
-                title: "Nordic Spa",
-                desc: "90-min wood-burning sauna + cold plunge ritual.",
-                price: "$75 / person",
-                utm: "nordic-spa",
-              },
-              {
-                image: "/images/farm/lodge-bridge.jpg",
-                title: "Farm Stay",
-                desc: "A night at the Lodge, Cottage, or Airstream Camp.",
-                price: "Choose any amount",
-                utm: "farm-stay",
-              },
-            ].map((card) => (
-              <a
-                key={card.title}
-                href={
-                  nativeOn
-                    ? giftHref
-                    : `${BOOKING_LINKS.giftCertificates}?utm_source=hf_site&utm_medium=shop&utm_content=gift-${card.utm}`
-                }
-                {...(!nativeOn && { target: "_blank", rel: "noopener noreferrer" })}
-                onClick={(event) => {
-                  if (!nativeOn) {
-                    event.currentTarget.href = trackedAcuityUrl(event.currentTarget.href);
-                  }
-                  pushEvent("select_promotion", {
-                    promotion_id: `gift-${card.utm}`,
-                    promotion_name: `Gift Certificate - ${card.title}`,
-                    creative_slot: "shop_gift_section",
-                  });
-                  pushEvent("booking_start", {
-                    booking_type: "gift_certificate",
-                    booking_url: event.currentTarget.href,
-                    booking_title: `Gift Certificate - ${card.title}`,
-                  });
-                }}
-                className="group overflow-hidden rounded-2xl border border-white/15 bg-white/[0.04] backdrop-blur-sm transition hover:border-white/30 hover:bg-white/[0.07]"
-              >
-                <div className="relative aspect-[5/3] w-full overflow-hidden">
-                  <Image
-                    src={card.image}
-                    alt={card.title}
-                    fill
-                    sizes="(max-width: 640px) 100vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest/40 to-transparent" />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <h3 className="text-lg font-normal text-white font-sans">
-                      {card.title}
-                    </h3>
-                    <span className="text-sm text-sage-light font-sans">
-                      {card.price}
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-sm leading-relaxed text-white/75 font-sans">
-                    {card.desc}
-                  </p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-white font-sans">
-                    Gift this
-                    <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
-                      →
-                    </span>
-                  </span>
-                </div>
-              </a>
-            ))}
-          </div>
-          <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/80 font-sans">
-            <li className="inline-flex items-center gap-1.5">
-              <Check className="h-4 w-4 text-sage-light" aria-hidden />
-              Delivered instantly by email
-            </li>
-            <li className="inline-flex items-center gap-1.5">
-              <Check className="h-4 w-4 text-sage-light" aria-hidden />
-              Never expires
-            </li>
-            <li className="inline-flex items-center gap-1.5">
-              <Check className="h-4 w-4 text-sage-light" aria-hidden />
-              Email or print to give
-            </li>
-          </ul>
-          <div className="mt-8 flex flex-col items-center gap-3 text-center">
-            <a
-              href={giftHref}
-              {...(!nativeOn && { target: "_blank", rel: "noopener noreferrer" })}
-              onClick={(event) => {
-                if (!nativeOn) {
-                  event.currentTarget.href = trackedAcuityUrl(BOOKING_LINKS.giftCertificates);
-                }
-                pushEvent("booking_start", {
-                  booking_type: "gift_certificate",
-                  booking_url: event.currentTarget.href,
-                  booking_title: "Gift Certificates",
-                });
-              }}
-              className="inline-flex items-center justify-center rounded-full bg-white px-9 py-3.5 text-base font-normal uppercase tracking-[0.15em] text-charcoal transition-all duration-300 hover:bg-cream"
-            >
-              Purchase Gift Certificates
-            </a>
-            <ReviewBadge variant="pill" />
-          </div>
-        </Container>
-      </section>
-
-      {/* Cross-sell to experiences */}
-      <section className="bg-background py-14 lg:py-20">
-        <Container>
-          <SectionHeading
-            eyebrow="Visit the farm"
-            title="More than a store"
-            subtitle="Most of our shop customers first met us in person. Come meet the cows, sit in the sauna, or stay the night."
-            className="!mb-10"
-          />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
-            {[
-              {
-                href: "/farm-tours",
-                image: "/images/farm/cows.jpg",
-                title: "Highland Cow Tours",
-                desc: "Private 60-min farm tours. From $150 for two.",
-              },
-              {
-                href: "/nordic-spa",
-                image: "/images/spa/spa-1.jpg",
-                title: "Nordic Forest Spa",
-                desc: "Wood-burning sauna + cold plunge. 90 min, $75.",
-              },
-              {
-                href: "/stay",
-                image: "/images/farm/lodge-bridge.jpg",
-                title: "Stay the Night",
-                desc: "Lodge, Cottage, or Airstream Camp.",
-              },
-            ].map((card) => (
-              <a
-                key={card.title}
-                href={card.href}
-                className="group relative block aspect-[4/3] overflow-hidden rounded-2xl"
-              >
-                <Image
-                  src={card.image}
-                  alt={card.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/85 via-charcoal/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <h3 className="text-xl font-normal font-sans">{card.title}</h3>
-                  <p className="mt-1 text-sm text-white/80 font-sans">
-                    {card.desc}
-                  </p>
-                </div>
-              </a>
-            ))}
-          </div>
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 text-center text-xs text-muted font-sans sm:flex-row sm:gap-6 sm:text-sm">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-forest" />
-              <span>21261 East Little River Road, Brightwood, OR</span>
+                  {fold ? (
+                    <li>
+                      <details className="group border-b border-rule">
+                        <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 py-1.5 [&::-webkit-details-marker]:hidden">
+                          <span className="font-display text-[19px] leading-tight text-ink-note lg:text-[21px]">
+                            {out.length} sold out
+                          </span>
+                          <FieldLeader />
+                          <span className="shrink-0 border-b border-pine-line text-[13px] font-medium text-pine">
+                            Email me when back
+                          </span>
+                          <ChevronDownIcon size={14} className="shrink-0 text-pine transition-transform group-open:rotate-180" />
+                        </summary>
+                        <ul className="m-0 list-none border-t border-rule p-0">
+                          {out.map((p) => (
+                            <SoldOutRow key={p.slug} product={p} />
+                          ))}
+                        </ul>
+                      </details>
+                    </li>
+                  ) : (
+                    out.map((p) => <SoldOutRow key={p.slug} product={p} />)
+                  )}
+                </ul>
+                {cat.key === "mangalitsa" && quote && (
+                  <FieldQuoteView {...quote} rule size="sm" className="mt-7" />
+                )}
+                {cat.key === "plush" && (
+                  <Link
+                    href="/farm-tours"
+                    className="mt-1 flex min-h-12 items-baseline gap-2.5 py-2"
+                  >
+                    <span className="font-display text-[19px] font-medium text-ink lg:text-[21px]">Meet the herd on a tour</span>
+                    <FieldLeader />
+                    <span className="shrink-0 text-[13px] text-ink-note">${tourForTwo} for two</span>
+                    <FieldArrow size={15} className="self-center text-pine" />
+                  </Link>
+                )}
+              </div>
             </div>
-            <span className="hidden sm:inline">·</span>
-            <span>About an hour from Portland</span>
-          </div>
-        </Container>
-      </section>
+          </section>
+        );
+      })}
     </>
   );
 }

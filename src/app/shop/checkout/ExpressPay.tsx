@@ -136,15 +136,16 @@ export function ExpressPay({
   // Gating it behind `anyReady` was a chicken-and-egg: attach failed because the
   // node wasn't there, so nothing ever became ready.
   return (
-    <div className={anyReady ? "mb-5" : "contents"}>
-      <div className={anyReady ? "flex flex-col gap-2.5" : "hidden"}>
+    <div className={anyReady ? "mt-6" : "contents"}>
+      <p className={anyReady ? "m-0 text-[13px] font-medium text-ink" : "hidden"}>Pay fast</p>
+      <div className={anyReady ? "mt-2 flex flex-col gap-2.5" : "hidden"}>
         {appleReady && (
           <button
             type="button"
             onClick={() => pay(appleRef.current)}
             disabled={disabled}
             aria-label="Pay with Apple Pay"
-            className="flex min-h-[52px] w-full items-center justify-center rounded-full bg-black text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center bg-black text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <span className="text-[15px] font-medium">Pay with </span>
             <svg viewBox="0 0 24 24" className="ml-1.5 h-5 w-5 fill-white" aria-hidden>
@@ -161,12 +162,10 @@ export function ExpressPay({
         className={googleReady ? "mt-2.5" : "pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0"}
       />
 
-      <div className={anyReady ? "my-4 flex items-center gap-3" : "hidden"}>
-        <span className="h-px flex-1 bg-cream-dark" />
-        <span className="text-[0.6875rem] uppercase tracking-[0.12em] text-muted font-sans">
-          or pay by card
-        </span>
-        <span className="h-px flex-1 bg-cream-dark" />
+      <div className={anyReady ? "mt-5 flex items-center gap-3 text-[12px] uppercase tracking-[0.14em] text-ink-meta" : "hidden"}>
+        <span className="h-px flex-1 bg-rule" />
+        or pay by card
+        <span className="h-px flex-1 bg-rule" />
       </div>
     </div>
   );
