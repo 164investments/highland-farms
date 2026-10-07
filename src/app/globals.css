@@ -118,14 +118,18 @@ body:has([data-footer-quiet="bare"]) [data-footer-slim-help] {
 }
 
 /* The footer by page type (mobile review r1, r2): the wedding pages (weddings, the journal and couple
-   pages, about) and celebrations, which carries its own wedding band, drop the footer's plate and Weddings
+   pages, about), celebrations and contact, which carry their own wedding band or card, drop the footer's plate and Weddings
    group; home and the shop keep the plate and Weddings group but drop the visit rows (home's visit index and
    the shop's gift card sit just above); visit, stay, celebration, gift and Thanksgiving pages lead with Visit
    the farm on phones. */
-body:has([data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead="about"], [data-masthead="celebrations"]) [data-footer-weddings] {
+body:has([data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead="about"], [data-masthead="celebrations"], [data-masthead="contact"]) [data-footer-weddings] {
   display: none;
 }
 body:has([data-masthead="home"], [data-masthead="shop"]) [data-footer-visit-rows] {
+  display: none;
+}
+/* Home's own pages already show this couple-and-coos photo: its footer keeps the Weddings group, not the plate (r3). */
+body:has([data-masthead="home"]) [data-footer-part="proof"] {
   display: none;
 }
 @media (max-width: 1023px) {

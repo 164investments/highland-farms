@@ -6,7 +6,17 @@ import { FieldDrawing, FieldStars } from "@/components/ui/FieldGuide";
 import { REVIEW_TIER_COUNTS, GOOGLE_REVIEW_LINK } from "@/components/field/Reviews";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import { confirmedCouples } from "@/data/wedding-portfolio";
-import { ELSEWHERE, LOOKBOOK_DOOR, MORE_LINKS, WEDDING_MENU_NOTE, visitDoors, weddingDoors } from "./chrome";
+import {
+  ELSEWHERE,
+  LOOKBOOK_DOOR,
+  MORE_LINKS,
+  WEDDING_DEMAND_NOTE,
+  WEDDING_DEMAND_NOTE_SHORT,
+  WEDDING_MENU_NOTE,
+  WEDDING_PRICE_NOTE,
+  visitDoors,
+  weddingDoors,
+} from "./chrome";
 
 /*
  * The shared footer (mobile review board B1, direction A, 2026-10-07): the phone menu laid flat. It
@@ -54,6 +64,13 @@ const DOTS =
   "m-0 flex list-none flex-wrap p-0 [--sep:20px] -ml-[var(--sep)] [clip-path:inset(0_0_0_var(--sep))] max-lg:ml-0 max-lg:grid max-lg:grid-cols-2 max-lg:gap-x-4 max-lg:[clip-path:none]";
 const DOT_ITEM =
   "flex items-center before:w-[var(--sep)] before:flex-none before:text-center before:text-ink-meta before:content-['·'] max-lg:before:hidden";
+/* The directories and legal lines: two compact 12px lines with 24px targets (mobile review r3: the 44px grid
+   read as a wall of equal links); an even two-column grid only under 375px, so no word sits alone. */
+const SMALL_DOTS =
+  "m-0 flex list-none flex-wrap p-0 [--sep:16px] -ml-[var(--sep)] [clip-path:inset(0_0_0_var(--sep))] max-[374px]:ml-0 max-[374px]:grid max-[374px]:grid-cols-2 max-[374px]:gap-x-4 max-[374px]:[clip-path:none]";
+const SMALL_ITEM =
+  "flex items-center before:w-[var(--sep)] before:flex-none before:text-center before:text-ink-meta before:content-['·'] max-[374px]:before:hidden";
+const SMALL_LINK = "inline-flex min-h-6 items-center whitespace-nowrap font-sans text-[12px] leading-tight text-ink-meta transition-colors hover:text-pine";
 /* The small label over each email. */
 const EMAIL_LABEL = "m-0 pt-1.5 text-[12px] leading-tight text-ink-meta";
 
@@ -127,6 +144,13 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                 <ChevronRight className="h-[18px] w-[18px] flex-none text-ink-meta" strokeWidth={1.6} aria-hidden="true" />
               </Link>
               <p className={`${NOTE} -mt-1`}>{WEDDING_MENU_NOTE}</p>
+              {/* The menu's two true lines (price floor, September sell-out), so the footer and menu match. */}
+              <p className="m-0 mt-1.5 text-[13px] leading-snug text-ink-body">{WEDDING_PRICE_NOTE}</p>
+              <p className="m-0 mt-1 flex items-center gap-1.5 text-[12.5px] font-medium leading-snug text-pine">
+                <CalendarCheck aria-hidden="true" size={14} strokeWidth={1.8} className="shrink-0" />
+                <span className="max-[374px]:hidden">{WEDDING_DEMAND_NOTE}</span>
+                <span className="min-[375px]:hidden">{WEDDING_DEMAND_NOTE_SHORT}</span>
+              </p>
               <ul role="list" className="m-0 mt-0.5 list-none p-0">
                 <li>
                   <Link href={realWeddings.href} className={`${LINK} gap-3`}>
@@ -221,27 +245,27 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
 
           {/* Elsewhere and legal: two quiet dotted lines. */}
           <div className="mt-3 border-t border-rule pt-1 lg:col-span-4 lg:mt-12 lg:pt-2">
-            <ul role="list" className={DOTS}>
+            <ul role="list" className={`${SMALL_DOTS} pt-1`}>
               {directories.map((site) => (
-                <li key={site.href} className={DOT_ITEM}>
-                  <a href={site.href} target="_blank" rel="noopener noreferrer" className={`${LINK} whitespace-nowrap text-[13px] text-ink-meta`}>
+                <li key={site.href} className={SMALL_ITEM}>
+                  <a href={site.href} target="_blank" rel="noopener noreferrer" className={SMALL_LINK}>
                     {site.label}
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </li>
               ))}
-              <li className={DOT_ITEM}>
-                <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className={`${LINK} whitespace-nowrap text-[13px] text-ink-meta`}>
+              <li className={SMALL_ITEM}>
+                <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className={SMALL_LINK}>
                   Instagram
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </li>
             </ul>
-            <ul role="list" className={`${DOTS} mt-2`}>
-              <li className={DOT_ITEM}><Link href="/privacy" className={`${LINK} text-[13px] text-ink-meta`}>Privacy</Link></li>
-              <li className={DOT_ITEM}><Link href="/terms" className={`${LINK} text-[13px] text-ink-meta`}>Terms</Link></li>
-              <li className={DOT_ITEM}><Link href="/accessibility" className={`${LINK} text-[13px] text-ink-meta`}>Accessibility</Link></li>
-              <li className={DOT_ITEM}><a href="/llms.txt" className={`${LINK} text-[13px] text-ink-meta`}>For AI agents</a></li>
+            <ul role="list" className={`${SMALL_DOTS} mt-1 pb-1`}>
+              <li className={SMALL_ITEM}><Link href="/privacy" className={SMALL_LINK}>Privacy</Link></li>
+              <li className={SMALL_ITEM}><Link href="/terms" className={SMALL_LINK}>Terms</Link></li>
+              <li className={SMALL_ITEM}><Link href="/accessibility" className={SMALL_LINK}>Accessibility</Link></li>
+              <li className={SMALL_ITEM}><a href="/llms.txt" className={SMALL_LINK}>For AI agents</a></li>
             </ul>
           </div>
 

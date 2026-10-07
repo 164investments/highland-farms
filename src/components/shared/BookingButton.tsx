@@ -60,6 +60,8 @@ export function wrapperNote(src: string): string | null {
   if (type === "nordic_spa") {
     const minutes = `${BOOKING_PRODUCTS["nordic-spa"].durationMin} minutes, rain or shine.`;
     const quantity = spaQuantityNote(src);
+    // The 3 to 5 row: the instruction alone, so the narrow modal header stays two lines.
+    if (quantity === "Set Quantity to 3, 4 or 5.") return quantity;
     return quantity ? `${minutes} ${quantity}` : `${minutes} Pick a time below.`;
   }
   // Tours are the "Private Tour for N" calendar; the wedding call and the tour menu also fall back to farm_tour.
@@ -243,7 +245,7 @@ export function BookingModalRoot() {
         {/* Paper header like the rest of the site; the title wraps instead of crowding the links. */}
         <div className="shrink-0 border-b border-rule px-5 pb-3 pt-2">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="m-0 min-w-0 flex-1 pt-2.5 font-display text-[19px] font-semibold leading-tight text-ink">
+            <h3 className="m-0 min-w-0 flex-1 pt-2.5 font-display text-[19px] font-semibold leading-tight text-ink [font-variant-numeric:lining-nums]">
               {title}
             </h3>
             <div className="flex shrink-0 items-center">
