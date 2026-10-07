@@ -1,11 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
-import { BookOpen, CalendarDays, ChevronRight, Images, Instagram, MapPin, Phone, type LucideIcon } from "lucide-react";
+import {
+  BookOpen,
+  CalendarCheck,
+  CalendarDays,
+  ChevronRight,
+  Images,
+  Instagram,
+  MapPin,
+  Phone,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CONTACT, INSTAGRAM_FOLLOWERS } from "@/lib/constants";
+import { CONTACT } from "@/lib/constants";
 import { useCart } from "@/lib/shop/cart";
 import { FieldArrow, FieldStars, fieldEyebrowClass } from "@/components/ui/FieldGuide";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
@@ -15,12 +26,16 @@ import {
   LOOKBOOK_DOOR,
   MORE_LINKS,
   TEL_HREF,
+  WEDDING_DEMAND_NOTE,
+  WEDDING_DEMAND_NOTE_SHORT,
   WEDDING_MENU_NOTE,
+  WEDDING_PRICE_NOTE,
   isQuietChrome,
   pageActionFor,
   visitDoors,
   weddingDoors,
   type ChromeDoor,
+  type MenuFacts,
   type PageType,
 } from "./chrome";
 
@@ -29,8 +44,8 @@ interface MobileMenuProps {
   onClose: () => void;
   type: PageType;
   pathname: string;
-  /** Google review count (compact tier), resolved on the server: the snapshot must not ship to the client. */
-  reviewCount: number;
+  /** Review count and confirmed-couple count, resolved on the server (see MenuFacts). */
+  facts: MenuFacts;
 }
 
 /** Slide and fade time; the sheet unmounts after it. */
@@ -54,6 +69,14 @@ const STEP_ICONS: Record<string, LucideIcon> = {
   "2027 look book": BookOpen,
   "Call with Connor": CalendarDays,
 };
+
+const NUMBER_WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+
+/** "See four real weddings", counted from the confirmed couples in the portfolio. */
+function realWeddingsLabel(count: number): string {
+  const word = NUMBER_WORDS[count];
+  return word ? `See ${word} real weddings` : "Real weddings";
+}
 
 /** Weddings, Real weddings, 2027 look book, the free call (same order as the footer). */
 function withLookbook(doors: ChromeDoor[]): ChromeDoor[] {
@@ -122,8 +145,18 @@ function Chevron() {
   return <ChevronRight aria-hidden="true" size={18} strokeWidth={1.6} className="shrink-0 text-ink-meta" />;
 }
 
-/** A wedding step: icon, name, and "Free PDF" on the look book (it downloads with no form). */
-function StepRow({ door, pathname, onClose }: { door: ChromeDoor; pathname: string; onClose: () => void }) {
+/** A wedding step: icon, name, and "Free 20-page PDF" on the look book (it downloads with no form). */
+function StepRow({
+  door,
+  pathname,
+  onClose,
+  label,
+}: {
+  door: ChromeDoor;
+  pathname: string;
+  onClose: () => void;
+  label?: string;
+}) {
   const current = door.current?.(pathname) ?? false;
   const Icon = STEP_ICONS[door.title];
   return (
@@ -136,16 +169,20 @@ function StepRow({ door, pathname, onClose }: { door: ChromeDoor; pathname: stri
       {Icon && <Icon aria-hidden="true" size={18} strokeWidth={1.6} className="shrink-0 text-pine" />}
       <span
         className={cn(
-          "flex-1 font-sans text-[15px] font-medium leading-snug transition-colors group-hover:text-pine",
+          "flex-1 font-sans text-[15px] font-medium leading-snug transition-colors group-hover:text-pine max-[374px]:text-[14px]",
           current && "text-pine",
         )}
       >
-        <DoorTitle door={door} />
+        {label ?? <DoorTitle door={door} />}
       </span>
       {current ? (
         <YouAreHere />
       ) : (
-        door === LOOKBOOK_DOOR && <span className="shrink-0 text-[11px] font-medium tracking-[0.04em] text-ink-meta">Free PDF</span>
+        door === LOOKBOOK_DOOR && (
+          <span className="shrink-0 text-[12px] font-medium text-pine">
+            Free <span className="max-[374px]:hidden">20-page </span>PDF
+          </span>
+        )
       )}
     </DoorLink>
   );
@@ -192,7 +229,7 @@ function VisitRow({ door, pathname, onClose }: { door: ChromeDoor; pathname: str
 }
 
 const QUICK =
-  "flex min-h-14 flex-col items-center justify-center gap-1 border border-rule bg-paper-light px-1 py-2 text-center text-[12px] font-medium leading-tight text-ink-body transition-colors hover:border-pine hover:text-pine";
+  "flex h-full min-h-14 flex-col items-center justify-center gap-1 border border-rule bg-paper-light px-1 py-2 text-center text-[12px] font-medium leading-tight text-ink-body transition-colors hover:border-pine hover:text-pine";
 
 function QuickIcon({ icon: Icon }: { icon: LucideIcon }) {
   return <Icon aria-hidden="true" size={18} strokeWidth={1.6} className="text-pine" />;
@@ -201,16 +238,19 @@ function QuickIcon({ icon: Icon }: { icon: LucideIcon }) {
 /**
  * The menu: a sheet that slides in from the left, where the menu button sits,
  * over the page dimmed behind it (tap the page, swipe left, press Escape or
- * the close button to dismiss). Menu round 3, 2026-10-07: the text-only list
+ * the close button to dismiss). It is portalled to <body> and the rest of the
+ * page is inert while it is open. Menu round 3, 2026-10-07: the text-only list
  * read "very basic", so the sheet follows mobile-drawer practice with the
  * farm's own photos. Top: close, the name, tap to call. Weddings leads as a
- * framed photo plate with the coos line, the Google review count and its
- * three steps; the visits are photo rows with their one-line hints; then the
- * short links, quick actions (call, directions, Instagram) and the page's
- * own action pinned at the thumb. The current page carries a pine bar and
+ * framed photo plate captioned with the Google review count, then the coos
+ * line, the two-night price and the September 2026 sell-out (both sourced in
+ * chrome.ts), and three steps; the visits are photo rows with their one-line
+ * hints; then the short links, three uniform quick actions and the page's own
+ * action pinned at the thumb. The current page carries a pine bar and
  * "You are here". The list scrolls under a fade while rows sit below it.
  */
-export function MobileMenu({ isOpen, onClose, type, pathname, reviewCount }: MobileMenuProps) {
+export function MobileMenu({ isOpen, onClose, type, pathname, facts }: MobileMenuProps) {
+  const root = useRef<HTMLDivElement>(null);
   const sheet = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const list = useRef<HTMLElement>(null);
@@ -240,6 +280,17 @@ export function MobileMenu({ isOpen, onClose, type, pathname, reviewCount }: Mob
       setEntered(false);
     }, MOTION_MS);
     return () => window.clearTimeout(t);
+  }, [isOpen]);
+
+  // The page behind is inert while the sheet is open (the sheet is portalled to <body>).
+  useEffect(() => {
+    if (!isOpen) return;
+    const self = root.current;
+    const others = Array.from(document.body.children).filter(
+      (el): el is HTMLElement => el instanceof HTMLElement && el !== self && !el.hasAttribute("inert"),
+    );
+    others.forEach((el) => el.setAttribute("inert", ""));
+    return () => others.forEach((el) => el.removeAttribute("inert"));
   }, [isOpen]);
 
   // Scroll lock, focus, and <html data-sheet-open> (hides the chat launcher).
@@ -314,8 +365,8 @@ export function MobileMenu({ isOpen, onClose, type, pathname, reviewCount }: Mob
   const [lead, ...steps] = withLookbook(weddingDoors());
   const leadCurrent = lead.current?.(pathname) ?? false;
 
-  return (
-    <div className="fixed inset-0 z-50 font-sans text-ink">
+  return createPortal(
+    <div ref={root} className="fixed inset-0 z-50 font-sans text-ink">
       {/* The page behind, dimmed: a tap closes the sheet. */}
       <div
         aria-hidden="true"
@@ -371,7 +422,7 @@ export function MobileMenu({ isOpen, onClose, type, pathname, reviewCount }: Mob
         <div className="relative flex min-h-0 flex-1 flex-col">
           <nav
             ref={list}
-            aria-label="Menu"
+            aria-label="Site pages"
             className="flex-1 overflow-y-auto overscroll-contain px-5 pb-6 pt-2.5 max-[359px]:px-4"
           >
             {/* Weddings: the plate, the name, the coos. */}
@@ -386,9 +437,9 @@ export function MobileMenu({ isOpen, onClose, type, pathname, reviewCount }: Mob
                     className="object-cover object-[center_56%]"
                   />
                 </span>
-                <span className="flex items-center gap-1.5 px-0.5 pt-[5px] text-[11.5px] leading-none text-ink-note">
+                <span className="flex items-center gap-1.5 px-0.5 pt-[5px] text-[12px] leading-none text-ink-note">
                   <FieldStars size={11} />
-                  {reviewCount} reviews on Google
+                  {facts.reviewCount} reviews on Google
                 </span>
               </span>
               <span className="mt-2 flex items-center justify-between gap-3">
@@ -405,17 +456,30 @@ export function MobileMenu({ isOpen, onClose, type, pathname, reviewCount }: Mob
               <span className="mt-1 block font-display text-[16px] italic leading-tight text-ink-note">
                 {WEDDING_MENU_NOTE}
               </span>
+              <span className="mt-1.5 block text-[13px] leading-snug text-ink-body">{WEDDING_PRICE_NOTE}</span>
+              <span className="mt-1 flex items-center gap-1.5 text-[12.5px] font-medium leading-snug text-pine">
+                <CalendarCheck aria-hidden="true" size={14} strokeWidth={1.8} className="shrink-0" />
+                <span className="max-[374px]:hidden">{WEDDING_DEMAND_NOTE}</span>
+                <span className="min-[375px]:hidden">{WEDDING_DEMAND_NOTE_SHORT}</span>
+              </span>
             </DoorLink>
             <ul role="list" aria-label="Plan your wedding" className="m-0 mt-1 list-none p-0">
               {steps.map((door) => (
                 <li key={door.title}>
-                  <StepRow door={door} pathname={pathname} onClose={onClose} />
+                  <StepRow
+                    door={door}
+                    pathname={pathname}
+                    onClose={onClose}
+                    label={door.title === "Real weddings" ? realWeddingsLabel(facts.realWeddings) : undefined}
+                  />
                 </li>
               ))}
             </ul>
 
-            <p className={`m-0 mt-3 text-[15px] ${fieldEyebrowClass}`}>Visit the farm</p>
-            <ul role="list" className="m-0 mt-1.5 list-none border-t border-rule p-0">
+            <p id="menu-visit" className={`m-0 mt-3 text-[15px] ${fieldEyebrowClass}`}>
+              Visit the farm
+            </p>
+            <ul role="list" aria-labelledby="menu-visit" className="m-0 mt-1.5 list-none border-t border-rule p-0">
               {visitDoors().map((door) => (
                 <li key={door.title} className="border-b border-rule">
                   <VisitRow door={door} pathname={pathname} onClose={onClose} />
@@ -423,10 +487,22 @@ export function MobileMenu({ isOpen, onClose, type, pathname, reviewCount }: Mob
               ))}
             </ul>
 
-            <p className={`m-0 mt-5 text-[15px] ${fieldEyebrowClass}`}>More from the farm</p>
-            <ul role="list" className="m-0 mt-1 grid list-none grid-cols-2 gap-x-3 p-0 text-[14px]">
-              {MORE_LINKS.map((link) => (
-                <li key={link.href} data-season-only={link.season}>
+            <p id="menu-more" className={`m-0 mt-5 text-[15px] ${fieldEyebrowClass}`}>
+              More from the farm
+            </p>
+            {/* One dotted line from 375px, aligned to the list edge; a two-by-two below, where it would wrap. */}
+            <ul
+              role="list"
+              aria-labelledby="menu-more"
+              className="m-0 mt-1 grid list-none grid-cols-2 gap-x-3 p-0 text-[14px] min-[375px]:flex min-[375px]:flex-wrap min-[375px]:gap-x-0 min-[375px]:text-[13px]"
+            >
+              {MORE_LINKS.map((link, i) => (
+                <li key={link.href} data-season-only={link.season} className="flex items-center">
+                  {i > 0 && (
+                    <span aria-hidden="true" className="hidden px-2 text-ink-meta min-[375px]:inline">
+                      ·
+                    </span>
+                  )}
                   <Link
                     href={link.href}
                     onClick={onClose}
@@ -457,7 +533,6 @@ export function MobileMenu({ isOpen, onClose, type, pathname, reviewCount }: Mob
                 <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className={QUICK}>
                   <QuickIcon icon={Instagram} />
                   Instagram
-                  <span className="text-[11px] font-normal text-ink-meta">{INSTAGRAM_FOLLOWERS} followers</span>
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </li>
@@ -489,7 +564,8 @@ export function MobileMenu({ isOpen, onClose, type, pathname, reviewCount }: Mob
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

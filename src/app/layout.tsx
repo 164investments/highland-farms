@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter, Dancing_Script } from "next/font/google";
 import Script from "next/script";
 import { Header } from "@/components/layout/Header";
 import { REVIEW_TIER_COUNTS } from "@/components/field/Reviews";
+import { confirmedCouples } from "@/data/wedding-portfolio";
 import { Footer } from "@/components/layout/Footer";
 import { SkipLink } from "@/components/layout/SkipLink";
 import {
@@ -160,7 +161,7 @@ export default function RootLayout({
         />
         <SkipLink />
         <CartProvider>
-          <Header reviewCount={REVIEW_TIER_COUNTS.compact} />
+          <Header menuFacts={{ reviewCount: REVIEW_TIER_COUNTS.compact, realWeddings: confirmedCouples.length }} />
           <main id="main-content">{children}</main>
           <Footer />
         </CartProvider>
