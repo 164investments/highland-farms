@@ -37,14 +37,14 @@ import {
 } from "./quotes";
 
 export const metadata: Metadata = {
-  title: { absolute: "Mt. Hood Wedding Venue | All-Inclusive | Highland Farms" },
+  title: { absolute: "Mt. Hood Forest Wedding Venue with Highland Cows | Highland Farms" },
   description:
-    "All-inclusive forest weddings with Scottish Highland cows, about an hour from Portland at the base of Mt. Hood. See the venue and real weddings.",
+    "Whimsical forest weddings with Scottish Highland cows as honorary guests, about an hour from Portland at the base of Mt. Hood. See real weddings and check your date.",
   alternates: { canonical: "/weddings" },
   openGraph: {
-    title: "Mt. Hood Wedding Venue | All-Inclusive | Highland Farms",
+    title: "Mt. Hood Forest Wedding Venue with Highland Cows | Highland Farms",
     description:
-      "All-inclusive forest weddings with Scottish Highland cows, about an hour from Portland at the base of Mt. Hood. See the venue and real weddings.",
+      "Whimsical forest weddings with Scottish Highland cows as honorary guests, about an hour from Portland at the base of Mt. Hood. See real weddings and check your date.",
     url: "https://highlandfarmsoregon.com/weddings",
     type: "website",
     images: [

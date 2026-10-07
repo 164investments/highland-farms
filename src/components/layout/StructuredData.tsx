@@ -190,8 +190,6 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         geo,
         hasMap: `https://www.google.com/maps?q=${CONTACT.coordinates.lat},${CONTACT.coordinates.lng}`,
         sameAs: SAME_AS,
-        // "Family-run Since 2019", stated on /shop.
-        foundingDate: "2019",
         founder: { "@id": `${SITE.url}/#connor` },
         image: [
           `${SITE.url}/images/hero/farm-aerial.jpg`,
@@ -359,7 +357,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         "@id": `${SITE.url}/#venue`,
         name: "Highland Farms Wedding Venue",
         description:
-          "All-inclusive farm and forest wedding venue at the base of Mt. Hood. Five acres of old-growth forest, Scottish Highland Cows, on-site lodging for 20 guests, and dedicated event coordination.",
+          "Private forest farm wedding venue at the base of Mt. Hood, about an hour from Portland. Five acres of forest, the Scottish Highland Cows as honorary guests, up to 125 guests, and lodging on the farm for up to 20.",
         url: `${SITE.url}/weddings`,
         address,
         geo,

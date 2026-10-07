@@ -39,11 +39,11 @@ const dancingScript = Dancing_Script({
 
 export const metadata: Metadata = {
   title: {
-    default: "Highland Farms | Oregon's Premier Farm Wedding Venue",
+    default: "Highland Farms | Forest Wedding Venue & Highland Cow Farm near Portland",
     template: "%s | Highland Farms Oregon",
   },
   description:
-    "Oregon's premier farm wedding venue & outdoor sauna near Portland. All-inclusive farm and forest weddings, Highland Cow farm tours, sauna & cold plunge, and farm stays at the base of Mt. Hood.",
+    "A private forest farm at the base of Mt. Hood, about an hour from Portland: whimsical forest weddings with the Highland coos as honorary guests, private Highland Cow farm tours, a wood-fired Nordic spa with cold plunge, and farm stays.",
   keywords: [
     "Oregon wedding venue",
     "farm wedding venue Oregon",
@@ -65,9 +65,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Highland Farms | Oregon's Premier Farm Wedding Venue",
+    title: "Highland Farms | Forest Wedding Venue & Highland Cow Farm near Portland",
     description:
-      "All-inclusive farm and forest weddings at the base of Mt. Hood.",
+      "Whimsical forest weddings with the Highland coos, about an hour from Portland.",
     url: "https://highlandfarmsoregon.com",
     siteName: "Highland Farms Oregon",
     locale: "en_US",

@@ -45,11 +45,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // https://highlandfarmsoregon.com/lookbook.pdf — never a
     // Squarespace-hosted copy (those paths regenerate and 404).
     { path: "/lookbook.pdf", priority: 0.5, changeFrequency: "monthly" as const },
+    // The gifts page renders in both modes (static catalog links when the flag is off).
+    { path: "/gift-certificates", priority: 0.6, changeFrequency: "monthly" as const },
     ...(nativeCalendarEnabled()
-      ? [
-          { path: "/wedding-call", priority: 0.6, changeFrequency: "monthly" as const },
-          { path: "/gift-certificates", priority: 0.6, changeFrequency: "monthly" as const },
-        ]
+      ? [{ path: "/wedding-call", priority: 0.6, changeFrequency: "monthly" as const }]
       : []),
   ];
 

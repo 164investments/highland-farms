@@ -1,5 +1,3 @@
-import { BOOKING_LINKS } from "@/lib/constants";
-
 /** Native calendar kill switch. Off ⇒ routes 404 and no UI mounts. */
 export function nativeCalendarEnabled(): boolean {
   return process.env.NEXT_PUBLIC_NATIVE_CALENDAR === "true";
@@ -12,5 +10,7 @@ export function nativeCalendarEnabled(): boolean {
  * and client components.
  */
 export function giftCertificatesHref(): string {
-  return nativeCalendarEnabled() ? "/gift-certificates" : BOOKING_LINKS.giftCertificates;
+  // The page exists in both modes: native checkout when the flag is on, the
+  // static catalog page (links into Acuity) when it is off.
+  return "/gift-certificates";
 }
