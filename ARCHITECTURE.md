@@ -166,19 +166,28 @@ scroll lock, `aria-current`.
 **The footer** (`Footer.tsx`, server) is the phone menu laid flat (mobile
 review board B1, 2026-10-07), paper-shade under a double rule: the menu's own
 plate with the compact review count in its mat (`proof`), Weddings as the one
-large lead with `WEDDING_MENU_NOTE` and the menu's three icon steps, the visit
-doors as plain rows and the short links on one dotted line (`doors`), the one
-public line in pine with the two emails (`talk`), the address and directions
-(`find`), then the directories and legal on two quiet dotted lines (the "For
+large lead with `WEDDING_MENU_NOTE`, the menu's price and September lines
+(`WEDDING_PRICE_NOTE`, `WEDDING_DEMAND_NOTE`) and its three icon steps
+(`data-footer-weddings` on the plate and this group), the visit doors as plain
+rows (`data-footer-visit-rows`) and the short links (`doors`; on phones an even
+two-column grid), the one public line in pine with the two labelled emails
+(`talk`), the address and directions (`find`), then the directories and legal on
+two compact 12px lines with 24px targets (a two-column grid under 375px; the "For
 AI agents" link stays) and the colophon. One note per group, one link style,
-no hint column (`ChromeDoor.note` is now unused by the footer). A page hides
-parts it already shows with `<FooterHide parts={["find"]} />` (`doors | find |
-talk | proof`; pure CSS through `:has()`, so it is right in the server HTML);
-/contact hides find and talk by route. **The quiet footer** (`[data-footer-slim]`:
-the cow-head drawing, "Questions about an order? Call", Privacy, Terms,
-Accessibility) replaces it on checkout, the cart and the order pages by route,
-and on any page that renders `<FooterQuiet />` (`bare` drops the help line; the
-unsubscribe page uses it).
+no hint column (`ChromeDoor.note` is now unused by the footer). **By page type**
+(globals.css on `data-masthead`): weddings, the journal and couple pages, about,
+celebrations and contact drop the plate and Weddings group (the page carries its
+own); home drops the plate (its photo repeats) and the visit rows; the shop drops
+the visit rows; visit, stay, gift and Thanksgiving pages put the visit doors first
+on phones. A page hides parts it already shows with
+`<FooterHide parts={["find"]} />` (`doors | find | talk | proof`; pure CSS through
+`:has()`, so it is right in the server HTML); /contact hides find and talk by
+route, the legal pages hide `talk`, the 404 hides `doors` and `proof`. **The quiet
+footer** (`[data-footer-slim]`: the cow-head drawing with the "Highland Farms"
+wordmark, "Questions about an order? Call", Privacy, Terms, Accessibility)
+replaces it on checkout, the cart and the order pages by route, and on any page
+that renders `<FooterQuiet />` (`bare` drops the help line; the unsubscribe page
+uses it).
 
 **Wedding-call links** in the chrome go through `WeddingCallLink`, which pushes
 the same `booking_start` (`booking_type: "wedding_call"`) as the inquiry form.
@@ -190,7 +199,14 @@ the gate") it is a docked, non-modal paper card with one button that opens
 `/lookbook.pdf`: no email field, no dimmed page, no focus trap; Escape or the
 plain close dismisses it for 30 days, and opening it ends it for good. Pushes
 `lookbook_open` (`placement: "lookbook-popup"`); `lookbook_email_submit` and
-`email_subscribe` no longer fire from it.
+`email_subscribe` no longer fire from it. In the page flow, /weddings and the
+journal use `LookbookCard` (`app/weddings/LookbookLink.tsx`): the same cover,
+one outline button, and its own `lookbook_open` placement.
+
+**Stay cross-sells** (`components/stay/StayLines.tsx`): `StayHereRows` renders
+"While you're here" on /stay and every stay page as small photo rows (Thanksgiving
+behind its season gate, then the tour and the spa through `BookingTextLink`), and
+`StayKnowRows` states a stay's minimum once.
 
 **The booking wrapper** (`BookingModalRoot` in `shared/BookingButton.tsx`) is a
 paper header over the Acuity iframe: the title wraps instead of crowding the
@@ -207,7 +223,8 @@ wrapper frame. Event guest bands are 2 to 8 / 9 to 20 / 21 to 50 / 51 to 125
 (one house, the whole farm), with older band values still labelled.
 
 **The bottom sticky bar** (`field/StickyShell.tsx`, used by `FieldStickyBar`)
-is the page's one phone action. It appears once the first-screen CTA
+is the page's one phone action (52px button; 48px with tighter padding under 375px,
+where `--sticky-bar-h` follows). It appears once the first-screen CTA
 (`data-hero-cta`) scrolls away, or from load with `showOnLoad` on pages that
 have no first-screen button (the wedding portfolio and couple pages). It hides
 while its `hideWhenVisible` target or any `[data-sticky-stop]` element is on

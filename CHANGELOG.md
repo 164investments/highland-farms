@@ -2,6 +2,23 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.4.0] - 2026-10-07
+
+### Changed
+
+- Phone review of every page (iPhone 14 Pro, the Instagram in-app browser and iPhone SE), four rounds of critique: each money page's first in-app screen now shows the promise and one action, and repeated lists, double buttons and long text runs are gone.
+- Footer: the phone menu laid flat. A couple-and-coos photo with the review count, Weddings with its true price and September sell-out lines and three steps, the visit doors, labelled emails, the address, and two quiet lines of links. It changes by page: wedding pages and contact leave out the wedding block they already carry, home and the shop leave out the visit rows, visit and stay pages show the visit doors first. Checkout, the cart and order pages end with a slim footer.
+- Sticky bar: shorter on small phones; it gives way once the footer is on screen.
+- Season bars are a quiet paper band with a green link instead of a solid green slab.
+- Forms: date and guest count first, guest bands 2 to 8, 9 to 20, 21 to 50 and 51 to 125, the full text-message consent shown only after a phone number is typed, the first problem field focused on an invalid send, and a success card that never strands an email address or splits the phone number.
+- The look-book popup is a small card at the bottom of the screen with one button that opens the PDF (no email needed).
+- Weddings: the two price floors, the cost answer first and open, a framed look-book card under the real weddings, a confirmed alcohol and insurance answer, and "Every September 2026 Saturday sold out" by the form (also on home).
+- Visits: one price chooser per page, the scarcity line first, then Know before you book, then the cancellation policy in one closed row (word for word). The booking window names the picked group size.
+- Stays: the four stays as photo rows, the booking calendar framed with the two-night rule above it, photo rows for tours and the spa, and one action name on Thanksgiving ("Check Thanksgiving dates").
+- Shop: a product on the first screen, a shorter Mangalitsa shelf, the hoodie's size and Add button on the first screen, red-only checkout errors, labelled pickup and order phone lines.
+- About, contact, the 404, unsubscribe and the legal pages: shorter first screens, one call link, a short-version box at the top of Terms, Privacy and Accessibility.
+- Facts: unsourced lines are removed or held back (a caterer policy, drive times, gift expiry, a same-day sauna spot, an unsourced land history); the styled aerial and the Thanksgiving dining photo are captioned as styled.
+
 ## [0.3.3.1] - 2026-10-07
 
 ### Changed
