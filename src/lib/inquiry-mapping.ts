@@ -71,20 +71,23 @@ export const WEDDING_GUEST_BANDS: readonly Option[] = [
   { value: "not-sure", label: "Not sure yet" },
 ];
 
+// Matches the stays: each house sleeps 8 and the whole farm 20 (celebrations' "Up to 8 / 9 to 20" chooser).
 export const EVENT_GUEST_BANDS: readonly Option[] = [
-  { value: "2-10", label: "2 to 10" },
-  { value: "11-20", label: "11 to 20" },
+  { value: "2-8", label: "2 to 8" },
+  { value: "9-20", label: "9 to 20" },
   { value: "21-50", label: "21 to 50" },
   { value: "51-125", label: "51 to 125" },
   { value: "not-sure", label: "Not sure yet" },
 ];
 
 /**
- * Values the previous form sent ("2 - 10", "11 - 20 (full property)",
- * "25 - 50", "50+"). Still accepted for a deploy window and still labelled in
- * old rows; never offered again.
+ * Values earlier forms sent ("2 - 10", "11 - 20 (full property)", "25 - 50",
+ * "50+", and until 2026-10-07 "2-10" / "11-20"). Still accepted for a deploy
+ * window and still labelled in old rows; never offered again.
  */
 export const LEGACY_GUEST_BANDS: readonly Option[] = [
+  { value: "2-10", label: "2 to 10" },
+  { value: "11-20", label: "11 to 20" },
   { value: "25-50", label: "25 to 50" },
   { value: "50+", label: "50 or more" },
 ];

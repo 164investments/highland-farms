@@ -64,7 +64,7 @@ test("bands are the spec's, in order, and the old 'full property' label is gone"
   );
   assert.deepEqual(
     EVENT_GUEST_BANDS.map((b) => b.label),
-    ["2 to 10", "11 to 20", "21 to 50", "51 to 125", "Not sure yet"],
+    ["2 to 8", "9 to 20", "21 to 50", "51 to 125", "Not sure yet"],
   );
   const every = [...WEDDING_GUEST_BANDS, ...EVENT_GUEST_BANDS, ...LEGACY_GUEST_BANDS].map((b) => b.label);
   assert.ok(every.every((l) => !/full property/i.test(l)));
@@ -180,6 +180,8 @@ test("past-month check has one month of grace and year-only is judged by year", 
 
 test("labels for bands and sources, including legacy values", () => {
   assert.equal(guestBandLabel("30-60"), "30 to 60");
+  assert.equal(guestBandLabel("9-20"), "9 to 20");
+  // Bands sent before 2026-10-07 still label in old rows.
   assert.equal(guestBandLabel("11-20"), "11 to 20");
   assert.equal(guestBandLabel("50+"), "50 or more");
   assert.equal(guestBandPhrase("not-sure"), "Guest count not sure yet");
