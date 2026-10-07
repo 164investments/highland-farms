@@ -32,7 +32,6 @@ import {
   TOURS_COWS_QUOTE,
   TOURS_HUG_QUOTE,
   TOURS_NOTES,
-  TOURS_RAIN_QUOTE,
   TOURS_SCOTLAND_QUOTE,
 } from "./quotes";
 
@@ -175,15 +174,12 @@ export default function FarmToursPage() {
                 </Plate>
               </li>
               <li className="border-b border-rule py-6 lg:py-8">
-                <h3 className={hook}>Not a petting zoo.</h3>
+                <h3 className={hook}>Not a petting zoo. No passport needed.</h3>
                 <p className={body15}>
                   Every tour is private: your group of two to six, your own guide, and sixty minutes on a working
-                  farm in the forest. No crowd at the fence.
+                  farm in the forest. No crowd at the fence. Scottish Highland cows in Brightwood, Oregon, about an
+                  hour from Portland.
                 </p>
-              </li>
-              <li className="border-b border-rule py-6 lg:py-8">
-                <h3 className={hook}>No passport needed.</h3>
-                <p className={body15}>Scottish Highland cows in Brightwood, Oregon, about an hour from Portland.</p>
                 <FieldReview spec={TOURS_SCOTLAND_QUOTE} role="Farm tour" size="sm" className="mt-4" />
               </li>
             </ul>
@@ -256,8 +252,8 @@ export default function FarmToursPage() {
               media: (
                 <FieldDrawing
                   name={m.drawing}
-                  className="h-[92px] w-[92px] lg:h-[200px] lg:w-full"
-                  sizes="(min-width: 1024px) 300px, 92px"
+                  className="h-[56px] w-[56px] lg:h-[200px] lg:w-full"
+                  sizes="(min-width: 1024px) 300px, 56px"
                 />
               ),
             }))}
@@ -323,24 +319,6 @@ export default function FarmToursPage() {
                 },
               ]}
             />
-
-            <div className="mt-8 bg-paper-shade px-5 py-6 lg:mt-10 lg:px-8 lg:py-8">
-              <h3 className="m-0 font-display text-[26px] font-semibold leading-tight text-ink lg:text-[30px]">
-                Rain or shine
-              </h3>
-              <p className="m-0 mt-2 font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[16px]">
-                Rain changes nothing: the tour runs as booked and the cows are out on every tour. From October to
-                March, wear rain boots and a rain jacket. Winter is coat season: the herd is at its shaggiest from
-                November to March.
-              </p>
-              <FieldReview
-                spec={TOURS_RAIN_QUOTE}
-                role="Farm tour"
-                size="sm"
-                className="mt-4"
-                quoteClassName="lg:text-[21px]"
-              />
-            </div>
           </div>
 
           <div className="hidden lg:col-span-6 lg:flex lg:flex-col lg:gap-10">
@@ -418,6 +396,7 @@ export default function FarmToursPage() {
                     label="How many are coming? Pick to see dates"
                     labelId="book-size-label"
                   />
+                  <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
                   <FieldReviewTier tier="nearCta" className="mt-3" />
                   <p className="m-0 mt-1 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
                     <Suspense fallback={null}>
@@ -429,10 +408,6 @@ export default function FarmToursPage() {
                   <p className="m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-body lg:text-[14px]">
                     Booking for two? You can add a dozen eggs for $8 at checkout.
                   </p>
-                  <BookingPolicyNote
-                    text={policy}
-                    className="mt-5 border-t border-rule pt-4 text-[12px] text-ink-body lg:text-[13px]"
-                  />
                 </>
               )}
             </div>
@@ -477,7 +452,7 @@ export default function FarmToursPage() {
                 href: bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-sticky-mobile"),
               }
         }
-        hideWhenVisible="#choose"
+        hideWhenVisible={["[data-hero-cta]", "#choose"]}
       />
 
       {/* Modal mount: listens for openBookingModal() calls from every CTA */}

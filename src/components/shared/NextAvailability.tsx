@@ -35,6 +35,9 @@ export async function NextAvailability({
     return null;
   }
   if (!date) return null;
+  // Online booking closes a day ahead, so never advertise today (Pacific) as the next open date.
+  const todayPacific = new Date().toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
+  if (date <= todayPacific) return null;
 
   if (variant === "text") {
     return (

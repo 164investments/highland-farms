@@ -23,7 +23,6 @@ import {
 import {
   SPA_MAX_PARTY,
   SPA_PRICE_PER_PERSON,
-  SPA_PRIVATE_PRICE,
   SPA_SESSION_TIMES,
   SPA_WEEKEND,
 } from "@/data/nordic-spa";
@@ -123,14 +122,9 @@ const BUYS: { term: string; detail: string }[] = [
   { term: "The heat", detail: "A cedar sauna with a wood-burning stove" },
   { term: "The steam", detail: "A wet sauna, for a softer heat" },
   { term: "The cold", detail: "A plunge outside on the cedar deck, under the trees" },
-  {
-    term: "The crowd",
-    detail: `Six guests at most, or just your group if you book all six spots ($${SPA_PRIVATE_PRICE})`,
-  },
   { term: "The setting", detail: "A private forest farm of five acres" },
   { term: "The season", detail: "October to March is sauna season. Sessions run as booked, rain or shine." },
   { term: "The neighbors", detail: "A herd of Highland cows (tours are booked separately)" },
-  { term: "The price", detail: `$${SPA_PRICE_PER_PERSON} per person for ${SPA_MINUTES} minutes, robes and towels included` },
 ];
 
 const knowRows: KnowRow[] = [
@@ -185,7 +179,7 @@ export default function SaunaNearPortlandPage() {
           </p>
           <h1
             id="sauna-hero-title"
-            className="field-heading mt-0.5 text-[34px] leading-[1.02] text-ink max-[359px]:text-[29px] lg:col-start-1 lg:row-start-3 lg:mt-1 lg:text-[48px] xl:text-[56px]"
+            className="field-heading mt-0.5 text-[34px] leading-[1.02] text-ink max-[359px]:text-[26px] lg:col-start-1 lg:row-start-3 lg:mt-1 lg:text-[48px] xl:text-[56px]"
           >
             A forest sauna, about an hour from Portland
           </h1>
@@ -306,19 +300,32 @@ export default function SaunaNearPortlandPage() {
         <FieldSection
           id="drive-proof"
           eyebrow="In their words"
-          title="People who made the drive"
+          title="Someone who made the drive"
           aside={<FieldReviewTier tier="compact" />}
         >
           <ul
             role="list"
             className="m-0 mt-7 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-2 lg:gap-x-16 lg:border-t-0"
           >
-            {SAUNA_DRIVE_QUOTES.map((spec) => (
+            {SAUNA_DRIVE_QUOTES.slice(0, 1).map((spec) => (
               <li key={spec.author} className="border-b border-rule py-6 lg:border-b-0 lg:border-t lg:py-8">
                 <FieldReview spec={spec} role="Nordic spa" size="lg" />
               </li>
             ))}
           </ul>
+          <Plate
+            className="mt-6 lg:mt-10"
+            frameClassName="h-[220px] lg:h-[460px]"
+            caption="Inside the cedar sauna."
+          >
+            <Image
+              src="/images/spa/spa-sauna-interior.jpg"
+              alt="Inside the cedar sauna: tiered benches and a glowing salt-brick panel"
+              fill
+              sizes="(min-width: 1440px) 1200px, calc(100vw - 54px)"
+              className="object-cover object-[50%_45%]"
+            />
+          </Plate>
         </FieldSection>
 
         {/* S5 Book (#book is the masthead action's target) */}
@@ -339,6 +346,7 @@ export default function SaunaNearPortlandPage() {
                 label="How many are coming? Pick to see sessions"
                 labelId="book-size-label"
               />
+              <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
               <p className="m-0 mt-3 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
                 <Suspense fallback={null}>
                   <NextAvailability product="spa" variant="text" label="Next open:" />
@@ -346,10 +354,6 @@ export default function SaunaNearPortlandPage() {
                 {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
               </p>
               <FieldReviewTier tier="nearCta" className="mt-2" />
-              <BookingPolicyNote
-                text={policy}
-                className="mt-5 border-t border-rule pt-4 text-[12px] text-ink-body lg:text-[13px]"
-              />
               <PendingSlot
                 className="mt-4"
                 note="DECIDE D4: visit packs line (3 for $199, 5 for $299, 10 for $549, six months). Show only after Hayden decides and the Acuity pack copy says 90 minutes"
@@ -383,7 +387,7 @@ export default function SaunaNearPortlandPage() {
           booking: { title: "Book your sauna session" },
           href: bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-sticky-mobile"),
         }}
-        hideWhenVisible="#book"
+        hideWhenVisible={["[data-hero-cta]", "#book"]}
       />
 
       {/* Modal mount: listens for openBookingModal() calls from every CTA */}

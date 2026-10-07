@@ -32,7 +32,7 @@ import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { nativeCalendarEnabled } from "@/lib/booking/flag";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 import { SpaHero } from "./SpaHero";
-import { SPA_BEST_HOUR_QUOTE, SPA_CLEAN_QUOTE } from "./quotes";
+import { SPA_BEST_HOUR_QUOTE } from "./quotes";
 
 const DESCRIPTION = `Wood-burning cedar sauna, wet sauna and cold plunge in the forest in Brightwood, Oregon. ${BOOKING_PRODUCTS["nordic-spa"].durationMin}-minute sessions, up to ${SPA_MAX_PARTY} guests, $${SPA_PRICE_PER_PERSON} per person.`;
 
@@ -132,14 +132,8 @@ export default function NordicSpaPage() {
             />
           </div>
           <div className="mt-9 lg:col-span-6 lg:mt-0">
-            <FieldReview
-              spec={SPA_CLEAN_QUOTE}
-              role="Nordic spa"
-              size="sm"
-              quoteClassName="text-[20px] lg:text-[24px]"
-            />
             <Plate
-              className="mt-6"
+              className="lg:mt-0"
               frameClassName="h-[240px] lg:h-[520px]"
               caption="Robes on, out on the deck."
             >
@@ -214,6 +208,7 @@ export default function NordicSpaPage() {
                     label="How many are coming? Pick to see sessions"
                     labelId="book-size-label"
                   />
+                  <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
                   <p className="m-0 mt-3 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
                     <Suspense fallback={null}>
                       <NextAvailability product="spa" variant="text" label="Next open:" />
@@ -221,10 +216,6 @@ export default function NordicSpaPage() {
                     {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
                   </p>
                   <FieldReviewTier tier="nearCta" className="mt-2" />
-                  <BookingPolicyNote
-                    text={policy}
-                    className="mt-5 border-t border-rule pt-4 text-[12px] text-ink-body lg:text-[13px]"
-                  />
                   <PendingSlot className="mt-4" note="DECIDE D4: visit packs line (3 for $199, 5 for $299, 10 for $549, six months). Show only after Hayden decides and the Acuity pack copy says 90 minutes">
                     <p className="m-0 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
                       Coming back this winter? Visit packs: 3 for $199, 5 for $299, 10 for $549, each good for six
@@ -262,7 +253,7 @@ export default function NordicSpaPage() {
                 href: bookingUrl(BOOKING_LINKS.nordicSpa, "nordic-spa-sticky-mobile"),
               }
         }
-        hideWhenVisible="#availability"
+        hideWhenVisible={["[data-hero-cta]", "#availability"]}
       />
 
       {/* Modal mount: listens for openBookingModal() calls from every CTA */}

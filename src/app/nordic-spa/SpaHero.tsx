@@ -24,13 +24,13 @@ export function SpaHero() {
       <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-[18px] lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(5,auto)_1fr] lg:gap-x-16 lg:px-10 lg:pb-10 lg:pt-11 xl:px-10 min-[90rem]:px-16">
         <Plate
           className="lg:col-start-2 lg:row-start-1 lg:row-end-8"
-          frameClassName="h-[140px] max-[359px]:h-[120px] sm:h-[190px] lg:h-auto lg:min-h-0 lg:flex-1"
+          frameClassName="h-[140px] max-[359px]:h-[100px] sm:h-[190px] lg:h-auto lg:min-h-0 lg:flex-1"
           captionClassName="mt-px max-[359px]:hidden lg:mt-0.5"
-          caption="The cold plunge, out on the deck."
+          caption="Two guests in the cedar sauna."
         >
           <Image
-            src="/images/spa/spa-exterior-plunge-moss.jpg"
-            alt="The cold plunge on the cedar deck beside a moss-covered tree"
+            src="/images/spa/spa-robes.jpg"
+            alt="Two guests in white robes, laughing together on the cedar benches of the sauna"
             fill
             priority
             fetchPriority="high"
@@ -38,7 +38,7 @@ export function SpaHero() {
             // take the 750w rendition instead of 1080w (196 KB); 2x phones take 750w
             // either way. Tablets keep the full frame width. Same photo, same crop.
             sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, (min-width: 640px) calc(100vw - 80px), 250px"
-            className="object-cover object-[50%_75%]"
+            className="object-cover object-[50%_22%]"
           />
         </Plate>
 
