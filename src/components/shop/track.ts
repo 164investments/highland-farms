@@ -9,9 +9,19 @@ declare global {
   }
 }
 
+/**
+ * The one dataLayer push for the shop, checkout included.
+ *
+ * GTM merges pushed objects into one model, and arrays merge index by index:
+ * after the 29-item `view_item_list`, a one-item `add_to_cart` would still
+ * carry 28 stale list items. So every ecommerce push is preceded by
+ * `{ ecommerce: null }` (Google's documented reset). It has no `event` key, so
+ * it fires no trigger.
+ */
 export function pushEvent(event: string, payload: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
+  if ("ecommerce" in payload) window.dataLayer.push({ ecommerce: null });
   window.dataLayer.push({ event, ...payload });
 }
 

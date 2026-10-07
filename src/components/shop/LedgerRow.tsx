@@ -6,15 +6,18 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { fieldLeaderClass } from "@/components/ui/FieldGuide";
 import { useCart } from "@/lib/shop/cart";
-import { fromPrice, hasChoices, type Product } from "@/app/shop/data";
+import { fromPrice, hasChoices, toPrice, type Product } from "@/app/shop/data";
 import { formatCentsShort, toCents } from "@/lib/shop/money";
 import { WaitlistForm } from "./WaitlistForm";
 import { QuickAdd } from "./QuickAdd";
 import { firstAvailable, pushEvent, stockWord, toGA4Item, type StockRecord } from "./track";
 
-/** Ledger price: "$36", "from $29". */
+/**
+ * Ledger price: "$36", or "from $29" when the options really differ in price.
+ * Sized apparel costs the same in every size, so it reads "$55", not "from $55".
+ */
 export function priceText(p: Product): string {
-  return `${hasChoices(p) ? "from " : ""}${formatCentsShort(toCents(fromPrice(p)))}`;
+  return `${fromPrice(p) !== toPrice(p) ? "from " : ""}${formatCentsShort(toCents(fromPrice(p)))}`;
 }
 
 /**

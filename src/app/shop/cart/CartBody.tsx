@@ -125,7 +125,7 @@ export function CartBody({
             <Link href={`/shop/${a.slug}`} className="block">
               <div className="border border-frame bg-paper-light p-2">
                 <div className="relative aspect-square overflow-hidden">
-                  <Image src={a.image} alt={a.title} fill sizes="240px" className="object-cover" />
+                  <Image src={a.image} alt="" fill sizes="240px" className="object-cover" />
                 </div>
               </div>
               <p className="m-0 mt-2 font-display text-[19px] font-medium leading-tight">{a.title}</p>
@@ -315,7 +315,12 @@ export function CartBody({
         </div>
       </section>
 
+      {/* The bar's observer looks up #checkout-btn once, at mount. That button
+          renders only after the stored cart is read (and, from a recovery
+          email, after the async restore), so remount the bar when it appears;
+          otherwise a fresh load leaves the bar on top of the real Check out. */}
       <FieldStickyBar
+        key={ready && detailed.length > 0 ? "cart" : "empty"}
         enabled={ready && detailed.length > 0}
         hideWhenVisible="#checkout-btn"
         primary={{ label: `Check out · ${formatCents(subtotalCents)}`, href: "/shop/checkout" }}

@@ -26,7 +26,7 @@ const STEP = "grid grid-cols-[40px_1fr] gap-x-2 border-b border-rule py-3.5 lg:g
 const STEP_TITLE = "m-0 font-display text-[21px] font-semibold leading-tight text-ink lg:text-[24px]";
 const STEP_BODY = "m-0 mt-1 text-[14px] leading-[1.5] text-ink-body lg:text-[15px]";
 const DIRECTIONS = `https://maps.google.com/?q=${encodeURIComponent(PICKUP_LOCATION.address).replace(/%20/g, "+")}`;
-const TEL = `tel:${CONTACT.phone.replace(/\D/g, "")}`;
+const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
 
 function SignPlate({ className, frameClassName }: { className?: string; frameClassName: string }) {
   return (

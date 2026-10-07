@@ -51,7 +51,7 @@ function Favorite({ product, stock, index }: { product: Product; stock: StockRec
           <div className="relative aspect-square overflow-hidden">
             <Image
               src={product.image}
-              alt={product.title}
+              alt=""
               fill
               sizes="(min-width: 1312px) 300px, (min-width: 1024px) 22vw, 46vw"
               className="object-cover"

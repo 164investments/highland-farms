@@ -8,19 +8,27 @@ import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution"
 import { pushEvent } from "./track";
 
 /**
- * "Choose a gift": the shop's gift CTA. Internal page when the native calendar
- * is on, the Acuity catalog (new tab, attribution appended) otherwise. Keeps
- * select_promotion and booking_start exactly as the old gift section pushed.
+ * "Choose a gift": the shop's gift CTA. Internal page (/gift-certificates) or
+ * the Acuity catalog (new tab, attribution appended), per giftCertificatesHref().
+ *
+ * Exactly one booking_start per gift intent. The external link opens Acuity
+ * itself, so it pushes booking_start here. The internal link only navigates:
+ * the row the visitor picks on /gift-certificates pushes booking_start when it
+ * opens Acuity (BookingTextLink), so pushing one here as well would count the
+ * same gift twice, and count visitors who never open Acuity at all.
+ * select_promotion is pushed on both.
  */
 export function GiftLink({ className }: { className?: string }) {
   const href = giftCertificatesHref();
   const external = !href.startsWith("/");
-  const track = (url: string) => {
+  const promote = () =>
     pushEvent("select_promotion", {
       promotion_id: "gift-certificates",
       promotion_name: "Gift Certificates",
       creative_slot: "shop_gift_section",
     });
+  const track = (url: string) => {
+    promote();
     pushEvent("booking_start", {
       booking_type: "gift_certificate",
       booking_url: url,
@@ -29,7 +37,7 @@ export function GiftLink({ className }: { className?: string }) {
   };
   if (!external) {
     return (
-      <Link href={href} onClick={() => track(href)} className={cn(className)}>
+      <Link href={href} onClick={promote} className={cn(className)}>
         Choose a gift
         <FieldArrow />
       </Link>

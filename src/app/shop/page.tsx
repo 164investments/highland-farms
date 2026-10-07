@@ -222,7 +222,7 @@ export default async function ShopPage() {
         <div className="mx-auto mt-8 max-w-[1312px] lg:mt-16">
           <div className="flex items-end justify-between gap-4 border-b border-ink pb-2">
             <h3 className="field-heading m-0 font-display text-[24px] leading-none lg:text-[30px]">Store questions</h3>
-            <a href="tel:9712362551" className="flex min-h-11 items-end text-[13px] text-ink-note">
+            <a href="tel:+19712362551" className="flex min-h-11 items-end text-[13px] text-ink-note">
               Or call <span className="ml-1 whitespace-nowrap font-medium text-pine">(971) 236-2551</span>
             </a>
           </div>
@@ -278,8 +278,9 @@ export default async function ShopPage() {
             </ul>
             <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-7">
               <GiftLink className={fieldCtaOutlineClass} />
-              <a href="#plush" className={`self-start lg:self-auto ${fieldTextLinkClass}`}>
-                Or give a cow plush, ${plush}
+              {/* 44px tap target; the underline stays on the words. */}
+              <a href="#plush" className="inline-flex min-h-11 items-center self-start lg:self-auto">
+                <span className={fieldTextLinkClass}>Or give a cow plush, ${plush}</span>
               </a>
             </div>
           </div>

@@ -335,7 +335,8 @@ export default async function ProductPage({
                   <Link href={`/shop/${p.slug}`} className="block">
                     <div className="border border-frame bg-paper-light p-1 lg:p-2.5">
                       <div className="relative aspect-square overflow-hidden">
-                        <Image src={p.image} alt={p.title} fill sizes="(min-width: 1024px) 380px, 30vw" className="object-cover" />
+                        {/* alt="": the title below is in the same link, so the name is read once. */}
+                        <Image src={p.image} alt="" fill sizes="(min-width: 1024px) 380px, 30vw" className="object-cover" />
                       </div>
                     </div>
                     <p className="m-0 mt-2 font-display text-[16px] font-medium leading-[1.15] lg:text-[22px]">{p.title}</p>

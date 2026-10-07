@@ -59,6 +59,8 @@ export function AddToCart({
   const max = selected?.stock && selected.stock > 0 ? Math.min(99, selected.stock) : 99;
   const scarcity = selected ? scarcityLabel(selected.stock) : null;
   const multi = variants.length > 1;
+  // "from" only when the options differ in price (sized apparel doesn't).
+  const priceVaries = new Set(variants.map((v) => v.priceCents)).size > 1;
 
   // view_item completes the GA4 item funnel (grid, then item, then add).
   const viewLogged = useRef(false);
@@ -125,7 +127,7 @@ export function AddToCart({
     <>
       <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 lg:mt-4">
         <span className="text-[24px] font-semibold lg:text-[28px]">
-          {multi && !selected ? "from " : ""}
+          {priceVaries && !selected ? "from " : ""}
           {formatCents(priced.priceCents).replace(/\.00$/, "")}
         </span>
         {pack && <span className="text-[14px] text-ink-note">{pack}</span>}

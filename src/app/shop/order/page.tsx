@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-const TEL = `tel:${CONTACT.phone.replace(/\D/g, "")}`;
+const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
 
 export default function ShopOrderPage() {
   return (

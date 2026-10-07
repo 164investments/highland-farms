@@ -21,7 +21,8 @@ import {
   type Fulfillment,
 } from "@/lib/shop/fulfillment";
 import { CONTACT } from "@/lib/constants";
-import { ExpressPay } from "./ExpressPay";
+import { pushEvent } from "@/components/shop/track";
+import { ExpressPay, type WalletBlock } from "./ExpressPay";
 import { getProduct } from "../data";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -63,11 +64,17 @@ declare global {
   }
 }
 
-function pushEvent(event: string, payload: Record<string, unknown>) {
-  if (typeof window === "undefined") return;
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ event, ...payload });
-}
+/**
+ * The email check `POST /api/shop/checkout` runs (zod 4's `.email()` pattern).
+ * The form must be at least as strict as the server: a wallet token is only
+ * requested once the details pass, so the server never rejects them after the
+ * shopper has approved a payment.
+ */
+const EMAIL_RE =
+  /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
+
+/** Where the last payment error belongs: under the wallets or under the card. */
+type Failure = { at: "wallet" | "card"; message: string };
 
 type Status = "loading" | "ready" | "submitting" | "unavailable";
 
@@ -85,7 +92,8 @@ export function CheckoutBody({
   const { detailed, subtotalCents, count, clear, ready: cartReady } = useCart();
 
   const [status, setStatus] = useState<Status>("loading");
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<Failure | null>(null);
+  const [paidWith, setPaidWith] = useState<Failure["at"]>("card");
   const [chosen, setFulfillment] = useState<Fulfillment>("pickup");
   const [touched, setTouched] = useState({ email: false, phone: false });
   const [form, setForm] = useState({
@@ -251,26 +259,66 @@ export function CheckoutBody({
       ? blocking
       : null;
 
-  /** True when the order is ready to send. Wallets check this before opening. */
+  // The details the server requires (`checkoutSchema` in the checkout route).
+  // One computation feeds the card check and the wallet gate, so they can't drift.
+  const nameOk = form.name.trim().length > 0;
+  const emailOk = EMAIL_RE.test(form.email.trim());
+  const phoneOk = form.phone.replace(/\D/g, "").length >= 7;
+  const contactOk = nameOk && emailOk && phoneOk;
+  const addressOk =
+    fulfillment !== "delivery" ||
+    (form.address.trim().length > 0 && form.city.trim().length > 0 && form.zip.trim().length >= 5);
+  const walletBlock: WalletBlock = !contactOk ? "contact" : !addressOk ? "address" : blocking ? "zip" : null;
+
+  /** A tap on a held wallet: take the shopper to the first field still missing. */
+  function showFirstGap() {
+    setTouched({ email: true, phone: true });
+    const id = !nameOk
+      ? "co-name"
+      : !emailOk
+        ? "co-email"
+        : !phoneOk
+          ? "co-phone"
+          : !form.address.trim()
+            ? "co-address"
+            : !form.city.trim()
+              ? "co-city"
+              : "co-zip";
+    document.getElementById(id)?.focus();
+  }
+
+  // Put the focus on a payment error where it was raised, so a phone user
+  // who paid from the top of the page sees it without scrolling.
+  useEffect(() => {
+    if (!failure) return;
+    document.getElementById(failure.at === "wallet" ? "wallet-alert" : "card-alert")?.focus();
+  }, [failure]);
+
+  /** True when the card form's order is ready to send. */
   function readyToPay(): boolean {
-    setError(null);
-    if (blocking) {
-      setError(blocking);
+    setFailure(null);
+    const fail = (message: string) => {
+      setFailure({ at: "card", message });
       return false;
-    }
+    };
+    if (blocking) return fail(blocking);
     if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
-      setError("Add your name, email and phone first, then pay.");
-      return false;
+      return fail("Add your name, email and phone first, then pay.");
     }
-    if (fulfillment === "delivery" && (!form.address.trim() || !form.city.trim())) {
-      setError("Add your delivery address first, then pay.");
-      return false;
-    }
+    if (!emailOk) return fail("Check your email address, then pay.");
+    if (!phoneOk) return fail("Check your phone number, then pay.");
+    if (!addressOk) return fail("Add your delivery address first, then pay.");
     return true;
   }
 
-  /** Everything after a token exists, shared by the card form and the wallets. */
-  async function submitWithToken(sourceId: string) {
+  /**
+   * Everything after a token exists, shared by the card form and the wallets.
+   * A wallet token always reaches this call: the wallet gate (`walletBlock`)
+   * runs before the sheet opens, never after approval.
+   */
+  async function submitWithToken(sourceId: string, at: Failure["at"]) {
+    setPaidWith(at);
+    setFailure(null);
     setStatus("submitting");
     try {
       const response = await fetch("/api/shop/checkout", {
@@ -301,7 +349,7 @@ export function CheckoutBody({
       };
 
       if (!response.ok || !body.success) {
-        setError(body.error ?? "Something went wrong. Please try again.");
+        setFailure({ at, message: body.error ?? "Something went wrong. Please try again." });
         setStatus("ready");
         // The Square card TOKEN is single-use and is always regenerated by the
         // next tokenize() call. The IDEMPOTENCY KEY is different: it is the only
@@ -337,7 +385,7 @@ export function CheckoutBody({
       );
     } catch (err) {
       console.error("[shop] checkout submit failed:", err);
-      setError("We couldn't reach the farm. Please try again.");
+      setFailure({ at, message: "We couldn't reach the farm. Please try again." });
       setStatus("ready");
     }
   }
@@ -347,21 +395,23 @@ export function CheckoutBody({
     if (!cardRef.current || status !== "ready") return;
     if (!readyToPay()) return;
 
+    setPaidWith("card");
     setStatus("submitting");
     const result = await cardRef.current.tokenize();
     if (result.status !== "OK" || !result.token) {
-      setError(
-        result.errors?.[0]?.message ?? "Please check your card details and try again.",
-      );
+      setFailure({
+        at: "card",
+        message: result.errors?.[0]?.message ?? "Please check your card details and try again.",
+      });
       setStatus("ready");
       return;
     }
-    await submitWithToken(result.token);
+    await submitWithToken(result.token, "card");
   }
 
   const busy = status === "submitting";
-  const emailBad = touched.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim());
-  const phoneBad = touched.phone && form.phone.replace(/\D/g, "").length < 7;
+  const emailBad = touched.email && !emailOk;
+  const phoneBad = touched.phone && !phoneOk;
   const shortBy = Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
   const payDisabled = busy || status !== "ready" || Boolean(blocking);
 
@@ -443,16 +493,19 @@ export function CheckoutBody({
               </div>
             </details>
 
-            {/* Wallets: first screen, pickup preselected. They request no contact fields today. */}
+            {/* Wallets: first screen, pickup preselected. The payment request asks
+                for no contact fields, so the wallets stay held (aria-disabled, with
+                a plain line) until name, email and phone pass the server's rules. */}
             <ExpressPay
               payments={payments}
               totalCents={totalCents}
               disabled={busy || status !== "ready"}
-              onToken={(t) => {
-                if (!readyToPay()) return;
-                void submitWithToken(t);
-              }}
-              onError={setError}
+              blocked={walletBlock}
+              onBlocked={showFirstGap}
+              onToken={(t) => void submitWithToken(t, "wallet")}
+              onError={(message) => setFailure({ at: "wallet", message })}
+              alert={failure?.at === "wallet" ? failure.message : null}
+              placing={busy && paidWith === "wallet"}
             />
 
             {/* I. How you'll get it */}
@@ -505,7 +558,8 @@ export function CheckoutBody({
                       <span className="text-[14px] text-ink-note">{formatCents(DELIVERY_FEE_CENTS).replace(/\.00$/, "")}</span>
                     </span>
                     <span className={cn("mt-1 block text-[13px] leading-[1.45]", deliveryLocked ? "text-ink-note" : "text-ink-body")}>
-                      {formatCentsShort(DELIVERY_FEE_CENTS)} on orders of {formatCentsShort(DELIVERY_MINIMUM_CENTS)} or more, Mt. Hood corridor to east Portland.
+                      {/* The fee is in the label above; the body says it once (Jobs r3). */}
+                      On orders of {formatCentsShort(DELIVERY_MINIMUM_CENTS)} or more, Mt. Hood corridor to east Portland.
                       {deliveryLocked && (
                         <>
                           {" "}Yours is {formatCents(shortBy).replace(/\.00$/, "")} short.{" "}
@@ -529,7 +583,7 @@ export function CheckoutBody({
               <div className="clear-left grid gap-4 pt-3 lg:grid-cols-2 lg:gap-x-5">
                 <div className="lg:col-span-2">
                   <label htmlFor="co-name" className="block text-[13px] font-medium text-ink">Name</label>
-                  <input id="co-name" type="text" autoComplete="name" required value={form.name} onChange={set("name")} className={input} />
+                  <input id="co-name" type="text" autoComplete="name" required maxLength={120} value={form.name} onChange={set("name")} className={input} />
                 </div>
                 <div>
                   <label htmlFor="co-email" className="block text-[13px] font-medium text-ink">Email</label>
@@ -538,6 +592,7 @@ export function CheckoutBody({
                     type="email"
                     autoComplete="email"
                     required
+                    maxLength={200}
                     value={form.email}
                     onChange={set("email")}
                     onBlur={() => setTouched((t) => ({ ...t, email: true }))}
@@ -556,6 +611,7 @@ export function CheckoutBody({
                     type="tel"
                     autoComplete="tel"
                     required
+                    maxLength={40}
                     value={form.phone}
                     onChange={set("phone")}
                     onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
@@ -573,15 +629,15 @@ export function CheckoutBody({
                   <>
                     <div className="lg:col-span-2">
                       <label htmlFor="co-address" className="block text-[13px] font-medium text-ink">Street address</label>
-                      <input id="co-address" type="text" autoComplete="address-line1" required value={form.address} onChange={set("address")} className={input} />
+                      <input id="co-address" type="text" autoComplete="address-line1" required maxLength={240} value={form.address} onChange={set("address")} className={input} />
                     </div>
                     <div>
                       <label htmlFor="co-city" className="block text-[13px] font-medium text-ink">City</label>
-                      <input id="co-city" type="text" autoComplete="address-level2" required value={form.city} onChange={set("city")} className={input} />
+                      <input id="co-city" type="text" autoComplete="address-level2" required maxLength={120} value={form.city} onChange={set("city")} className={input} />
                     </div>
                     <div>
                       <label htmlFor="co-zip" className="block text-[13px] font-medium text-ink">ZIP</label>
-                      <input id="co-zip" type="text" inputMode="numeric" autoComplete="postal-code" required value={form.zip} onChange={set("zip")} className={input} />
+                      <input id="co-zip" type="text" inputMode="numeric" autoComplete="postal-code" required maxLength={10} value={form.zip} onChange={set("zip")} className={input} />
                     </div>
                   </>
                 )}
@@ -620,7 +676,7 @@ export function CheckoutBody({
                 {status === "unavailable" ? (
                   <p role="status" className="m-0 border-y border-rule py-3 text-[14px] leading-[1.5] text-ink-body">
                     Card payment isn&apos;t loading right now. Call{" "}
-                    <a href={`tel:${CONTACT.phone.replace(/\D/g, "")}`} className="whitespace-nowrap font-medium text-pine">
+                    <a href={`tel:+1${CONTACT.phone.replace(/\D/g, "")}`} className="whitespace-nowrap font-medium text-pine">
                       {CONTACT.phone}
                     </a>{" "}
                     and we&apos;ll take the order.
@@ -639,9 +695,14 @@ export function CheckoutBody({
                   </>
                 )}
 
-                {(error || shownProblem) && (
-                  <p role="alert" className="m-0 mt-4 border-l-2 border-pine-line bg-paper-shade px-4 py-3 text-[14px] text-ink">
-                    {error ?? shownProblem}
+                {(failure?.at === "card" || shownProblem) && (
+                  <p
+                    id="card-alert"
+                    role="alert"
+                    tabIndex={-1}
+                    className="m-0 mt-4 border-l-2 border-pine-line bg-paper-shade px-4 py-3 text-[14px] text-ink"
+                  >
+                    {failure?.at === "card" ? failure.message : shownProblem}
                   </p>
                 )}
 
