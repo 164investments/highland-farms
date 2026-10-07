@@ -324,7 +324,6 @@ function StyledHeader({ couple }: { couple: WeddingCouple }) {
           {couple.headline ?? displayName(couple)}
         </h1>
         <PhotographerCredit couple={couple} className="mt-1 lg:mt-4" />
-        <FieldReviewTier tier="hero" className="mt-1.5 text-[13px] lg:mt-6 lg:text-[15px]" starSize={13} />
       </div>
       <Plate
         className="order-3 mt-3 lg:col-span-5 lg:mt-6"
@@ -398,8 +397,6 @@ export default async function WeddingDetailPage({
                 </p>
               )}
               <PhotographerCredit couple={couple} className="mt-1 lg:mt-2" />
-              {/* Phones: proof on the 660 first screen (desktop has the photographer's quote beside the title). */}
-              <FieldReviewTier tier="hero" className="mt-1.5 text-[13px] lg:hidden" starSize={13} />
             </div>
             <div className="order-4 mt-4 lg:order-3 lg:col-span-5 lg:mt-0">
               <p className="font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]">
@@ -561,7 +558,8 @@ export default async function WeddingDetailPage({
               <p className="mt-3 font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]">
                 {PLANNING_OFFER} {WEDDING_FORM_INTRO}
               </p>
-              <Link href="/weddings#contact" className={cn(fieldCtaClass, "mt-5 w-full lg:w-auto")}>
+              <div id="plan-cta" className="mt-5">
+              <Link href="/weddings#contact" className={cn(fieldCtaClass, "w-full lg:w-auto")}>
                 Check your date
                 <FieldArrow />
               </Link>
@@ -577,6 +575,7 @@ export default async function WeddingDetailPage({
                 className="mt-2 justify-center text-[13px] lg:justify-start"
                 starSize={13}
               />
+              </div>
             </div>
           </div>
         </section>
@@ -626,7 +625,7 @@ export default async function WeddingDetailPage({
       </div>
 
       {/* No first-screen button on this page, so the bar shows from load. */}
-      <FieldStickyBar primary={{ label: "Check your date", href: "/weddings#contact" }} hideWhenVisible="#plan" showOnLoad />
+      <FieldStickyBar primary={{ label: "Check your date", sublabel: "Two-night weddings from $13,000", href: "/weddings#contact" }} hideWhenVisible="#plan-cta" showOnLoad />
     </>
   );
 }

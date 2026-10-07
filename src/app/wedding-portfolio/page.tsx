@@ -290,7 +290,7 @@ export default function WeddingPortfolioPage() {
       </div>
 
       {/* No first-screen button on this page, so the bar shows from load. */}
-      <FieldStickyBar primary={{ label: "Check your date", href: "/weddings#contact" }} hideWhenVisible="#plan" showOnLoad />
+      <FieldStickyBar primary={{ label: "Check your date", sublabel: "Two-night weddings from $13,000", href: "/weddings#contact" }} hideWhenVisible="#plan" showOnLoad />
     </>
   );
 }

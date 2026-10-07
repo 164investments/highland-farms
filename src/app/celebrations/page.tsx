@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { FieldReview, FieldReviewTier, resolveFieldQuote } from "@/components/field/Reviews";
-import { FieldFaq, cancellationAnswer } from "@/components/field/Faq";
+import { cancellationAnswer } from "@/components/field/Faq";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import {
   FieldArrow,
@@ -111,9 +111,12 @@ export default function CelebrationsPage() {
   });
   // RULINGS #8: one closed row holds both strict answers, word for word from their data files,
   // beside the visit actions and never above the inquiry form.
-  const visitPolicy = [cancellationAnswer(farmTourFAQ), cancellationAnswer(nordicSpaFAQ)]
-    .filter(Boolean)
-    .join("\n\n");
+  const tourPolicy = cancellationAnswer(farmTourFAQ);
+  const spaPolicy = cancellationAnswer(nordicSpaFAQ);
+  const visitPolicy = [
+    { label: "Farm tours", text: tourPolicy },
+    { label: "Nordic spa", text: spaPolicy },
+  ].filter((p): p is { label: string; text: string } => Boolean(p.text));
 
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
@@ -422,8 +425,26 @@ export default function CelebrationsPage() {
                 <FieldArrow size={16} />
               </Link>
             </div>
-            {visitPolicy && (
-              <FieldFaq items={[{ question: "Tour and spa cancellation policy", answer: visitPolicy }]} className="mt-4" />
+            {visitPolicy.length > 0 && (
+              <div className="mt-4 border-t border-rule">
+                <details className="group border-b border-rule">
+                  <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-4 py-3 font-display text-[21px] font-semibold leading-tight text-ink lg:text-[24px] [&::-webkit-details-marker]:hidden">
+                    <span>Cancellation policy</span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 font-sans text-[22px] font-normal leading-none text-pine transition-transform duration-200 group-open:rotate-45"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  {visitPolicy.map((p) => (
+                    <div key={p.label} className="pb-5 lg:max-w-[720px]">
+                      <p className="m-0 font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-fern">{p.label}</p>
+                      <p className="m-0 mt-1 font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[16px]">{p.text}</p>
+                    </div>
+                  ))}
+                </details>
+              </div>
             )}
           </div>
         </div>

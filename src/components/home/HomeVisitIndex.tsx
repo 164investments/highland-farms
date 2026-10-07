@@ -185,7 +185,6 @@ export function HomeVisitIndex() {
                 <p className="m-0 mt-1 font-sans text-[14px] leading-[1.5] text-ink-body lg:mt-2 lg:text-[15px]">
                   {d.blurb}
                 </p>
-                <p className="m-0 mt-1 font-sans text-[12px] text-ink-note lg:mt-2 lg:text-[13px]">{d.facts}</p>
                 <div className="mt-1 flex flex-wrap gap-x-5 lg:mt-2">
                   <FieldLink href={d.href} className="inline-flex min-h-11 items-center gap-2 self-start">
                     <span className={linkText}>{d.cta}</span>

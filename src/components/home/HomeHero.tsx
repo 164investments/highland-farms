@@ -128,7 +128,6 @@ export function HomeHero() {
                 <span className="hidden lg:inline">{link.name}</span>
                 <FieldArrow size={14} strokeWidth={1.8} className="shrink-0 text-pine lg:hidden" />
               </span>
-              <span className="font-sans text-[11px] text-ink-note lg:text-[13px]">{link.note}</span>
               <FieldArrow size={15} strokeWidth={1.8} className="hidden shrink-0 self-center text-pine lg:block" />
             </Link>
           ))}

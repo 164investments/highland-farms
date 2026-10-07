@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { FieldReview } from "@/components/field/Reviews";
+import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import { JsonLd, faqPageJsonLd } from "@/components/field/Faq";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import {
@@ -12,9 +13,7 @@ import {
   PendingSlot,
   Plate,
   fieldLabelClass,
-  FieldStars,
 } from "@/components/ui/FieldGuide";
-import { REVIEWS } from "@/lib/reviews";
 import { cn } from "@/lib/utils";
 import { formatWeddingDate, weddingPortfolio } from "@/data/wedding-portfolio";
 import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
@@ -31,7 +30,6 @@ import {
 import {
   WEDDINGS_CALL_QUOTE,
   WEDDINGS_CONNOR_QUOTE,
-  WEDDINGS_COOS_QUOTE,
   WEDDINGS_FOREST_QUOTE,
   WEDDINGS_RAIN_QUOTE,
   WEDDINGS_SPA_QUOTE,
@@ -59,9 +57,6 @@ export const metadata: Metadata = {
     ],
   },
 };
-
-/** Reviews that name Connor (also spelled Conner or Conor), read from the snapshot. */
-const CONNOR_REVIEW_COUNT = REVIEWS.filter((r) => /conner|connor|conor/i.test(r.text)).length;
 
 const sectionLabel = fieldLabelClass;
 const h2Class = "field-heading font-display text-[36px] leading-[1.02] text-ink lg:text-[56px]";
@@ -391,7 +386,7 @@ export default function WeddingsPage() {
         </div>
       </section>
 
-      {/* No. 4 Connor (the call is offered twice on this page: hero and form) */}
+      {/* No. 4 Connor */}
       <section aria-labelledby="connor-title" className="surface-paper border-t border-rule bg-paper text-ink">
         <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:py-24">
           <Plate
@@ -414,10 +409,9 @@ export default function WeddingsPage() {
               Your first call is with Connor.
             </h2>
             <p className={cn(bodyLarge, "mt-4 lg:mt-6")}>
-              Connor McWilliams owns the farm. He grew up on a ranch in Salinas, California, worked as a
-              general contractor, and turned an overgrown forest property in Brightwood into Highland Farms.
-              The call is free and runs 45 minutes, on video or walking the farm, and covers your date, your
-              people and how a weekend here works.
+              Connor McWilliams owns the farm. He turned an overgrown forest property in Brightwood into
+              Highland Farms. The call is free and runs 45 minutes, on video or walking the farm, and covers
+              your date, your people and how a weekend here works.
             </p>
             <PendingSlot
               className="mt-3"
@@ -425,10 +419,6 @@ export default function WeddingsPage() {
             >
               <p className={bodyLarge}>He is on the farm for every wedding.</p>
             </PendingSlot>
-            <p className="mt-4 flex items-center gap-2.5 font-sans text-[14px] text-ink-note lg:text-[15px]">
-              <FieldStars size={14} />
-              <span>Guests name Connor in {CONNOR_REVIEW_COUNT} Google reviews.</span>
-            </p>
             <div className="mt-6 border-t border-rule pt-6">
               <FieldReview
                 spec={WEDDINGS_CONNOR_QUOTE}
@@ -436,13 +426,14 @@ export default function WeddingsPage() {
                 quoteClassName="text-[20px] leading-[1.28] lg:text-[22px]"
               />
             </div>
-            <div className="mt-6 border-t border-rule pt-6">
-              <FieldReview
-                spec={WEDDINGS_COOS_QUOTE}
-                role="Wedding"
-                quoteClassName="text-[20px] leading-[1.28] lg:text-[22px]"
-              />
-            </div>
+            <WeddingCallLink
+              content="weddings-connor"
+              title="Weddings Connor block: wedding call"
+              className="mt-5 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine hover:text-pine-dark"
+            >
+              Book a free 45-minute call with Connor
+              <FieldArrow size={16} />
+            </WeddingCallLink>
           </div>
         </div>
       </section>
@@ -629,7 +620,7 @@ export default function WeddingsPage() {
         </div>
       </section>
 
-      <FieldStickyBar primary={{ label: "Check your date", href: "#contact" }} hideWhenVisible="#contact" />
+      <FieldStickyBar primary={{ label: "Check your date", sublabel: "Two-night weddings from $13,000", href: "#contact" }} hideWhenVisible="#contact" />
     </>
   );
 }

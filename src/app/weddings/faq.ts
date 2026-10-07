@@ -13,9 +13,9 @@ export const RAIN_LEAD =
 export const RAIN_CLOSE =
   "Your rain plan depends on your guest count, so Connor walks through it with you on your call.";
 export const COST_ANSWER =
-  "It depends on your date, your guest count and how many nights you stay. Connor goes through it on your free call.";
+  "Two-night weddings from $13,000. 12-hour weekday weddings from $6,500. The total depends on your date, your guest count and how many nights you stay. Connor goes through it on your free call.";
 export const VENDORS_ANSWER =
-  "Yes. Couples here bring their own caterer and photographer, and your caterer gets the full kitchen. Connor works with your vendors on setup.";
+  "Yes. Couples here bring their own caterer and photographer. Connor works with your vendors on setup.";
 export const RESTROOMS_ANSWER =
   "Your overnight guests have the bathrooms in the Lodge, the Cottage and the Camp. For the full guest list, Connor goes through it on your call.";
 export const GETTING_HERE_ANSWER =

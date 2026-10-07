@@ -1,6 +1,5 @@
 import Image from "next/image";
-import { FieldArrow, FieldLink, Plate, fieldCtaClass } from "@/components/ui/FieldGuide";
-import { VISIT_LINKS } from "./home-data";
+import { FieldArrow, Plate, fieldCtaClass } from "@/components/ui/FieldGuide";
 
 /**
  * Closing: the real carved Highland cow sign, the herd, one button to the
@@ -38,17 +37,6 @@ export function HomeClosing() {
             Check your date
             <FieldArrow />
           </a>
-          <p className="m-0 mt-2 flex min-h-11 flex-wrap items-center justify-center gap-x-1.5 font-sans text-[14px] text-ink-note lg:justify-start">
-            Or visit:
-            {VISIT_LINKS.map((link, i) => (
-              <span key={link.href} className="inline-flex items-center gap-x-1.5">
-                {i > 0 && <span aria-hidden="true">&middot;</span>}
-                <FieldLink href={link.href} className="inline-flex min-h-11 items-center font-medium text-pine">
-                  {link.phoneName}
-                </FieldLink>
-              </span>
-            ))}
-          </p>
         </div>
       </div>
     </section>
