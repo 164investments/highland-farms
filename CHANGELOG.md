@@ -2,6 +2,12 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.2.0] - 2026-10-07
+
+### Changed
+
+- Rebuild the phone menu as a sidebar that slides in from the left over the dimmed page, with the farm's own photos: Weddings as a photo of a couple between two coos with the Google review count, the coos line and three steps (real weddings, the look book, a free 45-minute call with Connor); farm tours, the Nordic spa, stays, gift certificates and the farm shop as photo rows with their price or detail; quick buttons to call, get directions or open Instagram; and a mark on the page you are on. Tap the page, swipe left or press close to dismiss it.
+
 ## [0.3.1.0] - 2026-10-07
 
 ### Changed

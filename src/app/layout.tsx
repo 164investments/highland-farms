@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter, Dancing_Script } from "next/font/google";
 import Script from "next/script";
 import { Header } from "@/components/layout/Header";
+import { REVIEW_TIER_COUNTS } from "@/components/field/Reviews";
 import { Footer } from "@/components/layout/Footer";
 import { SkipLink } from "@/components/layout/SkipLink";
 import {
@@ -159,7 +160,7 @@ export default function RootLayout({
         />
         <SkipLink />
         <CartProvider>
-          <Header />
+          <Header reviewCount={REVIEW_TIER_COUNTS.compact} />
           <main id="main-content">{children}</main>
           <Footer />
         </CartProvider>
