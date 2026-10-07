@@ -90,9 +90,10 @@ export function PackageCompare() {
                   <a
                     href={thanksgivingInquiryHref(pkg)}
                     data-cta={`tg-${pkg.id}`}
-                    className={cn(fieldCtaClass, "mt-4 w-full text-center")}
+                    aria-label={packageCtaLabel(pkg)}
+                    className={cn(fieldCtaClass, "mt-4 w-full whitespace-nowrap px-4 text-center")}
                   >
-                    {packageCtaLabel(pkg)}
+                    Check dates for {pkg.name.replace(/^The /, "the ")}
                   </a>
                 </article>
               ))}

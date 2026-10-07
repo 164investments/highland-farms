@@ -80,7 +80,7 @@ export const thanksgiving = {
   ],
   // The only optional upgrade (wine pairing and the spa charcuterie were dropped October 6).
   upgrade:
-    "Want it cooked for you? Add a chef-cooked country breakfast on Friday morning, with Highland Farms eggs and sausage and signature sides, for $30 per person.",
+    "Want it cooked for you? A chef-cooked country breakfast on Friday morning is $30 per person.",
   steps: [
     {
       title: "Send an inquiry.",

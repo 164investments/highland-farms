@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { properties } from "@/data/properties";
-import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 import { GOOGLE_REVIEW_LINK, REVIEW_COUNT } from "@/lib/reviews";
 import { StructuredData } from "@/components/layout/StructuredData";
 import {
@@ -17,16 +16,14 @@ import {
 } from "@/components/ui/FieldGuide";
 import { FieldReviewTier, resolveFieldQuote } from "@/components/field/Reviews";
 import { FieldStickyBar } from "@/components/field/StickyBar";
-import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
+import { BookingModalRoot } from "@/components/shared/BookingButton";
 import { BookingCard } from "@/components/stay/BookingCard";
 import { RoomPlates } from "@/components/stay/RoomPlates";
-import { StayKnowRows, StayLaterStayLine } from "@/components/stay/StayLines";
+import { StayHereRows, StayKnowRows, StayLaterStayLine } from "@/components/stay/StayLines";
 import { FieldArrowBack, FieldArrowDown, StayPhoto } from "@/components/stay/StayParts";
 import { STAY_CONTENT, capitalize, numberWord, roomCount, type StayContent } from "@/components/stay/stay-content";
 import {
-  SPA_PER_PERSON,
   THANKSGIVING_DATES,
-  TOUR_FOR_TWO,
   thanksgivingPackage,
 } from "@/components/stay/stay-facts";
 import { cn } from "@/lib/utils";
@@ -104,9 +101,6 @@ function StayRow({ property, content, grid }: { property: Property; content: Sta
     </li>
   );
 }
-
-const HERE_LINK_CLASS =
-  "flex min-h-11 items-center text-left font-sans text-[14px] leading-snug text-ink-note underline decoration-rule decoration-1 underline-offset-4 transition-colors hover:text-pine hover:decoration-pine";
 
 export default async function PropertyPage({
   params,
@@ -346,36 +340,26 @@ export default async function PropertyPage({
               />
             </section>
             {page.quoteLink && quoteSection}
-            {/* While you're here: one quiet line of links, below the terms (Thanksgiving until 2026-11-28, tour, spa). */}
+            {/* While you're here: three small photo rows, below the terms (Thanksgiving until 2026-11-28, tour, spa). */}
             <section aria-labelledby="here-title" className={SPLIT_SECTION_CLASS}>
               <h2 id="here-title" className={GROUP_HEAD_CLASS}>
                 While you&apos;re here
               </h2>
               <div className="mt-3 lg:mt-1">
-                <div className="flex flex-wrap gap-x-5">
-                  {tg && (
-                    <Link href="/thanksgiving" data-season-only="thanksgiving-links" className={HERE_LINK_CLASS}>
-                      {tg.name}, {THANKSGIVING_DATES}: {tg.priceLabel}
-                    </Link>
-                  )}
-                  <BookingTextLink
-                    href={bookingUrl(BOOKING_LINKS.farmTourForTwo, `stay-${property.slug}-tour`)}
-                    label="See tour dates"
-                    title="Private farm tour"
-                    className={HERE_LINK_CLASS}
-                  >
-                    A private farm tour, ${TOUR_FOR_TWO} for two
-                  </BookingTextLink>
-                  <BookingTextLink
-                    href={bookingUrl(BOOKING_LINKS.nordicSpa, `stay-${property.slug}-spa`)}
-                    label="See open sessions"
-                    title="Nordic spa"
-                    className={HERE_LINK_CLASS}
-                  >
-                    The Nordic spa, ${SPA_PER_PERSON} a person
-                  </BookingTextLink>
-                </div>
-                <p className="m-0 mt-1 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
+                <StayHereRows
+                  slugKey={property.slug}
+                  thanksgiving={
+                    tg
+                      ? {
+                          src: page.thanksgiving === "whole-farm" ? "/images/properties/whole-farm.jpg" : "/images/properties/cottage.jpg",
+                          position: "50% 55%",
+                          title: `Thanksgiving, ${THANKSGIVING_DATES}`,
+                          note: `${tg.name} package: four nights, dinner cooked for you. ${tg.priceLabel}.`,
+                        }
+                      : undefined
+                  }
+                />
+                <p className="m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
                   <StayLaterStayLine />
                 </p>
               </div>

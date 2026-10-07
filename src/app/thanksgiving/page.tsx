@@ -178,18 +178,26 @@ export default function ThanksgivingPage() {
                   Check Thanksgiving dates
                   <FieldArrow />
                 </a>
-                <p className="m-0 mt-3 font-sans text-[13px] leading-[1.6] text-ink-note">
-                  Or email <span className="select-all break-all text-ink-body">{thanksgiving.email}</span> (
-                  <CopyEmail email={thanksgiving.email} inline />), or call{" "}
+                <div className="mt-2 flex flex-col items-center font-sans text-[13px] text-ink-note">
+                  <div className="flex flex-wrap items-center justify-center gap-x-3">
+                    <a
+                      href={`mailto:${thanksgiving.email}`}
+                      data-cta="tg-final-email"
+                      className="flex min-h-11 items-center break-all text-ink-body underline underline-offset-2"
+                    >
+                      {thanksgiving.email}
+                    </a>
+                    <CopyEmail email={thanksgiving.email} inline />
+                  </div>
                   <a
                     href={`tel:${thanksgiving.phone.replace(/\D/g, "")}`}
                     data-cta="tg-final-call"
-                    className="whitespace-nowrap py-3 text-ink-body underline underline-offset-2"
+                    className="flex min-h-11 items-center whitespace-nowrap text-ink-body underline underline-offset-2"
                   >
-                    {thanksgiving.phone}
+                    Or call {thanksgiving.phone}
                   </a>
-                  . An inquiry doesn&apos;t reserve the stay.
-                </p>
+                  <p className="m-0 mt-1 leading-[1.5]">An inquiry doesn&apos;t reserve the stay.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -198,7 +206,7 @@ export default function ThanksgivingPage() {
 
       <section id="faq" aria-labelledby="tg-faq-title">
         <div className={wrap}>
-          <div className={cn(sectionInner, "lg:max-w-[760px]")}>
+          <div className={cn(sectionInner, "max-lg:pb-4 lg:max-w-[760px]")}>
             <h2 id="tg-faq-title" className="field-heading m-0 mb-5 text-[30px] leading-[1.05] text-ink lg:mb-8 lg:text-[44px]">
               Before you gather
             </h2>
@@ -212,7 +220,7 @@ export default function ThanksgivingPage() {
         primary={{ label: "Check Thanksgiving dates", sublabel: "Nov 24 to 28", href: inquiry, cta: "tg-sticky" }}
         hideWhenVisible={["#inquire", '[data-cta="tg-lodge"]', '[data-cta="tg-whole-farm"]']}
       />
-      <div aria-hidden="true" className="h-20 lg:hidden" />
+      <div aria-hidden="true" className="h-14 lg:hidden" />
     </div>
   );
 }

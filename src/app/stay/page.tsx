@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { properties } from "@/data/properties";
-import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 import { StructuredData } from "@/components/layout/StructuredData";
 import {
   FieldArrow,
@@ -13,8 +12,8 @@ import {
 } from "@/components/ui/FieldGuide";
 import { FieldReview, FieldReviewTier } from "@/components/field/Reviews";
 import { FieldStickyBar } from "@/components/field/StickyBar";
-import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
-import { StayKnowRows, StayLaterStayLine } from "@/components/stay/StayLines";
+import { BookingModalRoot } from "@/components/shared/BookingButton";
+import { StayHereRows, StayKnowRows, StayLaterStayLine } from "@/components/stay/StayLines";
 import { StayDrawing, StayPhoto } from "@/components/stay/StayParts";
 import {
   STAY_CONTENT,
@@ -23,11 +22,9 @@ import {
   numberWord,
 } from "@/components/stay/stay-content";
 import {
-  SPA_PER_PERSON,
   STAY_DIRECT_LINE,
   THANKSGIVING_DATES,
   THANKSGIVING_NIGHTS,
-  TOUR_FOR_TWO,
   thanksgivingPackage,
 } from "@/components/stay/stay-facts";
 import { cn } from "@/lib/utils";
@@ -74,9 +71,6 @@ const ROW_LINE: Record<string, string> = {
   camp: "Airstream and tents",
 };
 
-const HERE_LINK_CLASS =
-  "flex min-h-11 items-center text-left font-sans text-[14px] leading-snug text-ink-note underline decoration-rule decoration-1 underline-offset-4 transition-colors hover:text-pine hover:decoration-pine";
-
 /** "November 24 to 28, 2026" -> "Nov 24 to 28". */
 const THANKSGIVING_SHORT = THANKSGIVING_DATES.replace(/^November/, "Nov").replace(/,\s*\d{4}$/, "");
 const THANKSGIVING_FROM = `$${Math.min(LODGE_PKG.price, FARM_PKG.price).toLocaleString("en-US")}`;
@@ -110,7 +104,7 @@ export default function StayPage() {
               cottage by the cows for {cottage.property.guests}, an Airstream camp for {camp.property.guests}, or the whole farm for{" "}
               {farm.property.guests}.
             </p>
-            <FieldReviewTier tier="hero" link className="mt-1" />
+            <FieldReviewTier tier="hero" link subject="Highland Farms" className="mt-1" />
             <a href="#pick" className={cn(fieldCtaClass, "mt-6 hidden lg:inline-flex")}>
               Check dates and price
               <FieldArrow />
@@ -142,7 +136,11 @@ export default function StayPage() {
                       <span className="block h-[58px] w-[76px] shrink-0 border border-frame bg-paper-light p-[3px] min-[380px]:h-[74px] min-[380px]:w-[98px] min-[380px]:p-1">
                         <span className="relative block h-full w-full overflow-hidden">
                           <StayPhoto
-                            photo={{ ...c.thumb, alt: p.slug === "whole-farm" ? "Styled aerial view of Highland Farms at dusk" : "" }}
+                            photo={
+                              p.slug === "whole-farm"
+                                ? { src: "/images/properties/whole-farm.jpg", alt: "", position: "50% 60%" }
+                                : { ...c.thumb, alt: "" }
+                            }
                             sizes="98px"
                           />
                         </span>
@@ -154,9 +152,6 @@ export default function StayPage() {
                         <span className="font-sans text-[12px] leading-[1.3] text-ink-note min-[380px]:text-[13px]">
                           Sleeps {p.guests} &middot; {ROW_LINE[p.slug]}
                         </span>
-                        {c.thumbCaption && (
-                          <span className="font-sans text-[11px] italic leading-[1.3] text-ink-meta">{c.thumbCaption}</span>
-                        )}
                       </span>
                       <span className="shrink-0 text-pine">
                         <FieldArrow />
@@ -322,57 +317,23 @@ export default function StayPage() {
         </div>
       </section>
 
-      {/* 5. While you're here: one quiet line of links (BookingTextLink keeps booking_start), after "Know before you book". */}
+      {/* 5. While you're here: three small photo rows (tour and spa open the booking modal), after "Know before you book". */}
       <section aria-labelledby="here-title" className="px-5 py-9 lg:px-16 lg:py-14">
         <div className="mx-auto max-w-[1312px]">
           <h2 id="here-title" className={cn("m-0", SECTION_LABEL_CLASS)}>
             While you&apos;re here
           </h2>
-          {/* Thanksgiving leads (season-gated as one block); tours and spa are one muted line. */}
-          <Link
-            href="/thanksgiving"
-            data-season-only="thanksgiving-links"
-            className="mt-2 flex min-h-[64px] items-center gap-3 border-y border-rule py-2 lg:max-w-[760px]"
-          >
-            <span className="block h-[58px] w-[76px] shrink-0 border border-frame bg-paper-light p-[3px]">
-              <span className="relative block h-full w-full overflow-hidden">
-                <StayPhoto
-                  photo={{ src: "/images/properties/cottage.jpg", alt: "", position: "50% 45%" }}
-                  sizes="76px"
-                />
-              </span>
-            </span>
-            <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
-              <span className="font-display text-[19px] font-semibold leading-[1.1] text-ink">
-                Thanksgiving, {THANKSGIVING_SHORT}
-              </span>
-              <span className="font-sans text-[13px] leading-[1.35] text-ink-note">
-                {THANKSGIVING_NIGHTS.cap}, dinner cooked for you. From {THANKSGIVING_FROM}.
-              </span>
-            </span>
-            <span className="shrink-0 text-pine">
-              <FieldArrow />
-            </span>
-          </Link>
-          <div className="mt-1 flex flex-wrap gap-x-5">
-            <BookingTextLink
-              href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "stay-add-tour")}
-              label="See tour dates"
-              title="Private farm tour"
-              className={HERE_LINK_CLASS}
-            >
-              A private farm tour, ${TOUR_FOR_TWO} for two
-            </BookingTextLink>
-            <BookingTextLink
-              href={bookingUrl(BOOKING_LINKS.nordicSpa, "stay-add-spa")}
-              label="See open sessions"
-              title="Nordic spa"
-              className={HERE_LINK_CLASS}
-            >
-              The Nordic spa, ${SPA_PER_PERSON} a person
-            </BookingTextLink>
-          </div>
-          <p className="m-0 mt-1 max-w-[760px] font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
+          <StayHereRows
+            slugKey="add"
+            className="mt-2"
+            thanksgiving={{
+              src: "/images/properties/cottage.jpg",
+              position: "50% 45%",
+              title: `Thanksgiving, ${THANKSGIVING_SHORT}`,
+              note: `${THANKSGIVING_NIGHTS.cap}, dinner cooked for you. From ${THANKSGIVING_FROM}.`,
+            }}
+          />
+          <p className="m-0 mt-3 max-w-[760px] font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
             <StayLaterStayLine />
           </p>
         </div>
