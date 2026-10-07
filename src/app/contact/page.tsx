@@ -1,20 +1,25 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { StructuredData } from "@/components/layout/StructuredData";
+import type { ReactNode } from "react";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
-import { FieldReviewTier } from "@/components/field/Reviews";
+import { FieldReview, FieldReviewTier } from "@/components/field/Reviews";
 import { ContactForm } from "@/components/forms/ContactForm";
 import {
   FieldArrow,
   FieldLink,
   FieldNumeral,
+  PendingSlot,
   fieldCtaClass,
   fieldEyebrowClass,
 } from "@/components/ui/FieldGuide";
 import { giftCertificatesHref } from "@/lib/booking/flag";
+import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
+import { SPA_MAX_PARTY, SPA_PRICE_PER_PERSON } from "@/data/nordic-spa";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { CONTACT_FORM_QUOTE } from "./quotes";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -37,21 +42,27 @@ export const metadata: Metadata = {
 };
 
 const telHref = `tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`;
-const phoneLink = (
-  <a
-    href={telHref}
-    className="whitespace-nowrap font-medium text-pine underline decoration-pine-line underline-offset-4"
-  >
-    {CONTACT.phone}
-  </a>
+const inlineLink = "font-medium text-pine underline decoration-pine-line underline-offset-4";
+/** The phone link with its trailing period, unbreakable, so the "." never sits alone on a line. */
+const phoneThenStop = (
+  <span className="whitespace-nowrap">
+    <a href={telHref} className={inlineLink}>
+      {CONTACT.phone}
+    </a>
+    .
+  </span>
 );
 
 const mapsQuery = encodeURIComponent(CONTACT.fullAddress);
 const TOUR_FOR_TWO = TOUR_PARTY_SIZES.find((p) => p.guests === 2)?.total ?? 150;
+const SPA_MINUTES = BOOKING_PRODUCTS["nordic-spa"].durationMin;
+
+/** A price or capacity that must not wrap mid-phrase ("$75 per / person"). */
+const keep = (text: string) => <span className="whitespace-nowrap">{text}</span>;
 
 interface Door {
   title: string;
-  note: string;
+  note: ReactNode;
   action: string;
   href: string;
   external?: boolean;
@@ -62,27 +73,31 @@ function doors(): Door[] {
   return [
     {
       title: "Farm tours",
-      note: `Private, 2 to 6 guests, $${TOUR_FOR_TWO} for two`,
+      note: <>Private, 2 to 6 guests, {keep(`$${TOUR_FOR_TWO} for two`)}</>,
       action: "See tour dates",
       href: "/farm-tours",
     },
     {
       title: "Nordic spa",
-      note: "90 minutes, up to 6, $75 per person",
+      note: (
+        <>
+          {keep(`$${SPA_PRICE_PER_PERSON} per person`)}, {SPA_MINUTES} min, up to {SPA_MAX_PARTY}
+        </>
+      ),
       action: "See open sessions",
       href: "/nordic-spa",
     },
     {
       title: "Stays",
-      note: "Lodge, Cottage and Camp, sleeps 4 to 20",
+      note: <>Lodge, Cottage and Camp, {keep("sleeps 4 to 20")}</>,
       action: "Check dates and price",
       href: "/stay",
     },
     {
       title: "Parties and retreats",
-      note: "Birthdays, reunions, photo sessions, up to 125",
+      note: "Birthdays, reunions, photo sessions",
       action: "Check your date",
-      href: "#inquiry",
+      href: "/celebrations",
     },
     {
       title: "Gift certificates",
@@ -108,13 +123,14 @@ const steps = [
   },
   {
     title: "Meeting point.",
-    body: "For a tour, wait at the cow statue out front. Your guide meets you there.",
+    body: "For a tour, wait at the carved Highland cow out front. Your guide meets you there.",
   },
 ] as const;
 
 const rowLink =
   "grid min-h-[60px] grid-cols-[1fr_auto] items-center gap-x-3 border-b border-rule py-2.5";
-const emailLink = "flex min-h-11 flex-wrap items-center gap-x-2 text-[13.5px]";
+/* Address over its label on phones (both rows alike), side by side from lg. Labels match the footer's. */
+const emailLink = "flex min-h-11 flex-col justify-center py-1 text-[13.5px] lg:flex-row lg:items-center lg:gap-x-2";
 const mapLink = "inline-flex min-h-11 items-center text-[14px] font-medium text-pine";
 
 export default function ContactPage() {
@@ -136,7 +152,18 @@ export default function ContactPage() {
                 Reach the right person at Highland Farms.
               </h1>
               <p className="m-0 mt-2.5 text-[14.5px] leading-[1.55] text-ink-body lg:mt-4 lg:text-[17px]">
-                Tours, the spa and stays book online any time. Already booked or running late? Call {phoneLink}.
+                <FieldLink href="/farm-tours" className={inlineLink}>
+                  Tours
+                </FieldLink>
+                ,{" "}
+                <FieldLink href="/nordic-spa" className={inlineLink}>
+                  the spa
+                </FieldLink>{" "}
+                and{" "}
+                <FieldLink href="/stay" className={inlineLink}>
+                  stays
+                </FieldLink>{" "}
+                book online any time. Already booked or running late? Call {phoneThenStop}
               </p>
               <FieldReviewTier tier="compact" className="mt-2 text-[13px] lg:text-[14px]" />
 
@@ -145,12 +172,12 @@ export default function ContactPage() {
                   <div className="h-[150px] border border-frame bg-paper-light p-[5px] lg:h-[230px] lg:p-2">
                     <div className="relative h-full w-full overflow-hidden">
                       <Image
-                        src="/images/weddings/hannah-max/02.jpg"
-                        alt="Two people in wedding clothes embrace under tall mossy trees, a Highland calf at their feet"
+                        src="/images/weddings/hannah-max/06.jpg"
+                        alt="Two people in wedding clothes hold hands among enormous mossy tree trunks"
                         fill
                         priority
                         sizes="(min-width: 1024px) 180px, 118px"
-                        className="object-cover object-[32%_74%]"
+                        className="object-cover object-[40%_76%]"
                       />
                     </div>
                   </div>
@@ -162,7 +189,7 @@ export default function ContactPage() {
                       Our events team checks your date.
                     </span>
                     <span className="mt-2 block font-display text-[14px] italic leading-snug text-ink-note lg:text-[16px]">
-                      A couple and a calf among the mossy trees.
+                      Hand in hand, under the big trees.
                     </span>
                   </figcaption>
                 </figure>
@@ -196,7 +223,9 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* The built inquiry form, general mode. */}
+            {/* The built inquiry form, general mode: no event type is preset, so a tour or stay question is never
+                filed (and counted in ads) as a wedding lead. Parties have their own page and form (/celebrations),
+                so the router sends them there. */}
             <div
               id="inquiry"
               className="mt-8 scroll-mt-[var(--header-h)] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
@@ -205,11 +234,18 @@ export default function ContactPage() {
                 <ContactForm
                   heading="Check your date"
                   headingLevel="h2"
-                  subtitle="Tell us your month and guest count, and we'll check the farm calendar for you. No commitment."
+                  subtitle="Now booking 2027 weddings. Tell us your month and guest count, and we'll check the farm calendar for you. No commitment."
                   placement="contact"
                   softPathsForAll
                 />
               </div>
+              <FieldReview
+                spec={CONTACT_FORM_QUOTE}
+                role="Wedding"
+                size="sm"
+                rule
+                className="mt-6 lg:mt-8"
+              />
             </div>
 
             {/* Everything else: one row per reason. */}
@@ -238,16 +274,20 @@ export default function ContactPage() {
                     <span className="font-medium text-ink underline decoration-rule underline-offset-4">
                       {CONTACT.email}
                     </span>
-                    <span className="text-ink-note">weddings and events</span>
+                    <span className="text-ink-note">Weddings</span>
                   </a>
                   <a href={`mailto:${CONTACT.emailAlt}`} className={emailLink}>
                     <span className="font-medium text-ink underline decoration-rule underline-offset-4">
                       {CONTACT.emailAlt}
                     </span>
-                    <span className="text-ink-note">everything else</span>
+                    <span className="text-ink-note">Everything else</span>
                   </a>
                 </li>
               </ul>
+              <PendingSlot
+                note="PENDING CONNOR: events over 20 guests. Once confirmed, the Parties and retreats row can add “up to 125”."
+                className="mt-2"
+              />
             </nav>
           </div>
         </section>
@@ -288,7 +328,7 @@ export default function ContactPage() {
                 </ArrivalStep>
               ))}
               <ArrivalStep n={4} title="Running late?">
-                Call {phoneLink}. Tours start on time, rain or shine. More than 10 minutes late, and a tour may be
+                Call {phoneThenStop} Tours start on time, rain or shine. More than 10 minutes late, and a tour may be
                 shortened or cancelled at your expense (15 minutes for the spa).
               </ArrivalStep>
             </ol>

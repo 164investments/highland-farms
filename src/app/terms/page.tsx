@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
+import { FieldArrow } from "@/components/ui/FieldGuide";
 import {
   LegalContactAddress,
   LegalJump,
@@ -11,7 +13,8 @@ import {
   LegalStrong,
   type LegalSection,
 } from "@/app/_legal/LegalLayout";
-import { CONTACT } from "@/lib/constants";
+import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -27,6 +30,38 @@ const WEATHER_EXCEPTION =
   "The only exception is if we cancel for severe weather or for the safety of our animals or guests, in which case we will refund or rebook you.";
 
 const telHref = `tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`;
+
+const bookLink = "inline-flex min-h-11 items-center gap-1.5 font-medium text-pine";
+
+/**
+ * "Ready to book?" after the policy, for a reader who came from a booking's policy line.
+ * BookingTextLink keeps booking_start and opens the Acuity modal (rule 5 labels).
+ */
+function ReadyToBook({ placement, className }: { placement: string; className?: string }) {
+  return (
+    <div className={cn("flex flex-wrap items-center gap-x-6 text-[14px] text-ink-body", className)}>
+      <p className="m-0 w-full leading-snug lg:w-auto">Ready to book?</p>
+      <BookingTextLink
+        href={bookingUrl(BOOKING_LINKS.farmTourForTwo, `${placement}-tour`)}
+        label="See tour dates"
+        title="Private farm tour"
+        className={bookLink}
+      >
+        <span className="border-b border-pine-line pb-0.5">See tour dates</span>
+        <FieldArrow size={14} />
+      </BookingTextLink>
+      <BookingTextLink
+        href={bookingUrl(BOOKING_LINKS.nordicSpa, `${placement}-spa`)}
+        label="See open sessions"
+        title="Nordic spa"
+        className={bookLink}
+      >
+        <span className="border-b border-pine-line pb-0.5">See open sessions</span>
+        <FieldArrow size={14} />
+      </BookingTextLink>
+    </div>
+  );
+}
 
 const sections: LegalSection[] = [
   {
@@ -155,26 +190,29 @@ const sections: LegalSection[] = [
     title: "Cancellation & Refund Policy",
     emphasis: true,
     children: (
-      <LegalList>
-        <>
-          <LegalStrong>Farm tours &amp; spa sessions:</LegalStrong> Strict cancellation policy. All bookings are
-          final. We do not offer refunds, reschedules, credits, or transfers for cancellations, date changes, or
-          no-shows. {CONFIRM_BEFORE_BOOKING} {WEATHER_EXCEPTION}
-        </>
-        <>
-          <LegalStrong>Accommodations:</LegalStrong> Cancellation terms vary by property and booking date. Specific
-          cancellation policies are provided at the time of booking.
-        </>
-        <>
-          <LegalStrong>Weddings &amp; events:</LegalStrong> Cancellation and refund terms are outlined in your
-          individual event agreement. Deposits are generally non-refundable. Please discuss your specific terms with
-          our events team.
-        </>
-        <>
-          <LegalStrong>Weather:</LegalStrong> Highland Farms reserves the right to cancel or reschedule outdoor
-          activities due to severe weather. In such cases, a full refund or reschedule will be offered.
-        </>
-      </LegalList>
+      <>
+        <LegalList>
+          <>
+            <LegalStrong>Farm tours &amp; spa sessions:</LegalStrong> Strict cancellation policy. All bookings are
+            final. We do not offer refunds, reschedules, credits, or transfers for cancellations, date changes, or
+            no-shows. {CONFIRM_BEFORE_BOOKING} {WEATHER_EXCEPTION}
+          </>
+          <>
+            <LegalStrong>Accommodations:</LegalStrong> Cancellation terms vary by property and booking date. Specific
+            cancellation policies are provided at the time of booking.
+          </>
+          <>
+            <LegalStrong>Weddings &amp; events:</LegalStrong> Cancellation and refund terms are outlined in your
+            individual event agreement. Deposits are generally non-refundable. Please discuss your specific terms with
+            our events team.
+          </>
+          <>
+            <LegalStrong>Weather:</LegalStrong> Highland Farms reserves the right to cancel or reschedule outdoor
+            activities due to severe weather. In such cases, a full refund or reschedule will be offered.
+          </>
+        </LegalList>
+        <ReadyToBook placement="terms-section-5" />
+      </>
     ),
   },
   {
@@ -329,6 +367,8 @@ const shortVersion = (
       All bookings are final. Tours and the spa run rain or shine. {WEATHER_EXCEPTION}
     </p>
     <p className="m-0 mt-2 text-[15px] leading-[1.6] text-ink-body">{CONFIRM_BEFORE_BOOKING}</p>
+    {/* Straight after the commitment line, so the next step sits inside the phone's first screen. */}
+    <ReadyToBook placement="terms-short" className="mt-1.5" />
     <a
       href="#cancellation"
       className="mt-1 inline-flex min-h-11 items-center gap-2 text-[14px] font-medium text-pine"
@@ -337,13 +377,13 @@ const shortVersion = (
     </a>
     <p className="m-0 text-[14px] text-ink-body">
       Questions before you book? Call{" "}
-      <a
-        href={telHref}
-        className="inline-flex min-h-11 items-center whitespace-nowrap font-medium text-pine underline decoration-pine-line underline-offset-4"
-      >
-        {CONTACT.phone}
-      </a>
-      .
+      {/* Link and period in one unbreakable box: the "." used to wrap alone under the number on phones. */}
+      <span className="inline-flex min-h-11 items-center whitespace-nowrap">
+        <a href={telHref} className="font-medium text-pine underline decoration-pine-line underline-offset-4">
+          {CONTACT.phone}
+        </a>
+        .
+      </span>
     </p>
   </aside>
 );
@@ -352,6 +392,7 @@ export default function TermsOfServicePage() {
   return (
     <>
       <StructuredData pathname="/terms" />
+      <BookingModalRoot />
       <LegalLayout
         policy="terms"
         title="Terms of Service"

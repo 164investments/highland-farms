@@ -21,6 +21,7 @@ import { REVIEW_COUNT } from "@/lib/reviews";
 import { cn } from "@/lib/utils";
 import {
   ABOUT_FINLEY_QUOTE,
+  ABOUT_HERD_QUOTE,
   ABOUT_HERO_QUOTE,
   ABOUT_ORIGIN_QUOTE,
   ABOUT_TEAM_QUOTE,
@@ -29,7 +30,7 @@ import {
 export const metadata: Metadata = {
   title: "About Highland Farms: Connor's Forest Farm in Brightwood",
   description:
-    "Meet Connor McWilliams and the herd at Highland Farms, a private forest farm in Brightwood, Oregon: Highland cows by name, five acres of old forest, weddings, tours and stays.",
+    "Meet Connor McWilliams and the herd at Highland Farms, a private forest farm in Brightwood, Oregon: Highland cows, five forested acres, weddings, tours and stays.",
   alternates: { canonical: "/about" },
   openGraph: {
     title: "About Highland Farms: Connor's Forest Farm in Brightwood",
@@ -55,60 +56,70 @@ const doubleRule = "border-t-[3px] border-double border-frame";
 interface Resident {
   drawing: FieldDrawingName;
   kind: string;
-  name: string;
+  /** Names no animal: animal names wait on Connor (truth-E), so they live only in the PendingSlot below. */
+  title: string;
   line: string;
   quote?: ReactNode;
 }
+
+const residentQuote = "text-[17px] leading-[1.3] lg:text-[19px]";
 
 function residents(): Resident[] {
   return [
     {
       drawing: "highland-cow",
       kind: "Scottish Highland cows",
-      name: "Finley, Arthur and the herd",
+      title: "The herd",
       line: "Shaggy, gentle and out on every tour, rain or shine. You can feed, brush and pet them.",
       quote: (
         <FieldReview
-          spec={ABOUT_FINLEY_QUOTE}
+          spec={ABOUT_HERD_QUOTE}
           role="Farm tour"
           size="sm"
           className="mt-3"
-          quoteClassName="text-[17px] leading-[1.3] lg:text-[19px]"
+          quoteClassName={residentQuote}
         />
       ),
     },
     {
       drawing: "highland-calf",
       kind: "Highland calves",
-      name: "The newest arrivals",
+      title: "The newest arrivals",
       line: "Calves are born in the front pastures, and tours often get time with the youngest.",
     },
     {
       drawing: "icelandic-sheep",
       kind: "Icelandic sheep",
-      name: "The flock at the end of the fern trail",
+      title: "The flock at the end of the fern trail",
       line: "Curly fleece, small curled horns, and they come running when the feed comes out.",
     },
     {
       drawing: "white-peacock",
       kind: "The peacocks",
-      name: "Albie, the farm’s alarm clock",
-      line: "Albie runs his own wake-up service and takes no requests.",
+      title: "The farm’s alarm clock",
+      line: "They run their own wake-up service and take no requests.",
     },
     {
       drawing: "guardian-dog",
       kind: "The farm dogs",
-      name: "Bear and Beau",
+      title: "The guardians",
       line: "They keep an eye on the herd, and on everyone who comes to visit it.",
     },
     {
       drawing: "hen",
       kind: "The hens",
-      name: "The egg layers",
-      line: "Their eggs go to the farm shop by the dozen, for pickup at the farm.",
+      title: "The egg layers",
+      line: "Their eggs go to the farm shop by the dozen, for pickup or local delivery.",
     },
   ];
 }
+
+/** What the roster says once Connor confirms who is on the farm now (dev only, inside the PendingSlot). */
+const NAMED_ROSTER = [
+  "No. 1 title “Finley, Arthur and the herd” (Finley: one review, June 2025; Arthur: Linda V., February 2026), with Chelyn J.’s Finley quote in place of Amber H.’s.",
+  "No. 4 title “Albie, the farm’s alarm clock”, line “Albie runs his own wake-up service and takes no requests.” (Albie: July 2026).",
+  "No. 5 title “Bear and Beau” (Kristin Barnes’s review, May 2026).",
+];
 
 const landRows = [
   { term: "The forest", detail: "Old trees draped in moss, with fern trails and the Acorn Trail running through." },
@@ -122,7 +133,7 @@ export default function AboutPage() {
       <StructuredData pathname="/about" />
       <div className="surface-paper bg-paper pt-[var(--header-h)] font-sans text-ink">
         {/* 1. Hero */}
-        <section aria-labelledby="about-title" className="px-5 pb-10 pt-4 lg:px-16 lg:pb-20 lg:pt-14">
+        <section aria-labelledby="about-title" className="px-5 pb-10 pt-3 lg:px-16 lg:pb-20 lg:pt-14">
           <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:grid-rows-[auto_1fr] lg:gap-x-16">
             <div className="lg:col-start-1 lg:row-start-1 lg:self-end">
               <p className={eyebrow}>About Highland Farms</p>
@@ -134,16 +145,13 @@ export default function AboutPage() {
               </h1>
             </div>
 
+            {/* Phone crop: an aspect-ratio frame (inner about 1.68:1 at every width) from Connor's face down to
+                the calf's muzzle, so the photo's one caption (CAPTIONS.md) is true on both breakpoints.
+                "Check your date" still ends above 660px at 393x660 (rule 15). */}
             <Plate
-              className="mt-3 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
-              frameClassName="h-[166px] lg:h-[640px]"
-              caption={
-                <>
-                  {/* The phone frame (about 2.2:1) shows Connor but not the calf; name only what each crop shows. */}
-                  <span className="lg:hidden">Connor McWilliams, who owns the farm, on the forest path.</span>
-                  <span className="hidden lg:inline">Connor and one of the calves, on the forest path.</span>
-                </>
-              }
+              className="mt-2.5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
+              frameClassName="aspect-[353/217] lg:aspect-auto lg:h-[640px]"
+              caption="Connor and one of the calves, on the forest path."
             >
               <Image
                 src="/images/farm/farm-life.jpg"
@@ -151,17 +159,16 @@ export default function AboutPage() {
                 fill
                 priority
                 sizes="(min-width: 1024px) 520px, 100vw"
-                className="object-cover object-[50%_36%] lg:object-[50%_55%]"
+                className="object-cover object-[50%_58%] lg:object-[50%_55%]"
               />
             </Plate>
 
             <div className="lg:col-start-1 lg:row-start-2 lg:mt-7">
-              <p className="m-0 mt-2 text-[15px] leading-[1.5] text-ink-body lg:mt-0 lg:max-w-[540px] lg:text-[18px] lg:leading-[1.6]">
-                Five acres of pasture and old forest in Brightwood, Oregon, about an hour from Portland. It is home to a
-                herd of Scottish Highland cows that guests come to meet by name.
+              <p className="m-0 mt-1.5 text-[15px] leading-[1.5] text-ink-body lg:mt-0 lg:max-w-[540px] lg:text-[18px] lg:leading-[1.6]">
+                Five forested acres about an hour from Portland, home to a herd of Highland cows.
               </p>
-              <FieldReviewTier tier="hero" className="mt-2 text-[14px] lg:mt-5 lg:text-[15px]" />
-              <div className="mt-3 lg:mt-6 lg:border-t lg:border-rule lg:pt-6">
+              <FieldReviewTier tier="hero" className="mt-1.5 text-[14px] lg:mt-5 lg:text-[15px]" />
+              <div className="mt-2.5 lg:mt-6 lg:border-t lg:border-rule lg:pt-6">
                 <p className="m-0 mb-2 font-display text-[18px] leading-snug lg:mb-0 lg:text-[24px]">
                   Planning a wedding here?
                 </p>
@@ -195,7 +202,8 @@ export default function AboutPage() {
               <h2 id="about-began-title" className={h2}>
                 It started as five overgrown acres.
               </h2>
-              <div className="mt-4 space-y-4 text-[15px] leading-[1.65] text-ink-body lg:mt-6 lg:max-w-[600px] lg:text-[17px]">
+              {/* flex + gap, not space-y: the paragraphs' m-0 cancelled space-y, so the two ran together. */}
+              <div className="mt-4 flex flex-col gap-4 text-[15px] leading-[1.65] text-ink-body lg:mt-6 lg:max-w-[600px] lg:text-[17px]">
                 <p className="m-0">
                   Connor grew up loving ranch life on the Church ranch in Salinas, California. He worked as a general
                   contractor until that work could buy a farm and livestock of his own, and he never pictured a farm
@@ -213,22 +221,19 @@ export default function AboutPage() {
                 className="mt-6 lg:mt-8 lg:max-w-[600px]"
                 quoteClassName="text-[20px] lg:text-[24px]"
               />
-              <p className="m-0 mt-6 text-[11px] uppercase tracking-[0.14em] text-ink-meta lg:text-[12px]">
-                Brightwood, Oregon · Owner-run
-              </p>
               <PendingSlot
                 note="PENDING CONNOR C7: the year the farm opened, as one line: “Opened in 20XX.”"
-                className="mt-2"
+                className="mt-4"
               />
             </div>
             <Plate
               className="mt-7 lg:col-start-1 lg:row-start-1 lg:mt-2"
               frameClassName="h-[240px] lg:h-[460px]"
-              caption="The farm from above: the buildings, the drive, and the forest all around."
+              caption="The Lodge, the Cottage and the drive, from above."
             >
               <Image
                 src="/images/properties/gallery-7.jpg"
-                alt="Aerial view looking straight down on Highland Farms: the Lodge roof, the barn, the gravel drive loop and the forest around them"
+                alt="Aerial view looking straight down on Highland Farms: the Lodge's red roof, the Cottage, the gravel drive loop and the forest around them"
                 fill
                 loading="lazy"
                 sizes="(min-width: 1024px) 520px, 100vw"
@@ -238,17 +243,17 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 3. The residents, by name */}
+        {/* 3. The residents. Production names no animal: names wait on Connor and live only in the PendingSlot. */}
         <section
           aria-labelledby="about-residents-title"
-          className={cn(doubleRule, "px-5 pb-6 pt-9 lg:px-16 lg:pb-12 lg:pt-20")}
+          className={cn(doubleRule, "px-5 pb-10 pt-9 lg:px-16 lg:pb-20 lg:pt-20")}
         >
           <div className="mx-auto max-w-[1312px]">
             <div className="lg:flex lg:items-end lg:justify-between lg:gap-16">
               <div>
                 <p className={eyebrow}>Who lives here</p>
                 <h2 id="about-residents-title" className={h2}>
-                  Meet the residents, by name.
+                  Meet the residents.
                 </h2>
               </div>
               <div className="lg:max-w-[460px]">
@@ -256,9 +261,22 @@ export default function AboutPage() {
                   Every farm tour goes into the pen with the herd. These are the ones guests write home about.
                 </p>
                 <PendingSlot
-                  note="PENDING CONNOR: confirm who is on the farm now; names come from guest reviews, 2025 to 2026"
+                  note="PENDING CONNOR: animal names. Confirm who is on the farm now; until then production shows the animals without names. Once confirmed, restore:"
                   className="mt-2"
-                />
+                >
+                  <ul className="m-0 list-disc pl-4 font-sans text-[12px] leading-snug text-ink-note">
+                    {NAMED_ROSTER.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                  <FieldReview
+                    spec={ABOUT_FINLEY_QUOTE}
+                    role="Farm tour"
+                    size="sm"
+                    className="mt-2"
+                    quoteClassName={residentQuote}
+                  />
+                </PendingSlot>
               </div>
             </div>
 
@@ -268,7 +286,7 @@ export default function AboutPage() {
             >
               {residents().map((r, i) => (
                 <li
-                  key={r.name}
+                  key={r.kind}
                   className="grid grid-cols-[100px_1fr] gap-x-4 border-b border-rule py-5 lg:flex lg:flex-col lg:border-r lg:px-8 lg:pb-8 lg:pt-6"
                 >
                   <FieldDrawing
@@ -281,7 +299,7 @@ export default function AboutPage() {
                       No. {i + 1} · {r.kind}
                     </p>
                     <h3 className="m-0 mt-1 font-display text-[23px] font-semibold leading-[1.1] lg:text-[27px]">
-                      {r.name}
+                      {r.title}
                     </h3>
                     <p className="m-0 mt-1.5 text-[14px] leading-[1.5] text-ink-body lg:text-[15px]">{r.line}</p>
                     {r.quote}
@@ -291,7 +309,7 @@ export default function AboutPage() {
             </ol>
             <FieldLink
               href="/farm-tours"
-              className="mt-2 flex min-h-[56px] items-center gap-3 border-b border-rule lg:mt-4 lg:max-w-[560px]"
+              className="mt-2 flex min-h-[56px] items-center gap-3 border-b border-rule lg:mt-4"
             >
               <span className="font-display text-[22px] font-medium">See tour dates</span>
               <FieldLeader />
@@ -301,40 +319,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 4. The wedding ask, as type. No photo: a cow photo right after the cow plates breaks CONSISTENCY #11,
-            and the pasture-fence frame is Riley & Jordan's, already captioned with their names elsewhere. */}
-        <section aria-labelledby="about-wedding-title" className="px-5 pb-12 pt-6 lg:px-16 lg:pb-24 lg:pt-12">
-          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end lg:gap-x-16">
-            <div>
-              <p className={eyebrow}>Bring them to your wedding</p>
-              <h2
-                id="about-wedding-title"
-                className="field-heading m-0 mt-1 font-display text-[31px] leading-[1.04] lg:text-[48px]"
-              >
-                Your wedding, with the coos as honorary guests.
-              </h2>
-            </div>
-            <div className="mt-3 lg:mt-0">
-              <p className="m-0 text-[15px] leading-[1.6] text-ink-body lg:text-[17px]">
-                Whimsical forest weddings for up to 125 guests. Your wedding is a weekend, not a day: up to 20 of your
-                people can stay on the farm.
-              </p>
-              <FieldLink href={CHECK_DATE_HREF} className={cn(fieldCtaClass, "mt-5 w-full lg:mt-7 lg:w-auto")}>
-                Check your date
-                <FieldArrow />
-              </FieldLink>
-              <WeddingCallLink
-                content="about-wedding"
-                title="About: wedding call"
-                className="mt-1 flex min-h-11 items-center justify-center text-[14px] font-medium text-pine lg:justify-start lg:text-[15px]"
-              >
-                <span className="border-b border-pine-line pb-0.5">Book a free 45-minute call with Connor</span>
-              </WeddingCallLink>
-            </div>
-          </div>
-        </section>
-
-        {/* 5. The land */}
+        {/* 4. The land */}
         <section
           aria-labelledby="about-land-title"
           className={cn(doubleRule, "px-5 pb-10 pt-9 lg:px-16 lg:pb-20 lg:pt-20")}
@@ -343,7 +328,7 @@ export default function AboutPage() {
             <div>
               <p className={eyebrow}>The lay of the land</p>
               <h2 id="about-land-title" className={h2}>
-                Old forest, a spring-fed pond, and the pasture.
+                The forest, a spring-fed pond, and the pasture.
               </h2>
               <dl className="m-0 mt-5 flex flex-col border-t border-rule lg:mt-8">
                 {landRows.map((row) => (
@@ -374,7 +359,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 6. Connor and his team */}
+        {/* 5. Connor and his team */}
         <section
           aria-labelledby="about-team-title"
           className={cn(doubleRule, "px-5 pb-12 pt-9 lg:px-16 lg:pb-24 lg:pt-20")}
@@ -386,8 +371,8 @@ export default function AboutPage() {
                 Connor and his team.
               </h2>
               <p className="m-0 mt-4 text-[15px] leading-[1.65] text-ink-body lg:mt-6 lg:max-w-[600px] lg:text-[17px]">
-                Connor McWilliams owns and runs Highland Farms. Tour guests are met at the cow statue out front by his
-                team, who know every animal by name.
+                Connor McWilliams owns and runs Highland Farms. Tour guests are met at the carved Highland cow out front by
+                his team, who know every animal by name.
               </p>
             </div>
             <div className="mt-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-2">
@@ -429,6 +414,56 @@ export default function AboutPage() {
                   Read all {REVIEW_COUNT} reviews on Google
                 </FieldLink>
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* 6. The wedding close: the page ends on its primary action. A real couple with the herd proves the headline;
+            placed here, away from the resident plates, so CONSISTENCY #11 holds. One caption, from CAPTIONS.md. */}
+        <section
+          aria-labelledby="about-wedding-title"
+          className={cn(doubleRule, "px-5 pb-12 pt-9 lg:px-16 lg:pb-24 lg:pt-20")}
+        >
+          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:grid-rows-[auto_1fr] lg:gap-x-16">
+            <div className="lg:col-start-1 lg:row-start-1 lg:self-end">
+              <p className={eyebrow}>Weddings at Highland Farms</p>
+              <h2
+                id="about-wedding-title"
+                className="field-heading m-0 mt-1 font-display text-[31px] leading-[1.04] lg:text-[48px]"
+              >
+                Your wedding, with the coos as honorary guests.
+              </h2>
+            </div>
+            <Plate
+              className="mt-5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
+              frameClassName="aspect-[3/2] lg:aspect-auto lg:h-[384px]"
+              caption="Riley & Jordan with two of the herd, June 2025."
+            >
+              <Image
+                src="/images/weddings/riley-jordan/04.jpg"
+                alt="Riley and Jordan at the pasture fence, between a black and a white Highland cow"
+                fill
+                loading="lazy"
+                sizes="(min-width: 1024px) 560px, 100vw"
+                className="object-cover object-[50%_60%]"
+              />
+            </Plate>
+            <div className="mt-5 lg:col-start-1 lg:row-start-2 lg:mt-6">
+              <p className="m-0 text-[15px] leading-[1.6] text-ink-body lg:max-w-[560px] lg:text-[17px]">
+                Whimsical forest weddings for up to 125 guests. Your wedding is a weekend, not a day: up to 20 of your
+                people can stay on the farm.
+              </p>
+              <FieldLink href={CHECK_DATE_HREF} className={cn(fieldCtaClass, "mt-5 w-full lg:mt-7 lg:w-auto")}>
+                Check your date
+                <FieldArrow />
+              </FieldLink>
+              <WeddingCallLink
+                content="about-wedding"
+                title="About: wedding call"
+                className="mt-1 flex min-h-11 items-center justify-center text-[14px] font-medium text-pine lg:justify-start lg:text-[15px]"
+              >
+                <span className="border-b border-pine-line pb-0.5">Book a free 45-minute call with Connor</span>
+              </WeddingCallLink>
             </div>
           </div>
         </section>
