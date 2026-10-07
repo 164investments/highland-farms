@@ -49,9 +49,11 @@ const LINK = "flex min-h-11 items-center font-sans text-[15px] leading-tight tex
 const EYEBROW = "m-0 font-display text-[16px] italic leading-tight text-fern lg:text-[18px]";
 const NOTE = "m-0 font-display text-[16px] italic leading-tight text-ink-note";
 /* Dotted lines: a dot before each item, clipped where a line starts, so no line begins or ends on a dot. */
-const DOTS = "m-0 flex list-none flex-wrap p-0 [--sep:20px] -ml-[var(--sep)] [clip-path:inset(0_0_0_var(--sep))]";
+/* Under 375px the dotted lines become an even two-column grid, so no word sits alone on a line. */
+const DOTS =
+  "m-0 flex list-none flex-wrap p-0 [--sep:20px] -ml-[var(--sep)] [clip-path:inset(0_0_0_var(--sep))] max-[374px]:ml-0 max-[374px]:grid max-[374px]:grid-cols-2 max-[374px]:gap-x-4 max-[374px]:[clip-path:none]";
 const DOT_ITEM =
-  "flex items-center before:w-[var(--sep)] before:flex-none before:text-center before:text-ink-meta before:content-['·']";
+  "flex items-center before:w-[var(--sep)] before:flex-none before:text-center before:text-ink-meta before:content-['·'] max-[374px]:before:hidden";
 
 function Step({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
   return (
@@ -83,12 +85,14 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
     <>
       <footer
         data-site-footer=""
+        data-sticky-stop=""
         className="surface-paper border-t-[3px] border-double border-frame bg-paper-shade font-sans text-ink"
       >
-        <div className="mx-auto max-w-[1440px] px-5 pb-5 pt-4 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:px-16 lg:pb-10 lg:pt-14">
+        {/* Phones: one column whose order follows the page type (globals.css: visit pages lead with Visit the farm). */}
+        <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-5 pt-4 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:px-16 lg:pb-10 lg:pt-14">
           {/* The menu's own plate; the review count sits in its mat. */}
           {!hidden("proof") && (
-            <div data-footer-part="proof" className="lg:col-span-4">
+            <div data-footer-part="proof" data-footer-weddings="" className="lg:col-span-4">
               <div className="border border-frame bg-paper-light p-[5px] lg:p-2">
                 <div className="relative h-[112px] overflow-hidden max-[359px]:h-[96px] lg:h-[260px]">
                   <Image
@@ -115,7 +119,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
 
           {/* Weddings: the one large lead, one note, the menu's three steps. */}
           {!hidden("doors") && (
-            <nav aria-label="Footer: weddings" data-footer-part="doors" className="mt-1 lg:col-span-4 lg:mt-0">
+            <nav aria-label="Footer: weddings" data-footer-part="doors" data-footer-weddings="" className="mt-1 lg:col-span-4 lg:mt-0">
               <Link href={weddings.href} className="flex min-h-11 items-center justify-between text-ink hover:text-pine">
                 <span className="font-display text-[30px] font-semibold leading-none lg:text-[34px]">{weddings.title}</span>
                 <ChevronRight className="h-[18px] w-[18px] flex-none text-ink-meta" strokeWidth={1.6} aria-hidden="true" />
@@ -147,9 +151,8 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
 
           {/* Visit the farm: plain rows, then the short links on one dotted line. */}
           {!hidden("doors") && (
-            <nav aria-label="Footer: visit the farm" data-footer-part="doors" className="mt-4 lg:col-span-4 lg:mt-0">
+            <nav aria-label="Footer: visit the farm" data-footer-part="doors" data-footer-visit="" className="mt-4 lg:col-span-4 lg:mt-0">
               <p className={EYEBROW}>Visit the farm</p>
-              <p className={`${NOTE} mt-0.5`}>About an hour from Portland</p>
               <ul role="list" className="m-0 mt-1 list-none border-t border-rule p-0">
                 {visitDoors().map((door) => (
                   <li key={door.title} className="border-b border-rule">

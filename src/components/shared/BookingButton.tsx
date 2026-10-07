@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
 import { bookingTrackingFromUrl } from "@/lib/booking/tracking";
 import { SPA_MAX_PARTY, SPA_PRICE_PER_PERSON } from "@/data/nordic-spa";
+import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 
 const OPEN_EVENT = "hf:open-booking";
 
@@ -56,7 +57,11 @@ function bookingTypeFromUrl(url: string): string {
 /** One line under the modal title: the spa quantity help, or the tour's reassurance. */
 export function wrapperNote(src: string): string | null {
   const type = bookingTypeFromUrl(src);
-  if (type === "nordic_spa") return spaQuantityNote(src) ?? "Rain or shine. Pick a date and time below.";
+  if (type === "nordic_spa") {
+    const minutes = `${BOOKING_PRODUCTS["nordic-spa"].durationMin} minutes, rain or shine.`;
+    const quantity = spaQuantityNote(src);
+    return quantity ? `${minutes} ${quantity}` : `${minutes} Pick a time below.`;
+  }
   // Tours are the "Private Tour for N" calendar; the wedding call and the tour menu also fall back to farm_tour.
   if (type === "farm_tour" && src.includes("calendar/7539520")) return "Private tour, rain or shine. Pick a date and time below.";
   return null;

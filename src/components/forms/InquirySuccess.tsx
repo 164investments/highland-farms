@@ -47,14 +47,14 @@ export function InquirySuccess({
   const steps = wedding
     ? [
         checkStep,
-        `They write back to ${email} with what's open.`,
+        `They write back to ${email}\u2060 with what's open.`,
         "If the farm feels right, you set a time to talk it through with Connor.",
       ]
     : [
         dateText
           ? `Our team reads your note and checks ${dateText} against the farm calendar.`
           : "Our team reads your note and checks the farm calendar.",
-        `We write back to ${email}.`,
+        `We write back to ${email}\u2060.`,
       ];
 
   const telHref = `tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`;
@@ -106,10 +106,12 @@ export function InquirySuccess({
 
       <p className="mt-6 font-sans text-[14px] leading-relaxed text-ink-note">
         Prefer the phone? Call{" "}
-        <a href={telHref} className="font-medium text-pine underline underline-offset-4">
-          {CONTACT.phone}
-        </a>
-        .
+        <span className="whitespace-nowrap">
+          <a href={telHref} className="font-medium text-pine underline underline-offset-4">
+            {CONTACT.phone}
+          </a>
+          .
+        </span>
       </p>
     </div>
   );

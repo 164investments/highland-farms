@@ -188,7 +188,7 @@ type ConsentRowProps = InputHTMLAttributes<HTMLInputElement> & {
 
 /**
  * One SMS consent: the box, a one-line label, and the complete wording under
- * the label at 12.5px (never collapsed: the wording must be visible next to
+ * the label at 12px (never collapsed: the wording must be visible next to
  * the box). The whole row is the target.
  */
 export function ConsentRow({ id, label, children, ref, ...props }: ConsentRowProps) {
@@ -203,7 +203,7 @@ export function ConsentRow({ id, label, children, ref, ...props }: ConsentRowPro
       />
       <span className="min-w-0">
         <span className="block font-sans text-[15px] leading-snug text-ink">{label}</span>
-        <span className="mt-1 block font-sans text-[12.5px] leading-[1.38] text-ink-note">{children}</span>
+        <span className="mt-1 block font-sans text-[12px] leading-[1.35] text-ink-note">{children}</span>
       </span>
     </label>
   );

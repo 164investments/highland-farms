@@ -117,6 +117,19 @@ body:has([data-footer-quiet="bare"]) [data-footer-slim-help] {
   display: none;
 }
 
+/* The footer by page type (mobile review r1): pages that already sell weddings (home, weddings, the
+   journal and couple pages, about) and the shop drop the footer's plate and Weddings group; visit,
+   stay, celebration, gift and Thanksgiving pages lead with Visit the farm on phones. */
+body:has([data-masthead="home"], [data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead="about"], [data-masthead="shop"]) [data-footer-weddings] {
+  display: none;
+}
+@media (max-width: 1023px) {
+  body:has([data-masthead="tours"], [data-masthead="spa"], [data-masthead="sauna"], [data-masthead="stays"], [data-masthead="stay"], [data-masthead="thanksgiving"], [data-masthead="gifts"], [data-masthead="celebrations"]) [data-footer-visit] {
+    order: -1;
+    margin-top: 0;
+  }
+}
+
 /* Seasonal chrome (chrome.ts SEASON_SCRIPT sets html[data-season]). */
 html:not([data-season~="gift"]) [data-season-only~="gift"],
 html:not([data-season~="thanksgiving-bar"]) [data-season-only~="thanksgiving-bar"],
@@ -306,7 +319,8 @@ html {
     scroll-padding-bottom: calc(var(--sticky-bar-h) + 8px);
   }
 
-  html[data-sticky] [data-site-footer]::after {
+  html[data-sticky] [data-site-footer]::after,
+  html[data-sticky] [data-footer-slim]::after {
     content: "";
     display: block;
     height: var(--sticky-bar-h);

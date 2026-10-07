@@ -169,6 +169,7 @@ export function InquiryForm({
   const [submitted, setSubmitted] = useState<Submitted | null>(null);
   const [turnstileReset, setTurnstileReset] = useState(0);
   const serverErrorRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const years = useEventYears(yearOptions);
 
   const {
@@ -180,10 +181,11 @@ export function InquiryForm({
     control,
     formState: { errors },
   } = useForm<InquiryFormData>({
+    // Focus is ours: the built-in focus skips fields without a ref and landed on a later select.
+    shouldFocusError: false,
     resolver: zodResolver(inquirySchema),
     // Validate a field when the visitor leaves it, then live as they fix it.
     mode: "onTouched",
-    shouldFocusError: true,
     defaultValues: {
       name: "",
       email: "",
@@ -244,6 +246,15 @@ export function InquiryForm({
     () => setValue("turnstile_token", "", { shouldValidate: false }),
     [setValue],
   );
+
+  /** After a failed submit, focus the first invalid field in page order (the names field first). */
+  function focusFirstInvalid() {
+    requestAnimationFrame(() => {
+      const first = formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+      first?.focus();
+      first?.scrollIntoView({ block: "center" });
+    });
+  }
 
   async function onSubmit(data: InquiryFormData) {
     setStatus("submitting");
@@ -336,7 +347,8 @@ export function InquiryForm({
 
       <FormCard>
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          ref={formRef}
+          onSubmit={handleSubmit(onSubmit, focusFirstInvalid)}
           noValidate
           aria-busy={submitting || undefined}
           className="flex flex-col gap-5"

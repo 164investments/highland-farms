@@ -780,10 +780,14 @@ export type ReviewTier = "hero" | "nearCta" | "compact";
  * of the farm (a single stay), so the farm-wide count never reads as that
  * part's own: "Loved by N Highland Farms guests on Google".
  */
-export function reviewTierText(tier: ReviewTier, count: number, subject?: string): string {
+export function reviewTierText(tier: ReviewTier, count: number, subject?: string, total?: number): string {
   const of = subject ? `${subject} ` : "";
   if (tier === "hero") return `Loved by ${count} ${of}guests on Google`;
-  if (tier === "nearCta") return `${count} five-star ${of}reviews on Google`;
+  // With the total, the five-star count reads as part of the same 254 the page shows elsewhere
+  // (critics read "244 five-star" beside "254 guests" as a contradiction, mobile review r0 and r1).
+  if (tier === "nearCta") {
+    return total ? `${count} of ${total} ${of}reviews on Google are five stars` : `${count} five-star ${of}reviews on Google`;
+  }
   return `${count} ${of}reviews on Google`;
 }
 
@@ -791,6 +795,8 @@ interface FieldReviewLineProps {
   tier: ReviewTier;
   /** From @/lib/reviews (server) or passed down as a prop (client). Never a literal. */
   count: number;
+  /** The total review count, so the near-CTA tier reads "244 of 254". From @/lib/reviews, never a literal. */
+  total?: number;
   /** Link the line to Google (opens a new tab). */
   href?: string;
   /** Whose reviews, for a line under one stay: "Highland Farms". */
@@ -800,11 +806,11 @@ interface FieldReviewLineProps {
 }
 
 /** Five stars and a tier sentence. For server pages, prefer FieldReviewTier (binds the count). */
-export function FieldReviewLine({ tier, count, href, subject, starSize = 13, className }: FieldReviewLineProps) {
+export function FieldReviewLine({ tier, count, total, href, subject, starSize = 13, className }: FieldReviewLineProps) {
   const inner = (
     <>
       <FieldStars size={starSize} />
-      <span>{reviewTierText(tier, count, subject)}</span>
+      <span>{reviewTierText(tier, count, subject, total)}</span>
     </>
   );
   const base = "flex items-center gap-2 font-sans text-[13px] text-ink-note lg:text-[14px]";
