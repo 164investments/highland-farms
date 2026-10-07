@@ -103,7 +103,7 @@ function residents(): Resident[] {
       drawing: "guardian-dog",
       kind: "The farm dogs",
       title: "The guardians",
-      line: "They keep an eye on the herd, and on everyone who comes to visit it.",
+      line: "They keep an eye on the herd and the flock.",
     },
     {
       drawing: "hen",
@@ -391,7 +391,7 @@ export default function AboutPage() {
             <div className="mt-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-2">
               <Plate
                 frameClassName="h-[300px] lg:h-[600px]"
-                caption="A guide, two guests and a calf, in the barn."
+                caption="Guests and a calf, in the barn."
               >
                 <Image
                   src="/images/farm/cow-2.jpg"
