@@ -29,6 +29,7 @@ import {
 } from "@/data/wedding-portfolio";
 import {
   COUPLE_KATE_QUOTE,
+  STYLED_PHOTOGRAPHER_QUOTE,
   MAYA_LEAD_QUOTE,
   MAYA_REVIEW_OPENING,
   MAYA_REVIEW_REST,
@@ -534,6 +535,18 @@ export default async function WeddingDetailPage({
               />
             </Plate>
             <div className="mt-7 lg:col-span-6 lg:col-start-7 lg:mt-0">
+              {/* A styled set has no couple's words: a wedding photographer on the farm instead (r5). */}
+              {!confirmed && (
+                <div className="mb-8 border-b border-rule pb-6">
+                  <p className="font-display text-[17px] italic text-fern lg:text-[20px]">A wedding photographer on the farm</p>
+                  <FieldReview
+                    spec={STYLED_PHOTOGRAPHER_QUOTE}
+                    role="Wedding"
+                    className="mt-2"
+                    quoteClassName="text-[20px] leading-[1.3] lg:text-[22px]"
+                  />
+                </div>
+              )}
               <h2 id="plan-title" className="field-heading font-display text-[36px] leading-[1.02] text-ink lg:text-[56px]">
                 Planning yours?
               </h2>

@@ -74,3 +74,15 @@ export const MAYA_REVIEW_REST: QuoteSpec = {
   sentenceCount: 4,
   topic: "Wedding",
 };
+
+/**
+ * Styled sets, above "Planning yours?": a wedding photographer on the farm's
+ * forest. Not the set's photographer, and labelled so; her review gives a
+ * different sentence on home and on the Whole Farm page.
+ */
+export const STYLED_PHOTOGRAPHER_QUOTE: QuoteSpec = {
+  author: "Leanna Little",
+  date: "2026-01-01",
+  sentenceStartsWith: "The forest trails are lined with hazelnut shells",
+  topic: "Wedding",
+};
