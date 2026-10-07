@@ -204,6 +204,7 @@ export default function ContactPage() {
                   heading="Check your date"
                   subtitle="Tell us your month and guest count, and we'll write back with what's open. No commitment."
                   placement="contact"
+                  softPathsForAll
                 />
               </div>
             </div>
