@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { FooterHide } from "@/components/layout/Footer";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
 import { FieldArrow } from "@/components/ui/FieldGuide";
@@ -63,6 +65,11 @@ function ReadyToBook({ placement, className }: { placement: string; className?: 
   );
 }
 
+/* A findable clause inside the text column: a pine rule and a tint, same left edge as the sections around it. */
+function Callout({ children }: { children: ReactNode }) {
+  return <div className="border-l-[3px] border-pine bg-paper-shade px-4 py-3.5 lg:px-5">{children}</div>;
+}
+
 const sections: LegalSection[] = [
   {
     id: "booking",
@@ -94,9 +101,8 @@ const sections: LegalSection[] = [
   {
     id: "cancellation",
     title: "Cancellation & Refund Policy",
-    emphasis: true,
     children: (
-      <>
+      <Callout>
         <LegalList>
           <>
             <LegalStrong>Farm tours &amp; spa sessions:</LegalStrong> Strict cancellation policy. All bookings are
@@ -113,7 +119,7 @@ const sections: LegalSection[] = [
             our events team.
           </>
         </LegalList>
-      </>
+      </Callout>
     ),
   },
   {
@@ -231,7 +237,7 @@ const sections: LegalSection[] = [
     id: "photo",
     title: "Photography & Media",
     children: (
-      <>
+      <Callout>
         <p>
           By visiting Highland Farms, you consent to being photographed or recorded for promotional purposes unless
           you notify us in writing prior to your visit. Highland Farms may use photographs taken on the property for
@@ -241,7 +247,7 @@ const sections: LegalSection[] = [
           If you wish to opt out of promotional photography, please inform our team at check-in or via email at{" "}
           <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink>.
         </p>
-      </>
+      </Callout>
     ),
   },
   {
@@ -376,12 +382,12 @@ const shortVersion = (
     >
       <span className="border-b border-pine-line pb-0.5">Read the full cancellation policy</span>
     </a>
-    <p className="m-0 text-[14px] text-ink-body">
-      Questions before you book? Call{" "}
-      {/* Link and period in one unbreakable box: the "." used to wrap alone under the number on phones. */}
-      <span className="inline-flex min-h-11 items-center whitespace-nowrap">
+    <p className="m-0 flex min-h-11 flex-wrap items-center gap-x-1.5 text-[14px] text-ink-body">
+      <span>Questions before you book?</span>
+      {/* The number is one unbreakable link with its period: it never wraps alone after the question. */}
+      <span className="whitespace-nowrap">
         <a href={telHref} className="font-medium text-pine underline decoration-pine-line underline-offset-4">
-          {CONTACT.phone}
+          Call {CONTACT.phone}
         </a>
         .
       </span>
@@ -394,6 +400,7 @@ export default function TermsOfServicePage() {
     <>
       <StructuredData pathname="/terms" />
       <BookingModalRoot />
+      <FooterHide parts={["talk"]} />
       <LegalLayout
         policy="terms"
         title="Terms of Service"

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FooterHide } from "@/components/layout/Footer";
 import { StructuredData } from "@/components/layout/StructuredData";
 import {
   LegalLayout,
@@ -75,7 +76,7 @@ const sections: LegalSection[] = [
         <p>Highland Farms takes the following measures to ensure accessibility of our website:</p>
         <LegalList>
           <>Semantic HTML structure with proper heading hierarchy</>
-          <>Sufficient color contrast ratios meeting WCAG AA standards</>
+          <>We aim for sufficient color contrast (WCAG AA)</>
           <>Keyboard navigation support throughout the site, including image carousels</>
           <>ARIA labels and roles for interactive elements and landmarks</>
           <>Alt text on our photos; we are still adding it to some older images</>
@@ -140,9 +141,13 @@ const shortVersion = (
       Our farm tours and our Nordic Spa are not wheelchair accessible. Tours cover uneven ground, and the spa is
       reached by uneven ground and steps. Please contact us in advance so we can help plan your visit.
     </p>
-    <p className="m-0 mt-2 flex flex-wrap items-center gap-x-5 text-[14px] text-ink-body">
-      <LegalLink href={telHref}>{CONTACT.phone}</LegalLink>
-      <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink>
+    <p className="m-0 mt-3 flex flex-col gap-1 text-[14px] text-ink-body">
+      <span className="flex min-h-11 items-center">
+        <LegalLink href={telHref}>{CONTACT.phone}</LegalLink>
+      </span>
+      <span className="flex min-h-11 items-center">
+        <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink>
+      </span>
     </p>
   </aside>
 );
@@ -151,6 +156,7 @@ export default function AccessibilityPage() {
   return (
     <>
       <StructuredData pathname="/accessibility" />
+      <FooterHide parts={["talk"]} />
       <LegalLayout
         policy="accessibility"
         title="Accessibility Statement"

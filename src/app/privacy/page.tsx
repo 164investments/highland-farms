@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FooterHide } from "@/components/layout/Footer";
 import { StructuredData } from "@/components/layout/StructuredData";
 import {
   LegalContactAddress,
@@ -22,11 +23,14 @@ export const metadata: Metadata = {
 const mailto = `mailto:${CONTACT.email}`;
 
 const summary = (
-  <section aria-labelledby="privacy-summary-title" className="mb-5 max-w-[68ch]">
-    <h2 id="privacy-summary-title" className="font-display text-[20px] font-semibold leading-tight text-ink lg:text-[23px]">
+  <aside
+    aria-labelledby="privacy-summary-title"
+    className="mt-5 max-w-[68ch] border border-frame bg-paper-shade px-4 py-4 lg:px-6 lg:py-5"
+  >
+    <h2 id="privacy-summary-title" className="m-0 font-display text-[20px] font-semibold leading-tight text-ink lg:text-[23px]">
       The short version
     </h2>
-    <ul className="m-0 mt-2 list-none border-t border-rule p-0 text-[15px] leading-[1.55] text-ink-body lg:text-[16px] [&>li]:border-b [&>li]:border-rule [&>li]:py-2.5">
+    <ul className="m-0 mt-2 list-none p-0 text-[15px] leading-[1.55] text-ink-body lg:text-[16px] [&>li+li]:mt-2.5">
       <li>
         <LegalStrong>What we collect:</LegalStrong> your name, email and phone number, and the details you send us
         about your event or visit.
@@ -40,7 +44,7 @@ const summary = (
         <LegalLink href={mailto}>{CONTACT.email}</LegalLink>. We respond within 45 days.
       </li>
     </ul>
-  </section>
+  </aside>
 );
 
 const notice = (
@@ -237,7 +241,9 @@ const sections: LegalSection[] = [
     children: (
       <>
         <p>We do not sell, rent, or trade personal information. We may share information with:</p>
-        <LegalSub>Analytics and advertising</LegalSub>
+        <div className="pt-5">
+          <LegalSub>Analytics and advertising</LegalSub>
+        </div>
         <LegalList>
           <>
             <LegalStrong>Google Tag Manager / Google Analytics:</LegalStrong> website analytics and campaign
@@ -251,7 +257,9 @@ const sections: LegalSection[] = [
             <LegalStrong>Microsoft Clarity:</LegalStrong> session analytics when enabled
           </>
         </LegalList>
-        <LegalSub>Booking, hosting and payments</LegalSub>
+        <div className="pt-5">
+          <LegalSub>Booking, hosting and payments</LegalSub>
+        </div>
         <LegalList>
           <>
             <LegalStrong>Supabase:</LegalStrong> secure form data storage
@@ -275,7 +283,9 @@ const sections: LegalSection[] = [
             <LegalStrong>Square:</LegalStrong> farm store payments (card details go directly to Square)
           </>
         </LegalList>
-        <LegalSub>Links, photos and messaging</LegalSub>
+        <div className="pt-5">
+          <LegalSub>Links, photos and messaging</LegalSub>
+        </div>
         <LegalList>
           <>
             <LegalStrong>Instagram (Meta):</LegalStrong> links to our Instagram profile and featured posts; following
@@ -420,6 +430,7 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <StructuredData pathname="/privacy" />
+      <FooterHide parts={["talk"]} />
       <LegalLayout
         policy="privacy"
         title="Privacy Policy"

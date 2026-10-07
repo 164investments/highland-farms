@@ -3,13 +3,7 @@ import Image from "next/image";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { FieldReview } from "@/components/field/Reviews";
 import { ContactForm } from "@/components/forms/ContactForm";
-import {
-  FieldArrow,
-  FieldLink,
-  FieldNumeral,
-  fieldCtaClass,
-  fieldEyebrowClass,
-} from "@/components/ui/FieldGuide";
+import { FieldLink, FieldNumeral, fieldEyebrowClass } from "@/components/ui/FieldGuide";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { CONTACT_FORM_QUOTE } from "./quotes";
@@ -111,14 +105,6 @@ export default function ContactPage() {
                     </span>
                   </figcaption>
                 </figure>
-                <FieldLink
-                  href="#inquiry"
-                  data-hero-cta=""
-                  className={cn(fieldCtaClass, "mt-3.5 w-full lg:hidden")}
-                >
-                  Check your date
-                  <FieldArrow />
-                </FieldLink>
               </div>
             </div>
 

@@ -56,27 +56,28 @@ export default async function UnsubscribePage({
   const { token } = await searchParams;
   const ok = token ? await unsubscribe(token) : false;
 
+  const photo = (
+    <Plate frameClassName="h-[118px] lg:h-[200px]" caption="The carved Highland cow and sign.">
+      <Image
+        src="/images/farm/hero.jpg"
+        alt="The carved Highland cow and the Highland Farms sign at the farm gate"
+        fill
+        sizes="(min-width: 640px) 540px, 100vw"
+        className="object-cover"
+        style={{ objectPosition: "35% 40%" }}
+        priority
+      />
+    </Plate>
+  );
+
   return (
-    <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
+    <div className="surface-paper min-h-[100svh] bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
       <FooterQuiet bare />
       <section className="px-5 pb-12 pt-4 lg:px-16 lg:pt-16">
         <div className="mx-auto max-w-[560px]">
-          <Plate
-            frameClassName="h-[118px] lg:h-[200px]"
-            caption="The carved Highland cow and the Highland Farms sign."
-          >
-            <Image
-              src="/images/farm/hero.jpg"
-              alt="The carved Highland cow and the Highland Farms sign at the farm gate"
-              fill
-              sizes="(min-width: 640px) 540px, 100vw"
-              className="object-cover"
-              style={{ objectPosition: "35% 40%" }}
-              priority
-            />
-          </Plate>
           {ok ? (
             <>
+              {photo}
               <p className={`${fieldEyebrowClass} m-0 mt-3.5 text-[17px] leading-[1.2] lg:mt-5`}>
                 Thanks for letting us know.
               </p>
@@ -98,15 +99,14 @@ export default async function UnsubscribePage({
             </>
           ) : (
             <>
-              <p className={`${fieldEyebrowClass} m-0 mt-3.5 text-[17px] leading-[1.2] lg:mt-5`}>
-                Sorry about this.
-              </p>
+              {/* The message first, the photo below it (mobile review r3). */}
+              <p className={`${fieldEyebrowClass} m-0 text-[17px] leading-[1.2]`}>Sorry about this.</p>
               <h1 className="field-heading m-0 mt-1 font-display text-[30px] leading-[1.05] min-[360px]:text-[32px] lg:text-[44px]">
                 That didn&apos;t go through.
               </h1>
               <p className="m-0 mt-2.5 text-[15px] leading-[1.6] text-ink-body">
-                Nothing changed on our end, so a cart reminder may still arrive. Open the link in the email once
-                more, or call and we&apos;ll take care of it.
+                Your email settings didn&apos;t update, so a cart reminder may still arrive. Try again, or call or
+                email and we&apos;ll take care of it.
               </p>
               {token ? (
                 <a
@@ -121,18 +121,22 @@ export default async function UnsubscribePage({
                   Call {CONTACT.phone}
                 </a>
               )}
-              {token ? (
-                <p className="m-0 mt-1 flex min-h-11 items-center font-sans text-[14px] leading-none">
+              <p className="m-0 mt-1 flex min-h-11 flex-wrap items-center gap-x-5 font-sans text-[14px] leading-none">
+                {token ? (
                   <a href={TEL} className={quietLinkClass}>
-                    Or call {CONTACT.phone}
+                    Call {CONTACT.phone}
                   </a>
-                </p>
-              ) : null}
+                ) : null}
+                <a href={`mailto:${CONTACT.emailAlt}`} className={quietLinkClass}>
+                  Email {CONTACT.emailAlt}
+                </a>
+              </p>
               <p className="m-0 flex min-h-11 items-center font-sans text-[14px] leading-none">
                 <Link href="/" className={quietLinkClass}>
                   Back to Highland Farms
                 </Link>
               </p>
+              <div className="mt-4">{photo}</div>
             </>
           )}
         </div>
