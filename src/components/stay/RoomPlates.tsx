@@ -35,12 +35,24 @@ export function RoomTile({ item, n }: { item: StayRoom; n: number }) {
  * the groups (CONSISTENCY #4). Every plate is a real photo from the stay's
  * published gallery; the alt text is the gallery's own.
  */
-export function RoomPlates({ groups, property }: { groups: StayRoomGroup[]; property: Property }) {
+export function RoomPlates({
+  groups,
+  property,
+  lead,
+}: {
+  groups: StayRoomGroup[];
+  property: Property;
+  /** Show only this many lead photos (the bedrooms come first), the rest grouped behind "All N photos". */
+  lead?: number;
+}) {
   // Running "No. N" start for each group.
   const starts = groups.map((_, i) => groups.slice(0, i).reduce((sum, g) => sum + g.items.length, 0));
-  return (
-    <>
-      {groups.map((g, gi) => (
+  const total = groups.reduce((sum, g) => sum + g.items.length, 0);
+  const grouped = (from: number) =>
+    groups.map((g, gi) => {
+      const items = g.items.map((item, ii) => ({ item, n: starts[gi] + ii + 1 })).filter((x) => x.n > from);
+      if (items.length === 0) return null;
+      return (
         <div key={g.group}>
           <div className="mt-8 flex items-center gap-3">
             <h3 className="m-0">
@@ -50,12 +62,31 @@ export function RoomPlates({ groups, property }: { groups: StayRoomGroup[]; prop
             <span className="font-sans text-[12px] text-ink-note">{g.note(property)}</span>
           </div>
           <ol className={GRID_CLASS}>
-            {g.items.map((item, ii) => (
-              <RoomTile key={item.src} item={item} n={starts[gi] + ii + 1} />
+            {items.map(({ item, n }) => (
+              <RoomTile key={item.src} item={item} n={n} />
             ))}
           </ol>
         </div>
-      ))}
+      );
+    });
+
+  if (!lead || lead >= total) return <>{grouped(0)}</>;
+
+  const first = groups.flatMap((g) => g.items).slice(0, lead);
+  return (
+    <>
+      <ol className={GRID_CLASS} aria-label={`${property.name}, photographs 1 to ${lead}`}>
+        {first.map((item, i) => (
+          <RoomTile key={item.src} item={item} n={i + 1} />
+        ))}
+      </ol>
+      <details className="group mt-2">
+        <summary className="flex min-h-11 w-fit cursor-pointer list-none items-center gap-1 font-sans text-[13px] font-medium text-pine lg:text-[14px] [&::-webkit-details-marker]:hidden">
+          All {total} photos
+          <FieldArrowDown size={14} className="transition-transform group-open:rotate-180" />
+        </summary>
+        {grouped(lead)}
+      </details>
     </>
   );
 }

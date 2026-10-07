@@ -20,19 +20,19 @@ export const thanksgiving = {
         "William Wallace Lodge: four bedrooms, a full kitchen, a wood fireplace, a cedar hot tub and a dining room that seats ten.",
       stay: "William Wallace Lodge",
       spa: "1 session",
-      cta: "Check Lodge availability",
+      cta: "Check availability",
     },
     {
       id: "whole-farm",
       name: "The Whole Farm",
       sleeps: 20,
       price: 11000,
-      forWho: "For the whole family, grandparents to cousins, with every stay on the farm to yourselves.",
+      forWho: "For the whole family, grandparents to cousins, across the Lodge, the Cottage and the Camp.",
       description:
         "The Lodge, Bonnie Lass Cottage and the Camp, with a cedar hot tub at the Lodge and another at the Cottage.",
       stay: "Lodge, Cottage and Camp",
       spa: "2 sessions",
-      cta: "Check whole-farm availability",
+      cta: "Check availability",
     },
   ],
   // The three stays, shown above the package comparison.

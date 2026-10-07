@@ -7,7 +7,6 @@ import { GOOGLE_REVIEW_LINK, REVIEW_COUNT } from "@/lib/reviews";
 import { StructuredData } from "@/components/layout/StructuredData";
 import {
   FieldArrow,
-  FieldLeader,
   FieldLink,
   FieldQuoteView,
   FieldStars,
@@ -27,7 +26,6 @@ import { STAY_CONTENT, capitalize, numberWord, roomCount, type StayContent } fro
 import {
   SPA_PER_PERSON,
   THANKSGIVING_DATES,
-  THANKSGIVING_NIGHTS,
   TOUR_FOR_TWO,
   thanksgivingPackage,
 } from "@/components/stay/stay-facts";
@@ -104,41 +102,6 @@ function StayRow({ property, content, grid }: { property: Property; content: Sta
   );
 }
 
-/** One "While you're here" row: thumb, name and note, leader (from 430px), price with its unit on one line. */
-function HereRowBody({
-  thumb,
-  title,
-  note,
-  price,
-  priceNote,
-}: {
-  thumb: { src: string; alt: string };
-  title: string;
-  note: string;
-  price: string;
-  priceNote: string;
-}) {
-  return (
-    <>
-      <span className="block h-[56px] w-[72px] shrink-0 border border-frame bg-paper-light p-[3px] lg:h-[64px] lg:w-[84px]">
-        <span className="relative block h-full w-full overflow-hidden">
-          <StayPhoto photo={thumb} sizes="84px" />
-        </span>
-      </span>
-      <span className="flex min-w-0 flex-col max-[430px]:flex-1">
-        <span className="font-display text-[21px] font-semibold leading-tight lg:text-[23px]">{title}</span>
-        <span className="font-sans text-[12px] text-ink-note lg:text-[13px]">{note}</span>
-      </span>
-      <FieldLeader className="max-[430px]:hidden" />
-      <span className="shrink-0 whitespace-nowrap text-right font-sans text-[14px] font-semibold leading-tight">
-        {price}
-        <span className="block text-[11px] font-normal text-ink-note">{priceNote}</span>
-      </span>
-      <FieldArrow className="text-pine" />
-    </>
-  );
-}
-
 /** One of the whole farm's three stays, with its own photographs in place (the bedrooms first). */
 function IncludedStay({ property, content }: { property: Property; content: StayContent }) {
   return (
@@ -158,7 +121,8 @@ function IncludedStay({ property, content }: { property: Property; content: Stay
   );
 }
 
-const HERE_ROW_CLASS = "flex min-h-[72px] w-full items-center gap-3 border-b border-rule py-2 text-left text-ink hover:text-pine";
+const HERE_LINK_CLASS =
+  "flex min-h-11 items-center text-left font-sans text-[14px] leading-snug text-ink-note underline decoration-rule decoration-1 underline-offset-4 transition-colors hover:text-pine hover:decoration-pine";
 
 export default async function PropertyPage({
   params,
@@ -181,14 +145,14 @@ export default async function PropertyPage({
 
   const facts: { label: string; value: string; big: boolean }[] = [
     { label: property.guests === 1 ? "Guest" : "Guests", value: String(property.guests), big: true },
-    // The whole farm's counts are the two houses' (the farm's own 7 and 3.5); the Camp is extra.
+    // The whole farm's counts are the two houses' (the farm's own 7 and 3.5); the caption under the strip says the Camp is extra.
     {
-      label: property.slug === "whole-farm" ? "Bedrooms, plus the Camp" : property.bedrooms === 1 ? "Bedroom" : "Bedrooms",
+      label: property.bedrooms === 1 ? "Bedroom" : "Bedrooms",
       value: String(property.bedrooms),
       big: true,
     },
     {
-      label: property.slug === "whole-farm" ? "Baths, plus the Camp" : property.baths === 1 ? "Bath" : "Baths",
+      label: property.baths === 1 ? "Bath" : "Baths",
       value: String(property.baths),
       big: true,
     },
@@ -221,7 +185,7 @@ export default async function PropertyPage({
             <p className={cn("m-0 text-[17px] lg:text-[22px]", fieldEyebrowClass)}>
               Sleeps {property.guests} &middot; About an hour from Portland
             </p>
-            <h1 className="field-heading m-0 mt-0.5 font-display text-[36px] leading-[1.02] text-ink lg:mt-2 lg:text-[60px]">
+            <h1 className="field-heading m-0 mt-0.5 font-display text-[36px] leading-[1.02] text-ink max-[359px]:text-[32px] lg:mt-2 lg:text-[60px]">
               {property.name}
             </h1>
             <p className="m-0 mt-2 font-sans text-[15px] leading-[1.55] text-ink-body lg:mt-3 lg:max-w-[600px] lg:text-[18px]">
@@ -285,6 +249,11 @@ export default async function PropertyPage({
                 </div>
               ))}
             </dl>
+            {property.slug === "whole-farm" && (
+              <p className="m-0 mt-2 font-sans text-[12px] leading-[1.4] text-ink-note lg:text-[13px]">
+                Bedrooms and baths are the Lodge&apos;s and the Cottage&apos;s, plus the Camp.
+              </p>
+            )}
           </div>
 
           <BookingCard
@@ -354,7 +323,7 @@ export default async function PropertyPage({
                 >
                   Room by room
                 </h2>
-                <RoomPlates groups={page.groups} property={property} />
+                <RoomPlates groups={page.groups} property={property} lead={4} />
               </section>
             ) : (
               <section
@@ -375,62 +344,6 @@ export default async function PropertyPage({
               </section>
             )}
 
-            {/* While you're here: Thanksgiving (until 2026-11-28), tour, spa. */}
-            <section aria-labelledby="here-title" className={SPLIT_SECTION_CLASS}>
-              <h2 id="here-title" className={GROUP_HEAD_CLASS}>
-                While you&apos;re here
-              </h2>
-              <div className="mt-4 lg:mt-1">
-                <div className="flex flex-col border-t border-rule">
-                  {tg && (
-                    <Link href="/thanksgiving" data-season-only="thanksgiving-links" className={HERE_ROW_CLASS}>
-                      <HereRowBody
-                        thumb={{
-                          src: "/images/properties/lodge-dining-room.jpg",
-                          alt: "The Lodge dining room with its long table",
-                        }}
-                        title={tg.name}
-                        note={`${THANKSGIVING_DATES} · ${THANKSGIVING_NIGHTS.lower} for ${tg.guests}`}
-                        price={tg.priceLabel}
-                        priceNote="package"
-                      />
-                    </Link>
-                  )}
-                  <BookingTextLink
-                    href={bookingUrl(BOOKING_LINKS.farmTourForTwo, `stay-${property.slug}-tour`)}
-                    label="See tour dates"
-                    title="Private farm tour"
-                    className={HERE_ROW_CLASS}
-                  >
-                    <HereRowBody
-                      thumb={{ src: "/images/properties/gallery-3.jpg", alt: "Two Highland cows by the barn with a white guardian dog" }}
-                      title="A private farm tour"
-                      note="60 min with the Highland cows, 2 to 6 guests"
-                      price={`$${TOUR_FOR_TWO}`}
-                      priceNote="for two"
-                    />
-                  </BookingTextLink>
-                  <BookingTextLink
-                    href={bookingUrl(BOOKING_LINKS.nordicSpa, `stay-${property.slug}-spa`)}
-                    label="See open sessions"
-                    title="Nordic spa"
-                    className={HERE_ROW_CLASS}
-                  >
-                    <HereRowBody
-                      thumb={{ src: "/images/spa/spa-exterior-cabin.jpg", alt: "The black spa cabin and its cold plunge" }}
-                      title="The Nordic spa"
-                      note="Sauna and cold plunge, 90 min, ages 16+"
-                      price={`$${SPA_PER_PERSON}`}
-                      priceNote="per person"
-                    />
-                  </BookingTextLink>
-                </div>
-                <p className="m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
-                  <StayLaterStayLine />
-                </p>
-              </div>
-            </section>
-
             {/* Know before you book: the parent page's name and order (the minimum stay and the price live
                 in the booking card, so they are not repeated here). */}
             <section aria-labelledby="know-title" className={SPLIT_SECTION_CLASS}>
@@ -442,6 +355,40 @@ export default async function PropertyPage({
                 className="mt-4 lg:mt-1"
                 pendingNote={`PENDING JALENE: ${property.name}'s exact cancellation terms, to state here and in the booking card`}
               />
+            </section>
+            {/* While you're here: one quiet line of links, below the terms (Thanksgiving until 2026-11-28, tour, spa). */}
+            <section aria-labelledby="here-title" className={SPLIT_SECTION_CLASS}>
+              <h2 id="here-title" className={GROUP_HEAD_CLASS}>
+                While you&apos;re here
+              </h2>
+              <div className="mt-3 lg:mt-1">
+                <div className="flex flex-wrap gap-x-5">
+                  {tg && (
+                    <Link href="/thanksgiving" data-season-only="thanksgiving-links" className={HERE_LINK_CLASS}>
+                      {tg.name}, {THANKSGIVING_DATES}: {tg.priceLabel}
+                    </Link>
+                  )}
+                  <BookingTextLink
+                    href={bookingUrl(BOOKING_LINKS.farmTourForTwo, `stay-${property.slug}-tour`)}
+                    label="See tour dates"
+                    title="Private farm tour"
+                    className={HERE_LINK_CLASS}
+                  >
+                    A private farm tour, ${TOUR_FOR_TWO} for two
+                  </BookingTextLink>
+                  <BookingTextLink
+                    href={bookingUrl(BOOKING_LINKS.nordicSpa, `stay-${property.slug}-spa`)}
+                    label="See open sessions"
+                    title="Nordic spa"
+                    className={HERE_LINK_CLASS}
+                  >
+                    The Nordic spa, ${SPA_PER_PERSON} a person
+                  </BookingTextLink>
+                </div>
+                <p className="m-0 mt-1 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
+                  <StayLaterStayLine />
+                </p>
+              </div>
             </section>
           </div>
         </div>

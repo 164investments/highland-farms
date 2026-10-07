@@ -213,7 +213,10 @@ export default function ThanksgivingPage() {
       </section>
 
       {/* The shared sticky bar: hides over the inquiry block, lifts the chat bubble above itself. */}
-      <FieldStickyBar primary={{ label: "Check availability", href: inquiry, cta: "tg-sticky" }} hideWhenVisible="#inquire" />
+      <FieldStickyBar
+        primary={{ label: "Check Thanksgiving dates", sublabel: "Nov 24 to 28", href: inquiry, cta: "tg-sticky" }}
+        hideWhenVisible={["#inquire", '[data-cta="tg-lodge"]', '[data-cta="tg-whole-farm"]']}
+      />
       <div aria-hidden="true" className="h-20 lg:hidden" />
     </div>
   );

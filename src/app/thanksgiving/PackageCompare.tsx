@@ -54,7 +54,38 @@ export function PackageCompare() {
               ))}
             </div>
 
-            <table className="mt-6 w-full table-fixed border-collapse text-left lg:mt-8 lg:max-w-[880px]">
+            {/* Phones: the two packages stack full width, same labels in the same order. */}
+            <div className="mt-6 flex flex-col gap-8 sm:hidden">
+              {pkgs.map((pkg) => (
+                <article key={pkg.id} aria-label={pkg.name} className="border-t border-rule pt-4">
+                  <span className="block font-sans text-[11px] uppercase tracking-[0.14em] text-pine">Sleeps {pkg.sleeps}</span>
+                  <h3 className="field-heading m-0 mt-1 text-[26px] leading-[1.05] text-ink">{pkg.name}</h3>
+                  <p className="m-0 mt-2 font-display text-[17px] italic leading-[1.3] text-ink-body">{pkg.forWho}</p>
+                  <p className="m-0 mt-3 font-display text-[32px] font-semibold leading-none text-ink">
+                    ${pkg.price.toLocaleString("en-US")}
+                  </p>
+                  <p className="m-0 mt-1.5 font-sans text-[12px] leading-[1.4] text-ink-note">
+                    for four nights, plus applicable taxes
+                  </p>
+                  <p className="m-0 mt-1 font-sans text-[12px] leading-[1.4] text-ink-body">
+                    About ${perGuest(pkg).toLocaleString("en-US")} a person with all {SLEEPS_WORD[pkg.sleeps] ?? pkg.sleeps}
+                  </p>
+                  <p className={cn(labelRow, "m-0")}>Where you sleep</p>
+                  <p className="m-0 font-sans text-[14px] leading-[1.5] text-ink">{pkg.description}</p>
+                  <p className={cn(labelRow, "m-0")}>Nordic spa</p>
+                  <p className="m-0 font-sans text-[15px] font-semibold text-ink">{pkg.spa}</p>
+                  <a
+                    href={thanksgivingInquiryHref(pkg)}
+                    data-cta={`tg-${pkg.id}`}
+                    className={cn(fieldCtaClass, "mt-4 w-full text-center")}
+                  >
+                    {pkg.cta}
+                  </a>
+                </article>
+              ))}
+            </div>
+
+            <table className="mt-6 hidden w-full table-fixed sm:table border-collapse text-left lg:mt-8 lg:max-w-[880px]">
               <caption className="sr-only">Compare the two Thanksgiving packages</caption>
               <thead>
                 <tr>
