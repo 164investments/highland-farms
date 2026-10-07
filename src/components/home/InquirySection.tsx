@@ -50,7 +50,6 @@ export function InquirySection() {
             heading=""
             subtitle=""
             placement="home"
-            className="border border-frame bg-paper p-4 lg:p-10"
           />
         </div>
       </div>

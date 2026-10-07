@@ -172,15 +172,14 @@ export default function ContactPage() {
               id="inquiry"
               className="mt-8 scroll-mt-[var(--header-h)] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
             >
-              <div className="border border-frame bg-paper px-4 py-7 lg:p-10">
-                <ContactForm
-                  heading="Check your date"
-                  headingLevel="h2"
-                  subtitle="Now booking 2027 weddings. Tell us your month and guest count, and we'll check the farm calendar for you. No commitment."
-                  placement="contact"
-                  softPathsForAll
-                />
-              </div>
+              {/* The form draws its own framed card (cow seal); success replaces it inside that card, never a card in a card. */}
+              <ContactForm
+                heading="Check your date"
+                headingLevel="h2"
+                subtitle="Now booking 2027 weddings. Tell us your month and guest count, and we'll check the farm calendar for you. No commitment."
+                placement="contact"
+                softPathsForAll
+              />
               <FieldReview
                 spec={CONTACT_FORM_QUOTE}
                 role="Wedding"

@@ -145,17 +145,25 @@ type CheckboxProps = InputHTMLAttributes<HTMLInputElement> & {
   children: ReactNode;
   /** Smaller print for consent copy. */
   fine?: boolean;
+  /** Centre the box on a one-line label (no top nudge). */
+  centered?: boolean;
 };
 
 /** Whole row is the target (44px+), box is square and pine when checked. */
-export function CheckboxRow({ id, children, fine, ref, className, ...props }: CheckboxProps) {
+export function CheckboxRow({ id, children, fine, centered, ref, className, ...props }: CheckboxProps) {
   return (
-    <label htmlFor={id} className={cn("flex min-h-[44px] cursor-pointer items-start gap-3 py-2", className)}>
+    <label
+      htmlFor={id}
+      className={cn("flex min-h-[44px] cursor-pointer gap-3 py-2", centered ? "items-center" : "items-start", className)}
+    >
       <input
         ref={ref}
         id={id}
         type="checkbox"
-        className="mt-[3px] h-5 w-5 shrink-0 cursor-pointer rounded-none border border-rule accent-pine"
+        className={cn(
+          "h-5 w-5 shrink-0 cursor-pointer rounded-none border border-rule accent-pine",
+          !centered && "mt-[3px]",
+        )}
         {...props}
       />
       <span
@@ -165,6 +173,37 @@ export function CheckboxRow({ id, children, fine, ref, className, ...props }: Ch
         )}
       >
         {children}
+      </span>
+    </label>
+  );
+}
+
+type ConsentRowProps = InputHTMLAttributes<HTMLInputElement> & {
+  ref?: Ref<HTMLInputElement>;
+  /** One-line label in body weight. */
+  label: string;
+  /** The full consent wording, shown beside the box. */
+  children: ReactNode;
+};
+
+/**
+ * One SMS consent: the box, a one-line label, and the complete wording under
+ * the label at 12.5px (never collapsed: the wording must be visible next to
+ * the box). The whole row is the target.
+ */
+export function ConsentRow({ id, label, children, ref, ...props }: ConsentRowProps) {
+  return (
+    <label htmlFor={id} className="flex min-h-[44px] cursor-pointer items-start gap-3 py-2.5">
+      <input
+        ref={ref}
+        id={id}
+        type="checkbox"
+        className="mt-[1px] h-5 w-5 shrink-0 cursor-pointer rounded-none border border-rule accent-pine"
+        {...props}
+      />
+      <span className="min-w-0">
+        <span className="block font-sans text-[15px] leading-snug text-ink">{label}</span>
+        <span className="mt-1 block font-sans text-[12.5px] leading-[1.38] text-ink-note">{children}</span>
       </span>
     </label>
   );

@@ -606,9 +606,8 @@ export default function WeddingsPage() {
           </div>
 
           <div className="mt-7 lg:col-span-7 lg:mt-0">
-            <div className="lg:border lg:border-frame lg:bg-paper lg:p-10">
-              <ContactForm defaultEventType="wedding" heading="" subtitle="" placement="weddings" />
-            </div>
+            {/* The form draws its own framed card (forms board C). */}
+            <ContactForm defaultEventType="wedding" heading="" subtitle="" placement="weddings" />
             {/* Phones: the fear of the call, answered right under the form's call link. */}
             <FieldReview
               spec={WEDDINGS_CALL_QUOTE}

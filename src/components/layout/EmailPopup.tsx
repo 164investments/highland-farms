@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { FieldArrow, fieldCtaClass } from "@/components/ui/FieldGuide";
+import { cn } from "@/lib/utils";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import { LOOKBOOK_HREF } from "./chrome";
 
@@ -93,7 +94,6 @@ export function EmailPopup() {
   const [errorMsg, setErrorMsg] = useState("");
   const loadTime = useRef(Date.now());
   const dialogRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerFired = useRef(false);
 
   const show = useCallback(() => {
@@ -183,7 +183,8 @@ export function EmailPopup() {
 
   useEffect(() => {
     if (!visible) return;
-    closeButtonRef.current?.focus();
+    // Focus the dialog itself, not the close button: a focused X drew the browser's boxed focus ring on open.
+    dialogRef.current?.focus({ preventScroll: true });
 
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
@@ -196,7 +197,7 @@ export function EmailPopup() {
       );
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === dialogRef.current)) {
         e.preventDefault();
         last?.focus();
       } else if (!e.shiftKey && document.activeElement === last) {
@@ -244,11 +245,10 @@ export function EmailPopup() {
   const callMinutes = BOOKING_PRODUCTS["wedding-call"].durationMin;
   const closeButton = (
     <button
-      ref={closeButtonRef}
       type="button"
       onClick={dismiss}
       aria-label="Close"
-      className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center text-ink transition-opacity hover:opacity-70"
+      className="-mr-3 flex h-11 w-11 shrink-0 items-center justify-center text-ink outline-none transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-[-6px] focus-visible:outline-pine"
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true" focusable="false">
         <path d="M6 6l12 12M18 6L6 18" />
@@ -268,7 +268,8 @@ export function EmailPopup() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="lookbook-popup-title"
-        className="surface-paper w-full border-t-[3px] border-double border-frame bg-paper px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 font-sans text-ink animate-[popup-slide-up_0.3s_ease-out] lg:max-w-[480px] lg:border lg:border-frame lg:p-8"
+        tabIndex={-1}
+        className="surface-paper w-full outline-none border-t-[3px] border-double border-frame bg-paper px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 font-sans text-ink animate-[popup-slide-up_0.3s_ease-out] lg:max-w-[480px] lg:border lg:border-frame lg:p-8"
       >
         {status === "success" ? (
           <div className="pb-2">
@@ -303,27 +304,27 @@ export function EmailPopup() {
         ) : (
           <>
             <div className="flex items-start gap-3">
-              <div className="relative mt-3 h-16 w-16 shrink-0 border border-frame bg-paper-light p-1 lg:mt-0 lg:h-[88px] lg:w-[88px]">
+              <div className="relative mt-3 h-[66px] w-[90px] shrink-0 border border-frame bg-paper-light p-[3px] min-[360px]:w-[104px] lg:mt-0 lg:h-[88px] lg:w-[132px]">
                 <div className="relative h-full w-full overflow-hidden">
                   <Image
                     src="/images/weddings/lookbook-cover.jpg"
                     alt="Cover of the Highland Farms 2027 Wedding Lookbook"
                     fill
-                    sizes="88px"
-                    className="object-cover object-[50%_40%]"
+                    sizes="132px"
+                    className="object-cover object-[50%_30%]"
                   />
                 </div>
               </div>
               <div className="min-w-0 flex-1 pt-3 lg:pt-1">
-                <p className="m-0 font-display text-[14px] italic text-fern lg:text-[15px]">For couples planning 2027</p>
-                <p id="lookbook-popup-title" className="field-heading m-0 font-display text-[24px] font-medium leading-[1.05] lg:text-[28px]">
-                  Take the 2027 look book with you.
+                <p id="lookbook-popup-title" className="field-heading m-0 font-display text-[26px] font-medium leading-[1.02] [text-wrap:balance] lg:text-[30px]">
+                  The 2027 look book
                 </p>
+                <p className="m-0 mt-1 text-[12.5px] leading-snug text-ink-meta">20 pages, PDF</p>
               </div>
               {closeButton}
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-3">
+            <form onSubmit={handleSubmit} className="mt-2">
               <input
                 type="text"
                 name="website"
@@ -337,38 +338,40 @@ export function EmailPopup() {
               <label htmlFor="popup-email" className="block text-[13px] font-medium text-ink">
                 Your email
               </label>
-              <input
-                id="popup-email"
-                type="email"
-                required
-                autoComplete="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                aria-invalid={status === "error" || undefined}
-                aria-describedby={errorMsg ? "popup-email-error" : undefined}
-                className="mt-1 h-12 w-full rounded-none border border-frame bg-paper-light px-3.5 text-[16px] text-ink placeholder:text-ink-meta focus:border-pine focus:outline-none"
-              />
+              <div className="mt-1 flex gap-2">
+                <input
+                  id="popup-email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  aria-invalid={status === "error" || undefined}
+                  aria-describedby={errorMsg ? "popup-email-error" : undefined}
+                  className="h-12 min-w-0 flex-1 rounded-none border border-frame bg-paper-light px-3 text-[16px] text-ink placeholder:text-ink-meta focus:border-pine focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={status === "submitting"}
+                  className={cn(fieldCtaClass, "h-12 shrink-0 px-5 disabled:opacity-60")}
+                >
+                  {status === "submitting" ? "One moment" : "Get it"}
+                </button>
+              </div>
               {errorMsg && (
                 <p id="popup-email-error" role="alert" className="m-0 mt-1.5 text-[13px] text-[#8A2A1C]">
                   {errorMsg}
                 </p>
               )}
-              <button
-                type="submit"
-                disabled={status === "submitting"}
-                className={`${fieldCtaClass} mt-2.5 w-full disabled:opacity-60`}
-              >
-                {status === "submitting" ? "One moment" : "Get the look book"}
-              </button>
-              <div className="mt-0.5 flex items-center justify-between gap-3 text-[12px] text-ink-meta">
+              <div className="mt-1 flex items-center justify-between gap-3 text-[12px] leading-snug text-ink-meta">
                 <span>Joins our list. Unsubscribe anytime.</span>
                 <a
                   href={LOOKBOOK_HREF}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => push("lookbook_open", { placement: "lookbook-popup-ask" })}
-                  className="flex min-h-11 shrink-0 items-center whitespace-nowrap text-[13px] font-medium text-pine"
+                  className="flex min-h-11 shrink-0 items-center whitespace-nowrap text-[12.5px] text-ink-note underline decoration-rule underline-offset-4"
                 >
                   or open it now
                   <span className="sr-only"> (opens in a new tab)</span>

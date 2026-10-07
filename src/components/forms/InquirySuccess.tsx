@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { FieldArrow, fieldCtaClass, fieldTextLinkClass, toRoman } from "@/components/ui/FieldGuide";
+import { FieldArrow, fieldCtaClass, toRoman } from "@/components/ui/FieldGuide";
 
 export interface InquirySuccessProps {
   firstName: string;
@@ -19,8 +19,9 @@ export interface InquirySuccessProps {
 }
 
 /**
- * Honest next steps after an inquiry: no response-time promise, the free
- * call with Connor prefilled for wedding types, and the look book.
+ * Honest next steps after an inquiry: no response-time promise and the free
+ * call with Connor prefilled for wedding types. It draws no frame of its own:
+ * the form card (InquiryForm) is the one object, so it never nests a card in a card.
  */
 export function InquirySuccess({
   firstName,
@@ -59,17 +60,14 @@ export function InquirySuccess({
   const telHref = `tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`;
 
   return (
-    <div
-      role="status"
-      className={cn("border border-rule bg-paper-light px-5 py-7 sm:px-8 sm:py-9", className)}
-    >
+    <div role="status" className={className}>
       <p className="font-display text-[19px] italic leading-snug text-fern">
         {wedding ? "Your date request is in." : "Your note is in."}
       </p>
       <h3
         ref={headingRef}
         tabIndex={-1}
-        className="field-heading mt-1 font-display text-[34px] leading-[1.05] text-ink outline-none sm:text-[40px]"
+        className="field-heading mt-1 font-display text-[34px] leading-[1.05] text-ink outline-none sm:text-[38px]"
       >
         {firstName ? `Thank you, ${firstName}.` : "Thank you."}
       </h3>
@@ -81,35 +79,28 @@ export function InquirySuccess({
             <span aria-hidden="true" className="w-6 shrink-0 font-display text-[20px] italic leading-none text-fern">
               {toRoman(i + 1)}
             </span>
-            <span className="font-sans text-[15px] leading-relaxed text-ink-body">{step}</span>
+            <span className="min-w-0 font-sans text-[15px] leading-relaxed text-ink-body [overflow-wrap:anywhere]">{step}</span>
           </li>
         ))}
       </ol>
 
       {wedding && callHref && (
-        <div className="mt-7">
-          <p className="font-sans text-[15px] leading-relaxed text-ink-body">Want to talk first?</p>
+        <div className="mt-6">
+          <p className="m-0 font-sans text-[15px] leading-relaxed text-ink-body">
+            The call is free and takes 45 minutes.
+          </p>
           <a
             href={callHref}
             target="_blank"
             rel="noopener noreferrer"
             onClick={onCallClick}
             // Narrow panels wrap the label to two lines; let the button grow instead of clipping.
-            className={cn(fieldCtaClass, "mt-4 h-auto min-h-[52px] w-full px-5 py-2.5 sm:w-auto sm:px-[30px]")}
+            className={cn(fieldCtaClass, "mt-3 h-auto min-h-[52px] w-full px-5 py-2.5 text-center")}
           >
-            Book a free 45-minute call with Connor
+            Book your free call with Connor
             <FieldArrow />
+            <span className="sr-only"> (opens in a new tab)</span>
           </a>
-          <div className="mt-3">
-            <a
-              href="/lookbook.pdf"
-              target="_blank"
-              rel="noopener"
-              className="inline-flex min-h-[44px] items-center"
-            >
-              <span className={fieldTextLinkClass}>See the 2027 look book</span>
-            </a>
-          </div>
         </div>
       )}
 
