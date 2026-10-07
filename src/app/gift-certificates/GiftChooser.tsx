@@ -53,7 +53,7 @@ export function GiftChooser({ tiles, proof }: Props) {
         id="gift-pick-label"
         className="m-0 mb-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta lg:mb-2 lg:text-[12px]"
       >
-        Choose a gift · No expiration date
+        Choose a gift
       </p>
       <div
         ref={tilesRef}
@@ -85,7 +85,7 @@ export function GiftChooser({ tiles, proof }: Props) {
                 ))}
               </span>
               <span
-                className={`mt-2 font-display text-[19px] font-semibold leading-[1.05] max-[359px]:text-[17px] ${
+                className={`mt-2 flex min-h-[2.1em] items-center font-display text-[19px] font-semibold leading-[1.05] max-[359px]:text-[17px] ${
                   on ? "text-pine" : "text-ink"
                 }`}
               >

@@ -25,7 +25,43 @@ const stepClass =
  *
  * `utmPrefix`: "farm-tours-day" | "nordic-spa-day" | "sauna-near-portland-day".
  */
-export function HighlandDayBlock({ utmPrefix }: { utmPrefix: string }) {
+export function HighlandDayBlock({
+  utmPrefix,
+  line,
+}: {
+  utmPrefix: string;
+  /** Compact form: heading, one sentence, one link to the other half of the day (no second set of rows). */
+  line?: "add-spa" | "add-tour";
+}) {
+  if (line) {
+    const spa = line === "add-spa";
+    return (
+      <FieldSection pad="none" innerClassName="py-10 lg:py-16" aria-label="Plan your Highland Day">
+        <h2 className="m-0 font-display text-[24px] font-semibold leading-tight text-ink lg:text-[30px]">
+          Plan your Highland Day
+        </h2>
+        <p className="m-0 mt-2 max-w-[560px] font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[16px]">
+          A private farm tour, then the Nordic spa: two bookings on the same day, at least an hour apart. Book the
+          tour first.
+        </p>
+        <BookingTextLink
+          href={
+            spa
+              ? withSpaQuantity(bookingUrl(BOOKING_LINKS.nordicSpa, `${utmPrefix}-spa`), 2)
+              : bookingUrl(BOOKING_LINKS.farmTourForTwo, `${utmPrefix}-tour`)
+          }
+          label={spa ? "Add the Nordic spa" : "Add a farm tour"}
+          title={spa ? "Book spa spots for your Highland Day" : "Book a farm tour for your Highland Day"}
+          className="mt-1 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine"
+        >
+          <span className="border-b border-pine-line pb-0.5">
+            {spa ? `Add the Nordic spa, $${SPA_PRICE_PER_PERSON} a person` : `Add a farm tour, $${TOUR_FOR_TWO} for two`}
+          </span>
+          <FieldArrow />
+        </BookingTextLink>
+      </FieldSection>
+    );
+  }
   return (
     <FieldSection pad="none" innerClassName="py-12 lg:py-20" aria-label="Plan your Highland Day">
       <div className="border border-frame bg-paper-light px-5 py-7 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:px-12 lg:py-12">

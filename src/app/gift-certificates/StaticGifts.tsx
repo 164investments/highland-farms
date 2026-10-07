@@ -5,7 +5,7 @@ import { JsonLd, faqPageJsonLd } from "@/components/field/Faq";
 import { type FieldPriceRowData } from "@/components/field/PriceRows";
 import { BookingModalRoot } from "@/components/shared/BookingButton";
 import { VisitFaq } from "@/components/shared/VisitFaq";
-import { FieldSection, FieldSectionHeader, FieldSequence, Plate } from "@/components/ui/FieldGuide";
+import { FieldDrawing, FieldSection, FieldSectionHeader, FieldSequence, Plate } from "@/components/ui/FieldGuide";
 import { GIFTS, giftCatalogUrl, giftFAQ, giftPrice, type GiftFamily } from "@/data/gift-certificates";
 import { GiftChooser, type GiftTileData } from "./GiftChooser";
 import { GIFTS_KSCHROE_QUOTE, GIFTS_STEWART_QUOTE, GIFTS_VALERIE_QUOTE } from "./quotes";
@@ -94,17 +94,17 @@ export function StaticGifts() {
             className="lg:col-start-2 lg:row-start-1 lg:row-end-10"
             frameClassName="h-[100px] max-[399px]:h-[84px] lg:h-auto lg:min-h-0 lg:flex-1"
             captionClassName="mt-px max-sm:hidden lg:mt-0.5"
-            caption="Feeding a calf in the hay."
+            caption="A guide with one of the herd."
           >
             <Image
-              src="/images/farm/agritourism-stay.jpg"
-              alt="Two people feeding a shaggy Highland calf in the hay, the herd behind them"
+              src="/images/farm/farmer-with-highland-cow.jpg"
+              alt="A farm guide kneeling beside a resting Highland cow"
               fill
               priority
               fetchPriority="high"
               sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
-              // Phone: a short 3.5:1 band of the square photo (so the three tiles clear the fold); 33% keeps both faces and the calf in frame (desktop is portrait, so only x matters).
-              className="object-cover object-[60%_33%]"
+              // Phone: a short 3.3:1 band of the 3:2 photo (so the three tiles clear the fold); 48% keeps the guide's face and the cow's head in frame (desktop is portrait, so only x matters).
+              className="object-cover object-[40%_48%]"
             />
           </Plate>
 
@@ -138,18 +138,17 @@ export function StaticGifts() {
           aria-label="How it works"
           innerClassName="lg:grid lg:grid-cols-12 lg:gap-x-16"
         >
-          <FieldSectionHeader
-            eyebrow="From checkout to their day on the farm"
-            title="How it works"
-            className="lg:col-span-5"
-          />
+          <div className="lg:col-span-5">
+            <FieldSectionHeader eyebrow="From checkout to their day on the farm" title="How it works" />
+            <FieldDrawing name="gift-card" className="mt-5 h-auto w-[132px] lg:mt-8 lg:w-[220px]" sizes="(min-width: 1024px) 220px, 132px" />
+          </div>
           <FieldSequence
             className="mt-7 lg:col-span-7 lg:mt-0"
             items={[
               {
                 id: "choose",
                 title: "Choose the gift and pay",
-                body: "Checkout is on our booking site and opens on this page. The Highland Day is listed there as \u201cThe Highland Experience.\u201d",
+                body: "In the gift store, choose The Highland Experience for a Highland Day.",
               },
               {
                 id: "email",
@@ -164,7 +163,7 @@ export function StaticGifts() {
               {
                 id: "dates",
                 title: "Dates open about three to four months out",
-                body: "The certificate has no expiration date, so a holiday gift can become a winter or spring visit. Once a date is booked, it's final, like every tour and spa booking.",
+                body: "Once a date is booked, it's final, like every tour and spa booking.",
               },
             ]}
           />

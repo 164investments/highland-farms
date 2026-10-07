@@ -116,7 +116,8 @@ export function KnowBeforeYouBook({
 }
 
 /**
- * The point-of-sale policy line under a booking button (CONSISTENCY #10).
+ * The point-of-sale policy under a price ladder (CONSISTENCY #10): one closed
+ * "Cancellation policy" row, the canonical text word for word inside.
  * Pass the data file's cancellation answer word for word:
  *   <BookingPolicyNote text={cancellationAnswer(farmTourFAQ)} />
  * Without `text` it renders the canonical answer from the data file for
@@ -134,8 +135,17 @@ export function BookingPolicyNote({
 }) {
   const canonical = text ?? cancellationAnswer(product === "tour" ? farmTourFAQ : nordicSpaFAQ);
   return (
-    <p className={cn("m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]", className)}>
-      {canonical}
-    </p>
+    <details className={cn("group mt-3 border-y border-rule", className)}>
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 font-sans text-[15px] font-medium text-ink [&::-webkit-details-marker]:hidden">
+        <span>Cancellation policy</span>
+        <span
+          aria-hidden="true"
+          className="shrink-0 font-sans text-[22px] font-normal leading-none text-pine transition-transform duration-200 group-open:rotate-45"
+        >
+          +
+        </span>
+      </summary>
+      <p className="m-0 pb-4 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">{canonical}</p>
+    </details>
   );
 }

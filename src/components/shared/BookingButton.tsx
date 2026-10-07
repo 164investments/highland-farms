@@ -70,13 +70,17 @@ export function wrapperNote(src: string): string | null {
 export function spaQuantityNote(src: string): string | null {
   if (bookingTypeFromUrl(src) !== "nordic_spa") return null;
   let quantity = NaN;
+  let range: string | null = null;
   try {
-    quantity = Number(new URL(src).searchParams.get("quantity"));
+    const params = new URL(src).searchParams;
+    quantity = Number(params.get("quantity"));
+    range = params.get("hf_range");
   } catch {
     return null;
   }
   const each = SPA_PRICE_PER_PERSON;
   if (!Number.isInteger(quantity) || quantity < 1) {
+    if (range === "3-5") return "Set Quantity to 3, 4 or 5.";
     return `Set Quantity below to your number of guests, $${each} each.`;
   }
   if (quantity === 1) return null;

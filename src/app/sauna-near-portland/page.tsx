@@ -111,17 +111,10 @@ function serviceSchema() {
   };
 }
 
-/** Drive times to the farm gate, without traffic (OSRM free-flow, 2026-10-06). */
-const DRIVE = [
-  { place: "Downtown Portland", time: "65 min", strong: true },
-  { place: "Gresham", time: "40 min" },
-  { place: "Sandy", time: "20 min" },
-] as const;
+/** Only the drive time a data file states: "about an hour from Portland" (src/data/properties.ts, weddings.ts). */
+const DRIVE = [{ place: "Downtown Portland", time: "About an hour", strong: true }] as const;
 
 const BUYS: { term: string; detail: string }[] = [
-  { term: "The heat", detail: "A cedar sauna with a wood-burning stove" },
-  { term: "The steam", detail: "A wet sauna, for a softer heat" },
-  { term: "The cold", detail: "A plunge outside on the cedar deck, under the trees" },
   { term: "The setting", detail: "A private forest farm of five acres" },
   { term: "The season", detail: "October to March is sauna season. Sessions run as booked, rain or shine." },
   { term: "The neighbors", detail: "A herd of Highland cows (tours are booked separately)" },
@@ -222,17 +215,17 @@ export default function SaunaNearPortlandPage() {
       </section>
 
       <div className="surface-paper bg-paper font-sans text-ink">
-        {/* S2 The drive: times to the gate, without traffic */}
+        {/* S2 The drive: no minute counts (none is in a data file) */}
         <FieldSection id="drive" rule="double" aria-label="The drive" innerClassName="lg:grid lg:grid-cols-12 lg:gap-x-16">
           <div className="lg:col-span-6">
             <FieldSectionHeader
               id="drive-title"
               eyebrow="East on US-26"
               title="The drive is part of it"
-              intro="Out of town on US-26, through Gresham and Sandy, into the trees. Times are to the farm gate, without traffic."
+              intro="Out of town on US-26, through Gresham and Sandy, into the trees."
               introClassName="max-w-[560px] lg:text-[17px]"
             />
-            <ol className="m-0 mt-7 list-none p-0" aria-label="Drive times to Highland Farms">
+            <ol className="m-0 mt-7 list-none p-0" aria-label="The drive to Highland Farms">
               {DRIVE.map((d) => (
                 <li
                   key={d.place}
@@ -260,9 +253,6 @@ export default function SaunaNearPortlandPage() {
                 </span>
               </li>
             </ol>
-            <p className="m-0 mt-4 font-sans text-[13px] leading-[1.6] text-ink-note lg:text-[14px]">
-              Coming down from the mountain? Government Camp is about 25 minutes away.
-            </p>
           </div>
           <Plate
             className="mt-9 lg:col-span-6 lg:mt-0"
@@ -303,7 +293,7 @@ export default function SaunaNearPortlandPage() {
                 </Suspense>
                 {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
               </p>
-              <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
+              <BookingPolicyNote text={policy} />
               <PendingSlot
                 className="mt-4"
                 note="DECIDE D4: visit packs line (3 for $199, 5 for $299, 10 for $549, six months). Show only after Hayden decides and the Acuity pack copy says 90 minutes"

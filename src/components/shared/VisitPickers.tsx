@@ -99,6 +99,7 @@ export function SpaPicker({ where, prefix, label, labelId, native = false }: Spa
         href: withSpaQuantity(
           bookingUrl(BOOKING_LINKS.nordicSpa, `${prefix}-${where}-${spot.key}`),
           "quantity" in spot ? spot.quantity : undefined,
+          spot.key === "3to5" ? "3-5" : undefined,
         ),
         label: spot.label,
         title:

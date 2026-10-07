@@ -97,8 +97,8 @@ export function giftCatalogUrl(content: string, productId?: string): string {
 }
 
 /**
- * Two entries (the delivery and expiry facts are answered on the page, so the
- * old entries are gone). The cancellation answer carries the shared exception
+ * Two entries (the delivery fact is answered on the page, so the old entries are gone; the
+ * expiry line was cut in the mobile review, 2026-10-07, until the farm confirms it). The cancellation answer carries the shared exception
  * sentence word for word: the seventh copy of it on the site.
  */
 export const giftFAQ: FAQItem[] = [

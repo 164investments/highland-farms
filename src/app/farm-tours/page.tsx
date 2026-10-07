@@ -174,7 +174,9 @@ export default function FarmToursPage() {
                 </Plate>
               </li>
               <li className="border-b border-rule py-6 lg:py-8">
-                <h3 className={hook}>Not a petting zoo. No passport needed.</h3>
+                <p className="m-0 font-display text-[22px] italic leading-[1.2] text-ink lg:text-[28px]">
+                  Not a petting zoo. No passport needed.
+                </p>
                 <p className={body15}>
                   Every tour is private: your group of two to six, your own guide, and sixty minutes on a working
                   farm in the forest. No crowd at the fence. Scottish Highland cows in Brightwood, Oregon, about an
@@ -416,7 +418,7 @@ export default function FarmToursPage() {
                     Tours at {TOUR_TIMES}.
                     {TOUR_LEAD_TIME && ` The typical tour is booked ${TOUR_LEAD_TIME} ahead.`}
                   </p>
-                  <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
+                  <BookingPolicyNote text={policy} />
                 </>
               )}
             </div>
@@ -425,8 +427,6 @@ export default function FarmToursPage() {
             </div>
           </div>
         </FieldSection>
-
-        <HighlandDayBlock utmPrefix="farm-tours-day" />
 
         {/* S7b Give a farm tour */}
         <FieldSection
@@ -448,6 +448,8 @@ export default function FarmToursPage() {
         </FieldSection>
 
         <VisitFaq items={farmTourFAQ} />
+
+        <HighlandDayBlock utmPrefix="farm-tours-day" line="add-spa" />
       </div>
 
       <FieldStickyBar
