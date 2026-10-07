@@ -2,6 +2,12 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.1.0] - 2026-10-07
+
+### Changed
+
+- Calm the phone menu: Weddings is the one large line with a single note ("Up to 125 guests, plus the coos") and its three steps beneath it (real weddings, the look book, a free 45-minute call with Connor), then the visits as plain rows and the short links on one line. The grey hint beside every row, the phone line, Instagram and the address are gone from the menu (they stay in the footer and on Contact), and the whole menu now fits an Instagram-browser phone screen without scrolling.
+
 ## [0.3.0.0] - 2026-10-07
 
 ### Changed

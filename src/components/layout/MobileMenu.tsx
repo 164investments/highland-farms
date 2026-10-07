@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { CONTACT } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { useCart } from "@/lib/shop/cart";
-import { FieldArrow, FieldDoorInner, fieldDoorRowClass, fieldEyebrowClass } from "@/components/ui/FieldGuide";
+import { FieldArrow } from "@/components/ui/FieldGuide";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
-import { MastheadMark, MastheadName, MenuIcon } from "./Masthead";
+import { MastheadName, MenuIcon } from "./Masthead";
 import {
   LOOKBOOK_DOOR,
   MORE_LINKS,
+  WEDDING_MENU_NOTE,
   isQuietChrome,
-  menuSecondaryFor,
   pageActionFor,
   visitDoors,
   weddingDoors,
@@ -26,51 +26,105 @@ interface MobileMenuProps {
   pathname: string;
 }
 
-const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
-
-/** Weddings, Real weddings, 2027 look book, Call with Connor (Round 2b, same rows as the footer). */
+/** Weddings, Real weddings, 2027 look book, the free call (same order as the footer). */
 function withLookbook(doors: ChromeDoor[]): ChromeDoor[] {
   const rows = [...doors];
   rows.splice(2, 0, LOOKBOOK_DOOR);
   return rows;
 }
 
-function Door({ door, pathname, onClose }: { door: ChromeDoor; pathname: string; onClose: () => void }) {
+function DoorTitle({ door }: { door: ChromeDoor }) {
+  if (door.menuTitle && door.menuTitleShort) {
+    return (
+      <>
+        <span className="max-[374px]:hidden">{door.menuTitle}</span>
+        <span className="min-[375px]:hidden">{door.menuTitleShort}</span>
+      </>
+    );
+  }
+  return <>{door.menuTitle ?? door.title}</>;
+}
+
+function DoorLink({
+  door,
+  pathname,
+  onClose,
+  className,
+  children,
+}: {
+  door: ChromeDoor;
+  pathname: string;
+  onClose: () => void;
+  className: string;
+  children: ReactNode;
+}) {
   const current = door.current?.(pathname) ?? false;
-  const inner = <FieldDoorInner title={door.title} note={door.note} current={current} />;
-  const className = fieldDoorRowClass("lg");
   if (door.weddingCall) {
     return (
       <WeddingCallLink content="menu-call" title="Menu: wedding call" className={className}>
-        {inner}
+        {children}
       </WeddingCallLink>
     );
   }
   if (door.external) {
     return (
       <a href={door.href} target="_blank" rel="noopener noreferrer" onClick={onClose} className={className}>
-        {inner}
+        {children}
         <span className="sr-only"> (opens in a new tab)</span>
       </a>
     );
   }
   return (
     <Link href={door.href} onClick={onClose} aria-current={current ? "page" : undefined} className={className}>
-      {inner}
+      {children}
     </Link>
   );
 }
 
+function YouAreHere() {
+  return <span className="shrink-0 font-display text-[15px] italic text-fern">You are here</span>;
+}
+
+/** One menu row: the name in Cormorant, nothing on the right unless it is this page. */
+function Door({ door, pathname, onClose }: { door: ChromeDoor; pathname: string; onClose: () => void }) {
+  const current = door.current?.(pathname) ?? false;
+  return (
+    <DoorLink
+      door={door}
+      pathname={pathname}
+      onClose={onClose}
+      className="group flex min-h-11 items-center justify-between gap-3 text-ink"
+    >
+      <span
+        className={cn(
+          "font-display text-[23px] font-semibold leading-none transition-colors group-hover:text-pine",
+          current && "text-pine",
+        )}
+      >
+        <DoorTitle door={door} />
+      </span>
+      {current && <YouAreHere />}
+    </DoorLink>
+  );
+}
+
+const DIVIDER = "my-2 h-px bg-rule";
+
 /**
- * The menu sheet (shared board 3, round 2): a page of the field guide.
- * The top row is the close button and the name. Weddings first, then the
- * visits with their price hints (from the data files), then the short links,
- * the one public phone line, Instagram and the lettermark with the address.
- * The page's own action is pinned at the bottom, at the thumb.
+ * The menu sheet (menu round 2, 2026-10-07: Hayden found the hinted rows
+ * "very busy"). The top row is the close button and the name. Weddings is the
+ * one large line, with one note (the coos) and its three steps indented
+ * beneath; then the visits as plain rows; then the short links on one line.
+ * No hints, no rules between rows: the phone line, Instagram and the address
+ * live in the footer and on Contact. The page's own action is pinned at the
+ * bottom, at the thumb. On a screen too short for every row (iPhone SE) the
+ * list scrolls under a fade.
  */
 export function MobileMenu({ isOpen, onClose, type, pathname }: MobileMenuProps) {
   const sheet = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
+  const list = useRef<HTMLElement>(null);
+  const [more, setMore] = useState(false);
   const { count } = useCart();
 
   // Scroll lock, focus, and <html data-sheet-open> (hides the chat launcher).
@@ -122,11 +176,28 @@ export function MobileMenu({ isOpen, onClose, type, pathname }: MobileMenuProps)
     lastPath.current = pathname;
   }, [pathname, isOpen, onClose]);
 
+  // The fade at the foot of the list shows only while rows sit below it.
+  useEffect(() => {
+    if (!isOpen) return;
+    const el = list.current;
+    if (!el) return;
+    const update = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => {
+      el.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const action = pageActionFor(type);
-  const secondary = menuSecondaryFor(type);
   const quiet = isQuietChrome(type);
+  const [lead, ...steps] = withLookbook(weddingDoors());
+  const leadCurrent = lead.current?.(pathname) ?? false;
 
   return (
     <div
@@ -150,65 +221,76 @@ export function MobileMenu({ isOpen, onClose, type, pathname }: MobileMenuProps)
         <span aria-hidden="true" />
       </div>
 
-      <nav aria-label="Menu" className="flex-1 overflow-y-auto px-5 pb-8">
-        <p className={`m-0 pt-4 text-[15px] ${fieldEyebrowClass}`}>Weddings at the farm</p>
-        <ul role="list" className="m-0 mt-1 list-none border-t border-rule p-0">
-          {withLookbook(weddingDoors()).map((door) => (
-            <li key={door.title}>
-              <Door door={door} pathname={pathname} onClose={onClose} />
-            </li>
-          ))}
-        </ul>
-
-        <p className={`m-0 pt-5 text-[15px] ${fieldEyebrowClass}`}>Visit the farm</p>
-        <ul role="list" className="m-0 mt-1 list-none border-t border-rule p-0">
-          {visitDoors().map((door) => (
-            <li key={door.title}>
-              <Door door={door} pathname={pathname} onClose={onClose} />
-            </li>
-          ))}
-        </ul>
-
-        <ul role="list" className="m-0 mt-4 grid list-none grid-cols-2 gap-x-4 p-0 text-[15px]">
-          {MORE_LINKS.map((link) => (
-            <li key={link.href} data-season-only={link.season}>
-              <Link
-                href={link.href}
-                onClick={onClose}
-                aria-current={pathname === link.href ? "page" : undefined}
-                className="flex min-h-11 items-center text-ink-body transition-colors hover:text-pine aria-[current=page]:text-pine"
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <nav ref={list} aria-label="Menu" className="flex-1 overflow-y-auto px-5 pb-2 pt-2">
+          <DoorLink door={lead} pathname={pathname} onClose={onClose} className="group block pb-4 text-ink">
+            <span className="flex items-end justify-between gap-3">
+              <span
+                className={cn(
+                  "font-display text-[34px] font-semibold leading-none transition-colors group-hover:text-pine",
+                  leadCurrent && "text-pine",
+                )}
               >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-3 border-t border-rule pt-3 text-[14px]">
-          <a href={TEL} className="flex min-h-11 items-center justify-between gap-3 text-ink hover:text-pine">
-            <span>{CONTACT.phone}</span>
-            <span className="text-[12px] text-ink-meta">Call us</span>
-          </a>
-          <a
-            href={CONTACT.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-11 items-center justify-between gap-3 text-ink hover:text-pine"
-          >
-            <span>{CONTACT.instagramHandle}</span>
-            <span className="text-[12px] text-ink-meta">
-              Instagram<span className="sr-only"> (opens in a new tab)</span>
+                {lead.title}
+              </span>
+              {leadCurrent && <YouAreHere />}
             </span>
-          </a>
-        </div>
+            <span className="mt-1.5 block font-display text-[17px] italic leading-tight text-ink-note">
+              {WEDDING_MENU_NOTE}
+            </span>
+          </DoorLink>
+          <ul role="list" aria-label="Plan your wedding" className="m-0 list-none p-0 pl-4">
+            {steps.map((door) => (
+              <li key={door.title}>
+                <Door door={door} pathname={pathname} onClose={onClose} />
+              </li>
+            ))}
+          </ul>
 
-        <div className="mt-5 flex items-center gap-3 border-t border-rule pb-2 pt-4">
-          <MastheadMark />
-          <p className="m-0 text-[12px] leading-snug text-ink-note">
-            {CONTACT.address}, {CONTACT.city}. About an hour from Portland.
-          </p>
-        </div>
-      </nav>
+          <div aria-hidden="true" className={DIVIDER} />
+
+          <ul role="list" aria-label="Visit the farm" className="m-0 list-none p-0">
+            {visitDoors().map((door) => (
+              <li key={door.title}>
+                <Door door={door} pathname={pathname} onClose={onClose} />
+              </li>
+            ))}
+          </ul>
+
+          <div aria-hidden="true" className={DIVIDER} />
+
+          {/* One dotted line from 375px; a two-by-two below, where the line would wrap. */}
+          <ul
+            role="list"
+            className="m-0 grid list-none grid-cols-2 p-0 font-sans text-[14px] min-[375px]:flex min-[375px]:flex-wrap"
+          >
+            {MORE_LINKS.map((link, i) => (
+              <li key={link.href} data-season-only={link.season} className="flex items-center">
+                {i > 0 && (
+                  <span aria-hidden="true" className="hidden px-2.5 text-ink-meta min-[375px]:inline">
+                    ·
+                  </span>
+                )}
+                <Link
+                  href={link.href}
+                  onClick={onClose}
+                  aria-current={pathname === link.href ? "page" : undefined}
+                  className="flex min-h-11 items-center text-ink-body transition-colors hover:text-pine aria-[current=page]:text-pine"
+                >
+                  {link.menuLabel ?? link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-linear-to-b from-paper/0 to-paper transition-opacity duration-200",
+            more ? "opacity-100" : "opacity-0",
+          )}
+        />
+      </div>
 
       {!quiet && action && (
         <div className="shrink-0 border-t border-rule bg-paper px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
@@ -224,27 +306,6 @@ export function MobileMenu({ isOpen, onClose, type, pathname }: MobileMenuProps)
           ) : (
             <MenuAction href={action.href} label={action.label} onClose={onClose} />
           )}
-          {secondary &&
-            (secondary.external ? (
-              <a
-                href={secondary.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={onClose}
-                className="mt-1 flex min-h-11 items-center justify-center font-sans text-[14px] font-medium text-pine"
-              >
-                {secondary.label}
-                <span className="sr-only"> (opens in a new tab)</span>
-              </a>
-            ) : (
-              <Link
-                href={secondary.href}
-                onClick={onClose}
-                className="mt-1 flex min-h-11 items-center justify-center font-sans text-[14px] font-medium text-pine"
-              >
-                {secondary.label}
-              </Link>
-            ))}
         </div>
       )}
     </div>
