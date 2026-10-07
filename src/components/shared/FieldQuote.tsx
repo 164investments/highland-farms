@@ -1,24 +1,32 @@
 import { cn } from "@/lib/utils";
 import { featuredQuotes } from "@/lib/reviews";
 import { shortName, type QuoteSpec } from "@/lib/review-quotes";
+import { fieldAttribution, fieldMonthYear } from "@/components/ui/FieldGuide";
 
 interface FieldQuoteProps {
   spec: QuoteSpec;
   /** Add the spec's topic to the attribution ("Married here in 2025"). */
   withTopic?: boolean;
+  /** Add "Month Year" (CONSISTENCY #2: `FIRST L. · MONTH YEAR · GOOGLE REVIEW`). */
+  withDate?: boolean;
+  /** Print the author in full (a business: "Kate Holt Photography"). */
+  fullName?: boolean;
   className?: string;
   quoteClassName?: string;
   metaClassName?: string;
 }
 
 /**
- * One verbatim Google review line, Field Guide style: italic Cormorant quote,
- * small-caps attribution "Olivia B. · Google review". Renders nothing when
- * the quote no longer resolves from the snapshot (review edited or removed).
+ * One verbatim Google review line for a first screen, where the hero sets
+ * the type size through quoteClassName / metaClassName. Same style as
+ * FieldReview (@/components/field/Reviews), which is the default everywhere
+ * else. Renders nothing when the quote no longer resolves from the snapshot.
  */
 export function FieldQuote({
   spec,
   withTopic = false,
+  withDate = false,
+  fullName = false,
   className,
   quoteClassName,
   metaClassName,
@@ -36,8 +44,11 @@ export function FieldQuote({
       <figcaption
         className={cn("font-sans uppercase tracking-[0.08em] text-ink-meta", metaClassName)}
       >
-        {shortName(q.name)}
-        {withTopic && <> &middot; {q.topic}</>} &middot; Google review
+        {fieldAttribution({
+          name: fullName ? q.name : shortName(q.name),
+          role: withTopic ? q.topic : undefined,
+          when: withDate ? fieldMonthYear(spec.date) : undefined,
+        })}
       </figcaption>
     </figure>
   );

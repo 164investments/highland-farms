@@ -204,3 +204,41 @@ html {
 .text-sage {
   color: var(--sage-text);
 }
+
+/*
+  The bottom sticky action on phones (src/components/field/StickyShell.tsx).
+  <html data-sticky> is set while a page mounts one: the footer grows by the
+  bar's height so the bar never covers the last content (pages add no spacer).
+  <html data-sticky-shown> is set while it is visible: the masthead's matching
+  action fades (CONSISTENCY #9) and the chat launcher rises above the bar.
+  Bar height: 1px rule + 12px + 52px button + max(18px, home-indicator inset).
+*/
+@media (max-width: 1023.98px) {
+  html[data-sticky] [data-site-footer]::after {
+    content: "";
+    display: block;
+    height: calc(65px + max(18px, env(safe-area-inset-bottom)));
+  }
+
+  html[data-sticky-shown] [data-masthead-action] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* StickyShell measures the launcher and sets --hf-chat-lift-measured; 78px until it can. */
+  html[data-sticky-shown] {
+    --hf-chat-lift: var(--hf-chat-lift-measured, 78px);
+  }
+}
+
+/* Never show the chat launcher over a sheet (menu, booking, popup). */
+html[data-sheet-open] {
+  --hf-chat-visibility: hidden;
+}
+
+/* The same rule StickyShell adopts into the widget's shadow root, for a light-DOM render. */
+chat-widget .lc_text-widget--bubble:not(.active) {
+  translate: 0 calc(-1 * var(--hf-chat-lift, 0px));
+  transition: translate 0.3s ease;
+  visibility: var(--hf-chat-visibility, visible);
+}

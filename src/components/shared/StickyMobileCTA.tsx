@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import {
+  StickyAction,
+  StickyActionRow,
+  StickyShell,
+  type StickyActionSpec,
+} from "@/components/field/StickyShell";
 
 interface StickyMobileCTAProps {
   label: string;
@@ -12,8 +15,19 @@ interface StickyMobileCTAProps {
   external?: boolean;
   /** If provided, the CTA fires onClick instead of navigating (e.g. to open a modal). */
   onClick?: () => void;
+  /** Selectors that hide the bar while on screen (the form, the booking widget). */
+  hideWhenVisible?: string | readonly string[];
+  /** The outlined 1/3 action (gift season). */
+  secondary?: StickyActionSpec;
+  /** Extra gate. Default true. */
+  enabled?: boolean;
 }
 
+/**
+ * The bottom sticky action on phones, kept for existing import sites and for
+ * BookingStickyCTA. New code: FieldStickyBar (src/components/field/StickyBar.tsx),
+ * which also opens bookings with tracking. Same bar, same rules (StickyShell).
+ */
 export function StickyMobileCTA({
   label,
   href,
@@ -21,70 +35,18 @@ export function StickyMobileCTA({
   className,
   external,
   onClick,
+  hideWhenVisible,
+  secondary,
+  enabled,
 }: StickyMobileCTAProps) {
-  // One primary button on screen at a time: hide while any element marked
-  // data-hero-cta is in view. With no marked element, show after 400px of scroll.
-  const [shown, setShown] = useState(false);
-  useEffect(() => {
-    const heroes = Array.from(document.querySelectorAll("[data-hero-cta]"));
-    if (heroes.length === 0) {
-      const onScroll = () => setShown(window.scrollY > 400);
-      onScroll();
-      window.addEventListener("scroll", onScroll, { passive: true });
-      return () => window.removeEventListener("scroll", onScroll);
-    }
-    const inView = new Set<Element>();
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) inView.add(e.target);
-        else inView.delete(e.target);
-      }
-      setShown(inView.size === 0);
-    });
-    heroes.forEach((h) => io.observe(h));
-    return () => io.disconnect();
-  }, []);
-
-  const linkClasses =
-    "flex min-h-[52px] items-center justify-center gap-2 w-full bg-pine py-3.5 font-sans text-[15px] font-semibold tracking-[0.02em] text-paper-light transition-colors hover:bg-pine-dark active:bg-pine-dark";
-
-  const inner = (
-    <>
-      {label}
-      {sublabel && <span className="text-sm text-paper-light/80">{sublabel}</span>}
-    </>
-  );
-
   return (
-    <div
-      className={cn(
-        "fixed bottom-0 left-0 right-0 z-30 transition-transform duration-300 lg:hidden",
-        shown ? "translate-y-0" : "pointer-events-none translate-y-full",
-        className,
-      )}
-      aria-hidden={!shown}
-      inert={!shown}
-    >
-      <div className="bg-paper border-t border-rule px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-        {onClick ? (
-          <button type="button" onClick={onClick} className={linkClasses}>
-            {inner}
-          </button>
-        ) : external ? (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={linkClasses}
-          >
-            {inner}
-          </a>
-        ) : (
-          <Link href={href} className={linkClasses}>
-            {inner}
-          </Link>
-        )}
-      </div>
-    </div>
+    <StickyShell className={className} hideWhenVisible={hideWhenVisible} enabled={enabled}>
+      <StickyActionRow
+        primary={
+          <StickyAction action={{ label, href, sublabel, external, onClick }} variant="primary" />
+        }
+        secondary={secondary ? <StickyAction action={secondary} variant="secondary" /> : undefined}
+      />
+    </StickyShell>
   );
 }

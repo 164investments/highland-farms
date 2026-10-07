@@ -130,6 +130,7 @@ interface Props {
   match?: RegExp;
 }
 
+/** @deprecated Card grid with avatars. Use FieldReviewList (@/components/field/Reviews) with topic-matched QuoteSpecs. */
 export function GoogleReviewsSection({
   topic = "all",
   max = 6,

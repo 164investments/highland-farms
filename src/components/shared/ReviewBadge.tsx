@@ -69,6 +69,7 @@ interface ReviewBadgeProps {
   className?: string;
 }
 
+/** @deprecated Pills and a Google chip. Use FieldReviewTier (@/components/field/Reviews): stars plus a tier sentence. */
 export function ReviewBadge({
   variant = "pill",
   className,

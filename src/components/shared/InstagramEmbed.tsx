@@ -17,6 +17,7 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
+/** @deprecated Removed from home by the 2026-10-06 finish (SH-09); the footer carries the Instagram line. Delete once nothing imports it. */
 export function InstagramEmbed() {
   return (
     <section className="py-16 lg:py-24 bg-warm-white overflow-hidden">
