@@ -1,22 +1,25 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { pushEvent } from "./track";
 
 export interface Shelf {
-  /** Section id: "favorites", "mangalitsa", "gifts". */
+  /** Section id: "plush", "mangalitsa", "gifts". */
   key: string;
   label: string;
-  /** Items in stock now; omitted for the gifts tab. */
+  /** Items in stock now; omitted for the gifts door. */
   count?: number;
+  /** The door's photo: an in-stock item (or, for gifts, the herd). */
+  image?: { src: string; position?: string };
 }
 
 const numberClass = "font-display italic [font-variant-numeric:lining-nums]";
 
 /**
- * The hero's labeled shelf buttons (validated pattern, counts = in stock now)
- * and the tab bar fixed under the masthead, shown only after the buttons
+ * The hero's picture-shelf doors (Hayden's labelled shelf buttons, each with a
+ * real photo of an in-stock item; counts = in stock now) and the tab bar fixed under the masthead, shown only after the buttons
  * scroll away so the nav never appears twice. The first button carries
  * data-hero-cta (the sticky cart bar waits for it to leave).
  */
@@ -64,33 +67,44 @@ export function ShelfNav({ shelves, tabs }: { shelves: Shelf[]; tabs: Shelf[] })
         <p className="m-0 mb-1.5 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">
           Browse the shelves · in stock now
         </p>
-        <ul className="m-0 grid list-none grid-cols-2 gap-2 p-0 lg:grid-cols-3 lg:gap-2.5">
+        <ul className="m-0 grid list-none grid-cols-3 gap-x-[9px] gap-y-2.5 p-0 max-[374px]:gap-x-1.5 lg:grid-cols-6 lg:gap-x-4">
           {shelves.map((s, i) => (
             <li key={s.key}>
               <a
                 href={`#${s.key}`}
                 {...(i === 0 ? { "data-hero-cta": "" } : {})}
-                onClick={() => promo(s.key, s.label, "hero_shelf_buttons")}
-                className={cn(
-                  // Under 375px (iPhone SE, small Androids) the padding, label and
-                  // count step down so "Mangalitsa pork" stays on one line.
-                  "flex h-11 items-center justify-between gap-2 px-3.5 max-[374px]:gap-1.5 max-[374px]:px-2.5 lg:h-[52px] lg:px-4",
-                  i === 0
-                    ? "bg-pine text-paper-light hover:bg-pine-dark"
-                    : "border border-frame bg-paper-light text-ink hover:bg-paper-shade",
-                )}
+                onClick={() => promo(s.key, s.label, "hero_shelf_doors")}
+                className="group block min-h-11 text-ink"
               >
-                <span
-                  className={cn(
-                    "whitespace-nowrap text-[14px] max-[374px]:text-[12.5px]",
-                    i === 0 ? "font-semibold" : "font-medium",
-                  )}
-                >
-                  {s.label}
+                <span className="block border border-frame bg-paper-light p-[3px] group-hover:bg-paper-shade">
+                  <span className="relative block aspect-[3/2] overflow-hidden max-[374px]:aspect-[16/10] lg:aspect-[4/3]">
+                    {s.image && (
+                      <Image
+                        src={s.image.src}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1024px) 200px, 33vw"
+                        className="object-cover"
+                        style={s.image.position ? { objectPosition: s.image.position } : undefined}
+                      />
+                    )}
+                  </span>
                 </span>
-                <span className={cn("text-[19px] max-[374px]:text-[16px]", numberClass, i !== 0 && "text-fern")}>
-                  {s.count}
-                  <span className="sr-only"> in stock now</span>
+                {/* Under 375px the count drops under the label so "Mangalitsa pork" never collides with it. */}
+                <span className="mt-1.5 flex flex-col gap-x-1 min-[375px]:flex-row min-[375px]:items-baseline min-[375px]:justify-between">
+                  <span className="text-[12.5px] font-medium leading-[1.15] max-[374px]:text-[11.5px] lg:text-[14px]">
+                    {s.label}
+                  </span>
+                  {s.count !== undefined ? (
+                    <span className={cn("text-[17px] leading-none text-fern max-[374px]:text-[15px]", numberClass)}>
+                      {s.count}
+                      <span className="sr-only"> in stock now</span>
+                    </span>
+                  ) : (
+                    <span aria-hidden="true" className="text-[15px] leading-none text-fern">
+                      &darr;
+                    </span>
+                  )}
                 </span>
               </a>
             </li>

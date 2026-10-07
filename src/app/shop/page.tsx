@@ -14,8 +14,8 @@ import { ShelfNav, type Shelf } from "@/components/shop/ShelfNav";
 import { ShopStickyCart } from "@/components/shop/StickyCart";
 import { GiftLink } from "@/components/shop/GiftLink";
 import { ShopBody } from "./ShopBody";
-import { shelfProducts } from "./shelf";
-import { CATEGORIES, PRODUCTS } from "./data";
+import { doorPhoto, orderedCategories, shelfProducts } from "./shelf";
+import { PRODUCTS } from "./data";
 import { SHOP_SHELF_QUOTE } from "./quotes";
 import { getStockMap, type StockMap } from "@/lib/shop/inventory";
 import { buildProductNode } from "@/lib/shop/product-schema";
@@ -24,7 +24,6 @@ import { shopFAQ } from "@/data/shop-faq";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { DELIVERY_FEE_CENTS, DELIVERY_MINIMUM_CENTS, PICKUP_LOCATION } from "@/lib/shop/fulfillment";
-import { isSoldOut } from "@/components/shop/track";
 import { CONTACT } from "@/lib/constants";
 import { PAYMENT_METHODS } from "./checkout/wallets";
 
@@ -81,16 +80,19 @@ export default async function ShopPage() {
   const record = Object.fromEntries(stock);
   const quote = resolveFieldQuote(SHOP_SHELF_QUOTE, { role: true });
 
-  const favoritesInStock = PRODUCTS.filter((p) => p.featured && !isSoldOut(record, p)).length;
-  const shelves: Shelf[] = [
-    { key: "favorites", label: "Farm favorites", count: favoritesInStock },
-    ...CATEGORIES.map((c) => ({
-      key: c.key,
-      label: c.shortLabel,
-      count: shelfProducts(c, record).open.length,
-    })),
-  ].filter((s) => s.key !== "favorites" || favoritesInStock > 0);
-  const tabs: Shelf[] = [...shelves, { key: "gifts", label: "Gifts" }];
+  // Shelf doors: most-ordered shelves first, each fronted by an in-stock item from live stock.
+  const ordered = orderedCategories(record).filter((c) => shelfProducts(c, record).open.length + shelfProducts(c, record).out.length > 0);
+  const shelves: Shelf[] = ordered.flatMap((c) => {
+    const image = doorPhoto(c, record);
+    return image ? [{ key: c.key, label: c.shortLabel, count: shelfProducts(c, record).open.length, image }] : [];
+  });
+  // Gifts: the herd photo already used in the gift section below, so no new crop of a new file.
+  const giftsDoor: Shelf = { key: "gifts", label: "Gifts", image: { src: "/images/farm/cows.jpg", position: "30% 62%" } };
+  const doors: Shelf[] = [...shelves, giftsDoor];
+  const tabs: Shelf[] = [
+    ...ordered.map((c) => ({ key: c.key, label: c.shortLabel, count: shelfProducts(c, record).open.length })),
+    { key: "gifts", label: "Gifts" },
+  ];
 
   const tourForTwo = TOUR_PARTY_SIZES[0].total;
   const extraGuest = TOUR_PARTY_SIZES[1].total - TOUR_PARTY_SIZES[0].total;
@@ -105,40 +107,22 @@ export default async function ShopPage() {
       <ProductListSchema stock={stock} />
       <SiteStructuredData pathname="/shop" />
 
-      {/* 1. Hero */}
-      <section aria-labelledby="shop-title" className="px-5 pb-8 pt-3 lg:px-16 lg:pb-20 lg:pt-12">
-        <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-stretch lg:gap-16">
-          <Plate
-            className="lg:order-2"
-            frameClassName="h-[124px] lg:h-[600px]"
-            caption="One of the herd."
+      {/* 1. Hero: the promise, the stars, then the picture-shelf doors (shop board C, round 1) */}
+      <section aria-labelledby="shop-title" className="px-5 pb-2 pt-3 lg:px-16 lg:pb-10 lg:pt-12">
+        <div className="mx-auto max-w-[1312px]">
+          <p className="m-0 font-display text-[17px] italic text-fern max-[374px]:text-[15.5px] lg:text-[22px]">
+            The Highland Farms store
+          </p>
+          <h1
+            id="shop-title"
+            className="field-heading m-0 mt-1 font-display text-[32px] leading-[1.04] max-[374px]:text-[27px] lg:mt-3 lg:text-[60px] lg:leading-[1.02]"
           >
-            <Image
-              src="/images/farm/farm-visit.jpg"
-              alt="A shaggy Highland cow with long pale horns looks into the camera beside a weathered wooden barn"
-              fill
-              priority
-              fetchPriority="high"
-              sizes="(min-width: 1024px) 520px, calc(100vw - 54px)"
-              className="object-cover object-[50%_84%] lg:object-[50%_62%]"
-            />
-          </Plate>
-          <div className="mt-3.5 lg:order-1 lg:mt-0 lg:flex lg:flex-col lg:justify-center">
-            <p className="m-0 font-display text-[17px] italic text-fern lg:text-[22px]">The Highland Farms store</p>
-            <h1
-              id="shop-title"
-              className="field-heading m-0 mt-1.5 font-display text-[34px] leading-[1.04] lg:mt-3 lg:text-[60px] lg:leading-[1.02]"
-            >
-              Order from the farm.
-              <br />
-              Pick it up free.
-            </h1>
-            <p className="m-0 mt-2.5 text-[15px] leading-[1.5] text-ink-body lg:mt-5 lg:max-w-[580px] lg:text-[17px] lg:leading-[1.6]">
-              Mangalitsa pork, beef from our herd, eggs from our hens, cow plush and apparel.
-            </p>
-            <FieldReviewTier tier="hero" className="mt-3 lg:mt-5" />
-            <ShelfNav shelves={shelves} tabs={tabs} />
-          </div>
+            Order from the farm.
+            <br />
+            Pick it up free.
+          </h1>
+          <FieldReviewTier tier="hero" className="mt-3 max-[374px]:mt-2.5 lg:mt-5" />
+          <ShelfNav shelves={doors} tabs={tabs} />
         </div>
       </section>
 
