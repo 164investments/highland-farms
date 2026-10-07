@@ -26,7 +26,8 @@ export const metadata: Metadata = {
         url: "/images/hero/farm-aerial.jpg",
         width: 1200,
         height: 630,
-        alt: "Aerial view of Highland Farms, a private forest farm in Brightwood, Oregon",
+        // The file is a forest trail with the sun through the trees, not an aerial (images.csv).
+        alt: "A forest trail on the farm, with the sun through the tall trees",
       },
     ],
   },

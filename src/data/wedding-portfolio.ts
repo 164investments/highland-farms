@@ -55,6 +55,11 @@ export interface WeddingCouple {
    * one (the pages show a pending slot instead).
    */
   photographer?: WeddingPhotographer;
+  /**
+   * A set not confirmed as a wedding: its page H1, saying what the photographs
+   * show (RULINGS r4 #10). Never a couple's names; the credit sits beneath it.
+   */
+  headline?: string;
   /** One sentence on the portfolio card (and under the date on the couple page unless pageStory is set). */
   story: string;
   /** Longer lead paragraph for the couple page. */
@@ -92,7 +97,8 @@ export const weddingPortfolio: WeddingCouple[] = [
     date: "2025-06-28",
     story: "Cowboy hats, two of the herd at the pasture fence, and vows under the timber arch.",
     journal: [
-      { src: "/images/weddings/riley-jordan/01.jpg", alt: "", position: "50% 82%" },
+      // The portfolio's first screen: 2:1 on phones, anchored low so the couple and both cows sit high in the frame.
+      { src: "/images/weddings/riley-jordan/01.jpg", alt: "", position: "50% 100%" },
       { src: "/images/weddings/riley-jordan/05.jpg", alt: "", position: "50% 55%", className: "brightness-110" },
       { src: "/images/weddings/riley-jordan/06.jpg", alt: "", position: "50% 45%", className: "brightness-110" },
     ],
@@ -105,9 +111,10 @@ export const weddingPortfolio: WeddingCouple[] = [
     plates: [
       {
         src: "/images/weddings/riley-jordan/01.jpg",
-        alt: "A couple stands at the pasture fence between a black Highland cow and a white one",
+        alt: "Riley and Jordan kiss at the pasture fence between a black Highland cow and a white one",
         position: "50% 70%",
-        caption: "At the pasture fence, between two of the herd.",
+        // The same caption on /weddings No. 1 (one caption per photo).
+        caption: "Riley & Jordan's kiss at the pasture fence, June 2025.",
       },
       {
         src: "/images/weddings/riley-jordan/02.jpg",
@@ -160,7 +167,7 @@ export const weddingPortfolio: WeddingCouple[] = [
     story:
       "A Highland cow on the invitation, getting ready in a cedar-walled room, portraits among the trees, and their guests out on the patio.",
     pageStory:
-      "Their invitation set the tone: a Highland cow in a crown of wildflowers, and the words “reception to follow.” The day began in a cedar-walled room, moved out among the trees for portraits, and gathered their guests on the patio.",
+      "Their invitation set the tone: a Highland cow in a crown of wildflowers, and the words “reception to follow.” The day began in a cedar-walled room, gathered their guests on the patio, and moved out among the trees for portraits.",
     journal: [
       { src: "/images/weddings/maya-justin/01.jpg", alt: "", position: "38% 62%" },
       { src: "/images/weddings/maya-justin/02.jpg", alt: "", position: "50% 32%" },
@@ -170,7 +177,7 @@ export const weddingPortfolio: WeddingCouple[] = [
       src: "/images/weddings/maya-justin/01.jpg",
       alt: "Maya and Justin hold each other among tall mossy trees and ferns as her veil lifts in the air",
       position: "40% 66%",
-      caption: "Among the trees at Highland Farms.",
+      caption: "Maya & Justin in the forest, September 2025.",
     },
     numberedPlates: true,
     plates: [
@@ -349,17 +356,18 @@ export const weddingPortfolio: WeddingCouple[] = [
       name: "Taylor Denton Photography",
       url: "http://taylordentonphotography.pic-time.com/www",
     },
+    headline: "A coo in a flower crown, a table set in the ferns.",
     story: "A coo in a flower crown, a table set in the ferns, a kiss in the trees.",
     journal: [
-      { src: "/images/weddings/jen-ryan/01.jpg", alt: "A bride feeds a Highland cow wearing a crown of flowers", position: "45% 40%" },
+      { src: "/images/weddings/jen-ryan/01.jpg", alt: "Two people in wedding clothes hold hands in front of a Highland cow wearing a crown of flowers", position: "45% 40%" },
       { src: "/images/weddings/jen-ryan/04.jpg", alt: "", position: "50% 50%" },
       { src: "/images/weddings/jen-ryan/03.jpg", alt: "", position: "50% 50%" },
     ],
     lead: {
       src: "/images/weddings/jen-ryan/01.jpg",
-      alt: "A bride feeds a Highland cow wearing a crown of flowers",
-      position: "45% 40%",
-      caption: "A coo in a flower crown.",
+      alt: "Two people in wedding clothes hold hands in front of a Highland cow wearing a crown of flowers",
+      position: "45% 50%",
+      caption: "Hand in hand, beside one of the coos.",
     },
     plates: [
       {
@@ -394,7 +402,7 @@ export const weddingPortfolio: WeddingCouple[] = [
       },
     ],
     images: [
-      { src: "/images/weddings/jen-ryan/01.jpg", alt: "A bride feeds a Highland cow wearing a crown of flowers" },
+      { src: "/images/weddings/jen-ryan/01.jpg", alt: "Two people in wedding clothes hold hands in front of a Highland cow wearing a crown of flowers" },
       { src: "/images/weddings/jen-ryan/02.jpg", alt: "Cutting a cake at a long wooden table" },
       { src: "/images/weddings/jen-ryan/03.jpg", alt: "A kiss over a table set with moss and flowers" },
       { src: "/images/weddings/jen-ryan/04.jpg", alt: "A table set among ferns" },
@@ -411,29 +419,39 @@ export const weddingPortfolio: WeddingCouple[] = [
     // No capture date is embedded. The invitation suite in 03/04 carries other
     // names, which is why this set is not shown as a named couple's wedding.
     photographer: { name: "Hazel Eye Photography" },
+    headline: "A calf on a halter, a picnic under the trees.",
     story: "A calf on a halter, a picnic under the trees, strawberries on the stationery.",
     journal: [
       { src: "/images/weddings/hannah-max/01.jpg", alt: "A couple kisses in the forest beside a Highland calf on a halter", position: "42% 45%" },
       { src: "/images/weddings/hannah-max/05.jpg", alt: "", position: "50% 50%" },
       { src: "/images/weddings/hannah-max/03.jpg", alt: "", position: "50% 50%" },
     ],
+    // 01 is the homepage hero, so this page leads with 02, the set's other calf frame (RULINGS r4 #10).
+    // Its caption is the one /contact already gives this photo (one caption per photo).
     lead: {
-      src: "/images/weddings/hannah-max/01.jpg",
-      alt: "A couple kisses in the forest beside a Highland calf on a halter",
-      position: "42% 45%",
-      caption: "A calf on a halter.",
+      src: "/images/weddings/hannah-max/02.jpg",
+      alt: "Two people in wedding clothes kiss at the foot of a mossy tree, a Highland calf on a halter in the ferns in front of them",
+      position: "50% 98%",
+      caption: "A couple and a calf among the mossy trees.",
     },
     plates: [
       {
-        src: "/images/weddings/hannah-max/02.jpg",
-        alt: "Two people in wedding clothes embrace among very tall mossy trees, a Highland calf at their feet",
-        position: "50% 50%",
-        caption: "Among the tall trees.",
+        src: "/images/weddings/hannah-max/01.jpg",
+        alt: "A couple kisses in the forest beside a Highland calf on a halter",
+        position: "42% 45%",
+        // The homepage caption for this photo (one caption per photo).
+        caption: "An honorary guest, in the forest.",
+      },
+      {
+        src: "/images/weddings/hannah-max/05.jpg",
+        alt: "Two people in wedding clothes picnic on a blanket under the trees beside a bouquet",
+        position: "35% 50%",
+        caption: "A picnic under the trees.",
       },
       {
         src: "/images/weddings/hannah-max/03.jpg",
         alt: "A gilt frame with a strawberry and its leaves resting on a printed card",
-        position: "50% 50%",
+        position: "62% 50%",
         caption: "Strawberries on the stationery.",
       },
       {
@@ -443,28 +461,26 @@ export const weddingPortfolio: WeddingCouple[] = [
         caption: "The stationery suite.",
       },
       {
-        src: "/images/weddings/hannah-max/05.jpg",
-        alt: "Two people in wedding clothes picnic on a blanket under the trees beside a bouquet",
-        position: "50% 50%",
-        caption: "A picnic under the trees.",
-      },
-      {
         src: "/images/weddings/hannah-max/06.jpg",
-        alt: "Two people in wedding clothes stand far apart among enormous fir trunks",
-        position: "50% 60%",
-        caption: "Among the firs.",
+        alt: "Two people in wedding clothes hold hands among enormous mossy tree trunks",
+        position: "50% 66%",
+        caption: "Hand in hand, under the big trees.",
       },
     ],
     images: [
       { src: "/images/weddings/hannah-max/01.jpg", alt: "A couple kisses beside a Highland calf on a halter" },
-      { src: "/images/weddings/hannah-max/02.jpg", alt: "Two people among very tall trees with a Highland calf" },
+      { src: "/images/weddings/hannah-max/02.jpg", alt: "Two people kiss at the foot of a mossy tree, a Highland calf in front of them" },
       { src: "/images/weddings/hannah-max/03.jpg", alt: "A strawberry on a gilt frame" },
       { src: "/images/weddings/hannah-max/04.jpg", alt: "A wedding stationery suite" },
       { src: "/images/weddings/hannah-max/05.jpg", alt: "A picnic under the trees" },
-      { src: "/images/weddings/hannah-max/06.jpg", alt: "Two people among enormous fir trunks" },
+      { src: "/images/weddings/hannah-max/06.jpg", alt: "Two people hold hands among enormous mossy tree trunks" },
     ],
   },
 ];
+
+/** The offer line before "Check your date" on the portfolio and couple pages. */
+export const PLANNING_OFFER =
+  "Up to 125 guests, up to 20 of your people staying on the farm, and the coos for your portraits.";
 
 /** What the page may print for a set: names only for confirmed weddings (CONSISTENCY, truth). */
 export function isConfirmed(couple: WeddingCouple): boolean {

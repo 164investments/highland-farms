@@ -16,10 +16,12 @@ import {
   confirmedCouples,
   formatWeddingDate,
   isConfirmed,
+  PLANNING_OFFER,
   weddingPortfolio,
   type WeddingCouple,
 } from "@/data/wedding-portfolio";
-import { CASEY_CARD_QUOTE, MAYA_CARD_QUOTE, PORTFOLIO_KATE_QUOTE } from "./quotes";
+import { CASEY_CARD_QUOTE, MAYA_CARD_QUOTE, PORTFOLIO_KATE_QUOTE, PORTFOLIO_PLAN_QUOTE } from "./quotes";
+import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
 
 export const metadata: Metadata = {
   title: "Wedding Portfolio",
@@ -35,7 +37,7 @@ export const metadata: Metadata = {
         url: "/images/weddings/couple.jpg",
         width: 1200,
         height: 630,
-        alt: "Wedding couple at Highland Farms",
+        alt: "The flagstone ceremony site, with rows of chairs facing the timber arch under tall trees",
       },
     ],
   },
@@ -88,7 +90,7 @@ function JournalEntry({ couple, index }: { couple: WeddingCouple; index: number 
         aria-labelledby={`entry-${couple.slug}`}
         className={cn(
           "mx-auto max-w-[1440px] px-5 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:px-16",
-          index === 0 ? "pb-9 pt-4 lg:py-16" : "py-9 lg:py-16",
+          index === 0 ? "pb-9 pt-3 lg:py-16" : "py-9 lg:py-16",
         )}
       >
         <div className={cn("lg:col-span-4 lg:self-center", flip && "lg:order-2")}>
@@ -139,7 +141,13 @@ function JournalEntry({ couple, index }: { couple: WeddingCouple; index: number 
           )}
         >
           <div className="col-span-2">
-            {photo(lead, "aspect-[16/9] lg:aspect-[3/2]", "(min-width: 1024px) 60vw, calc(100vw - 40px)", index === 0)}
+            {/* The first couple's lead is 2:1 on phones so the herd stays above the 660 fold and the sticky bar. */}
+            {photo(
+              lead,
+              index === 0 ? "aspect-[2/1] lg:aspect-[3/2]" : "aspect-[16/9] lg:aspect-[3/2]",
+              "(min-width: 1024px) 60vw, calc(100vw - 40px)",
+              index === 0,
+            )}
           </div>
           {photo(a, "aspect-[4/5] lg:aspect-[3/2]", "(min-width: 1024px) 30vw, 46vw")}
           {photo(b, "aspect-[4/5] lg:aspect-[3/2]", "(min-width: 1024px) 30vw, 46vw")}
@@ -157,10 +165,10 @@ export default function WeddingPortfolioPage() {
       <StructuredData pathname="/wedding-portfolio" />
       <div className="surface-paper bg-paper font-sans text-ink">
         {/* Title: promise, count and the compact review tier, then straight into the first couple's photo */}
-        <header className="mx-auto max-w-[1440px] px-5 pb-5 pt-[calc(var(--header-h,104px)+0.75rem)] lg:grid lg:grid-cols-12 lg:items-end lg:gap-x-16 lg:px-16 lg:pb-12 lg:pt-[calc(var(--header-h,128px)+3.5rem)]">
+        <header className="mx-auto max-w-[1440px] px-5 pb-4 pt-[calc(var(--header-h,104px)+0.75rem)] lg:grid lg:grid-cols-12 lg:items-end lg:gap-x-16 lg:px-16 lg:pb-12 lg:pt-[calc(var(--header-h,128px)+3.5rem)]">
           <div className="lg:col-span-7">
             <p className={cn(eyebrowClass, "text-[17px] lg:text-[22px]")}>A journal of real weddings</p>
-            <h1 className="field-heading mt-0.5 font-display text-[36px] leading-[1.0] text-ink lg:mt-2 lg:text-[68px]">
+            <h1 className="field-heading mt-0.5 font-display text-[32px] leading-[1.0] text-ink max-[380px]:text-[29px] lg:mt-2 lg:text-[68px]">
               Married at Highland Farms
             </h1>
             <p className="mt-2 max-w-[36rem] font-sans text-[15px] leading-[1.5] text-ink-body lg:mt-5 lg:text-[18px]">
@@ -168,12 +176,13 @@ export default function WeddingPortfolioPage() {
             </p>
             <FieldReviewTier tier="hero" className="mt-2 text-[13px] lg:mt-4 lg:text-[15px]" starSize={13} />
           </div>
+          {/* The phone's proof line (r4): one short sentence from the photographer of Maya & Justin. */}
           <FieldReview
             spec={PORTFOLIO_KATE_QUOTE}
             fullName
             role="Wedding"
-            className="hidden lg:col-span-5 lg:block lg:border-l lg:border-rule lg:pl-10"
-            quoteClassName="text-[20px] leading-[1.2] lg:text-[30px]"
+            className="mt-2 lg:col-span-5 lg:mt-0 lg:border-l lg:border-rule lg:pl-10"
+            quoteClassName="text-[19px] leading-[1.25] lg:text-[30px] lg:leading-[1.2]"
             metaClassName="mt-1 tracking-[0.06em] lg:mt-2 lg:tracking-[0.08em]"
           />
         </header>
@@ -184,6 +193,45 @@ export default function WeddingPortfolioPage() {
             <JournalEntry key={couple.slug} couple={couple} index={i} />
           ))}
         </ol>
+
+        {/* The one ask, right after the four real couples (above the styled sets) */}
+        <section id="plan" aria-labelledby="close-title" className="border-t border-rule">
+          <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:py-20">
+            <div className="lg:col-span-7">
+              <h2 id="close-title" className="field-heading font-display text-[36px] leading-[1.02] text-ink lg:text-[56px]">
+                Planning yours?
+              </h2>
+              <p className="mt-3 max-w-[34rem] font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]">
+                {PLANNING_OFFER} {WEDDING_FORM_INTRO}
+              </p>
+            </div>
+            <div className="mt-6 lg:col-span-5 lg:mt-0">
+              {/* A couple's own words directly above the button (a 2026 wedding, not one of the four above). */}
+              <FieldReview
+                spec={PORTFOLIO_PLAN_QUOTE}
+                role="Wedding"
+                className="mb-5"
+                quoteClassName="text-[20px] leading-[1.3] lg:text-[22px]"
+              />
+              <Link href="/weddings#contact" className={cn(fieldCtaClass, "w-full lg:w-auto")}>
+                Check your date
+                <FieldArrow />
+              </Link>
+              <WeddingCallLink
+                content="portfolio-plan"
+                title="Portfolio: wedding call"
+                className="mt-1 flex min-h-11 items-center justify-center font-sans text-[14px] font-medium text-pine lg:justify-start"
+              >
+                Or book a free 45-minute call with Connor
+              </WeddingCallLink>
+              <FieldReviewTier
+                tier="nearCta"
+                className="mt-2 justify-center text-[13px] lg:justify-start"
+                starSize={13}
+              />
+            </div>
+          </div>
+        </section>
 
         {/* Photographed at the farm: the sets not confirmed as real weddings. Wording is true either way. */}
         <section
@@ -239,38 +287,6 @@ export default function WeddingPortfolioPage() {
           </div>
         </section>
 
-        {/* The one ask, after browsing */}
-        <section id="plan" aria-labelledby="close-title" className="border-t border-rule">
-          <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:py-20">
-            <div className="lg:col-span-7">
-              <h2 id="close-title" className="field-heading font-display text-[36px] leading-[1.02] text-ink lg:text-[56px]">
-                Planning yours?
-              </h2>
-              <p className="mt-3 max-w-[34rem] font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]">
-                Up to 125 guests, up to 20 of your people staying on the farm, and the coos for your portraits.
-                Send your month and we&apos;ll check the calendar.
-              </p>
-            </div>
-            <div className="mt-6 lg:col-span-5 lg:mt-0">
-              <Link href="/weddings#contact" className={cn(fieldCtaClass, "w-full lg:w-auto")}>
-                Check your date
-                <FieldArrow />
-              </Link>
-              <WeddingCallLink
-                content="portfolio-plan"
-                title="Portfolio: wedding call"
-                className="mt-1 flex min-h-11 items-center justify-center font-sans text-[14px] font-medium text-pine lg:justify-start"
-              >
-                Or book a free 45-minute call with Connor
-              </WeddingCallLink>
-              <FieldReviewTier
-                tier="nearCta"
-                className="mt-2 justify-center text-[13px] lg:justify-start"
-                starSize={13}
-              />
-            </div>
-          </div>
-        </section>
       </div>
 
       {/* No first-screen button on this page, so the bar shows from load. */}

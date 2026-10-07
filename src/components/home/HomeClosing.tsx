@@ -32,7 +32,7 @@ export function HomeClosing() {
             id="find-title"
             className="field-heading m-0 font-display text-[34px] leading-[1.02] text-ink lg:mt-2 lg:text-[56px]"
           >
-            Come and meet the herd.
+            Bring your people to meet the herd.
           </h2>
           <a href="#check-your-date" className={`${fieldCtaClass} mt-6 w-full lg:mt-9 lg:w-auto`}>
             Check your date

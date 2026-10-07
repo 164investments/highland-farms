@@ -21,6 +21,7 @@ import {
   displayName,
   formatWeddingDate,
   isConfirmed,
+  PLANNING_OFFER,
   seasonFromDate,
   weddingPortfolio,
   type WeddingCouple,
@@ -32,6 +33,7 @@ import {
   MAYA_REVIEW_OPENING,
   MAYA_REVIEW_REST,
 } from "../quotes";
+import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
 
 export function generateStaticParams() {
   return weddingPortfolio.map((couple) => ({ slug: couple.slug }));
@@ -80,7 +82,9 @@ export function generateMetadata({
             url: couple.coverImage,
             width: 1200,
             height: 630,
-            alt: confirmed ? `${couple.names} wedding at Highland Farms` : couple.lead.alt,
+            alt: confirmed
+              ? `${couple.names} wedding at Highland Farms`
+              : (couple.images.find((image) => image.src === couple.coverImage)?.alt ?? couple.lead.alt),
           },
         ],
       },
@@ -178,13 +182,13 @@ function Numeral({ n }: { n: number }) {
   );
 }
 
-/** Maya & Justin's four plates, laid out as the board draws them. */
+/** Maya & Justin's four plates: two up then two wide on phones, an even 2x2 from lg. */
 function CuratedPlates({ plates }: { plates: WeddingPhoto[] }) {
   const slots = [
-    { frame: "aspect-[2/3] p-[6px] lg:p-2.5", figure: "lg:col-span-4", sizes: "(min-width: 1024px) 30vw, 46vw" },
-    { frame: "aspect-[2/3] p-[6px] lg:p-2.5", figure: "lg:col-span-4", sizes: "(min-width: 1024px) 30vw, 46vw" },
-    { frame: "aspect-[3/2] p-[7px] lg:aspect-[2/3] lg:p-2.5", figure: "col-span-2 lg:col-span-4", sizes: "(min-width: 1024px) 30vw, calc(100vw - 40px)" },
-    { frame: "aspect-[4/3] p-[7px] lg:aspect-[16/10] lg:p-2.5", figure: "col-span-2 lg:col-span-8 lg:col-start-3", sizes: "(min-width: 1024px) 60vw, calc(100vw - 40px)" },
+    { frame: "aspect-[2/3] p-[6px] lg:aspect-[4/3] lg:p-2.5", figure: "lg:col-span-6", sizes: "(min-width: 1024px) 45vw, 46vw" },
+    { frame: "aspect-[2/3] p-[6px] lg:aspect-[4/3] lg:p-2.5", figure: "lg:col-span-6", sizes: "(min-width: 1024px) 45vw, 46vw" },
+    { frame: "aspect-[3/2] p-[7px] lg:aspect-[4/3] lg:p-2.5", figure: "col-span-2 lg:col-span-6", sizes: "(min-width: 1024px) 45vw, calc(100vw - 40px)" },
+    { frame: "aspect-[4/3] p-[7px] lg:p-2.5", figure: "col-span-2 lg:col-span-6", sizes: "(min-width: 1024px) 45vw, calc(100vw - 40px)" },
   ];
   return (
     <>
@@ -235,11 +239,99 @@ function GridPlates({ plates, numbered }: { plates: WeddingPhoto[]; numbered?: b
               )
             }
           >
-            <PlateImage photo={photo} sizes={wide ? "(min-width: 1024px) 46vw, 46vw" : "(min-width: 1024px) 30vw, 46vw"} />
+            <PlateImage
+              photo={photo}
+              sizes={`(min-width: 1024px) ${wide ? "46vw" : "30vw"}, ${i === 0 ? "calc(100vw - 40px)" : "46vw"}`}
+            />
           </Plate>
         );
       })}
     </>
+  );
+}
+
+/** One name for the journal page everywhere (menu, footer, every back link): "Real weddings". */
+function BackLink() {
+  return (
+    <Link
+      href="/wedding-portfolio"
+      className="order-1 inline-flex min-h-11 items-center gap-2 self-start font-sans text-[14px] font-medium text-pine lg:col-span-12"
+    >
+      <FieldArrow size={16} className="rotate-180" />
+      All real weddings
+    </Link>
+  );
+}
+
+/** "Photographed by …", linked (new tab, tagged) when the image metadata carries the studio's URL. */
+function PhotographerCredit({ couple, className }: { couple: WeddingCouple; className?: string }) {
+  const photographer = couple.photographer;
+  if (!photographer) {
+    if (!isConfirmed(couple)) return null;
+    return (
+      <PendingSlot note="PENDING CONNOR: photographer credit. No credit is embedded in these files. Hides the 'Photographed by' line.">
+        <p className="font-sans text-[13px] text-ink-note">Photographed by [name from Connor]</p>
+      </PendingSlot>
+    );
+  }
+  return (
+    <p className={cn("font-sans text-[13px] text-ink-note lg:text-[14px]", className)}>
+      Photographed by{" "}
+      {photographer.url ? (
+        <a
+          href={photographer.url}
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+          data-outbound="photographer"
+          className="inline-flex min-h-11 items-center text-pine underline decoration-pine-line underline-offset-4 lg:min-h-0"
+        >
+          {photographer.name}
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      ) : (
+        photographer.name
+      )}
+    </p>
+  );
+}
+
+/**
+ * A set not confirmed as a wedding (RULINGS r4 #10): the H1 says what the
+ * photographs show, the credit sits beneath it, and no couple is named. The
+ * lead is a portrait frame with the calf, so desktop sets it beside the title.
+ */
+function StyledHeader({ couple }: { couple: WeddingCouple }) {
+  return (
+    <header className="mx-auto flex max-w-[1440px] flex-col px-5 pt-[calc(var(--header-h,104px)+0.5rem)] lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:pt-[calc(var(--header-h,128px)+2rem)]">
+      <BackLink />
+      <div className="order-2 mt-1 lg:col-span-7 lg:mt-6">
+        <p className="font-display text-[17px] italic text-fern lg:text-[22px]">Made at the farm</p>
+        <h1
+          id="couple-title"
+          className="field-heading mt-0.5 text-balance font-display text-[32px] leading-[1.02] text-ink lg:mt-2 lg:text-[64px] lg:leading-[1.0]"
+        >
+          {couple.headline ?? displayName(couple)}
+        </h1>
+        <PhotographerCredit couple={couple} className="mt-1 lg:mt-4" />
+        <FieldReviewTier tier="hero" className="mt-1.5 text-[13px] lg:mt-6 lg:text-[15px]" starSize={13} />
+      </div>
+      <Plate
+        className="order-3 mt-3 lg:col-span-5 lg:mt-6"
+        frameClassName="aspect-[4/3] p-[7px] lg:aspect-square lg:p-2.5"
+        caption={couple.lead.caption}
+      >
+        <Image
+          src={couple.lead.src}
+          alt={couple.lead.alt}
+          fill
+          priority
+          fetchPriority="high"
+          sizes="(min-width: 1440px) 520px, (min-width: 1024px) 36vw, calc(100vw - 40px)"
+          className={cn("object-cover", couple.lead.className)}
+          style={{ objectPosition: couple.lead.position }}
+        />
+      </Plate>
+    </header>
   );
 }
 
@@ -254,8 +346,6 @@ export default async function WeddingDetailPage({
 
   const confirmed = isConfirmed(couple);
   const isMaya = couple.slug === "maya-justin";
-  const title = displayName(couple);
-  const eyebrow = confirmed ? "A real wedding at Highland Farms" : "Photographed at the farm";
   // Next in the journal: the following confirmed couple (a styled set points to the journal's first).
   const at = confirmedCouples.findIndex((c) => c.slug === couple.slug);
   const next = confirmedCouples[(at + 1) % confirmedCouples.length];
@@ -275,66 +365,28 @@ export default async function WeddingDetailPage({
 
       <div className="surface-paper bg-paper font-sans text-ink">
         <article aria-labelledby="couple-title">
-          {/* Title and lead plate */}
+          {/* Title and lead plate. A set not confirmed as a wedding has its own header. */}
+          {!confirmed ? (
+            <StyledHeader couple={couple} />
+          ) : (
           <header className="mx-auto flex max-w-[1440px] flex-col px-5 pt-[calc(var(--header-h,104px)+0.5rem)] lg:grid lg:grid-cols-12 lg:items-end lg:gap-x-16 lg:px-16 lg:pt-[calc(var(--header-h,128px)+2rem)]">
-            <Link
-              href="/wedding-portfolio"
-              className="order-1 inline-flex min-h-11 items-center gap-2 self-start font-sans text-[14px] font-medium text-pine lg:col-span-12"
-            >
-              <FieldArrow size={16} className="rotate-180" />
-              {confirmed ? "All real weddings" : "The wedding portfolio"}
-            </Link>
+            <BackLink />
+            {/* Phones: back link, eyebrow, names, date, credit, then the couple's plate on the 660 first screen. */}
             <div className="order-2 mt-1 lg:col-span-7 lg:mt-6">
-              <p className="font-display text-[17px] italic text-fern lg:text-[22px]">{eyebrow}</p>
+              <p className="font-display text-[17px] italic text-fern lg:text-[22px]">A real wedding at Highland Farms</p>
+              {/* Size before line-height: cn() drops a line-height that comes before a font size. */}
               <h1
                 id="couple-title"
-                className={cn(
-                  "field-heading mt-0.5 font-display leading-[0.98] text-ink lg:mt-2",
-                  confirmed ? "text-[46px] lg:text-[84px]" : "text-[38px] lg:text-[64px]",
-                )}
+                className="field-heading mt-0.5 font-display text-[46px] leading-[0.98] text-ink lg:mt-2 lg:text-[84px] lg:leading-[0.98]"
               >
-                {title}
+                {couple.names}
               </h1>
-              {confirmed && couple.date && (
+              {couple.date && (
                 <p className="mt-2 font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-fern lg:mt-4 lg:text-[13px]">
                   {formatWeddingDate(couple.date, true)}
                 </p>
               )}
-              {confirmed &&
-                (couple.photographer ? (
-                  <p className="mt-1 font-sans text-[13px] text-ink-note lg:mt-2 lg:text-[14px]">
-                    Photographed by{" "}
-                    {couple.photographer.url ? (
-                      <a
-                        href={couple.photographer.url}
-                        target="_blank"
-                        rel="noopener noreferrer nofollow"
-                        data-outbound="photographer"
-                        className="inline-flex min-h-11 items-center text-pine underline decoration-pine-line underline-offset-4 lg:min-h-0"
-                      >
-                        {couple.photographer.name}
-                        <span className="sr-only"> (opens in a new tab)</span>
-                      </a>
-                    ) : (
-                      couple.photographer.name
-                    )}
-                  </p>
-                ) : (
-                  <PendingSlot note="PENDING CONNOR: photographer credit. No credit is embedded in these files. Hides the 'Photographed by' line.">
-                    <p className="font-sans text-[13px] text-ink-note">Photographed by [name from Connor]</p>
-                  </PendingSlot>
-                ))}
-              {/* First-screen proof: the photographer's own sentence, under her credit. It is the page's
-                  only quote while the bride's review waits on PF-01 (a quote appears once per page). */}
-              {isMaya && (
-                <FieldReview
-                  spec={COUPLE_KATE_QUOTE}
-                  fullName
-                  role="Wedding"
-                  className="mt-3 lg:mt-6 lg:max-w-[40rem]"
-                  quoteClassName="text-[19px] leading-[1.3] lg:text-[26px]"
-                />
-              )}
+              <PhotographerCredit couple={couple} className="mt-1 lg:mt-2" />
             </div>
             <div className="order-4 mt-4 lg:order-3 lg:col-span-5 lg:mt-0">
               <p className="font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]">
@@ -351,6 +403,20 @@ export default async function WeddingDetailPage({
                     quoteClassName="text-[19px] leading-[1.3] lg:text-[20px]"
                   />
                 </PendingSlot>
+              )}
+              {/* Her photographer's words, after the story (r4: in the header they pushed the couple
+                  below the 660 first screen). The page's only quote while PF-01 waits. */}
+              {isMaya && (
+                <div className="mt-6 border-t border-rule pt-5 lg:mt-8 lg:pt-6">
+                  <p className="font-display text-[17px] italic text-fern lg:text-[20px]">From their photographer</p>
+                  <FieldReview
+                    spec={COUPLE_KATE_QUOTE}
+                    fullName
+                    role="Wedding"
+                    className="mt-2"
+                    quoteClassName="text-[20px] leading-[1.3] lg:text-[22px]"
+                  />
+                </div>
               )}
             </div>
             <Plate
@@ -370,6 +436,7 @@ export default async function WeddingDetailPage({
               />
             </Plate>
           </header>
+          )}
 
           {/* The day, as plates */}
           <section aria-labelledby="plates-title" className="mx-auto max-w-[1440px] px-5 pt-12 lg:px-16 lg:pt-20">
@@ -465,8 +532,9 @@ export default async function WeddingDetailPage({
               <h2 id="plan-title" className="field-heading font-display text-[36px] leading-[1.02] text-ink lg:text-[56px]">
                 Planning yours?
               </h2>
+              {/* The offer, then the calendar-check sentence the forms use, word for word. */}
               <p className="mt-3 font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]">
-                Send your month and guest count, and we&apos;ll check the farm calendar for you.
+                {PLANNING_OFFER} {WEDDING_FORM_INTRO}
               </p>
               <Link href="/weddings#contact" className={cn(fieldCtaClass, "mt-5 w-full lg:w-auto")}>
                 Check your date

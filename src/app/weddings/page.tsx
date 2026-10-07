@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { StructuredData } from "@/components/layout/StructuredData";
-import { FieldReview, GOOGLE_REVIEW_LINK, FieldReviewTier } from "@/components/field/Reviews";
+import { FieldReview } from "@/components/field/Reviews";
 import { JsonLd, faqPageJsonLd } from "@/components/field/Faq";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import {
@@ -17,6 +17,7 @@ import {
 import { REVIEWS } from "@/lib/reviews";
 import { cn } from "@/lib/utils";
 import { formatWeddingDate, weddingPortfolio } from "@/data/wedding-portfolio";
+import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
 import { WeddingsHero } from "./WeddingsHero";
 import {
   COST_ANSWER,
@@ -52,7 +53,8 @@ export const metadata: Metadata = {
         url: "/images/hero/wedding-hero.jpg",
         width: 1200,
         height: 630,
-        alt: "Forest wedding ceremony at Highland Farms Oregon farm wedding venue",
+        // The file is a couple on a fallen log in the forest, not a ceremony (images.csv).
+        alt: "A couple on a fallen log in the forest, she in a long white dress",
       },
     ],
   },
@@ -111,6 +113,12 @@ function FaqRow({
   );
 }
 
+/**
+ * No. 1's plate: Riley & Jordan's kiss at the fence. The homepage's No. 1 is their 04 frame, so a
+ * visitor coming from home meets a new photo here; the caption is the one the data file gives it.
+ */
+const rileyFence = weddingPortfolio.find((c) => c.slug === "riley-jordan")!.plates[0];
+
 /** The three real weddings shown on the teaser (the fourth, Riley & Jordan, is No. 1 above). */
 const teaser = {
   maya: weddingPortfolio.find((c) => c.slug === "maya-justin")!,
@@ -143,14 +151,15 @@ export default function WeddingsPage() {
           <div className="mt-7 lg:col-span-7 lg:mt-0">
             <Plate
               frameClassName="aspect-[4/3] p-[7px] lg:aspect-[3/2] lg:p-2.5"
-              caption="Riley & Jordan with two of the herd, June 2025."
+              caption={rileyFence.caption}
             >
               <Image
-                src="/images/weddings/riley-jordan/04.jpg"
-                alt="Riley and Jordan at the pasture fence between a black Highland cow and a white Highland cow"
+                src={rileyFence.src}
+                alt={rileyFence.alt}
                 fill
                 sizes="(min-width: 1024px) 58vw, calc(100vw - 40px)"
-                className="object-cover object-[52%_60%]"
+                className="object-cover"
+                style={{ objectPosition: rileyFence.position }}
               />
             </Plate>
           </div>
@@ -330,16 +339,6 @@ export default function WeddingsPage() {
               <h3 className="field-heading font-display text-[28px] leading-tight text-ink lg:text-[34px]">
                 Where your people sleep
               </h3>
-              <a
-                href="/lookbook.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine lg:mt-4"
-              >
-                <span className="border-b border-pine-line pb-0.5">See the 2027 look book (PDF)</span>
-                <FieldArrow size={16} />
-                <span className="sr-only"> (opens in a new tab)</span>
-              </a>
             </div>
             {/* Each row holds only dt and dd (a valid <dl>); the decorative drawing sits inside the dt. */}
             <dl className="m-0 mt-5 grid grid-cols-3 gap-x-3 lg:col-span-9 lg:mt-0 lg:gap-x-8">
@@ -417,7 +416,8 @@ export default function WeddingsPage() {
             <p className={cn(bodyLarge, "mt-4 lg:mt-6")}>
               Connor McWilliams owns the farm. He grew up on a ranch in Salinas, California, worked as a
               general contractor, and turned an overgrown forest property in Brightwood into Highland Farms.
-              The call is free and runs 45 minutes: your date, your people and how a weekend here works.
+              The call is free and runs 45 minutes, on video or walking the farm, and covers your date, your
+              people and how a weekend here works.
             </p>
             <PendingSlot
               className="mt-3"
@@ -461,7 +461,7 @@ export default function WeddingsPage() {
               href="/wedding-portfolio"
               className="mt-2 hidden min-h-11 items-center gap-2 border-b border-pine-line font-sans text-[15px] font-medium text-pine lg:inline-flex lg:min-h-0 lg:pb-0.5"
             >
-              See the real weddings
+              See every real wedding
               <FieldArrow size={16} />
             </Link>
           </div>
@@ -477,8 +477,9 @@ export default function WeddingsPage() {
                 />
               </Plate>
               <p className="mt-1">
-                <span className="block font-display text-[22px] font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]">
+                <span className="flex items-center gap-1.5 font-display text-[22px] font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]">
                   Maya &amp; Justin
+                  <FieldArrow size={15} strokeWidth={1.8} className="shrink-0 text-pine" />
                 </span>
                 <span className="mt-0.5 block font-sans text-[13px] text-ink-note">
                   {formatWeddingDate(teaser.maya.date!)} &middot; a coo on the invitation
@@ -511,8 +512,9 @@ export default function WeddingsPage() {
                   />
                 </Plate>
                 <p className="mt-1">
-                  <span className="block font-display text-[20px] font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]">
+                  <span className="flex items-center gap-1.5 font-display text-[20px] font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]">
                     {couple.names}
+                    <FieldArrow size={15} strokeWidth={1.8} className="shrink-0 text-pine" />
                   </span>
                   <span className="mt-0.5 block font-sans text-[13px] text-ink-note">
                     {formatWeddingDate(couple.date!)}
@@ -521,25 +523,14 @@ export default function WeddingsPage() {
               </Link>
             ))}
           </div>
-          <div className="mt-7 flex flex-col gap-1 border-t border-rule pt-5 lg:mt-12 lg:flex-row lg:items-center lg:justify-between lg:pt-8">
+          <div className="mt-7 border-t border-rule pt-3 lg:hidden">
             <Link
               href="/wedding-portfolio"
-              className="inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine lg:hidden"
+              className="inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine"
             >
-              <span className="border-b border-pine-line pb-0.5">See the real weddings</span>
+              <span className="border-b border-pine-line pb-0.5">See every real wedding</span>
               <FieldArrow size={16} />
             </Link>
-            <div className="flex flex-wrap items-center gap-x-2.5">
-              <FieldReviewTier tier="compact" className="text-[14px] lg:text-[15px]" starSize={13} />
-              <a
-                href={GOOGLE_REVIEW_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center font-sans text-[14px] font-medium text-pine underline decoration-pine-line underline-offset-4 lg:min-h-0 lg:text-[15px]"
-              >
-                Read them<span className="sr-only"> (opens in a new tab)</span>
-              </a>
-            </div>
           </div>
         </div>
       </section>
@@ -599,31 +590,12 @@ export default function WeddingsPage() {
             <h2 id="contact-title" className="field-heading mt-1 font-display text-[44px] leading-[1.0] text-ink lg:mt-2 lg:text-[68px]">
               Check your date
             </h2>
-            <p className={cn(bodyLarge, "mt-3 lg:mt-6")}>
-              Tell us your month and guest count, and we&apos;ll check the farm calendar for you. No commitment.
-            </p>
+            <p className={cn(bodyLarge, "mt-3 lg:mt-6")}>{WEDDING_FORM_INTRO}</p>
+            {/* Desktop: the proof for the call link (Connor himself is introduced at No. 4), then the table. */}
             <div className="mt-10 hidden border-t border-rule pt-8 lg:block">
-              <div className="flex items-start gap-5">
-                <Image
-                  src="/images/team/connor-mcwilliams.jpg"
-                  alt="Connor McWilliams"
-                  width={192}
-                  height={192}
-                  sizes="96px"
-                  className="h-24 w-24 shrink-0 border border-frame bg-paper-light object-cover p-[5px]"
-                />
-                <div>
-                  <p className="font-display text-[24px] font-semibold leading-tight text-ink">Rather talk first?</p>
-                  <p className="mt-1.5 font-sans text-[15px] leading-[1.55] text-ink-body">
-                    The call under the button is with Connor himself: 45 minutes, free, on video or walking the
-                    farm.
-                  </p>
-                </div>
-              </div>
               <FieldReview
                 spec={WEDDINGS_CALL_QUOTE}
                 role="Wedding"
-                className="mt-6"
                 quoteClassName="text-[22px] leading-[1.3]"
               />
               <Plate
@@ -646,20 +618,7 @@ export default function WeddingsPage() {
             <div className="lg:border lg:border-frame lg:bg-paper lg:p-10">
               <ContactForm defaultEventType="wedding" heading="" subtitle="" placement="weddings" />
             </div>
-            {/* phones only: Connor's face and the fear of the call, answered where the call is offered */}
-            <div className="mt-6 flex items-center gap-3 lg:hidden">
-              <Image
-                src="/images/team/connor-mcwilliams.jpg"
-                alt="Connor McWilliams"
-                width={192}
-                height={192}
-                sizes="48px"
-                className="h-12 w-12 shrink-0 border border-frame bg-paper-light object-cover p-[3px]"
-              />
-              <p className="font-sans text-[14px] leading-[1.45] text-ink-body">
-                With Connor himself, on video or walking the farm.
-              </p>
-            </div>
+            {/* Phones: the fear of the call, answered right under the form's call link. */}
             <FieldReview
               spec={WEDDINGS_CALL_QUOTE}
               role="Wedding"

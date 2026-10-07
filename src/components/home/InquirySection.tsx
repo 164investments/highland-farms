@@ -4,7 +4,8 @@ import { FieldSectionHeader, Plate } from "@/components/ui/FieldGuide";
 import { WEDDING_FORM_INTRO } from "./home-data";
 
 /**
- * "Check your date": the inline inquiry form, the target of every home
+ * "Check your date": the inline inquiry form, under the same "Now booking
+ * 2027" eyebrow as the /weddings form, the target of every home
  * "Check your date" (hero, masthead, closing, sticky bar). The built
  * ContactForm draws the fields (date and guest count first, SMS consent only
  * after a phone is typed), the soft paths and the near-CTA review tier.
@@ -21,7 +22,7 @@ export function InquirySection() {
           <FieldSectionHeader
             id="date-title"
             size="lg"
-            eyebrow="Planning a wedding?"
+            eyebrow="Now booking 2027"
             title="Check your date"
             intro={WEDDING_FORM_INTRO}
             eyebrowClassName="text-[17px] lg:text-[22px]"
