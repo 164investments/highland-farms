@@ -72,7 +72,7 @@ export default async function UnsubscribePage({
             </>
           )}
           <Link href="/shop" className={`${fieldCtaClass} mt-7`}>
-            Back to the farm store
+            Back to the farm shop
           </Link>
         </div>
       </section>

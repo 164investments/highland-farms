@@ -12,7 +12,8 @@ export function DeliveryGoal({ subtotalCents, headingClass = "text-[24px] lg:tex
       <div className="border-b border-rule pb-3">
         <h2 className={`m-0 font-display font-medium leading-none ${headingClass}`}>Want it delivered?</h2>
         <p className="m-0 mt-3 text-[13px] leading-[1.45] text-ink-body">
-          Your order qualifies for local delivery, {formatCentsShort(DELIVERY_FEE_CENTS)}. Choose it at checkout.
+          Your order reaches the {formatCentsShort(min)} delivery minimum. Delivery is{" "}
+          {formatCentsShort(DELIVERY_FEE_CENTS)}, and checkout checks your ZIP.
         </p>
       </div>
     );

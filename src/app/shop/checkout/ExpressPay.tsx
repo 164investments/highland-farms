@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-
-/** Off for the 2026-10 release; see the note in build() below. */
-const ENABLE_GOOGLE_PAY = false;
+// Off for the 2026-10 release; see wallets.ts and the note in build() below.
+import { ENABLE_GOOGLE_PAY } from "./wallets";
 
 /**
  * Apple Pay and Google Pay.

@@ -72,14 +72,23 @@ export function ShelfNav({ shelves, tabs }: { shelves: Shelf[]; tabs: Shelf[] })
                 {...(i === 0 ? { "data-hero-cta": "" } : {})}
                 onClick={() => promo(s.key, s.label, "hero_shelf_buttons")}
                 className={cn(
-                  "flex h-11 items-center justify-between gap-2 px-3.5 lg:h-[52px] lg:px-4",
+                  // Under 375px (iPhone SE, small Androids) the padding, label and
+                  // count step down so "Mangalitsa pork" stays on one line.
+                  "flex h-11 items-center justify-between gap-2 px-3.5 max-[374px]:gap-1.5 max-[374px]:px-2.5 lg:h-[52px] lg:px-4",
                   i === 0
                     ? "bg-pine text-paper-light hover:bg-pine-dark"
                     : "border border-frame bg-paper-light text-ink hover:bg-paper-shade",
                 )}
               >
-                <span className={cn("text-[14px]", i === 0 ? "font-semibold" : "font-medium")}>{s.label}</span>
-                <span className={cn("text-[19px]", numberClass, i !== 0 && "text-fern")}>
+                <span
+                  className={cn(
+                    "whitespace-nowrap text-[14px] max-[374px]:text-[12.5px]",
+                    i === 0 ? "font-semibold" : "font-medium",
+                  )}
+                >
+                  {s.label}
+                </span>
+                <span className={cn("text-[19px] max-[374px]:text-[16px]", numberClass, i !== 0 && "text-fern")}>
                   {s.count}
                   <span className="sr-only"> in stock now</span>
                 </span>

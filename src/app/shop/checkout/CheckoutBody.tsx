@@ -3,13 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  FieldArrow,
-  FieldLeader,
-  FieldReviewLine,
-  PendingSlot,
-  fieldCtaClass,
-} from "@/components/ui/FieldGuide";
+import { FieldLeader, FieldReviewLine, PendingSlot } from "@/components/ui/FieldGuide";
 import { ChevronDownIcon, LockIcon } from "@/components/shop/icons";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents, formatCentsShort } from "@/lib/shop/money";
@@ -415,20 +409,18 @@ export function CheckoutBody({
   const shortBy = Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
   const payDisabled = busy || status !== "ready" || Boolean(blocking);
 
-  if (cartReady && count === 0) {
-    return (
-      <div className="surface-paper bg-paper pt-[var(--header-h,60px)] font-sans text-ink">
-        <section className="px-5 pb-14 pt-8 lg:px-16 lg:pt-12">
-          <div className="mx-auto max-w-[1180px]">
-            <h1 className="field-heading m-0 font-display text-[34px] leading-none lg:text-[52px]">Your cart is empty</h1>
-            <Link href="/shop" className={cn(fieldCtaClass, "mt-6")}>
-              Browse the farm store
-              <FieldArrow />
-            </Link>
-          </div>
-        </section>
-      </div>
-    );
+  // The shop has one empty state, the cart's (r4): an empty checkout goes there.
+  // Never while an order is being placed: a paid order clears the cart just
+  // before it navigates to the thank-you page, and that navigation must win.
+  const cartEmpty = cartReady && count === 0;
+  const placing = status === "submitting";
+  useEffect(() => {
+    if (cartEmpty && !placing) router.replace("/shop/cart");
+  }, [cartEmpty, placing, router]);
+
+  if (cartEmpty) {
+    // Paper only, for the moment before the cart or thank-you page loads.
+    return <div aria-busy="true" className="surface-paper min-h-svh bg-paper" />;
   }
 
   const legend =
@@ -464,7 +456,9 @@ export function CheckoutBody({
     "mt-1.5 h-12 w-full border border-frame bg-paper-light px-3.5 text-[16px] text-ink focus:border-pine";
 
   return (
-    <div className="surface-paper bg-paper pt-[var(--header-h,60px)] font-sans text-ink">
+    // min-h-svh: the paper ground reaches the bottom of a short screen; the slim
+    // footer sits below it, never above a band of white (r4).
+    <div className="surface-paper min-h-svh bg-paper pt-[var(--header-h,60px)] font-sans text-ink">
       <form onSubmit={handleSubmit} noValidate className="px-5 pb-14 pt-5 lg:px-16 lg:pb-24 lg:pt-12">
         <div className="mx-auto max-w-[1180px] lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-x-16">
           <div className="lg:col-start-1 lg:row-start-1">

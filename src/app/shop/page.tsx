@@ -25,6 +25,8 @@ import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { DELIVERY_FEE_CENTS, DELIVERY_MINIMUM_CENTS, PICKUP_LOCATION } from "@/lib/shop/fulfillment";
 import { isSoldOut } from "@/components/shop/track";
+import { CONTACT } from "@/lib/constants";
+import { PAYMENT_METHODS } from "./checkout/wallets";
 
 export const metadata: Metadata = {
   title: "Farm Store: Highland Beef, Pork and Plush",
@@ -72,6 +74,7 @@ const STEP =
   "grid grid-cols-[40px_1fr] gap-x-2 border-b border-rule py-3.5 lg:grid-cols-[56px_1fr] lg:py-4";
 const STEP_TITLE = "m-0 font-display text-[21px] font-semibold leading-tight text-ink lg:text-[24px]";
 const STEP_BODY = "m-0 mt-1 text-[14px] leading-[1.5] text-ink-body lg:text-[15px]";
+const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
 
 export default async function ShopPage() {
   const stock = await getStockMap();
@@ -108,7 +111,7 @@ export default async function ShopPage() {
           <Plate
             className="lg:order-2"
             frameClassName="h-[124px] lg:h-[600px]"
-            caption="One of the herd, by the barn."
+            caption="One of the herd."
           >
             <Image
               src="/images/farm/farm-visit.jpg"
@@ -154,14 +157,13 @@ export default async function ShopPage() {
                 <FieldNumeral n={1} className="text-[26px] lg:text-[32px]" />
                 <div>
                   <p className={STEP_TITLE}>Order and pay here</p>
-                  <p className={STEP_BODY}>Card, Apple Pay or Google Pay. The receipt comes by email.</p>
+                  <p className={STEP_BODY}>{PAYMENT_METHODS}. The receipt comes by email.</p>
                 </div>
               </li>
               <li className={STEP}>
                 <FieldNumeral n={2} className="text-[26px] lg:text-[32px]" />
                 <div>
                   <p className={STEP_TITLE}>We pack it and call you</p>
-                  <p className={STEP_BODY}>We call you when your order is packed.</p>
                   <PendingSlot
                     className="mt-1.5"
                     note="PENDING CONNOR: time to ready. Add a sentence only once he confirms it (never 'usually the same day' unconfirmed)."
@@ -222,8 +224,8 @@ export default async function ShopPage() {
         <div className="mx-auto mt-8 max-w-[1312px] lg:mt-16">
           <div className="flex items-end justify-between gap-4 border-b border-ink pb-2">
             <h3 className="field-heading m-0 font-display text-[24px] leading-none lg:text-[30px]">Store questions</h3>
-            <a href="tel:+19712362551" className="flex min-h-11 items-end text-[13px] text-ink-note">
-              Or call <span className="ml-1 whitespace-nowrap font-medium text-pine">(971) 236-2551</span>
+            <a href={TEL} className="flex min-h-11 items-end text-[13px] text-ink-note">
+              Or call <span className="ml-1 whitespace-nowrap font-medium text-pine">{CONTACT.phone}</span>
             </a>
           </div>
           <FieldFaq items={shopFAQ} size="sm" jsonLd className="border-t-0 lg:grid lg:grid-cols-2 lg:gap-x-16" />

@@ -97,11 +97,16 @@ export interface Variant {
 
 export interface Product {
   slug: string;
-  /** Full catalog name. Used in GA4, Square order lines, receipts and Product JSON-LD. */
+  /**
+   * Full catalog name. Used in GA4, Square order lines, receipts and Product
+   * JSON-LD (and Google may print it in results), so no em dash: a variant
+   * follows a comma ("Pork Chop, Boneless"). Emails take the part before the
+   * comma as the short name.
+   */
   name: string;
   /** Sentence-case display name for ledger rows, cart lines and the page heading. */
   title: string;
-  /** The part after the dash in `name` ("Red cow plush", "Coyote brown"). */
+  /** The variant of the item, usually the part after the comma in `name` ("Red cow plush", "Coyote brown"); the colour picker shows it ("Olive"). */
   subtitle?: string;
   /** Ledger note under the title ("1 lb pack", "Sizes S to 3XL"). The stock word is added at render. */
   detail?: string;
@@ -110,7 +115,8 @@ export interface Product {
   /** /shop "Farm favorites" card text, for products flagged `featured`. */
   card?: { title: string; note: string };
   /**
-   * Shown on `/shop/<slug>` (About section), and emitted as
+   * Shown on `/shop/<slug>` (the About section for beef, under the buy box for
+   * everything else), and emitted as
    * `Product.description` in the JSON-LD on both `/shop` (the ItemList) and the
    * product page, see `src/lib/shop/product-schema.ts`. Because it is rendered
    * to humans as well as to crawlers, never put anything here that the page
@@ -156,7 +162,7 @@ export interface Product {
 export const PRODUCTS: Product[] = [
   {
     slug: "weighted-microwavable-highland-cow-plush-white",
-    name: "Princess Fiona — White Highland Cow Plush",
+    name: "Princess Fiona, White Highland Cow Plush",
     title: "Princess Fiona",
     subtitle: "White cow plush",
     detail: "White cow plush",
@@ -173,7 +179,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "weighted-mircrowavable-highland-cow-plush",
-    name: "Mr. Finley — Red Highland Cow Plush",
+    name: "Mr. Finley, Red Highland Cow Plush",
     title: "Mr. Finley",
     subtitle: "Red cow plush",
     detail: "Red cow plush",
@@ -190,14 +196,13 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "highland-farms-the-dream-hoodie",
-    name: "The Dream Hoodie — Coyote Brown",
+    name: "The Dream Hoodie, Coyote Brown",
     title: "Dream hoodie, coyote brown",
     subtitle: "Coyote brown",
     detail: "Sizes S to 3XL",
     colorGroup: "dream-hoodie",
-    card: { title: "The Dream hoodie", note: "Coyote brown" },
-    description:
-      "The Dream Hoodie in coyote brown, from the Dream collection designed in Brightwood. Sizes Small through 3XL. Collect it free at the farm, or add it to a local delivery.",
+    card: { title: "Dream hoodie", note: "Coyote brown" },
+    description: "The Dream hoodie in coyote brown, from the Dream collection designed in Brightwood.",
     category: "apparel",
     image: "/images/shop/dream-hoodie.png",
     featured: true,
@@ -213,13 +218,13 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "highland-farm-the-dream-hoodie-olive-green",
-    name: "The Dream Hoodie — Olive Green",
+    name: "The Dream Hoodie, Olive Green",
     title: "Dream hoodie, olive",
-    subtitle: "Olive green",
+    subtitle: "Olive",
     detail: "Sizes S to 3XL",
     colorGroup: "dream-hoodie",
     description:
-      "The Dream Hoodie in olive green, the second colorway of the Dream collection designed in Brightwood. Sizes Small through XXXLarge.",
+      "The Dream hoodie in olive, the second colorway of the Dream collection designed in Brightwood.",
     category: "apparel",
     image: "/images/shop/dream-hoodie-olive.jpg",
     optionName: "Size",
@@ -234,13 +239,13 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "highland-farms-the-dream-t-shirt",
-    name: "The Dream T-Shirt — Olive Green",
+    name: "The Dream T-Shirt, Olive Green",
     title: "Dream tee, olive",
-    subtitle: "Olive green",
+    subtitle: "Olive",
     detail: "Sizes S to 3XL",
     colorGroup: "dream-tee",
     description:
-      "The Dream T-Shirt in olive green, from the Dream collection designed in Brightwood. Sizes Small through 3XL. The same design comes in cream.",
+      "The Dream tee in olive, from the Dream collection designed in Brightwood.",
     category: "apparel",
     image: "/images/shop/dream-tshirt.png",
     optionName: "Size",
@@ -255,13 +260,13 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "highland-farms-the-dream-t-shirt-j7bx6",
-    name: "The Dream T-Shirt — Cream",
+    name: "The Dream T-Shirt, Cream",
     title: "Dream tee, cream",
     subtitle: "Cream",
     detail: "Sizes S to 3XL",
     colorGroup: "dream-tee",
     description:
-      "The Dream T-Shirt in cream, from the Dream collection designed in Brightwood. Sizes Small through 3XL. The same design comes in olive green.",
+      "The Dream tee in cream, from the Dream collection designed in Brightwood.",
     category: "apparel",
     image: "/images/shop/dream-tshirt-cream.jpg",
     optionName: "Size",
@@ -276,7 +281,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "highland-farms-the-dream-t-shirt-j7bx6-appl6",
-    name: "The Farm T-Shirt — Cream",
+    name: "The Farm T-Shirt, Cream",
     title: "Farm tee, cream",
     subtitle: "Cream",
     detail: "Sizes S to 3XL",
@@ -449,7 +454,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "mangalitsa-pork-chop-boneless",
-    name: "Pork Chop — Boneless",
+    name: "Pork Chop, Boneless",
     title: "Pork chop, boneless",
     detail: "1 lb",
     description:
@@ -464,7 +469,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "mangalitsa-pork-chop-bone-in",
-    name: "Pork Chop — Bone-In",
+    name: "Pork Chop, Bone-In",
     title: "Pork chop, bone-in",
     detail: "0.75 lb",
     description:
@@ -494,7 +499,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "mangalitsa-breakfast-sausage",
-    name: "Breakfast Sausage — Ground",
+    name: "Breakfast Sausage, Ground",
     title: "Breakfast sausage",
     detail: "1 lb pack, loose",
     description:
@@ -512,7 +517,7 @@ export const PRODUCTS: Product[] = [
     name: "Top Sirloin Ground Beef",
     title: "Top sirloin ground beef",
     detail: "1 lb pack",
-    card: { title: "Ground beef", note: "Top sirloin, 1 lb" },
+    card: { title: "Top sirloin ground beef", note: "1 lb pack" },
     description:
       "Ground beef from our own Scottish Highland herd, ground from top sirloin and sold in 1 lb packs. Pasture-raised on the farm in Brightwood.",
     category: "beef",

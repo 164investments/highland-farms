@@ -18,7 +18,8 @@ import { toCents, formatCents, formatCentsShort } from "@/lib/shop/money";
 import { DELIVERY_FEE_CENTS, DELIVERY_MINIMUM_CENTS, PICKUP_LOCATION } from "@/lib/shop/fulfillment";
 import { buildProductNode } from "@/lib/shop/product-schema";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
-import { AddToCart } from "./AddToCart";
+import { cn } from "@/lib/utils";
+import { AddToCart, type ColorOption } from "./AddToCart";
 import { StructuredData } from "@/components/layout/StructuredData";
 
 export const revalidate = 60;
@@ -89,7 +90,18 @@ export default async function ProductPage({
   const isApparel = product.optionName === "Size";
   const quote = isBeef ? resolveFieldQuote(SHOP_BEEF_QUOTE, { role: true }) : null;
   const siblings = PRODUCTS.filter((p) => p.category === product.category);
-  const colors = product.colorGroup ? PRODUCTS.filter((p) => p.colorGroup === product.colorGroup) : [];
+  const colors: ColorOption[] = product.colorGroup
+    ? PRODUCTS.filter((p) => p.colorGroup === product.colorGroup).map((c) => ({
+        slug: c.slug,
+        label: c.subtitle ?? c.title,
+        image: c.image,
+        current: c.slug === product.slug,
+      }))
+    : [];
+  // An item that comes in colours is named once ("Dream hoodie"), with its
+  // colour in the eyebrow and the picker; the H1 keeps the colour for screen
+  // readers and search ("Dream hoodie, coyote brown").
+  const groupName = colors.length > 1 && product.title.includes(",") ? product.title.split(",")[0] : null;
   const pack =
     product.priceNote && !/choose size/i.test(product.priceNote)
       ? product.priceNote
@@ -136,14 +148,25 @@ export default async function ProductPage({
           </nav>
           <div className="mt-1 lg:mt-4 lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16">
             <div className="border border-frame bg-paper-light p-[7px] lg:self-start lg:p-2.5">
-              <div className="relative h-[176px] overflow-hidden max-[359px]:h-[128px] lg:aspect-square lg:h-auto">
+              {/* Apparel: a taller phone frame set low on the photo, so the
+                  HIGHLAND FARMS chest print is on the first screen (r4). */}
+              <div
+                className={cn(
+                  "relative overflow-hidden lg:aspect-square lg:h-auto",
+                  isApparel ? "aspect-[5/4]" : "h-[176px] max-[359px]:h-[128px]",
+                )}
+              >
                 <Image
                   src={product.image}
                   alt={ALT[product.slug] ?? product.title}
                   fill
                   priority
                   sizes="(min-width: 1024px) 640px, calc(100vw - 54px)"
-                  className={`object-cover ${isApparel ? "object-[50%_30%]" : "object-[50%_48%]"} ${soldOut ? "opacity-60" : ""}`}
+                  className={cn(
+                    "object-cover",
+                    isApparel ? "object-[50%_70%]" : "object-[50%_48%]",
+                    soldOut && "opacity-60",
+                  )}
                 />
               </div>
             </div>
@@ -152,9 +175,11 @@ export default async function ProductPage({
               <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.14em] text-fern">
                 {cat.label}
                 {isBeef ? " · From our herd" : ""}
+                {groupName && product.subtitle ? ` · ${product.subtitle}` : ""}
               </p>
               <h1 className="field-heading m-0 mt-1 font-display text-[32px] leading-[1.05] lg:mt-2 lg:text-[52px]">
-                {product.title}
+                {groupName ?? product.title}
+                {groupName && <span className="sr-only">{product.title.slice(groupName.length)}</span>}
               </h1>
 
               <AddToCart
@@ -165,34 +190,10 @@ export default async function ProductPage({
                 optionName={product.optionName}
                 variants={variants}
                 pack={pack}
+                colors={colors}
               />
 
               {quote && <FieldQuoteView {...quote} rule size="sm" className="mt-5" />}
-
-              {colors.length > 1 && (
-                <div className="mt-6">
-                  <p className="m-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">Colour</p>
-                  <ul className="m-0 mt-2 flex list-none gap-3 p-0">
-                    {colors.map((c) => {
-                      const here = c.slug === product.slug;
-                      return (
-                        <li key={c.slug}>
-                          <Link
-                            href={`/shop/${c.slug}`}
-                            aria-current={here ? "page" : undefined}
-                            className={`flex w-[84px] flex-col gap-1 border bg-paper-light p-1 text-[12px] ${here ? "border-pine" : "border-frame"}`}
-                          >
-                            <span className="relative block aspect-square overflow-hidden">
-                              <Image src={c.image} alt="" fill sizes="84px" className="object-cover" />
-                            </span>
-                            <span className={here ? "font-semibold text-ink" : "text-ink-body"}>{c.subtitle}</span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
 
               {isApparel && (
                 <PendingSlot className="mt-4" note="NEW Q: garment measurements. Link a size guide here once Connor has them." />
@@ -209,8 +210,7 @@ export default async function ProductPage({
                       if (here) {
                         return (
                           <li key={p.slug} className="flex min-h-12 items-center gap-2 border-b border-l-2 border-rule border-l-pine pl-3">
-                            <span className="font-display text-[19px] font-semibold lg:text-[21px]">{p.card?.title ?? p.title}</span>
-                            {p.priceNote && <span className="text-[13px] text-ink-note">{p.priceNote}</span>}
+                            <span className="font-display text-[19px] font-semibold lg:text-[21px]">{p.title}</span>
                             <span className="text-[11px] uppercase tracking-[0.12em] text-pine">This one</span>
                             <FieldLeader />
                             <span className="text-[15px] font-semibold">{price}</span>
@@ -228,7 +228,10 @@ export default async function ProductPage({
                                 <span className="ml-1 border-b border-pine-line text-[13px] font-medium text-pine">Email me</span>
                               </>
                             ) : (
-                              <span className="text-[15px] font-semibold">{price}</span>
+                              <>
+                                <span className="text-[15px] font-semibold">{price}</span>
+                                <FieldArrow size={14} className="shrink-0 self-center text-pine" />
+                              </>
                             )}
                           </Link>
                         </li>
@@ -260,41 +263,42 @@ export default async function ProductPage({
                   />
                 )}
               </dl>
+
+              {/* Beef tells its story in the band below. Everything else carries its
+                  description here, so the Product JSON-LD never describes hidden copy
+                  and no band repeats the H1 (r4). */}
+              {!isBeef && product.description && (
+                <p className="m-0 mt-5 max-w-prose text-[15px] leading-[1.6] text-ink-body">{product.description}</p>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. About: the description is the one the Product JSON-LD carries */}
-      <section className="bg-paper-light px-5 py-12 lg:px-16 lg:py-24">
-        <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
-          <div>
-            <p className="m-0 font-display text-[17px] italic text-fern lg:text-[22px]">
-              {isBeef ? "About this beef" : "About this item"}
-            </p>
-            <h2 className="field-heading m-0 mt-1 font-display text-[30px] leading-[1.06] lg:text-[44px]">
-              {isBeef ? "From the herd you can visit." : product.title}
-            </h2>
-            {product.description && (
-              <p className="m-0 mt-4 max-w-prose text-[15px] leading-[1.6] text-ink-body">{product.description}</p>
-            )}
-            {isBeef && (
-              <>
-                <dl className="m-0 mt-6 border-t border-rule">
-                  <div className="flex min-h-[44px] items-center gap-3 border-b border-rule py-1.5 lg:min-h-[52px]">
-                    <dt className="w-[96px] shrink-0 font-display text-[19px] font-semibold leading-tight lg:w-[120px] lg:text-[22px]">Breed</dt>
-                    <dd className="m-0 text-[14px] text-ink-body lg:text-[15px]">Scottish Highland</dd>
-                  </div>
-                  <div className="flex min-h-[44px] items-center gap-3 border-b border-rule py-1.5 lg:min-h-[52px]">
-                    <dt className="w-[96px] shrink-0 font-display text-[19px] font-semibold leading-tight lg:w-[120px] lg:text-[22px]">Raised</dt>
-                    <dd className="m-0 text-[14px] text-ink-body lg:text-[15px]">On our farm in Brightwood, pasture-raised</dd>
-                  </div>
-                </dl>
-                <PendingSlot className="mt-2" note='PENDING CONNOR Q13: a "Hormones" row. Drop it if unanswered.' />
-              </>
-            )}
-          </div>
-          {isBeef && (
+      {/* 2. About this beef: the description is the one the Product JSON-LD carries */}
+      {isBeef && (
+        <section className="bg-paper-light px-5 py-12 lg:px-16 lg:py-24">
+          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
+            <div>
+              <p className="m-0 font-display text-[17px] italic text-fern lg:text-[22px]">About this beef</p>
+              <h2 className="field-heading m-0 mt-1 font-display text-[30px] leading-[1.06] lg:text-[44px]">
+                From the herd you can visit.
+              </h2>
+              {product.description && (
+                <p className="m-0 mt-4 max-w-prose text-[15px] leading-[1.6] text-ink-body">{product.description}</p>
+              )}
+              <dl className="m-0 mt-6 border-t border-rule">
+                <div className="flex min-h-[44px] items-center gap-3 border-b border-rule py-1.5 lg:min-h-[52px]">
+                  <dt className="w-[96px] shrink-0 font-display text-[19px] font-semibold leading-tight lg:w-[120px] lg:text-[22px]">Breed</dt>
+                  <dd className="m-0 text-[14px] text-ink-body lg:text-[15px]">Scottish Highland</dd>
+                </div>
+                <div className="flex min-h-[44px] items-center gap-3 border-b border-rule py-1.5 lg:min-h-[52px]">
+                  <dt className="w-[96px] shrink-0 font-display text-[19px] font-semibold leading-tight lg:w-[120px] lg:text-[22px]">Raised</dt>
+                  <dd className="m-0 text-[14px] text-ink-body lg:text-[15px]">On our farm in Brightwood, pasture-raised</dd>
+                </div>
+              </dl>
+              <PendingSlot className="mt-2" note='PENDING CONNOR Q13: a "Hormones" row. Drop it if unanswered.' />
+            </div>
             <div className="mt-8 lg:mt-0">
               <Plate
                 frameClassName="h-[240px] lg:h-[520px]"
@@ -318,9 +322,9 @@ export default async function ProductPage({
                 <FieldArrow size={15} className="self-center text-pine" />
               </Link>
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* 3. Add to the same order */}
       {extra.length > 0 && (

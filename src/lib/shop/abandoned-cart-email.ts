@@ -84,9 +84,17 @@ const FEE = formatCentsShort(DELIVERY_FEE_CENTS);
 const MINIMUM = formatCentsShort(DELIVERY_MINIMUM_CENTS);
 const PICKUP_PLACE = PICKUP_LOCATION.address.replace(/, OR \d{5}$/, "");
 
-/** Catalog names carry an em dash ("Pork Chop — Boneless"); emails show a comma. */
+/**
+ * Catalog names put a variant after a comma ("Pork Chop, Boneless"). Names
+ * from before 2026-10 used an em dash; either way the email shows a comma.
+ */
 function displayName(name: string): string {
   return name.replace(/\s+—\s+/g, ", ");
+}
+
+/** The item without its variant: "Princess Fiona", "Pork Chop". */
+function shortName(name: string): string {
+  return name.split(/,|\s+—\s+/)[0].trim();
 }
 
 /** The near-CTA review line, from the live snapshot. */
@@ -124,7 +132,7 @@ function scarcest(e: ReminderEmail): ReminderLine | null {
 
 export function subjectFor(e: ReminderEmail): string {
   const first = e.lines[0]?.name ?? "your order";
-  const short = first.split("—")[0].trim();
+  const short = shortName(first);
   const scarce = scarcest(e);
 
   if (e.variant === "A") {
@@ -145,7 +153,7 @@ export function subjectFor(e: ReminderEmail): string {
 
 /** "Only one Bacon left" / "Only 3 Bacon left", from the live stock count. */
 function scarceHeadline(l: ReminderLine): string {
-  const short = l.name.split("—")[0].trim();
+  const short = shortName(l.name);
   return l.stockLeft === 1 ? `Only one ${short} left` : `Only ${l.stockLeft} ${short} left`;
 }
 
@@ -256,7 +264,7 @@ function shell(e: ReminderEmail, body: string): string {
 function variantA(e: ReminderEmail, sender: Sender): string {
   // Keep each product's own capitalisation: "Princess Fiona" is a name, and
   // lower-casing it reads as a typo rather than as casual.
-  const items = e.lines.map((l) => l.name.split("—")[0].trim());
+  const items = e.lines.map((l) => shortName(l.name));
   const itemPhrase =
     items.length === 1 ? items[0] : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
 
@@ -272,8 +280,8 @@ function variantA(e: ReminderEmail, sender: Sender): string {
   const middle =
     e.step === 1
       ? `<p style="margin:13px 0 0;font-size:15px;line-height:1.62;color:${CHARCOAL}">
-           I'll be straight with you about us: we're about an hour from Portland, we don't
-           ship, and cuts do sell out. Pickup at the farm is free, and we call you when your
+           I'll be straight with you about us: we're about an hour from Portland, and we
+           don't ship. Pickup at the farm is free, and we call you when your
            order is packed. On orders of ${MINIMUM} or more we can deliver for ${FEE}, from the
            Mt. Hood corridor down through Sandy and Gresham into east Portland.
          </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { FieldStickyBar } from "@/components/field/StickyBar";
@@ -18,9 +19,39 @@ export interface VariantView {
   stock: number | null;
 }
 
+/** The same item in another colour: a link to its own page. */
+export interface ColorOption {
+  slug: string;
+  /** "Coyote brown", "Olive". */
+  label: string;
+  image: string;
+  current: boolean;
+}
+
 /**
- * The buy box: price, pack, live stock, size chips (apparel), quantity and
- * Add to cart, the pickup line, and the one bottom bar on phones.
+ * Apparel size buttons show the short code, so all six sizes fit one row on a
+ * phone (r4). The olive hoodie's catalog labels are long ("XXLarge"); the
+ * label itself is untouched (cart line, receipt, analytics). The accessible
+ * name starts with the visible text (WCAG 2.5.3): "Small" for S, "2XL" for 2XL.
+ */
+const SIZE_CODE: Record<string, string> = {
+  Small: "S",
+  Medium: "M",
+  Large: "L",
+  XLarge: "XL",
+  XXLarge: "2XL",
+  XXXLarge: "3XL",
+};
+function sizeChip(label: string): { text: string; name: string } {
+  const text = SIZE_CODE[label] ?? label;
+  return { text, name: label.startsWith(text) ? label : text };
+}
+
+/**
+ * The buy box: price, pack, live stock, colour (items that come in more than
+ * one), size chips (apparel), quantity and Add to cart, the pickup line, and
+ * the one bottom bar on phones. Colour comes before size, so the choices run
+ * colour, size, then the button (r4).
  *
  * Apparel (`optionName === "Size"`) has no default size: the button reads
  * "Choose a size" until one is picked. A sold-out size stays selectable so the
@@ -34,6 +65,7 @@ export function AddToCart({
   optionName,
   variants,
   pack,
+  colors = [],
 }: {
   productName: string;
   productTitle: string;
@@ -43,6 +75,8 @@ export function AddToCart({
   variants: VariantView[];
   /** "1 lb pack": shown beside the price. */
   pack?: string;
+  /** Every colour of this item, this page's included; shown when there are two or more. */
+  colors?: ColorOption[];
 }) {
   const { add, count, subtotalCents, ready } = useCart();
   const needsPick = optionName === "Size" && variants.length > 1;
@@ -143,6 +177,31 @@ export function AddToCart({
         </span>
       </div>
 
+      {colors.length > 1 && (
+        <div className="mt-4 lg:mt-6">
+          <p className="m-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">Colour</p>
+          <ul className="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
+            {colors.map((c) => (
+              <li key={c.slug}>
+                <Link
+                  href={`/shop/${c.slug}`}
+                  aria-current={c.current ? "page" : undefined}
+                  className={cn(
+                    "flex h-12 items-center gap-2 border bg-paper-light py-1 pl-1 pr-3 text-[14px]",
+                    c.current ? "border-pine font-semibold text-ink" : "border-frame text-ink-body hover:border-pine",
+                  )}
+                >
+                  <span className="relative block h-10 w-10 shrink-0 overflow-hidden">
+                    <Image src={c.image} alt="" fill sizes="40px" className="object-cover" />
+                  </span>
+                  <span className="whitespace-nowrap">{c.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {multi && (
         <fieldset className="m-0 mt-4 border-0 p-0 lg:mt-6">
           <legend className="p-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">
@@ -152,13 +211,14 @@ export function AddToCart({
             {variants.map((v) => {
               const out = v.stock === 0;
               const on = v.id === selectedId;
-              const name = v.label ?? "Standard";
+              const label = v.label ?? "Standard";
+              const chip = optionName === "Size" ? sizeChip(label) : { text: label, name: label };
               return (
                 <button
                   key={v.id}
                   type="button"
                   aria-pressed={on}
-                  aria-label={out ? `${name}, sold out` : name}
+                  aria-label={out ? `${chip.name}, sold out` : chip.name}
                   onClick={() => {
                     setSelectedId(v.id);
                     setQty(1);
@@ -170,7 +230,7 @@ export function AddToCart({
                     out && on && "line-through",
                   )}
                 >
-                  {name}
+                  {chip.text}
                 </button>
               );
             })}

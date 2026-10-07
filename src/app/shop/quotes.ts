@@ -2,20 +2,26 @@ import type { QuoteSpec } from "@/lib/review-quotes";
 
 /*
  * The farm store's verbatim Google quotes (finish/boards/shop/NOTES.md,
- * consistency pass). One quote on one page: none of these appears on another
- * page. `topic` is the visit type shown in the attribution line (CONSISTENCY #2).
- * Resolve on the server with `resolveFieldQuote(spec, { role: true })`.
- *
- * Not yet in scripts/review-quotes.test.mts (not a shop file): the primary adds
- * SHOP_QUOTES there so a reworded review fails the build instead of shipping.
+ * consistency pass). One quote on one page: none of these sentences appears on
+ * another page. `topic` is the visit type shown in the attribution line
+ * (CONSISTENCY #2). Resolve on the server with `resolveFieldQuote(spec, { role: true })`.
+ * scripts/review-quotes.test.mts loads every quotes.ts under src/, so a reworded
+ * review fails the test instead of shipping.
  */
 
-/** /shop, Mangalitsa shelf. */
+/**
+ * /shop, under the Mangalitsa shelf: a buyer there wants to know whether the
+ * meat is good, and this sentence names the bacon and tenderloin on that shelf
+ * (Cialdini r4; it replaced Brit L.'s line about convenience). Lauren Case
+ * stayed in the Cottage and ordered farm food for the stay. Her review gives a
+ * different sentence ("Our 2 yr old ...") to the Cottage stay page, which the
+ * one-review, different-sentences exception allows (CONSISTENCY #2).
+ */
 export const SHOP_SHELF_QUOTE: QuoteSpec = {
-  author: "Brit Lawson",
-  date: "2025-05-12",
-  sentenceStartsWith: "Had recommendations for local places",
-  topic: "Wedding",
+  author: "Lauren Case",
+  date: "2025-11-25",
+  sentenceStartsWith: "It was so delicious",
+  topic: "Stay",
 };
 
 /** /shop/[slug] for Highland beef, under the buy box. */

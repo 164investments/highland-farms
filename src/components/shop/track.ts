@@ -77,15 +77,14 @@ export function scarcityLabel(stock: number | null): string | null {
 }
 
 /**
- * The stock word in a ledger row: "Only 3 left", "In stock", or nothing for
- * made-to-order and sized apparel (their detail line says it).
+ * The stock word in a ledger row, shown only when it is news: "Only 3 left".
+ * Plain "In stock" is left off: the shelf header already says "all in stock"
+ * or "N in stock now", sold-out rows have their own style, and the extra words
+ * wrapped the row on phones ("Three sizes · In / stock", r4).
  */
 export function stockWord(stock: StockRecord, p: Product): string | null {
-  if (p.variants.length > 1) {
-    if (p.category === "apparel") return null;
-    return "In stock";
-  }
+  if (p.variants.length > 1) return null;
   const left = unitsLeft(stock, p.variants[0].id);
   if (left === null) return null;
-  return scarcityLabel(left) ?? "In stock";
+  return scarcityLabel(left);
 }

@@ -16,11 +16,12 @@ import {
 import { BackArrowIcon, LockIcon } from "@/components/shop/icons";
 import { QtyStepper } from "@/components/shop/QtyStepper";
 import { DeliveryGoal } from "@/components/shop/DeliveryGoal";
-import { pushEvent } from "@/components/shop/track";
+import { FarmFavorites } from "@/components/shop/Favorites";
+import { pushEvent, type StockRecord } from "@/components/shop/track";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents, formatCentsShort } from "@/lib/shop/money";
 import { DELIVERY_MINIMUM_CENTS } from "@/lib/shop/fulfillment";
-import { getProduct } from "../data";
+import { getProduct, type Product } from "../data";
 
 export interface AddOn {
   variantId: string;
@@ -38,10 +39,15 @@ export function CartBody({
   addOns,
   quote,
   reviewCount,
+  favorites,
+  stock,
 }: {
   addOns: AddOn[];
   quote: ResolvedFieldQuote | null;
   reviewCount: number;
+  /** Farm favorites in stock, for the empty cart. */
+  favorites: Product[];
+  stock: StockRecord;
 }) {
   const { detailed, subtotalCents, count, setQuantity, remove, add, ready } = useCart();
   const [restored, setRestored] = useState(false);
@@ -173,11 +179,14 @@ export function CartBody({
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
       <section className="px-5 pb-12 pt-2 lg:px-16 lg:pb-24 lg:pt-8">
-        <div className="mx-auto max-w-[1180px]">
-          <Link href="/shop" className={`hidden lg:inline-flex ${keepShopping}`}>
-            <BackArrowIcon />
-            Keep shopping
-          </Link>
+        <div className="mx-auto max-w-[1312px]">
+          {/* The empty cart's one action is its own button; this link is for a filled cart. */}
+          {ready && detailed.length > 0 && (
+            <Link href="/shop" className={`hidden lg:inline-flex ${keepShopping}`}>
+              <BackArrowIcon />
+              Keep shopping
+            </Link>
+          )}
 
           {restored && (
             <p className="m-0 mt-3 border-y border-rule py-2.5 text-[14px] text-ink-body">
@@ -189,15 +198,19 @@ export function CartBody({
           {!ready ? (
             <div className="mt-3 h-40" aria-hidden />
           ) : detailed.length === 0 ? (
-            <div className="mt-8 flex flex-col items-start gap-4 lg:mt-12">
-              <FieldDrawing name="highland-calf" className="w-[140px] lg:w-[200px]" sizes="200px" />
-              <h1 className="field-heading m-0 font-display text-[32px] leading-none lg:text-[52px]">
-                Nothing in your basket yet.
-              </h1>
-              <Link href="/shop" className={fieldCtaClass}>
-                Browse the farm store
-                <FieldArrow />
-              </Link>
+            <div className="mt-8 lg:mt-12">
+              <div className="flex flex-col items-start gap-4">
+                <FieldDrawing name="highland-calf" className="w-[140px] lg:w-[200px]" sizes="200px" />
+                <h1 className="field-heading m-0 font-display text-[32px] leading-none lg:text-[52px]">
+                  Nothing in your cart yet.
+                </h1>
+                <Link href="/shop" className={fieldCtaClass}>
+                  Browse the farm shop
+                  <FieldArrow />
+                </Link>
+              </div>
+              {/* Someone who opens the cart first can still start an order in one tap. */}
+              <FarmFavorites products={favorites} stock={stock} className="mt-12 lg:mt-20" />
             </div>
           ) : (
             <div className="mt-3 lg:mt-4 lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start lg:gap-16">

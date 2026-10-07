@@ -37,7 +37,7 @@ export interface OrderEmailData {
   lines: PricedLine[];
 }
 
-/** Catalog names carry an em dash ("Pork Chop — Boneless"); the receipt shows a comma. */
+/** Catalog names put a variant after a comma; names from before 2026-10 used an em dash, shown as a comma. */
 function displayName(name: string): string {
   return name.replace(/\s+—\s+/g, ", ");
 }
