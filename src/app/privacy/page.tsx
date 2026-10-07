@@ -21,7 +21,29 @@ export const metadata: Metadata = {
 
 const mailto = `mailto:${CONTACT.email}`;
 
-const lead = (
+const summary = (
+  <section aria-labelledby="privacy-summary-title" className="mb-5 max-w-[68ch]">
+    <h2 id="privacy-summary-title" className="font-display text-[20px] font-semibold leading-tight text-ink lg:text-[23px]">
+      The short version
+    </h2>
+    <ul className="m-0 mt-2 list-none p-0 text-[15px] leading-[1.65] text-ink-body lg:text-[16px]">
+      <li>
+        <LegalStrong>What we collect:</LegalStrong> your name, email and phone number, and the details you send us
+        about your event or visit.
+      </li>
+      <li>
+        <LegalStrong>Why:</LegalStrong> to answer your inquiry, quote and take your booking or order, and to keep the
+        site secure. We do not sell your personal information.
+      </li>
+      <li>
+        <LegalStrong>How to ask:</LegalStrong> to see, correct or delete your information, email{" "}
+        <LegalLink href={mailto}>{CONTACT.email}</LegalLink>. We respond within 45 days.
+      </li>
+    </ul>
+  </section>
+);
+
+const notice = (
   <aside
     aria-labelledby="privacy-notice-title"
     className="border border-frame bg-paper-shade px-4 py-4 text-[15px] leading-[1.65] text-ink-body lg:px-6 lg:py-5 lg:text-[16px]"
@@ -36,6 +58,13 @@ const lead = (
       providing our direct services. All text messaging originator opt-in data is kept strictly confidential.
     </p>
   </aside>
+);
+
+const lead = (
+  <>
+    {summary}
+    {notice}
+  </>
 );
 
 const sections: LegalSection[] = [
@@ -165,7 +194,7 @@ const sections: LegalSection[] = [
             No mobile information will be shared with third parties/affiliates for marketing/promotional purposes.
             Information sharing to subcontractors in support services, such as customer service, is permitted. All
             other use case categories exclude text messaging originator opt-in data and consent; this information will
-            not be shared with any third parties.
+            not be shared with any third parties, excluding aggregators and providers of the Text Message services.
           </p>
         </div>
       </>
@@ -260,8 +289,7 @@ const sections: LegalSection[] = [
           </>
         </LegalList>
         <p>
-          Each of these services has its own privacy policy governing how they handle data. All service providers are
-          contractually obligated to maintain confidentiality and security.
+          Each of these services has its own privacy policy governing how they handle data.
         </p>
         <p>
           For Google and Meta advertising services, we may share identifiers such as email address, phone number,
@@ -393,7 +421,7 @@ export default function PrivacyPolicyPage() {
       <LegalLayout
         policy="privacy"
         title="Privacy Policy"
-        updated="October 6, 2026"
+        updated="October 7, 2026"
         lead={lead}
         sections={sections}
         closing="Still have a question?"

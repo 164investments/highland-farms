@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { StructuredData } from "@/components/layout/StructuredData";
-import type { ReactNode } from "react";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
-import { FieldReview, FieldReviewTier } from "@/components/field/Reviews";
+import { FieldReview } from "@/components/field/Reviews";
 import { ContactForm } from "@/components/forms/ContactForm";
 import {
   FieldArrow,
@@ -13,10 +12,8 @@ import {
   fieldCtaClass,
   fieldEyebrowClass,
 } from "@/components/ui/FieldGuide";
+import { FooterHide } from "@/components/layout/Footer";
 import { giftCertificatesHref } from "@/lib/booking/flag";
-import { BOOKING_PRODUCTS } from "@/lib/booking/products";
-import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
-import { SPA_MAX_PARTY, SPA_PRICE_PER_PERSON } from "@/data/nordic-spa";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { CONTACT_FORM_QUOTE } from "./quotes";
@@ -54,16 +51,8 @@ const phoneThenStop = (
 );
 
 const mapsQuery = encodeURIComponent(CONTACT.fullAddress);
-const TOUR_FOR_TWO = TOUR_PARTY_SIZES.find((p) => p.guests === 2)?.total ?? 150;
-const SPA_MINUTES = BOOKING_PRODUCTS["nordic-spa"].durationMin;
-
-/** A price or capacity that must not wrap mid-phrase ("$75 per / person"). */
-const keep = (text: string) => <span className="whitespace-nowrap">{text}</span>;
-
 interface Door {
   title: string;
-  note: ReactNode;
-  action: string;
   href: string;
   external?: boolean;
 }
@@ -71,47 +60,12 @@ interface Door {
 function doors(): Door[] {
   const gift = giftCertificatesHref();
   return [
-    {
-      title: "Farm tours",
-      note: <>Private, 2 to 6 guests, {keep(`$${TOUR_FOR_TWO} for two`)}</>,
-      action: "See tour dates",
-      href: "/farm-tours",
-    },
-    {
-      title: "Nordic spa",
-      note: (
-        <>
-          {keep(`$${SPA_PRICE_PER_PERSON} per person`)}, {SPA_MINUTES} min, up to {SPA_MAX_PARTY}
-        </>
-      ),
-      action: "See open sessions",
-      href: "/nordic-spa",
-    },
-    {
-      title: "Stays",
-      note: <>Lodge, Cottage and Camp, {keep("sleeps 4 to 20")}</>,
-      action: "Check dates and price",
-      href: "/stay",
-    },
-    {
-      title: "Parties and retreats",
-      note: "Birthdays, reunions, photo sessions",
-      action: "Check your date",
-      href: "/celebrations",
-    },
-    {
-      title: "Gift certificates",
-      note: "For a tour, the spa or both",
-      action: "Choose a gift",
-      href: gift,
-      external: gift.startsWith("http"),
-    },
-    {
-      title: "Farm shop",
-      note: "Free pickup at the farm, or local delivery",
-      action: "Shop",
-      href: "/shop",
-    },
+    { title: "Farm tours", href: "/farm-tours" },
+    { title: "Nordic spa", href: "/nordic-spa" },
+    { title: "Stays", href: "/stay" },
+    { title: "Parties and retreats", href: "/celebrations" },
+    { title: "Gift certificates", href: gift, external: gift.startsWith("http") },
+    { title: "Farm shop", href: "/shop" },
   ];
 }
 
@@ -127,8 +81,7 @@ const steps = [
   },
 ] as const;
 
-const rowLink =
-  "grid min-h-[60px] grid-cols-[1fr_auto] items-center gap-x-3 border-b border-rule py-2.5";
+const rowLink = "flex min-h-[56px] items-center justify-between gap-3 border-b border-rule py-2.5";
 /* Address over its label on phones (both rows alike), side by side from lg. Labels match the footer's. */
 const emailLink = "flex min-h-11 flex-col justify-center py-1 text-[13.5px] lg:flex-row lg:items-center lg:justify-start lg:gap-x-2";
 const mapLink = "inline-flex min-h-11 items-center text-[14px] font-medium text-pine";
@@ -137,6 +90,7 @@ export default function ContactPage() {
   return (
     <>
       <StructuredData pathname="/contact" />
+      <FooterHide parts={["doors"]} />
       <div className="surface-paper bg-paper pt-[var(--header-h)] font-sans text-ink">
         <section aria-labelledby="contact-title" className="px-5 pb-10 pt-4 lg:px-16 lg:pb-20 lg:pt-12">
           <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-16">
@@ -152,20 +106,8 @@ export default function ContactPage() {
                 Reach the right person at Highland Farms.
               </h1>
               <p className="m-0 mt-2.5 text-[14.5px] leading-[1.55] text-ink-body lg:mt-4 lg:text-[17px]">
-                <FieldLink href="/farm-tours" className={inlineLink}>
-                  Tours
-                </FieldLink>
-                ,{" "}
-                <FieldLink href="/nordic-spa" className={inlineLink}>
-                  the spa
-                </FieldLink>{" "}
-                and{" "}
-                <FieldLink href="/stay" className={inlineLink}>
-                  stays
-                </FieldLink>{" "}
-                book online any time. Already booked or running late? Call {phoneThenStop}
+                Tours, the spa and stays book online any time. Already booked or running late? Call {phoneThenStop}
               </p>
-              <FieldReviewTier tier="compact" className="mt-2 text-[13px] lg:text-[14px]" />
 
               <div className="mt-4 border-t border-rule pt-4 lg:mt-7 lg:pt-6">
                 <figure className="m-0 grid grid-cols-[118px_1fr] items-center gap-x-4 lg:grid-cols-[180px_1fr] lg:gap-x-6">
@@ -216,7 +158,7 @@ export default function ContactPage() {
                       className="block h-9 w-9 object-cover"
                     />
                   </span>
-                  <span className="border-b border-pine-line pb-0.5 text-[14.5px] font-medium text-pine lg:text-[15px]">
+                  <span className="border-b border-rule pb-0.5 text-[14.5px] text-ink-body lg:text-[15px]">
                     Book a free 45-minute call with Connor
                   </span>
                 </WeddingCallLink>
@@ -255,16 +197,8 @@ export default function ContactPage() {
                 {doors().map((door) => (
                   <li key={door.title}>
                     <FieldLink href={door.href} external={door.external} className={rowLink}>
-                      <span>
-                        <span className="block font-display text-[21px] font-semibold leading-tight">
-                          {door.title}
-                        </span>
-                        <span className="block text-[12.5px] text-ink-note">{door.note}</span>
-                      </span>
-                      <span className="flex items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold text-pine">
-                        {door.action}
-                        <FieldArrow size={14} />
-                      </span>
+                      <span className="font-display text-[21px] font-semibold leading-tight">{door.title}</span>
+                      <FieldArrow size={16} className="text-fern" />
                     </FieldLink>
                   </li>
                 ))}

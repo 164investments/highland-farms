@@ -18,6 +18,27 @@ export const metadata: Metadata = {
 
 const sections: LegalSection[] = [
   {
+    id: "property",
+    title: "Property Accessibility",
+    children: (
+      <>
+        <p>
+          Highland Farms is a working farm property set on five acres of forest and pasture land in Brightwood,
+          Oregon. Due to the natural terrain, some areas of the property include uneven ground, gravel paths, and
+          natural surfaces. We are happy to discuss specific accessibility needs and accommodations for your visit.
+        </p>
+        <p>
+          Please note that our farm tours and our Nordic Spa (the wood-burning sauna, wet sauna, and cold plunge) are
+          not ADA accessible. Tours cover uneven ground, and the spa sits in a natural forest setting reached by
+          uneven ground and steps; neither can accommodate wheelchairs or mobility devices.
+        </p>
+        <p>
+          Please contact us in advance so we can help plan your visit and ensure the best possible experience.
+        </p>
+      </>
+    ),
+  },
+  {
     id: "commitment",
     title: "Our Commitment",
     children: (
@@ -49,32 +70,11 @@ const sections: LegalSection[] = [
           <>Sufficient color contrast ratios meeting WCAG AA standards</>
           <>Keyboard navigation support throughout the site, including image carousels</>
           <>ARIA labels and roles for interactive elements and landmarks</>
-          <>Alt text on all meaningful images</>
+          <>Alt text on our photos; we are still adding it to some older images</>
           <>Accessible forms with proper labels and error messages</>
           <>Responsive design that works across screen sizes</>
           <>Respect for reduced motion preferences</>
         </LegalList>
-      </>
-    ),
-  },
-  {
-    id: "property",
-    title: "Property Accessibility",
-    children: (
-      <>
-        <p>
-          Highland Farms is a working farm property set on five acres of forest and pasture land in Brightwood,
-          Oregon. Due to the natural terrain, some areas of the property include uneven ground, gravel paths, and
-          natural surfaces. We are happy to discuss specific accessibility needs and accommodations for your visit.
-        </p>
-        <p>
-          Please note that our Nordic Spa (the wood-burning sauna, wet sauna, and cold plunge) is not ADA accessible.
-          It sits in a natural forest setting reached by uneven ground and steps and cannot accommodate wheelchairs or
-          mobility devices.
-        </p>
-        <p>
-          Please contact us in advance so we can help plan your visit and ensure the best possible experience.
-        </p>
       </>
     ),
   },
@@ -112,10 +112,7 @@ const sections: LegalSection[] = [
             Phone: <LegalLink href={`tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`}>{CONTACT.phone}</LegalLink>
           </>
         </LegalList>
-        <p>
-          We aim to respond to accessibility feedback within 5 business days and to resolve reported issues as quickly
-          as possible.
-        </p>
+        <p>We read every message and reply as soon as we can.</p>
       </>
     ),
   },
@@ -128,7 +125,7 @@ export default function AccessibilityPage() {
       <LegalLayout
         policy="accessibility"
         title="Accessibility Statement"
-        updated="February 26, 2026"
+        updated="October 7, 2026"
         sections={sections}
         closing="Still have a question?"
       />

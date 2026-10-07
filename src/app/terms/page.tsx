@@ -65,103 +65,6 @@ function ReadyToBook({ placement, className }: { placement: string; className?: 
 
 const sections: LegalSection[] = [
   {
-    id: "sms",
-    title: "SMS Messaging Terms & Compliance",
-    children: (
-      <>
-        <LegalMeta>Highland Farms Oregon LLC · Effective Date: January 1, 2026</LegalMeta>
-        <p>
-          <LegalStrong>Marketing text messages:</LegalStrong> If you check the marketing text message box on our
-          contact form, you consent to receive marketing text messages from Highland Farms Oregon LLC at the phone
-          number you provided. Frequency may vary. Message and data rates may apply. Text HELP for assistance. Reply
-          STOP to opt out. Consent is not a condition of purchase. Appointment messages (confirmations and reminders)
-          are a separate, optional choice on the same form.
-        </p>
-        <LegalSteps>
-          <>
-            <LegalStrong>Program Description:</LegalStrong> This messaging program sends appointment confirmation and
-            reminder messages to customers who have booked an appointment with Highland Farms Oregon LLC through our
-            website at https://highlandfarmsoregon.com/, or via our scheduling forms, and have explicitly opted in to
-            receive SMS notifications. Opt-in is collected via web forms with a dedicated checkbox for SMS consent.
-            Messages include scheduling confirmations, appointment reminders, rescheduling updates, and customer
-            support communications.
-          </>
-          <>
-            <LegalStrong>Cancellation Instructions:</LegalStrong> You can cancel the SMS service at any time. Simply
-            text &ldquo;STOP&rdquo; to the same number that sent you messages. Upon sending &ldquo;STOP,&rdquo; we
-            will confirm your unsubscribe status via SMS. Following this confirmation, you will no longer receive SMS
-            messages from us. To rejoin, sign up as you did initially, and we will resume sending SMS messages to you.
-          </>
-          <>
-            <LegalStrong>Support Information:</LegalStrong> If you experience issues with the messaging program, reply
-            with the keyword &ldquo;HELP&rdquo; for more assistance, or reach out directly to{" "}
-            <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink> or call{" "}
-            <LegalLink href={telHref}>{CONTACT.phone}</LegalLink> during business hours.
-          </>
-          <>
-            <LegalStrong>Carrier Liability:</LegalStrong> Carriers are not liable for delayed or undelivered messages.
-          </>
-          <>
-            <LegalStrong>Message &amp; Data Rates:</LegalStrong> Message and data rates may apply for messages sent to
-            you from us and to us from you. Message frequency varies based on your service usage and appointment
-            schedule. For questions about your text plan or data plan, contact your wireless provider.
-          </>
-          <>
-            <LegalStrong>Supported Carriers:</LegalStrong> Our SMS program works with all major U.S. wireless
-            carriers, including AT&amp;T, T-Mobile, Verizon, Sprint, and most regional carriers.
-          </>
-          <>
-            <LegalStrong>Age Restriction:</LegalStrong> You must be 18 years or older to participate in our SMS
-            program.
-          </>
-          <>
-            <LegalStrong>Privacy Policy:</LegalStrong> For privacy-related inquiries, please refer to our{" "}
-            <LegalLink href="/privacy">Privacy Policy</LegalLink>.
-          </>
-        </LegalSteps>
-        <p>
-          We comply with all applicable laws and regulations, including the Telephone Consumer Protection Act (TCPA)
-          and CTIA guidelines, regarding the use of SMS communications.
-        </p>
-      </>
-    ),
-  },
-  {
-    id: "general",
-    title: "General Terms",
-    children: (
-      <>
-        <p>
-          This website (the &ldquo;Site&rdquo;) is owned and operated by Highland Farms Oregon LLC
-          (&ldquo;COMPANY,&rdquo; &ldquo;we&rdquo; or &ldquo;us&rdquo;). By using the Site, you agree to be bound by
-          these Terms of Service and to use the Site in accordance with these Terms of Service, our Privacy Policy,
-          and any additional terms and conditions that may apply to specific sections of the Site or to products and
-          services available through the Site or from Highland Farms Oregon LLC.
-        </p>
-        <p>
-          Accessing the Site, in any manner, whether automated or otherwise, constitutes use of the Site and your
-          agreement to be bound by these Terms of Service.
-        </p>
-        <p>
-          We reserve the right to change these Terms of Service or to impose new conditions on the use of the Site
-          from time to time, in which case we will post the revised Terms of Service on this website. By continuing to
-          use the Site after we post any such changes, you accept the Terms of Service, as modified.
-        </p>
-      </>
-    ),
-  },
-  {
-    id: "services",
-    title: "Services",
-    children: (
-      <p>
-        Highland Farms Oregon LLC provides event venue services (weddings, celebrations, retreats), farm tours, Nordic
-        spa sessions, and short-term accommodation rentals at our property in Brightwood, Oregon. Specific terms for
-        each service are provided at the time of booking and may include additional agreements.
-      </p>
-    ),
-  },
-  {
     id: "booking",
     title: "Booking & Reservations",
     children: (
@@ -206,13 +109,43 @@ const sections: LegalSection[] = [
             individual event agreement. Deposits are generally non-refundable. Please discuss your specific terms with
             our events team.
           </>
-          <>
-            <LegalStrong>Weather:</LegalStrong> Highland Farms reserves the right to cancel or reschedule outdoor
-            activities due to severe weather. In such cases, a full refund or reschedule will be offered.
-          </>
         </LegalList>
-        <ReadyToBook placement="terms-section-5" />
       </>
+    ),
+  },
+  {
+    id: "general",
+    title: "General Terms",
+    children: (
+      <>
+        <p>
+          This website (the &ldquo;Site&rdquo;) is owned and operated by Highland Farms Oregon LLC
+          (&ldquo;COMPANY,&rdquo; &ldquo;we&rdquo; or &ldquo;us&rdquo;). By using the Site, you agree to be bound by
+          these Terms of Service and to use the Site in accordance with these Terms of Service, our Privacy Policy,
+          and any additional terms and conditions that may apply to specific sections of the Site or to products and
+          services available through the Site or from Highland Farms Oregon LLC.
+        </p>
+        <p>
+          Accessing the Site, in any manner, whether automated or otherwise, constitutes use of the Site and your
+          agreement to be bound by these Terms of Service.
+        </p>
+        <p>
+          We reserve the right to change these Terms of Service or to impose new conditions on the use of the Site
+          from time to time, in which case we will post the revised Terms of Service on this website. By continuing to
+          use the Site after we post any such changes, you accept the Terms of Service, as modified.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "services",
+    title: "Services",
+    children: (
+      <p>
+        Highland Farms Oregon LLC provides event venue services (weddings, celebrations, retreats), farm tours, Nordic
+        spa sessions, and short-term accommodation rentals at our property in Brightwood, Oregon. Specific terms for
+        each service are provided at the time of booking and may include additional agreements.
+      </p>
     ),
   },
   {
@@ -353,6 +286,68 @@ const sections: LegalSection[] = [
       </>
     ),
   },
+  {
+    id: "sms",
+    title: "SMS Messaging Terms & Compliance",
+    children: (
+      <>
+        <LegalMeta>Highland Farms Oregon LLC · Effective Date: January 1, 2026</LegalMeta>
+        <p>
+          <LegalStrong>Marketing text messages:</LegalStrong> If you check the marketing text message box on our
+          contact form, you consent to receive marketing text messages from Highland Farms Oregon LLC at the phone
+          number you provided. Frequency may vary. Message and data rates may apply. Text HELP for assistance. Reply
+          STOP to opt out. Consent is not a condition of purchase. Appointment messages (confirmations and reminders)
+          are a separate, optional choice on the same form.
+        </p>
+        <LegalSteps>
+          <>
+            <LegalStrong>Program Description:</LegalStrong> This messaging program sends appointment confirmation and
+            reminder messages to customers who have booked an appointment with Highland Farms Oregon LLC through our
+            website at https://highlandfarmsoregon.com/, or via our scheduling forms, and have explicitly opted in to
+            receive SMS notifications. Opt-in is collected via web forms with a dedicated checkbox for SMS consent.
+            Messages include scheduling confirmations, appointment reminders, rescheduling updates, and customer
+            support communications.
+          </>
+          <>
+            <LegalStrong>Cancellation Instructions:</LegalStrong> You can cancel the SMS service at any time. Simply
+            text &ldquo;STOP&rdquo; to the same number that sent you messages. Upon sending &ldquo;STOP,&rdquo; we
+            will confirm your unsubscribe status via SMS. Following this confirmation, you will no longer receive SMS
+            messages from us. To rejoin, sign up as you did initially, and we will resume sending SMS messages to you.
+          </>
+          <>
+            <LegalStrong>Support Information:</LegalStrong> If you experience issues with the messaging program, reply
+            with the keyword &ldquo;HELP&rdquo; for more assistance, or reach out directly to{" "}
+            <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink> or call{" "}
+            <LegalLink href={telHref}>{CONTACT.phone}</LegalLink> during business hours.
+          </>
+          <>
+            <LegalStrong>Carrier Liability:</LegalStrong> Carriers are not liable for delayed or undelivered messages.
+          </>
+          <>
+            <LegalStrong>Message &amp; Data Rates:</LegalStrong> Message and data rates may apply for messages sent to
+            you from us and to us from you. Message frequency varies based on your service usage and appointment
+            schedule. For questions about your text plan or data plan, contact your wireless provider.
+          </>
+          <>
+            <LegalStrong>Supported Carriers:</LegalStrong> Our SMS program works with all major U.S. wireless
+            carriers, including AT&amp;T, T-Mobile, Verizon, Sprint, and most regional carriers.
+          </>
+          <>
+            <LegalStrong>Age Restriction:</LegalStrong> You must be 18 years or older to participate in our SMS
+            program.
+          </>
+          <>
+            <LegalStrong>Privacy Policy:</LegalStrong> For privacy-related inquiries, please refer to our{" "}
+            <LegalLink href="/privacy">Privacy Policy</LegalLink>.
+          </>
+        </LegalSteps>
+        <p>
+          We comply with all applicable laws and regulations, including the Telephone Consumer Protection Act (TCPA)
+          and CTIA guidelines, regarding the use of SMS communications.
+        </p>
+      </>
+    ),
+  },
 ];
 
 const shortVersion = (
@@ -373,7 +368,7 @@ const shortVersion = (
       href="#cancellation"
       className="mt-1 inline-flex min-h-11 items-center gap-2 text-[14px] font-medium text-pine"
     >
-      <span className="border-b border-pine-line pb-0.5">Read section 5 in full</span>
+      <span className="border-b border-pine-line pb-0.5">Read the full cancellation policy</span>
     </a>
     <p className="m-0 text-[14px] text-ink-body">
       Questions before you book? Call{" "}
@@ -396,7 +391,7 @@ export default function TermsOfServicePage() {
       <LegalLayout
         policy="terms"
         title="Terms of Service"
-        updated="October 6, 2026"
+        updated="October 7, 2026"
         sections={sections}
         closing="Still have a question about a booking?"
         headerExtra={

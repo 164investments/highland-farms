@@ -5,6 +5,7 @@ import { StructuredData } from "@/components/layout/StructuredData";
 import { CHECK_DATE_HREF } from "@/components/layout/chrome";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import { FieldReview, FieldReviewTier, GOOGLE_REVIEW_LINK } from "@/components/field/Reviews";
+import { FieldStickyBar } from "@/components/field/StickyBar";
 import {
   FieldArrow,
   FieldDrawing,
@@ -21,7 +22,6 @@ import { REVIEW_COUNT } from "@/lib/reviews";
 import { cn } from "@/lib/utils";
 import {
   ABOUT_FINLEY_QUOTE,
-  ABOUT_HERD_QUOTE,
   ABOUT_HERO_QUOTE,
   ABOUT_ORIGIN_QUOTE,
   ABOUT_TEAM_QUOTE,
@@ -71,15 +71,6 @@ function residents(): Resident[] {
       kind: "Scottish Highland cows",
       title: "The herd",
       line: "Shaggy, gentle and out on every tour, rain or shine. You can feed, brush and pet them.",
-      quote: (
-        <FieldReview
-          spec={ABOUT_HERD_QUOTE}
-          role="Farm tour"
-          size="sm"
-          className="mt-3"
-          quoteClassName={residentQuote}
-        />
-      ),
     },
     {
       drawing: "highland-calf",
@@ -139,7 +130,7 @@ export default function AboutPage() {
               <p className={eyebrow}>About Highland Farms</p>
               <h1
                 id="about-title"
-                className="field-heading m-0 mt-1 font-display text-[35px] leading-[1.02] lg:mt-3 lg:text-[64px]"
+                className="field-heading m-0 mt-1 font-display text-[25px] leading-[1.04] min-[360px]:text-[30px] min-[400px]:text-[35px] min-[400px]:leading-[1.02] lg:mt-3 lg:text-[64px]"
               >
                 A private forest farm, and a herd with names.
               </h1>
@@ -169,7 +160,7 @@ export default function AboutPage() {
               </p>
               <FieldReviewTier tier="hero" className="mt-1.5 text-[14px] lg:mt-5 lg:text-[15px]" />
               <div className="mt-2.5 lg:mt-6 lg:border-t lg:border-rule lg:pt-6">
-                <p className="m-0 mb-2 font-display text-[18px] leading-snug lg:mb-0 lg:text-[24px]">
+                <p className="m-0 mb-2 font-display text-[18px] leading-snug max-[399px]:hidden lg:mb-0 lg:text-[24px]">
                   Planning a wedding here?
                 </p>
                 <FieldLink
@@ -468,6 +459,9 @@ export default function AboutPage() {
           </div>
         </section>
       </div>
+
+      {/* Phone sticky action: appears once the hero button scrolls away. */}
+      <FieldStickyBar primary={{ label: "Check your date", href: CHECK_DATE_HREF }} />
     </>
   );
 }
