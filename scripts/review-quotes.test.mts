@@ -62,3 +62,15 @@ test("shortName shows a first name and last initial", () => {
   assert.equal(shortName("Maya C"), "Maya C.");
   assert.equal(shortName("Cher"), "Cher");
 });
+
+test("sentenceCount takes consecutive whole sentences from the starting one", () => {
+  const text = "First one. Second starts here. Third follows! Fourth.";
+  assert.equal(
+    buildQuote(text, { author: "x", date: "2020-01-01", topic: "t", sentenceStartsWith: "Second starts", sentenceCount: 2 }),
+    "Second starts here. Third follows!",
+  );
+  assert.equal(
+    buildQuote(text, { author: "x", date: "2020-01-01", topic: "t", sentenceStartsWith: "Second starts" }),
+    "Second starts here.",
+  );
+});
