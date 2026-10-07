@@ -331,7 +331,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
             "@type": "Accommodation",
             name: "The Whole Farm",
             description:
-              "William Wallace Lodge, Bonnie Lass Cottage and The Camp reserved together, sleeping 20 across 7 bedrooms and 3.5 baths, with two cedar hot tubs.",
+              "William Wallace Lodge, Bonnie Lass Cottage and The Camp reserved together, sleeping 20: 7 bedrooms and 3.5 baths in the two houses, plus the Camp, with two cedar hot tubs.",
             url: `${SITE.url}/stay/whole-farm`,
             // Owner-confirmed 2026-09-17: 20 overnight guests, which includes
             // The Camp (Lodge 8 + Cottage 8 + Camp 4).

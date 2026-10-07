@@ -3,7 +3,9 @@ import type { Property } from "@/lib/types";
 // ⛔ Capacities below are owner-confirmed. Do not "correct" them by adding up
 // the three individual stays — the Whole Farm's 7 bedrooms / 3.5 baths is the
 // number the farm gave us, and it is not the sum of the Lodge, Cottage and
-// Camp. Guest counts do add up (8 + 8 + 4 = 20).
+// Camp. Guest counts do add up (8 + 8 + 4 = 20). The 7 and 3.5 are exactly the
+// two houses (Lodge 4 + Cottage 3, 2.5 + 1), so the site says "plus the Camp"
+// beside them (r6). The 2027 look book says 4.5 baths in total: ask Connor.
 //
 // `description` is each /stay/<slug> page's search and share description: one
 // sentence built only from facts on that page (truth audit r2, N6 and N16).
@@ -27,7 +29,7 @@ export const properties: Property[] = [
     bookingUrl: "/stay/whole-farm",
     hospitable_widget_url: "https://booking.hospitable.com/widget/9c273e8f-0df2-4bd3-b639-da59849e328f/1336238",
     layout:
-      "All three accommodations reserved together, the Lodge, the Cottage and the Camp, for up to twenty guests across seven bedrooms and three and a half baths. Two cedar hot tubs, one at the Lodge and one at the Cottage.",
+      "All three accommodations reserved together, the Lodge, the Cottage and the Camp, for up to twenty guests: seven bedrooms and three and a half baths in the two houses, plus the Camp. Two cedar hot tubs, one at the Lodge and one at the Cottage.",
     bestFor:
       "Large gatherings of up to twenty guests: all three stays reserved together, with the farm and the forest right outside. Twenty guests is the most the farm sleeps.",
     highlights: [

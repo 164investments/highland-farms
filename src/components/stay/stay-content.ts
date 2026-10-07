@@ -429,11 +429,11 @@ const WHOLE_FARM: StayContent = {
   slug: "whole-farm",
   drawings: ["lodge", "cottage", "airstream-camp"],
   compareName: "Whole farm",
-  // The farm counts the Lodge and the Cottage (4 + 3, 2.5 + 1 baths); the Camp is extra.
+  // The farm's 7 bedrooms and 3.5 baths are the Lodge and the Cottage (4 + 3, 2.5 + 1); the Camp is extra.
   compareBedrooms: (p) => `${p.bedrooms}, plus the Camp`,
   compareHotTub: "Two cedar",
-  picker: (p) => `${bedroomsLabel(p.bedrooms)} · ${bathsLabel(p.baths)} · two cedar hot tubs`,
-  otherLine: (p) => `Sleeps ${p.guests} · ${bedroomsLabel(p.bedrooms)} · ${bathsLabel(p.baths)}`,
+  picker: (p) => `${bedroomsLabel(p.bedrooms)} · ${bathsLabel(p.baths)}, plus the Camp · two cedar hot tubs`,
+  otherLine: (p) => `Sleeps ${p.guests} · ${bedroomsLabel(p.bedrooms)} · ${bathsLabel(p.baths)}, plus the Camp`,
   thumb: { src: "/images/properties/gallery-7.jpg", alt: "", position: "50% 50%" },
   sheet: {
     photo: {
@@ -444,7 +444,7 @@ const WHOLE_FARM: StayContent = {
     },
     who: "All three stays, reserved together for your group.",
     rows: (p) => [
-      { term: "Rooms", detail: `${bedroomsLabel(p.bedrooms)} and ${p.baths} baths` },
+      { term: "Rooms", detail: `${bedroomsLabel(p.bedrooms)} and ${bathsLabel(p.baths)} in the Lodge and the Cottage, plus the Camp` },
       { term: "Includes", detail: "William Wallace Lodge, Bonnie Lass Cottage and the Camp" },
       { term: "Hot tubs", detail: "Two cedar hot tubs, one at the Lodge and one at the Cottage" },
     ],
