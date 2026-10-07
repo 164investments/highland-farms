@@ -255,7 +255,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
       <footer data-footer-slim="" className="surface-paper hidden border-t border-rule bg-paper px-5 py-6 font-sans text-ink lg:px-16">
         <div className="mx-auto flex max-w-[1180px] flex-col gap-2 text-[13px] text-ink-note lg:flex-row lg:items-center lg:justify-between">
           <p className="m-0">
-            Questions about an order? Call or text{" "}
+            Questions about an order? Call{" "}
             <a href={TEL} className="whitespace-nowrap font-medium text-pine">
               {CONTACT.phone}
             </a>

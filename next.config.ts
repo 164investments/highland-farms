@@ -28,6 +28,8 @@ const nextConfig: NextConfig = {
     return [
       // Old Squarespace URL redirects
       { source: "/wedding-venue", destination: "/weddings", permanent: true },
+      // The interim "checkout is being rebuilt" page; the store has its own checkout now.
+      { source: "/shop/order", destination: "/shop", permanent: true },
       { source: "/outdoor-wedding-venue", destination: "/weddings", permanent: true },
       { source: "/farm-wedding-venue", destination: "/weddings", permanent: true },
       { source: "/farm-tour-spa", destination: "/farm-tours", permanent: true },
