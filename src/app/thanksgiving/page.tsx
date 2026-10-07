@@ -14,9 +14,12 @@ import { FAQAccordion } from "@/components/shared/FAQAccordion";
 import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { thanksgiving, thanksgivingInquiryHref } from "@/data/thanksgiving";
-import { FIVE_STAR_COUNT } from "@/lib/reviews";
+import { FIVE_STAR_COUNT, REVIEW_COUNT } from "@/lib/reviews";
+import { THANKSGIVING_FAMILY_QUOTE } from "@/lib/review-quotes";
+import { FieldQuote } from "@/components/shared/FieldQuote";
 import { ThanksgivingHero } from "./ThanksgivingHero";
 import { PackageCompare } from "./PackageCompare";
+import { CopyEmail } from "./CopyEmail";
 
 const OG_IMAGE = "/images/thanksgiving/highland-farms-lodge-thanksgiving-dining.jpg";
 
@@ -99,30 +102,37 @@ export default function ThanksgivingPage() {
                             </span>
                           )}
                         </p>
+                        {marked && (
+                          <p id="tg-upgrade" className="m-0 mt-2 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
+                            <span className="text-pine">*</span>
+                            {thanksgiving.upgrade}
+                          </p>
+                        )}
                       </div>
                     </li>
                   );
                 })}
               </ol>
-              <p id="tg-upgrade" className="m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-note lg:max-w-[680px] lg:text-[14px]">
-                <span className="text-pine">*</span>
-                {thanksgiving.upgrade}
-              </p>
             </div>
 
-            <Plate
-              className="mt-7 lg:sticky lg:top-[calc(var(--header-h,84px)+32px)] lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:mt-0 lg:self-start"
-              frameClassName="h-[220px] lg:aspect-[4/5] lg:h-auto"
-              caption="You meet the herd on the welcome tour."
-            >
-              <Image
-                src="/images/farm/cows.jpg"
-                alt="A Highland cow with its tongue out beside a calf near the barn"
-                fill
-                sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
-                className="object-cover object-[50%_52%]"
+            <div className="mt-7 lg:sticky lg:top-[calc(var(--header-h,84px)+32px)] lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:mt-0 lg:self-start">
+              <Plate frameClassName="h-[220px] lg:aspect-[4/5] lg:h-auto" caption="You meet the herd on the welcome tour.">
+                <Image
+                  src="/images/farm/cows.jpg"
+                  alt="A Highland cow with its tongue out beside a calf near the barn"
+                  fill
+                  sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
+                  className="object-cover object-[50%_52%]"
+                />
+              </Plate>
+              <FieldQuote
+                spec={THANKSGIVING_FAMILY_QUOTE}
+                withTopic
+                className="mt-6 border-t border-rule pt-5"
+                quoteClassName="text-[19px] lg:text-[22px]"
+                metaClassName="mt-2 text-[11px] lg:text-[12px]"
               />
-            </Plate>
+            </div>
           </div>
         </div>
       </section>
@@ -156,9 +166,7 @@ export default function ThanksgivingPage() {
                     </span>
                     <div>
                       <h3 className="field-heading m-0 text-[20px] leading-[1.15] text-ink lg:mt-1 lg:text-[22px]">{step.title}</h3>
-                      {i < thanksgiving.steps.length - 1 && (
-                        <p className="m-0 mt-1 font-sans text-[14px] leading-[1.55] text-ink-body">{step.detail}</p>
-                      )}
+                      <p className="m-0 mt-1 font-sans text-[14px] leading-[1.55] text-ink-body">{step.detail}</p>
                     </div>
                   </li>
                 ))}
@@ -166,17 +174,25 @@ export default function ThanksgivingPage() {
 
               <p className="m-0 mt-7 inline-flex items-center gap-2 font-sans text-[13px] text-ink-body">
                 <FieldStars size={13} />
-                {FIVE_STAR_COUNT} five-star Google reviews
+                {FIVE_STAR_COUNT} of {REVIEW_COUNT} Google reviews are five stars
               </p>
               <div data-hero-cta className="mt-3">
                 <a href={inquiry} data-cta="tg-final" className={cn(fieldCtaClass, "w-full max-w-[420px] lg:w-auto")}>
                   Check availability
                   <FieldArrow />
                 </a>
-                <p className="m-0 mt-3 font-sans text-[13px] text-ink-note">
-                  Or email <span className="select-all break-all text-ink-body">{thanksgiving.email}</span>. An inquiry
-                  doesn&apos;t reserve the stay.
+                <p className="m-0 mt-3 font-sans text-[13px] leading-[1.6] text-ink-note">
+                  Or email <span className="select-all break-all text-ink-body">{thanksgiving.email}</span>, or call{" "}
+                  <a
+                    href={`tel:${thanksgiving.phone.replace(/\D/g, "")}`}
+                    data-cta="tg-final-call"
+                    className="whitespace-nowrap text-ink-body underline underline-offset-2"
+                  >
+                    {thanksgiving.phone}
+                  </a>
+                  . An inquiry doesn&apos;t reserve the stay.
                 </p>
+                <CopyEmail email={thanksgiving.email} className="mt-1" />
               </div>
               <Link href="/stay" className="mt-4 inline-flex min-h-11 items-center">
                 <span className={fieldTextLinkClass}>See the Lodge, Cottage and Camp</span>

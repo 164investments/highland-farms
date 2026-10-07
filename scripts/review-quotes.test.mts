@@ -5,6 +5,7 @@ import {
   buildQuote,
   HOME_QUOTES,
   SPA_QUOTE,
+  THANKSGIVING_FAMILY_QUOTE,
   THANKSGIVING_QUOTE,
   WEDDING_QUOTE,
   shortName,
@@ -64,6 +65,18 @@ test("thanksgiving quote is a Lodge family stay, verbatim", () => {
   )!;
   // "Family stay in the Lodge" is the attribution; the review must still say so.
   assert.match(r.text, /my family and i spent a few nights in the lodge/i);
+});
+
+test("thanksgiving family quote is about the cows, verbatim", () => {
+  check(THANKSGIVING_FAMILY_QUOTE);
+  const r = snapshot.reviews.find(
+    (x) => x.author_name === THANKSGIVING_FAMILY_QUOTE.author && x.publish_time?.startsWith(THANKSGIVING_FAMILY_QUOTE.date),
+  )!;
+  assert.equal(
+    buildQuote(r.text, THANKSGIVING_FAMILY_QUOTE),
+    "Our 2 yr old daughter woke up every morning so excited to say good morning to the cows.",
+  );
+  assert.match(r.text, /stay in the cottage/i);
 });
 
 test("shortName shows a first name and last initial", () => {

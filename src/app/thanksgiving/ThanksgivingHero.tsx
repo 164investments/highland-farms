@@ -46,8 +46,11 @@ export function ThanksgivingHero() {
         </p>
 
         <p className="m-0 mt-3.5 font-sans text-[15px] leading-[1.45] lg:col-start-1 lg:row-start-6 lg:mt-6 lg:text-[17px]">
-          <span className="font-semibold text-ink">From ${fromPrice} for four nights.</span>{" "}
-          <span className="text-ink-body">Dinner, spa, farm tour and photos included.</span>
+          <span className="font-semibold text-ink">From ${fromPrice} for four nights, plus taxes.</span>{" "}
+          <span className="text-ink-body">
+            Includes a chef-cooked Thanksgiving dinner, a farm tour, spa time, 35 family photos and your
+            itinerary.
+          </span>
         </p>
 
         <p className="m-0 mt-2 flex items-center gap-2 font-sans text-[13px] text-ink-body lg:col-start-1 lg:row-start-7 lg:mt-3 lg:text-[14px]">
@@ -66,8 +69,12 @@ export function ThanksgivingHero() {
           <a href="#included" className="hidden min-h-11 items-center lg:inline-flex">
             <span className={fieldTextLinkClass}>See what&apos;s included</span>
           </a>
-          <p className="m-0 mt-2 font-sans text-[12px] text-ink-note lg:mt-0 lg:basis-full lg:text-[13px]">
-            Opens an email to our team. It doesn&apos;t reserve anything.
+          <p className="m-0 mt-2 font-sans text-[12px] leading-[1.5] text-ink-note lg:mt-0 lg:basis-full lg:text-[13px]">
+            Opens an email to our team. It doesn&apos;t reserve anything. Or call{" "}
+            <a href={`tel:${thanksgiving.phone.replace(/\D/g, "")}`} data-cta="tg-hero-call" className="whitespace-nowrap text-ink-body underline underline-offset-2">
+              {thanksgiving.phone}
+            </a>
+            .
           </p>
         </div>
 

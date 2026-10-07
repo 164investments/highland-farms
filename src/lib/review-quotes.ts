@@ -86,3 +86,14 @@ export const THANKSGIVING_QUOTE: QuoteSpec = {
   sentenceStartsWith: "The property is delicately maintained",
   topic: "Family stay in the Lodge",
 };
+
+/**
+ * Second /thanksgiving quote, beside the herd photo. Lauren Case stayed in the
+ * Cottage with a toddler in November 2025; the sentence is about the cows.
+ */
+export const THANKSGIVING_FAMILY_QUOTE: QuoteSpec = {
+  author: "Lauren Case",
+  date: "2025-11-25",
+  sentenceStartsWith: "Our 2 yr old daughter",
+  topic: "Family stay in the Cottage",
+};

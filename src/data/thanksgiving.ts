@@ -7,6 +7,8 @@ export const thanksgiving = {
   dates: "November 24 to 28, 2026",
   nights: 4,
   email: "info@highlandfarms-oregon.com",
+  // The farm's sales line (Hayden, 2026-09-14): the fallback when a mail app will not open.
+  phone: "(971) 236-2551",
   packages: [
     {
       id: "lodge",
@@ -64,7 +66,7 @@ export const thanksgiving = {
     {
       term: "Nordic spa time",
       detail:
-        "1 session with the Lodge, 2 with the whole farm: wood-burning sauna, wet sauna and cold plunge in the forest. Ages 16 and up, any day except Thanksgiving.",
+        "1 session with the Lodge, 2 with the whole farm: wood-burning sauna, wet sauna and cold plunge in the forest. Ages 16 and up. Sessions can't be on Thanksgiving Day; the team plans them with you.",
     },
     {
       term: "Breakfast in the fridge",
@@ -75,14 +77,10 @@ export const thanksgiving = {
       term: "Your itinerary, planned with you",
       detail: "Once you book, the team builds a detailed plan for your four days with you and sends it before you arrive.",
     },
-    {
-      term: "The farm, all four days",
-      detail: "Five acres of forest and pasture to wander between meals.",
-    },
   ],
   // The only optional upgrade (wine pairing and the spa charcuterie were dropped October 6).
   upgrade:
-    "Want breakfast cooked for you too? Add a chef-cooked country breakfast on Friday morning, with Highland Farms eggs and sausage and signature sides. Ask for pricing.",
+    "Want it cooked for you? Add a chef-cooked country breakfast on Friday morning, with Highland Farms eggs and sausage and signature sides. Ask for pricing.",
   steps: [
     {
       title: "Send an inquiry.",
@@ -137,12 +135,12 @@ export const thanksgiving = {
     {
       question: "What should we bring?",
       answer:
-        "Swimsuits for the spa, closed-toe shoes for the farm tour, and rain boots and a rain jacket, because the farm is outdoors and late November here is wet. And bring your family's must-have dishes to the menu planning.",
+        "Swimsuits for the spa, closed-toe shoes for the farm tour, and rain boots and a rain jacket, because the farm is outdoors and late November here is wet. And tell the team your family's must-have dishes when you plan the menu.",
     },
     {
       question: "Is a day on Mt. Hood included?",
       answer:
-        "No. Mountain activities, lift tickets and transportation aren't part of the package. If you want a day on the mountain, tell the team while you build your itinerary so the farm experiences fit around it.",
+        "No. Mountain activities aren't part of the package. If you're planning a day on the mountain, mention it when you inquire and the team can tell you what fits.",
     },
     {
       question: "Can we bring our dog?",
@@ -151,7 +149,7 @@ export const thanksgiving = {
     {
       question: "How do we book?",
       answer:
-        "Tap any \"Check availability\" button to open a ready-to-send email, or write to info@highlandfarms-oregon.com. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes, payment and the stay's cancellation terms before you commit. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
+        "Tap any \"Check availability\" button to open a ready-to-send email, write to info@highlandfarms-oregon.com, or call (971) 236-2551. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes, payment and the stay's cancellation terms before you commit. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
     },
   ],
 } as const;
@@ -176,9 +174,7 @@ export function thanksgivingInquiryHref(pkg?: ThanksgivingPackage) {
     "Guests 16 and older:",
     "Guests under 16:",
     "Allergies or dietary needs:",
-    "Dishes our family can't skip:",
-    "Interested in the Friday country breakfast upgrade? (yes / no / send pricing)",
-    "Questions:",
+    "Friday country breakfast upgrade? (yes / no / send pricing)",
     "",
     "Name:",
     "Phone:",
