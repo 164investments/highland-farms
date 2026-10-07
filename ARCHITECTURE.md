@@ -138,18 +138,23 @@ ResizeObserver in Header keeps them exact, so pages offset with
 `var(--header-h)`. Past 40px of scroll the whole masthead moves up 40px: the
 bar scrolls away, the name row stays pinned, and page padding does not change.
 
-**The menu** (`MobileMenu.tsx`) is a paper dialog: close and the name on top,
-then Weddings as the one large line with one note (`WEDDING_MENU_NOTE`, the
-coos) and its three steps indented beneath (real weddings, look book, the free
-call), one rule, the visits as plain rows, one rule, and the short links on one
-dotted line (a two-by-two under 375px). Rows carry no hints: `ChromeDoor.note`
-is the footer's, and `menuTitle` / `menuLabel` hold the menu's own wording
-(menu round 2, 2026-10-07, after Hayden found the hinted rows "very busy").
-The phone line, Instagram and the address live in the footer and on Contact.
-The page action is pinned at the thumb with no second link. The whole list
-fits a 393 x 660 in-app screen; on shorter screens it scrolls under a fade
-that shows only while rows sit below it. Escape, focus trap, scroll lock,
-`aria-current` with "You are here".
+**The menu** (`MobileMenu.tsx`) is a sheet that slides in from the left, where
+the menu button sits, over the page dimmed behind it (88% wide, at most 380px).
+A tap on the page, a swipe left, Escape or the close button dismisses it; it
+stays mounted for the 300ms slide out, and motion is off under reduced motion.
+Top row: close, the name, tap to call. Weddings leads as a framed photo plate
+(a couple between two coos) with the Google review count (`reviewCount`,
+passed from the server layout through `Header`, since the review snapshot must
+not ship to the client), the coos line (`WEDDING_MENU_NOTE`) and three icon
+steps (real weddings, look book, the free call). Visits are rows with a framed
+real photo, the name and the one-line hint (`ChromeDoor.note`, shared with the
+footer). Then "More from the farm" and quick actions (call, directions,
+Instagram: `TEL_HREF`, `DIRECTIONS_HREF`). The page action is pinned at the
+thumb. The current page carries a pine bar and "You are here". Photos come
+through `next/image` at 44-640px (3-30 KB) and load only when the sheet opens.
+History: 2026-10-07 the hinted rows read "very busy"; the text-only fix read
+"very basic"; this version follows mobile-drawer practice. Escape, focus trap,
+scroll lock, `aria-current`.
 
 **The footer** (`Footer.tsx`, server) is paper-shade under a double rule:
 name and promise, Weddings and Visit door rows, Finding the farm, Talk to us

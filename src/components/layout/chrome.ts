@@ -7,11 +7,15 @@
  * Source: finish/boards/_shared/masthead.html and shared/NOTES.md, round 2
  * (CONSISTENCY #5, #8, #9).
  */
-import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
+import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { properties } from "@/data/properties";
 import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { giftCertificatesHref, nativeCalendarEnabled } from "@/lib/booking/flag";
+
+/** Tap to call the one public line, and directions to the farm (the menu's quick actions). */
+export const TEL_HREF = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
+export const DIRECTIONS_HREF = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(CONTACT.fullAddress)}`;
 
 /** Where every wedding "Check your date" in the chrome goes. */
 export const CHECK_DATE_HREF = "/weddings#contact";
@@ -185,7 +189,7 @@ export function barFor(type: PageType): { id: BarId; season?: SeasonId } | null 
 
 export interface ChromeDoor {
   title: string;
-  /** The footer's hint on the right. The menu shows no hints (menu round 2, 2026-10-07). */
+  /** The one-line hint: right of the name in the footer, under it on the menu's visit rows. */
   note: string;
   /** The menu's own wording where it differs from the footer's title. */
   menuTitle?: string;

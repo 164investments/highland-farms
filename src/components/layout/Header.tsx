@@ -45,7 +45,8 @@ const NAV_LINK =
  * Checkout gets the quiet variant: the name, a way back to the cart, and
  * "Secure". No bar, no nav, no menu.
  */
-export function Header() {
+/** `reviewCount` comes from the server layout: the review snapshot must not ship to the client. */
+export function Header({ reviewCount }: { reviewCount: number }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname() ?? "";
@@ -163,7 +164,13 @@ export function Header() {
         </header>
       </div>
 
-      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} type={type} pathname={pathname} />
+      <MobileMenu
+        isOpen={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        type={type}
+        pathname={pathname}
+        reviewCount={reviewCount}
+      />
     </>
   );
 }
