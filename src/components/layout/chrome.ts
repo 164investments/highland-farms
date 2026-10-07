@@ -87,7 +87,8 @@ const WEDDING_ACTION: PageAction = { phone: "Check date", label: "Check your dat
 
 /** Labels: CONSISTENCY #5 (phone short labels fixed 2026-10-06). Anchors: shared NOTES round 2. */
 const ACTIONS: Record<PageType, PageAction | "cart" | null> = {
-  home: WEDDING_ACTION,
+  // Home has its own inline form, so its date check stays on the page.
+  home: { ...WEDDING_ACTION, href: "#check-your-date" },
   weddings: WEDDING_ACTION,
   portfolio: WEDDING_ACTION,
   about: WEDDING_ACTION,
@@ -115,7 +116,7 @@ export function pageActionFor(type: PageType): PageAction | "cart" | null {
 /** The quiet link under the menu's pinned button. */
 export function menuSecondaryFor(type: PageType): { label: string; href: string; external: boolean } | null {
   const action = ACTIONS[type];
-  if (action && action !== "cart" && action.href === CHECK_DATE_HREF)
+  if (action && action !== "cart" && (action.href === CHECK_DATE_HREF || type === "home"))
     return { label: "or see the 2027 look book", href: LOOKBOOK_HREF, external: true };
   if (type === "celebrations") return null;
   if (type === "tours" || type === "spa" || type === "sauna") {

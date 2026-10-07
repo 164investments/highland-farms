@@ -1,0 +1,56 @@
+import Image from "next/image";
+import { FieldArrow, FieldLink, Plate, fieldCtaClass } from "@/components/ui/FieldGuide";
+import { VISIT_LINKS } from "./home-data";
+
+/**
+ * Closing: the real carved Highland cow sign, the herd, one button to the
+ * form on this page. The footer carries the address, drive times and
+ * directions, so none of that repeats here.
+ */
+export function HomeClosing() {
+  return (
+    <section
+      aria-labelledby="find-title"
+      className="border-t-[3px] border-double border-frame px-5 pb-6 pt-10 lg:px-16 lg:pb-24 lg:pt-20"
+    >
+      <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-center lg:gap-x-16">
+        <Plate
+          className="lg:order-2"
+          frameClassName="h-[226px] lg:h-[440px]"
+          caption="The carved Highland cow and the Highland Farms sign."
+        >
+          <Image
+            src="/images/farm/hero.jpg"
+            alt="The carved Highland cow on a post above a sign reading Highland Farms, the Lodge behind it in the trees"
+            fill
+            sizes="(min-width: 1440px) 520px, (min-width: 1024px) 40vw, calc(100vw - 54px)"
+            className="object-cover object-[18%_50%] lg:object-[22%_50%]"
+          />
+        </Plate>
+        <div className="mt-7 lg:order-1 lg:mt-0">
+          <h2
+            id="find-title"
+            className="field-heading m-0 font-display text-[34px] leading-[1.02] text-ink lg:mt-2 lg:text-[56px]"
+          >
+            Come and meet the herd.
+          </h2>
+          <a href="#check-your-date" className={`${fieldCtaClass} mt-6 w-full lg:mt-9 lg:w-auto`}>
+            Check your date
+            <FieldArrow />
+          </a>
+          <p className="m-0 mt-2 flex min-h-11 flex-wrap items-center justify-center gap-x-1.5 font-sans text-[14px] text-ink-note lg:justify-start">
+            Or visit:
+            {VISIT_LINKS.map((link, i) => (
+              <span key={link.href} className="inline-flex items-center gap-x-1.5">
+                {i > 0 && <span aria-hidden="true">&middot;</span>}
+                <FieldLink href={link.href} className="inline-flex min-h-11 items-center font-medium text-pine">
+                  {link.phoneName}
+                </FieldLink>
+              </span>
+            ))}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
