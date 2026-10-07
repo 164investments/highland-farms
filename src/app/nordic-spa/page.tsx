@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import { StructuredData } from "@/components/layout/StructuredData";
-import { FieldReview, FieldReviewTier } from "@/components/field/Reviews";
+import { FieldReview } from "@/components/field/Reviews";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import { JsonLd, cancellationAnswer, faqPageJsonLd } from "@/components/field/Faq";
 import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
@@ -208,14 +208,13 @@ export default function NordicSpaPage() {
                     label="How many are coming? Pick to see sessions"
                     labelId="book-size-label"
                   />
-                  <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
                   <p className="m-0 mt-3 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
                     <Suspense fallback={null}>
                       <NextAvailability product="spa" variant="text" label="Next open:" />
                     </Suspense>
                     {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
                   </p>
-                  <FieldReviewTier tier="nearCta" className="mt-2" />
+                  <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
                   <PendingSlot className="mt-4" note="DECIDE D4: visit packs line (3 for $199, 5 for $299, 10 for $549, six months). Show only after Hayden decides and the Acuity pack copy says 90 minutes">
                     <p className="m-0 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
                       Coming back this winter? Visit packs: 3 for $199, 5 for $299, 10 for $549, each good for six

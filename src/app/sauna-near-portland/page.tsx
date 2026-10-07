@@ -261,8 +261,7 @@ export default function SaunaNearPortlandPage() {
               </li>
             </ol>
             <p className="m-0 mt-4 font-sans text-[13px] leading-[1.6] text-ink-note lg:text-[14px]">
-              From Beaverton, about 1 hour 20 minutes; from Hillsboro, about 1.5 hours. Coming down from the
-              mountain? Government Camp is about 25 minutes away.
+              Coming down from the mountain? Government Camp is about 25 minutes away.
             </p>
           </div>
           <Plate
@@ -278,6 +277,52 @@ export default function SaunaNearPortlandPage() {
               className="object-cover object-[55%_60%]"
             />
           </Plate>
+        </FieldSection>
+
+        {/* S5 Book (#book is the masthead action's target) */}
+        <FieldSection
+          id="book"
+          rule="double"
+          tone="light"
+          eyebrow="Book the sauna"
+          title="Pick your spots, then a time"
+          intro={`$${SPA_PRICE_PER_PERSON} per person · ${SPA_MINUTES} minutes · Sessions at ${SPA_SESSION_TIMES}`}
+          introClassName="max-w-none text-[12px] uppercase tracking-[0.1em] text-ink lg:text-[13px]"
+        >
+          <div className="lg:grid lg:grid-cols-12 lg:gap-x-16">
+            <div className="mt-7 lg:col-span-6 lg:col-start-7 lg:row-start-1 lg:mt-12">
+              <SpaPicker
+                where="pricing"
+                prefix="sauna-near-portland"
+                label="How many are coming? Pick to see sessions"
+                labelId="book-size-label"
+              />
+              <p className="m-0 mt-3 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
+                <Suspense fallback={null}>
+                  <NextAvailability product="spa" variant="text" label="Next open:" />
+                </Suspense>
+                {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
+              </p>
+              <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
+              <PendingSlot
+                className="mt-4"
+                note="DECIDE D4: visit packs line (3 for $199, 5 for $299, 10 for $549, six months). Show only after Hayden decides and the Acuity pack copy says 90 minutes"
+              >
+                <p className="m-0 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
+                  Coming back this winter? Visit packs: 3 for $199, 5 for $299, 10 for $549, each good for six months.{" "}
+                  <BookingTextLink
+                    href={bookingUrl(BOOKING_LINKS.giftCertificates, "sauna-near-portland-packs")}
+                    label="See visit packs"
+                    title="Spa visit packs"
+                    className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap font-medium text-pine underline underline-offset-4"
+                  />
+                </p>
+              </PendingSlot>
+            </div>
+            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:mt-12">
+              <KnowBeforeYouBook framed={false} rows={knowRows} />
+            </div>
+          </div>
         </FieldSection>
 
         {/* S3 What the drive buys you: our own facts only */}
@@ -326,53 +371,6 @@ export default function SaunaNearPortlandPage() {
               className="object-cover object-[50%_45%]"
             />
           </Plate>
-        </FieldSection>
-
-        {/* S5 Book (#book is the masthead action's target) */}
-        <FieldSection
-          id="book"
-          rule="double"
-          tone="light"
-          eyebrow="Book the sauna"
-          title="Pick your spots, then a time"
-          intro={`$${SPA_PRICE_PER_PERSON} per person · ${SPA_MINUTES} minutes · Sessions at ${SPA_SESSION_TIMES}`}
-          introClassName="max-w-none text-[12px] uppercase tracking-[0.1em] text-ink lg:text-[13px]"
-        >
-          <div className="lg:grid lg:grid-cols-12 lg:gap-x-16">
-            <div className="mt-7 lg:col-span-6 lg:col-start-7 lg:row-start-1 lg:mt-12">
-              <SpaPicker
-                where="pricing"
-                prefix="sauna-near-portland"
-                label="How many are coming? Pick to see sessions"
-                labelId="book-size-label"
-              />
-              <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
-              <p className="m-0 mt-3 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
-                <Suspense fallback={null}>
-                  <NextAvailability product="spa" variant="text" label="Next open:" />
-                </Suspense>
-                {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
-              </p>
-              <FieldReviewTier tier="nearCta" className="mt-2" />
-              <PendingSlot
-                className="mt-4"
-                note="DECIDE D4: visit packs line (3 for $199, 5 for $299, 10 for $549, six months). Show only after Hayden decides and the Acuity pack copy says 90 minutes"
-              >
-                <p className="m-0 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
-                  Coming back this winter? Visit packs: 3 for $199, 5 for $299, 10 for $549, each good for six months.{" "}
-                  <BookingTextLink
-                    href={bookingUrl(BOOKING_LINKS.giftCertificates, "sauna-near-portland-packs")}
-                    label="See visit packs"
-                    title="Spa visit packs"
-                    className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap font-medium text-pine underline underline-offset-4"
-                  />
-                </p>
-              </PendingSlot>
-            </div>
-            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:mt-12">
-              <KnowBeforeYouBook framed={false} rows={knowRows} />
-            </div>
-          </div>
         </FieldSection>
 
         <HighlandDayBlock utmPrefix="sauna-near-portland-day" />

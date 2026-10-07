@@ -92,8 +92,8 @@ export function StaticGifts() {
         <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-[18px] lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(7,auto)_1fr] lg:gap-x-16 lg:px-10 lg:pb-10 lg:pt-11 xl:px-10 min-[90rem]:px-16">
           <Plate
             className="lg:col-start-2 lg:row-start-1 lg:row-end-10"
-            frameClassName="h-[189px] max-[359px]:h-[151px] lg:h-auto lg:min-h-0 lg:flex-1"
-            captionClassName="mt-px max-[359px]:hidden lg:mt-0.5"
+            frameClassName="h-[100px] max-[399px]:h-[84px] lg:h-auto lg:min-h-0 lg:flex-1"
+            captionClassName="mt-px max-sm:hidden lg:mt-0.5"
             caption="Feeding a calf in the hay."
           >
             <Image
@@ -103,12 +103,12 @@ export function StaticGifts() {
               priority
               fetchPriority="high"
               sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
-              // Phone: a 1.95:1 band of the square photo; 33% keeps both faces and the calf in frame (desktop is portrait, so only x matters).
+              // Phone: a short 3.5:1 band of the square photo (so the three tiles clear the fold); 33% keeps both faces and the calf in frame (desktop is portrait, so only x matters).
               className="object-cover object-[60%_33%]"
             />
           </Plate>
 
-          <p className="m-0 mt-3.5 font-display text-[18px] italic text-fern lg:col-start-1 lg:row-start-2 lg:mt-0 lg:text-[22px]">
+          <p className="m-0 mt-3.5 font-display text-[18px] italic text-fern lg:col-start-1 lg:row-start-2 lg:mt-0 lg:text-[22px] max-sm:mt-2.5">
             Gift certificates<span data-season-only="gift">, for the holidays</span>
           </p>
           <h1

@@ -252,8 +252,8 @@ export default function FarmToursPage() {
               media: (
                 <FieldDrawing
                   name={m.drawing}
-                  className="h-[56px] w-[56px] lg:h-[200px] lg:w-full"
-                  sizes="(min-width: 1024px) 300px, 56px"
+                  className="h-[64px] w-[64px] lg:h-[200px] lg:w-full"
+                  sizes="(min-width: 1024px) 300px, 64px"
                 />
               ),
             }))}
@@ -350,6 +350,19 @@ export default function FarmToursPage() {
           title="Field notes from guests"
           aside={<FieldReviewTier tier="compact" />}
         >
+          <Plate
+            className="mt-7 lg:mt-10"
+            frameClassName="h-[260px] lg:h-[420px]"
+            caption="A guide leads a Highland calf down the forest trail."
+          >
+            <Image
+              src="/images/farm/farm-life.jpg"
+              alt="A smiling guide in a Highland Farms vest leading a shaggy Highland calf on a rope down a gravel trail through the forest"
+              fill
+              sizes="(min-width: 1024px) 1200px, calc(100vw - 54px)"
+              className="object-cover object-[50%_60%]"
+            />
+          </Plate>
           <ul
             role="list"
             className="m-0 mt-7 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-2 lg:gap-x-16 lg:border-t-0"
@@ -396,18 +409,14 @@ export default function FarmToursPage() {
                     label="How many are coming? Pick to see dates"
                     labelId="book-size-label"
                   />
-                  <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
-                  <FieldReviewTier tier="nearCta" className="mt-3" />
-                  <p className="m-0 mt-1 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
+                  <p className="m-0 mt-3 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
                     <Suspense fallback={null}>
                       <NextAvailability variant="text" label="Next open tour:" />
                     </Suspense>{" "}
                     Tours at {TOUR_TIMES}.
                     {TOUR_LEAD_TIME && ` The typical tour is booked ${TOUR_LEAD_TIME} ahead.`}
                   </p>
-                  <p className="m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-body lg:text-[14px]">
-                    Booking for two? You can add a dozen eggs for $8 at checkout.
-                  </p>
+                  <BookingPolicyNote text={policy} className="mt-2.5 text-[13px] leading-[1.4] text-ink-note" />
                 </>
               )}
             </div>

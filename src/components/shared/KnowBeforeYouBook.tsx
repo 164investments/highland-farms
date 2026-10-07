@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { CONTACT } from "@/lib/constants";
-import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
+import { TOUR_PARTY_SIZES, farmTourFAQ } from "@/data/farm-tours";
+import { nordicSpaFAQ } from "@/data/nordic-spa";
+import { cancellationAnswer } from "@/components/field/Faq";
 import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { FieldRows } from "@/components/ui/FieldGuide";
 
@@ -117,13 +119,23 @@ export function KnowBeforeYouBook({
  * The point-of-sale policy line under a booking button (CONSISTENCY #10).
  * Pass the data file's cancellation answer word for word:
  *   <BookingPolicyNote text={cancellationAnswer(farmTourFAQ)} />
- * Without `text` it falls back to the older summary (kept until every page passes the data).
+ * Without `text` it renders the canonical answer from the data file for
+ * `product` (tour by default). Never a paraphrase: the cancellation wording is
+ * identical everywhere (see the data files).
  */
-export function BookingPolicyNote({ text, className = "" }: { text?: string; className?: string }) {
+export function BookingPolicyNote({
+  text,
+  product = "tour",
+  className = "",
+}: {
+  text?: string;
+  product?: Product;
+  className?: string;
+}) {
+  const canonical = text ?? cancellationAnswer(product === "tour" ? farmTourFAQ : nordicSpaFAQ);
   return (
     <p className={cn("m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]", className)}>
-      {text ??
-        "Rain or shine, your visit runs. If we cancel for severe weather or for the safety of our animals or guests, we will refund or rebook you. All other bookings are final, so check your date and group size before you pay."}
+      {canonical}
     </p>
   );
 }
