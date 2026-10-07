@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { formatWeddingDate, weddingPortfolio } from "@/data/wedding-portfolio";
 import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
 import { WeddingsHero } from "./WeddingsHero";
-import { LookbookLink } from "./LookbookLink";
+import { LookbookCard } from "./LookbookLink";
 import {
   ALCOHOL_INSURANCE_ANSWER,
   COST_ANSWER,
@@ -522,20 +522,15 @@ export default function WeddingsPage() {
               </Link>
             ))}
           </div>
-          <div className="mt-7 border-t border-rule pt-3 lg:hidden">
+          <div className="mt-7 border-t border-rule pt-3 lg:mt-8 lg:border-t-0 lg:pt-0">
             <Link
               href="/wedding-portfolio"
-              className="inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine"
+              className="inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine lg:hidden"
             >
               <span className="border-b border-pine-line pb-0.5">See every real wedding</span>
               <FieldArrow size={16} />
             </Link>
-          </div>
-          <div className="mt-1 lg:mt-8">
-            <LookbookLink
-              placement="weddings-couples"
-              className="inline-flex min-h-11 items-center font-sans text-[15px] font-medium text-pine hover:text-pine-dark"
-            />
+            <LookbookCard placement="weddings-couples" className="mt-2 lg:mt-0 lg:max-w-[460px]" />
           </div>
         </div>
       </section>

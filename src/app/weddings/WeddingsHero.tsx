@@ -49,7 +49,7 @@ export function WeddingsHero() {
 
         <FieldRows
           rows={WEDDING_AT_A_GLANCE}
-          rowClassName="min-h-[36px] py-0.5 lg:min-h-[54px] max-lg:[@media(max-height:600px)]:[&:nth-child(n+3)]:hidden"
+          rowClassName="min-h-[36px] py-0.5 lg:min-h-[54px] max-lg:[@media(max-height:700px)]:[&:nth-child(n+3)]:hidden"
           termClassName="w-[92px] lg:w-[140px]"
           className="mt-2.5 lg:col-start-1 lg:row-start-4 lg:mt-5 lg:max-w-[600px]"
         />

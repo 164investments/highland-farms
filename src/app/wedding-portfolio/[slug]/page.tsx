@@ -369,7 +369,9 @@ export default async function WeddingDetailPage({
             <BackLink />
             {/* Phones: back link, eyebrow, names, date, credit, then the couple's plate on the 660 first screen. */}
             <div className="order-2 mt-1 lg:col-span-7 lg:mt-6">
-              <p className="font-display text-[17px] italic text-fern lg:text-[22px]">A real wedding at Highland Farms</p>
+              <p className="font-display text-[17px] italic text-fern lg:text-[22px]">
+                {isMaya ? "A real wedding, with a Highland cow on the invitation" : "A real wedding at Highland Farms"}
+              </p>
               {/* Size before line-height: cn() drops a line-height that comes before a font size. */}
               <h1
                 id="couple-title"

@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/FieldGuide";
 import { FieldArrowDown, StayPhoto } from "@/components/stay/StayParts";
 import { CELEBRATION_FORM_QUOTE, CELEBRATION_QUOTES } from "@/components/stay/stay-content";
-import { PHONE_TEL, SPA_PRIVATE_SESSION, STAY_MINIMUM, TOUR_EACH_ADDITIONAL, TOUR_FOR_TWO } from "@/components/stay/stay-facts";
+import { PHONE_TEL, STAY_MINIMUM } from "@/components/stay/stay-facts";
 import { properties } from "@/data/properties";
 import { farmTourFAQ } from "@/data/farm-tours";
 import { nordicSpaFAQ } from "@/data/nordic-spa";
@@ -79,12 +79,12 @@ const bring: { drawing: FieldDrawingName; title: string; body: string }[] = [
   {
     drawing: "highland-cow-head",
     title: "The herd",
-    body: `A private hour with the Highland cows: feed, brush and pet them. 2 to 6 guests per tour, $${TOUR_FOR_TWO} for two and $${TOUR_EACH_ADDITIONAL} for each additional guest.`,
+    body: "A private hour with the Highland cows, for 2 to 6 guests per tour.",
   },
   {
     drawing: "sauna-cabin",
     title: "The Nordic spa",
-    body: `A wood-burning dry sauna, a wet sauna and a cold plunge for 90 minutes, ages 16 and up. Book all six spots for a private session, $${SPA_PRIVATE_SESSION}.`,
+    body: "A wood-burning sauna, a wet sauna and a cold plunge for 90 minutes. Book all six spots for a private session.",
   },
   {
     drawing: "douglas-fir-sprig",
@@ -267,7 +267,6 @@ export default function CelebrationsPage() {
                 </li>
               ))}
             </ol>
-            <FieldReviewTier tier="compact" link className="mt-3" />
           </div>
         </section>
       )}
@@ -305,21 +304,6 @@ export default function CelebrationsPage() {
               </li>
             ))}
           </ol>
-          {/* A real photo in the otherwise text-only run before the form (the caption says what the frame shows). */}
-          <Plate
-            className="mt-6 lg:col-start-2 lg:mt-8"
-            frameClassName="aspect-[4/3] p-[7px] lg:aspect-[16/9] lg:p-2.5"
-            caption="A guide and two guests pet a Highland calf in the barn."
-          >
-            <StayPhoto
-              photo={{
-                src: "/images/farm/cow-2.jpg",
-                alt: "A guide and two guests pet a Highland calf in the barn",
-                position: "50% 62%",
-              }}
-              sizes="(min-width: 1024px) 60vw, calc(100vw - 40px)"
-            />
-          </Plate>
         </div>
       </section>
 
@@ -327,18 +311,38 @@ export default function CelebrationsPage() {
       <section aria-labelledby="plan-know-title" className="border-t border-rule px-5 py-10 lg:px-16 lg:py-16">
         <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
           <FieldSectionHeader id="plan-know-title" size="md" title="Know before you plan" titleClassName="lg:text-[40px]" />
-          <FieldRows
-            size="list"
-            className="mt-5 lg:mt-0"
-            rowClassName="flex-col gap-1 py-3.5 lg:flex-row lg:gap-6 lg:py-5"
-            termClassName="w-auto text-[20px] lg:w-[180px] lg:text-[22px]"
-            detailClassName="text-[15px] leading-[1.55] lg:text-[16px]"
-            rows={[
-              { term: "Stays", detail: `${STAY_MINIMUM} No outside pets.` },
-              { term: "Ages", detail: `The spa is for guests 16 and up. On farm tours, kids 4 and under are free.` },
-              { term: "Access", detail: "Farm tours and the spa aren't wheelchair, walker or stroller accessible." },
-            ]}
-          />
+          <div className="mt-5 lg:mt-0">
+            {/* One real plate for the section (the caption says what the frame shows). */}
+            <Plate
+              className="mt-5 lg:mt-0"
+              frameClassName="aspect-[4/3] p-[7px] lg:aspect-[16/9] lg:p-2.5"
+              caption="A guide and two guests pet a Highland calf in the barn."
+            >
+              <StayPhoto
+                photo={{
+                  src: "/images/farm/cow-2.jpg",
+                  alt: "A guide and two guests pet a Highland calf in the barn",
+                  position: "50% 62%",
+                }}
+                sizes="(min-width: 1024px) 60vw, calc(100vw - 40px)"
+              />
+            </Plate>
+            <FieldRows
+              size="list"
+              className="mt-4 lg:mt-6"
+              rowClassName="flex-col gap-1 py-3.5 lg:flex-row lg:gap-6 lg:py-5"
+              termClassName="w-auto text-[20px] lg:w-[180px] lg:text-[22px]"
+              detailClassName="text-[15px] leading-[1.55] lg:text-[16px]"
+              rows={[
+                { term: "Stays", detail: `${STAY_MINIMUM} No outside pets.` },
+                {
+                  term: "Ages and access",
+                  detail:
+                    "The spa is for guests 16 and up, and kids 4 and under are free on farm tours. Farm tours and the spa aren't wheelchair, walker or stroller accessible.",
+                },
+              ]}
+            />
+          </div>
         </div>
       </section>
 
@@ -407,16 +411,15 @@ export default function CelebrationsPage() {
             introClassName="text-[15px] lg:text-[16px]"
           />
           <div className="mt-4 lg:mt-0">
-            <div className="flex flex-col items-start">
-              <Link href="/farm-tours#choose" className={ladderLinkClass}>
-                See tour dates
-                <FieldArrow size={16} />
+            <p className="m-0 flex min-h-11 flex-wrap items-center gap-x-2 font-sans text-[14px] text-ink-note lg:text-[15px]">
+              <Link href="/farm-tours#choose" className="inline-flex min-h-11 items-center font-medium text-pine">
+                Tour dates
               </Link>
-              <Link href="/nordic-spa#availability" className={ladderLinkClass}>
-                See open sessions
-                <FieldArrow size={16} />
+              <span aria-hidden="true">&middot;</span>
+              <Link href="/nordic-spa#availability" className="inline-flex min-h-11 items-center font-medium text-pine">
+                Open spa sessions
               </Link>
-            </div>
+            </p>
             {visitPolicy.length > 0 && (
               <div className="mt-4 border-t border-rule">
                 <details className="group border-b border-rule">

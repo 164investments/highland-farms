@@ -4,7 +4,6 @@ import {
   FieldDrawing,
   FieldLeader,
   FieldLink,
-  FieldNo,
   FieldQuoteView,
   FieldSectionHeader,
   fieldTextLinkClass,
@@ -30,7 +29,8 @@ interface VisitDoor {
   href: string;
   image: { src: string; alt: string; position: string };
   blurb: string;
-  facts: string;
+  /** One short true line for the plain-row doors. */
+  note: string;
   cta: string;
 }
 
@@ -55,7 +55,7 @@ function buildDoors(): VisitDoor[] {
         position: "object-[50%_62%]",
       },
       blurb: "A private hour with our Scottish Highland cows. Feed them, brush them, pet them, rain or shine.",
-      facts: `${tour.durationMin} minutes · ${tour.minParty} to ${tour.maxParty} guests · $${tourEach} each after two`,
+      note: `${tour.durationMin} minutes · ${tour.minParty} to ${tour.maxParty} guests · $${tourEach} each after two`,
       cta: "See the farm tour",
     },
     {
@@ -69,7 +69,7 @@ function buildDoors(): VisitDoor[] {
         position: "object-[50%_70%] lg:object-[58%_60%]",
       },
       blurb: "Ninety minutes of wood-burning sauna, wet sauna and cold plunge, in the forest.",
-      facts: `Up to ${spa.maxParty} a session · ages 16 and up · robes and towels provided`,
+      note: `Sauna and cold plunge · $${spaPrice} per person · up to ${spa.maxParty} a session`,
       cta: "See the spa",
     },
     {
@@ -84,7 +84,7 @@ function buildDoors(): VisitDoor[] {
         position: "object-[40%_60%]",
       },
       blurb: "The William Wallace Lodge, the Bonnie Lass Cottage and the Camp, or the whole farm for your group.",
-      facts: `Lodge ${guests("lodge")} · Cottage ${guests("cottage")} · Camp ${guests("camp")} · whole farm ${whole}`,
+      note: `Lodge, Cottage and Camp · the whole farm sleeps ${whole}`,
       cta: "See the stays",
     },
     {
@@ -98,7 +98,7 @@ function buildDoors(): VisitDoor[] {
         position: "object-[50%_50%]",
       },
       blurb: "Highland cow plush, farm tees and eggs from our hens.",
-      facts: "Farm pickup or local delivery · we don’t ship",
+      note: `Plush, tees and eggs · from $${storeFrom} · pickup or local delivery`,
       cta: "Browse the store",
     },
   ];
@@ -110,7 +110,7 @@ function buildDoors(): VisitDoor[] {
  * property and shop data. The peacock plate is the page's one ornament.
  */
 export function HomeVisitIndex() {
-  const doors = buildDoors();
+  const [lead, ...rest] = buildDoors();
   const quote = resolveFieldQuote(HOME_VISIT_QUOTE, { role: "Stay" });
   const whole = guests("whole-farm");
 
@@ -146,52 +146,66 @@ export function HomeVisitIndex() {
           />
         </div>
 
-        <ol className="m-0 mt-6 grid list-none grid-cols-1 border-t border-rule p-0 lg:mt-12 lg:grid-cols-4 lg:gap-x-8 lg:border-t-0">
-          {doors.map((d, i) => (
-            <li
-              key={d.id}
-              className="grid grid-cols-[104px_minmax(0,1fr)] gap-x-4 border-b border-rule py-5 lg:flex lg:flex-col lg:border-b-0 lg:py-0"
-            >
-              <div className="h-[128px] border border-frame bg-paper-light p-[5px] lg:h-[300px] lg:p-2">
-                <div className="relative h-full w-full overflow-hidden">
-                  <Image
-                    src={d.image.src}
-                    alt={d.image.alt}
-                    fill
-                    sizes="(min-width: 1440px) 300px, (min-width: 1024px) 22vw, 94px"
-                    className={`object-cover ${d.image.position}`}
-                  />
-                </div>
+        <div className="mt-6 lg:mt-12 lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start lg:gap-x-16">
+          {/* The one lead row: the farm tour, with photo, price and link. */}
+          <div className="grid grid-cols-[104px_minmax(0,1fr)] gap-x-4 border-y border-rule py-5 lg:flex lg:flex-col lg:border-y-0 lg:py-0">
+            <div className="h-[128px] border border-frame bg-paper-light p-[5px] lg:h-[360px] lg:p-2">
+              <div className="relative h-full w-full overflow-hidden">
+                <Image
+                  src={lead.image.src}
+                  alt={lead.image.alt}
+                  fill
+                  sizes="(min-width: 1440px) 720px, (min-width: 1024px) 56vw, 94px"
+                  className={`object-cover ${lead.image.position}`}
+                />
               </div>
-              <div className="flex min-w-0 flex-col lg:mt-5">
-                <FieldNo n={i + 1} />
-                {/* Under 390px the text column is too narrow for name, leader and price on one line
-                    (it clipped at 320 and 375), so the price drops under the name and the leader hides. */}
-                <p className="m-0 flex flex-wrap items-baseline gap-x-2 min-[390px]:flex-nowrap">
-                  <FieldLink
-                    href={d.href}
-                    className="shrink-0 font-display text-[22px] font-medium leading-tight text-ink lg:text-[26px]"
-                  >
-                    {d.name}
-                  </FieldLink>
-                  <FieldLeader className="mb-1 hidden translate-y-[-3px] min-[390px]:block" />
-                  <span className="basis-full font-sans text-[13px] font-medium text-pine min-[390px]:shrink-0 min-[390px]:basis-auto lg:text-[14px]">
-                    {d.price}
+            </div>
+            <div className="flex min-w-0 flex-col lg:mt-5">
+              {/* Under 390px the text column is too narrow for name, leader and price on one line
+                  (it clipped at 320 and 375), so the price drops under the name and the leader hides. */}
+              <p className="m-0 flex flex-wrap items-baseline gap-x-2 min-[390px]:flex-nowrap">
+                <FieldLink
+                  href={lead.href}
+                  className="shrink-0 font-display text-[22px] font-medium leading-tight text-ink lg:text-[26px]"
+                >
+                  {lead.name}
+                </FieldLink>
+                <FieldLeader className="mb-1 hidden translate-y-[-3px] min-[390px]:block" />
+                <span className="basis-full font-sans text-[13px] font-medium text-pine min-[390px]:shrink-0 min-[390px]:basis-auto lg:text-[14px]">
+                  {lead.price}
+                </span>
+              </p>
+              <p className="m-0 mt-1 font-sans text-[14px] leading-[1.5] text-ink-body lg:mt-2 lg:text-[15px]">
+                {lead.blurb}
+              </p>
+              <div className="mt-1 flex flex-wrap gap-x-5 lg:mt-2">
+                <FieldLink href={lead.href} className="inline-flex min-h-11 items-center gap-2 self-start">
+                  <span className={linkText}>{lead.cta}</span>
+                  <FieldArrow size={15} className="text-pine" />
+                </FieldLink>
+              </div>
+            </div>
+          </div>
+
+          {/* The other three doors: one plain line each (title, short true note, arrow). */}
+          <ul className="m-0 list-none border-b border-rule p-0 lg:border-b-0 lg:border-t lg:border-rule">
+            {rest.map((d) => (
+              <li key={d.id} className="border-b border-rule last:border-b-0 lg:last:border-b lg:last:border-rule">
+                <FieldLink href={d.href} className="flex min-h-14 items-center justify-between gap-3 py-2.5 lg:min-h-20">
+                  <span className="min-w-0">
+                    <span className="block font-display text-[20px] font-medium leading-tight text-ink lg:text-[24px]">
+                      {d.name}
+                    </span>
+                    <span className="mt-0.5 block font-sans text-[13px] leading-snug text-ink-body lg:text-[15px]">
+                      {d.note}
+                    </span>
                   </span>
-                </p>
-                <p className="m-0 mt-1 font-sans text-[14px] leading-[1.5] text-ink-body lg:mt-2 lg:text-[15px]">
-                  {d.blurb}
-                </p>
-                <div className="mt-1 flex flex-wrap gap-x-5 lg:mt-2">
-                  <FieldLink href={d.href} className="inline-flex min-h-11 items-center gap-2 self-start">
-                    <span className={linkText}>{d.cta}</span>
-                    <FieldArrow size={15} className="text-pine" />
-                  </FieldLink>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ol>
+                  <FieldArrow size={15} className="shrink-0 text-pine" />
+                </FieldLink>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         {/* Visitor proof (quote only; no count on this screen) and the celebrations path. */}
         <div className="mt-7 grid grid-cols-1 gap-6 lg:mt-14 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16 lg:border-t lg:border-rule lg:pt-10">
