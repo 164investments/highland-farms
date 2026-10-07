@@ -14,8 +14,9 @@ export const RAIN_CLOSE =
   "Your rain plan depends on your guest count, so Connor walks through it with you on your call.";
 export const COST_ANSWER =
   "It depends on your date, your guest count and how many nights you stay. Connor goes through it on your free call.";
+/** Alcohol and insurance rules apply to any gathering over 20 guests (Jalene, 2026-10-07). */
 export const VENDORS_ANSWER =
-  "Yes. Couples here bring their own caterer and photographer, and your caterer gets the full kitchen. Connor works with your vendors on setup.";
+  "Yes. Couples here bring their own caterer and photographer, and your caterer gets the full kitchen. Alcohol is the exception: it's bought through Highland Farms and served by an OLCC-licensed bartender. You'll also need event insurance, as for any gathering over 20 guests. Connor works with your vendors on setup.";
 export const RESTROOMS_ANSWER =
   "Your overnight guests have the bathrooms in the Lodge, the Cottage and the Camp. For the full guest list, Connor goes through it on your call.";
 export const GETTING_HERE_ANSWER =

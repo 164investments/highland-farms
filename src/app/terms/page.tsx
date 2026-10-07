@@ -198,8 +198,8 @@ const sections: LegalSection[] = [
             no-shows. {CONFIRM_BEFORE_BOOKING} {WEATHER_EXCEPTION}
           </>
           <>
-            <LegalStrong>Accommodations:</LegalStrong> Cancellation terms vary by property and booking date. Specific
-            cancellation policies are provided at the time of booking.
+            <LegalStrong>Accommodations:</LegalStrong> All stay bookings are final. We do not offer refunds for
+            cancelled stays.
           </>
           <>
             <LegalStrong>Weddings &amp; events:</LegalStrong> Cancellation and refund terms are outlined in your
@@ -396,7 +396,7 @@ export default function TermsOfServicePage() {
       <LegalLayout
         policy="terms"
         title="Terms of Service"
-        updated="October 6, 2026"
+        updated="October 7, 2026"
         sections={sections}
         closing="Still have a question about a booking?"
         headerExtra={

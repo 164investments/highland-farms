@@ -16,8 +16,9 @@ import { CONTACT } from "@/lib/constants";
  * (CONSISTENCY #5). /shop's "How your order reaches you" block already answers
  * pickup (steps I to III and the address), payment (step I), the delivery fee
  * and minimum (the Delivery row) and shipping ("We don't ship."), so those
- * questions are not asked again here (round 4). Never write "call or text", or
- * a ready time ("usually the same day"), until Connor confirms them.
+ * questions are not asked again here (round 4). Never write "call or text". The
+ * ready time and pickup hours live in `fulfillment.ts` (Jalene, 2026-10-07) and
+ * show in the /shop steps, so they are not repeated here either.
  *
  * ⛔ NO RETURNS / REFUNDS ENTRY. `src/app/terms/page.tsx` publishes a
  * cancellation policy for farm tours and spa sessions and separate terms for

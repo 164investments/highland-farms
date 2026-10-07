@@ -84,7 +84,7 @@ its hero lives in `src/app/thanksgiving/ThanksgivingHero.tsx` beside the page.
 | A masthead action, bar or menu/footer row for a page type | `src/components/layout/chrome.ts` |
 | A review quote on a page | a `QuoteSpec` (author + review date) in that page's own `quotes.ts`, kept pure (type-only imports). `scripts/review-quotes.test.mts` globs every `src/**/quotes.ts` and proves each quote verbatim from the snapshot |
 | A fact the farm has not confirmed yet | wrap the whole element (a row, a sentence, a block) in `PendingSlot` (`ui/FieldGuide.tsx`); it renders nothing in production. Never words inside a sentence: the page must read complete and true with every slot removed |
-| Customer-facing copy | no em dashes (titles use ` · `); the one public phone line is `CONTACT.phone` |
+| Customer-facing copy | no em dashes (titles use ` · `); the public phone line is `CONTACT.phone`; `CONTACT.ordersPhone` only for shop pickup and holiday packages; never name individual animals |
 
 **The tours and spa cancellation policy** is strict, and its exception sentence
 ("The only exception is if we cancel for severe weather or for the safety of our

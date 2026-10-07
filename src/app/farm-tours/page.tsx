@@ -20,7 +20,6 @@ import {
   FieldSection,
   FieldSectionHeader,
   FieldSequence,
-  PendingSlot,
   Plate,
 } from "@/components/ui/FieldGuide";
 import { TOUR_LEAD_TIME, TOUR_PARTY_SIZES, TOUR_TIMES, farmTourFAQ } from "@/data/farm-tours";
@@ -229,10 +228,6 @@ export default function FarmToursPage() {
                 role="Farm tour"
                 size="sm"
                 className="mt-4 max-w-[560px]"
-              />
-              <PendingSlot
-                className="mt-3"
-                note="PENDING CONNOR: a row naming two of the herd, one true trait each"
               />
             </div>
             <FieldDrawing

@@ -1,5 +1,5 @@
 import { CONTACT } from "@/lib/constants";
-import { FieldRows, PendingSlot } from "@/components/ui/FieldGuide";
+import { FieldRows } from "@/components/ui/FieldGuide";
 import { cn } from "@/lib/utils";
 import {
   PHONE_TEL,
@@ -28,7 +28,7 @@ export function StayPhoneLink() {
   );
 }
 
-/** "Cancellation terms are provided at the time of booking. Questions before you book? Call (971) 236-2551." */
+/** "All stay bookings are final, with no refunds. Questions before you book? Call (971) 236-2551." */
 export function StayCancellationLine() {
   return (
     <>
@@ -66,23 +66,15 @@ const KNOW_LAYOUT = {
  */
 export function StayKnowRows({
   variant,
-  pendingNote,
   className,
 }: {
   variant: "index" | "slug";
-  /** Whole-element slot for the exact terms (PendingSlot renders nothing in production). */
-  pendingNote: string;
   className?: string;
 }) {
   const layout = KNOW_LAYOUT[variant];
   const cancellation = {
     term: "Cancellation",
-    detail: (
-      <>
-        <StayCancellationLine />
-        <PendingSlot className="mt-2" note={pendingNote} />
-      </>
-    ),
+    detail: <StayCancellationLine />,
   };
   const rows = [
     ...(variant === "index"

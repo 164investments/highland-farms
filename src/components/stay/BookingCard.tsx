@@ -1,4 +1,3 @@
-import { PendingSlot } from "@/components/ui/FieldGuide";
 import { HospitableWidget } from "./HospitableWidget";
 import { StayCancellationLine } from "./StayLines";
 import {
@@ -64,10 +63,6 @@ export function BookingCard({ widgetUrl, propertyName, propertySlug }: BookingCa
           <p className="m-0 mt-2">
             <StayCancellationLine />
           </p>
-          <PendingSlot
-            className="mt-2"
-            note={`PENDING JALENE: ${propertyName}'s exact cancellation terms, to replace the cancellation sentence here and in "Know before you book"`}
-          />
         </div>
       </div>
     </section>

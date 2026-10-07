@@ -37,11 +37,12 @@ export const STAY_PETS =
   "No outside pets. Service animals are permitted in accordance with ADA requirements.";
 
 /**
- * The interim stay-cancellation sentence, pending the exact terms from Jalene.
- * The Terms page says terms "vary by property and booking date"; ops fact #30
- * says stays are final sale. This is the part true under both (truth r3).
+ * Stays are final sale: "All sales are final, no refunds for stays" (Jalene,
+ * 2026-10-07, matching ops fact #30). Same on every stay, so one sentence here
+ * and the Terms page's Accommodations bullet. It says nothing about date
+ * changes because Jalene's answer didn't.
  */
-export const STAY_CANCELLATION = "Cancellation terms are provided at the time of booking.";
+export const STAY_CANCELLATION = "All stay bookings are final, with no refunds.";
 
 /** Said beside the cancellation line, so an anxious booker has a person to ask. */
 export const STAY_QUESTIONS_LEAD = "Questions before you book? Call";
