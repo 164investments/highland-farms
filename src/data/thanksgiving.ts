@@ -93,7 +93,7 @@ export const thanksgiving = {
     },
     {
       title: "Plan your four days together.",
-      detail: "Once you book, the team builds your itinerary with you and sends it before you arrive.",
+      detail: "Arrive to a plan. The team sends your itinerary before you drive up.",
     },
   ],
   faqs: [

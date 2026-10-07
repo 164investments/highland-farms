@@ -71,7 +71,7 @@ export function ThanksgivingHero() {
           </a>
           <p className="m-0 mt-2 font-sans text-[12px] leading-[1.5] text-ink-note lg:mt-0 lg:basis-full lg:text-[13px]">
             Opens an email to our team. It doesn&apos;t reserve anything. Or call{" "}
-            <a href={`tel:${thanksgiving.phone.replace(/\D/g, "")}`} data-cta="tg-hero-call" className="whitespace-nowrap text-ink-body underline underline-offset-2">
+            <a href={`tel:${thanksgiving.phone.replace(/\D/g, "")}`} data-cta="tg-hero-call" className="whitespace-nowrap py-3 text-ink-body underline underline-offset-2">
               {thanksgiving.phone}
             </a>
             .

@@ -186,7 +186,7 @@ export default function ThanksgivingPage() {
                   <a
                     href={`tel:${thanksgiving.phone.replace(/\D/g, "")}`}
                     data-cta="tg-final-call"
-                    className="whitespace-nowrap text-ink-body underline underline-offset-2"
+                    className="whitespace-nowrap py-3 text-ink-body underline underline-offset-2"
                   >
                     {thanksgiving.phone}
                   </a>
