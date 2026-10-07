@@ -90,6 +90,9 @@ export function CheckoutBody({
   const [paidWith, setPaidWith] = useState<Failure["at"]>("card");
   const [chosen, setFulfillment] = useState<Fulfillment>("pickup");
   const [touched, setTouched] = useState({ email: false, phone: false });
+  // Set when Pay (or a held wallet) is tapped with gaps: every empty required
+  // field is then marked inline. Client-side UI only; the server rules are unchanged.
+  const [showGaps, setShowGaps] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -265,9 +268,8 @@ export function CheckoutBody({
   const walletBlock: WalletBlock = !contactOk ? "contact" : !addressOk ? "address" : blocking ? "zip" : null;
 
   /** A tap on a held wallet: take the shopper to the first field still missing. */
-  function showFirstGap() {
-    setTouched({ email: true, phone: true });
-    const id = !nameOk
+  function firstGapId(): string {
+    return !nameOk
       ? "co-name"
       : !emailOk
         ? "co-email"
@@ -278,7 +280,20 @@ export function CheckoutBody({
             : !form.city.trim()
               ? "co-city"
               : "co-zip";
-    document.getElementById(id)?.focus();
+  }
+
+  function showFirstGap() {
+    setTouched({ email: true, phone: true });
+    setShowGaps(true);
+    focusField(firstGapId());
+  }
+
+  /** Scroll the field into view (below the sticky header) and focus it. */
+  function focusField(id: string) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.focus({ preventScroll: true });
   }
 
   // Put the focus on a payment error where it was raised, so a phone user
@@ -295,13 +310,15 @@ export function CheckoutBody({
       setFailure({ at: "card", message });
       return false;
     };
-    if (blocking) return fail(blocking);
-    if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
-      return fail("Add your name, email and phone first, then pay.");
+    if (!contactOk || !addressOk) {
+      // Mark every empty required field and take the shopper to the first one.
+      setTouched({ email: true, phone: true });
+      setShowGaps(true);
+      focusField(firstGapId());
+      // The marks sit on the fields themselves; no far-away box to read.
+      return false;
     }
-    if (!emailOk) return fail("Check your email address, then pay.");
-    if (!phoneOk) return fail("Check your phone number, then pay.");
-    if (!addressOk) return fail("Add your delivery address first, then pay.");
+    if (blocking) return fail(blocking);
     return true;
   }
 
@@ -404,8 +421,14 @@ export function CheckoutBody({
   }
 
   const busy = status === "submitting";
-  const emailBad = touched.email && !emailOk;
-  const phoneBad = touched.phone && !phoneOk;
+  const emailBad = (touched.email || showGaps) && !emailOk;
+  const phoneBad = (touched.phone || showGaps) && !phoneOk;
+  const nameBad = showGaps && !nameOk;
+  const addressBad = showGaps && !form.address.trim();
+  const cityBad = showGaps && !form.city.trim();
+  const zipBad = showGaps && form.zip.trim().length < 5;
+  const errorRing = "border-[#8c3b2a] focus:border-[#8c3b2a]";
+  const errorText = "m-0 mt-1 text-[12px] font-medium text-[#8c3b2a]";
   const shortBy = Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
   const payDisabled = busy || status !== "ready" || Boolean(blocking);
 
@@ -577,7 +600,8 @@ export function CheckoutBody({
               <div className="clear-left grid gap-4 pt-3 lg:grid-cols-2 lg:gap-x-5">
                 <div className="lg:col-span-2">
                   <label htmlFor="co-name" className="block text-[13px] font-medium text-ink">Name</label>
-                  <input id="co-name" type="text" autoComplete="name" required maxLength={120} value={form.name} onChange={set("name")} className={input} />
+                  <input id="co-name" type="text" autoComplete="name" required maxLength={120} value={form.name} onChange={set("name")} aria-invalid={nameBad || undefined} aria-describedby={nameBad ? "co-name-err" : undefined} className={cn(input, nameBad && errorRing)} />
+                  {nameBad && <p id="co-name-err" className={errorText}>Add your name so we know who to look for.</p>}
                 </div>
                 <div>
                   <label htmlFor="co-email" className="block text-[13px] font-medium text-ink">Email</label>
@@ -592,10 +616,14 @@ export function CheckoutBody({
                     onBlur={() => setTouched((t) => ({ ...t, email: true }))}
                     aria-describedby="co-email-help"
                     aria-invalid={emailBad || undefined}
-                    className={input}
+                    className={cn(input, emailBad && errorRing)}
                   />
-                  <p id="co-email-help" className={cn("m-0 mt-1 text-[12px]", emailBad ? "text-ink" : "text-ink-note")}>
-                    {emailBad ? "Check the email so your receipt reaches you." : "Your receipt goes here."}
+                  <p id="co-email-help" className={cn("m-0 mt-1 text-[12px]", emailBad ? "font-medium text-[#8c3b2a]" : "text-ink-note")}>
+                    {emailBad
+                      ? form.email.trim()
+                        ? "Check the email so your receipt reaches you."
+                        : "Add your email so we can send the receipt."
+                      : "Your receipt goes here."}
                   </p>
                 </div>
                 <div>
@@ -611,9 +639,9 @@ export function CheckoutBody({
                     onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
                     aria-describedby="co-phone-help"
                     aria-invalid={phoneBad || undefined}
-                    className={input}
+                    className={cn(input, phoneBad && errorRing)}
                   />
-                  <p id="co-phone-help" className={cn("m-0 mt-1 text-[12px]", phoneBad ? "text-ink" : "text-ink-note")}>
+                  <p id="co-phone-help" className={cn("m-0 mt-1 text-[12px]", phoneBad ? "font-medium text-[#8c3b2a]" : "text-ink-note")}>
                     {phoneBad
                       ? "Add a phone number so we can call you when it's packed."
                       : "So we can call you when it's packed."}
@@ -623,15 +651,18 @@ export function CheckoutBody({
                   <>
                     <div className="lg:col-span-2">
                       <label htmlFor="co-address" className="block text-[13px] font-medium text-ink">Street address</label>
-                      <input id="co-address" type="text" autoComplete="address-line1" required maxLength={240} value={form.address} onChange={set("address")} className={input} />
+                      <input id="co-address" type="text" autoComplete="address-line1" required maxLength={240} value={form.address} onChange={set("address")} aria-invalid={addressBad || undefined} aria-describedby={addressBad ? "co-address-err" : undefined} className={cn(input, addressBad && errorRing)} />
+                      {addressBad && <p id="co-address-err" className={errorText}>Add the street address for delivery.</p>}
                     </div>
                     <div>
                       <label htmlFor="co-city" className="block text-[13px] font-medium text-ink">City</label>
-                      <input id="co-city" type="text" autoComplete="address-level2" required maxLength={120} value={form.city} onChange={set("city")} className={input} />
+                      <input id="co-city" type="text" autoComplete="address-level2" required maxLength={120} value={form.city} onChange={set("city")} aria-invalid={cityBad || undefined} aria-describedby={cityBad ? "co-city-err" : undefined} className={cn(input, cityBad && errorRing)} />
+                      {cityBad && <p id="co-city-err" className={errorText}>Add the city.</p>}
                     </div>
                     <div>
                       <label htmlFor="co-zip" className="block text-[13px] font-medium text-ink">ZIP</label>
-                      <input id="co-zip" type="text" inputMode="numeric" autoComplete="postal-code" required maxLength={10} value={form.zip} onChange={set("zip")} className={input} />
+                      <input id="co-zip" type="text" inputMode="numeric" autoComplete="postal-code" required maxLength={10} value={form.zip} onChange={set("zip")} aria-invalid={zipBad || undefined} aria-describedby={zipBad ? "co-zip-err" : undefined} className={cn(input, zipBad && errorRing)} />
+                      {zipBad && <p id="co-zip-err" className={errorText}>Add the 5-digit ZIP.</p>}
                     </div>
                   </>
                 )}
@@ -712,7 +743,7 @@ export function CheckoutBody({
                   {busy ? "Paying…" : `Pay ${formatCents(totalCents)}`}
                 </button>
                 <p className="m-0 mt-2.5 text-[13px] text-ink-note lg:hidden">
-                  That&apos;s everything. No tax or added fees.
+                  That&apos;s everything. No sales tax.
                 </p>
                 <FieldReviewLine tier="nearCta" count={reviewCount} starSize={12} className="mt-3 text-[13px] text-ink-body lg:text-[13px]" />
               </div>
@@ -745,7 +776,7 @@ export function CheckoutBody({
                 <dd className="m-0 text-[20px] font-semibold">{formatCents(totalCents)}</dd>
               </div>
             </dl>
-            <p className="m-0 mt-1 text-[12px] text-ink-note">That&apos;s everything. No tax or added fees.</p>
+            <p className="m-0 mt-1 text-[12px] text-ink-note">That&apos;s everything. No sales tax.</p>
           </aside>
         </div>
       </form>

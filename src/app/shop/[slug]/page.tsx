@@ -139,7 +139,7 @@ export default async function ProductPage({
       {/* 1. The buy box */}
       <section className="px-5 pb-10 pt-2 lg:px-16 lg:pb-20 lg:pt-8">
         <div className="mx-auto max-w-[1312px]">
-          <nav aria-label="Breadcrumb" className="text-[13px] text-ink-note">
+          <nav aria-label="Breadcrumb" className={cn("text-[13px] text-ink-note", isApparel && "max-lg:hidden")}>
             <Link href="/shop" className="inline-flex min-h-11 items-center hover:text-pine">Farm shop</Link>
             <span className="mx-2" aria-hidden="true">/</span>
             <Link href={`/shop#${product.category}`} className="inline-flex min-h-11 items-center hover:text-pine">
@@ -153,7 +153,7 @@ export default async function ProductPage({
               <div
                 className={cn(
                   "relative overflow-hidden lg:aspect-square lg:h-auto",
-                  isApparel ? "aspect-[5/4]" : "h-[176px] max-[359px]:h-[128px]",
+                  isApparel ? "h-[160px] max-[359px]:h-[128px]" : "h-[176px] max-[359px]:h-[128px]",
                 )}
               >
                 <Image
@@ -164,7 +164,7 @@ export default async function ProductPage({
                   sizes="(min-width: 1024px) 640px, calc(100vw - 54px)"
                   className={cn(
                     "object-cover",
-                    isApparel ? "object-[50%_70%]" : "object-[50%_48%]",
+                    isApparel ? "object-[50%_68%]" : "object-[50%_48%]",
                     soldOut && "opacity-60",
                   )}
                 />
@@ -343,7 +343,7 @@ export default async function ProductPage({
                         <Image src={p.image} alt="" fill sizes="(min-width: 1024px) 380px, 30vw" className="object-cover" />
                       </div>
                     </div>
-                    <p className="m-0 mt-2 font-display text-[16px] font-medium leading-[1.15] lg:text-[22px]">{p.title}</p>
+                    <p className="m-0 mt-2 min-h-[2.3em] font-display text-[16px] font-medium leading-[1.15] lg:min-h-0 lg:text-[22px]">{p.title}</p>
                   </Link>
                   <QuickAdd product={p} stock={record} display="price" className="mt-1.5 w-full justify-center lg:w-auto" />
                 </li>

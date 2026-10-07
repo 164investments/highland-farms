@@ -8,6 +8,7 @@ import {
   PendingSlot,
   Plate,
   fieldCtaClass,
+  fieldCtaOutlineClass,
 } from "@/components/ui/FieldGuide";
 import { resolveFieldQuote } from "@/components/field/Reviews";
 import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
@@ -177,11 +178,11 @@ export default async function ThankYouPage({
                 <FieldArrow size={16} />
               </BookingTextLink>
             </div>
-            <p className="m-0 mt-6 flex flex-wrap gap-x-6 border-t border-rule pt-3 text-[14px]">
-              <Link href="/shop" className="inline-flex min-h-11 items-center text-ink-note">
-                <span className="border-b border-rule">Keep shopping</span>
+            <div className="mt-6 border-t border-rule pt-5">
+              <Link href="/shop" className={`${fieldCtaOutlineClass} w-full lg:w-auto`}>
+                Keep shopping
               </Link>
-            </p>
+            </div>
           </div>
         </div>
       </section>

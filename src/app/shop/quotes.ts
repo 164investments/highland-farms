@@ -37,7 +37,7 @@ export const SHOP_CART_QUOTE: QuoteSpec = {
   author: "David Woolley",
   date: "2026-06-08",
   sentenceStartsWith: "Love the fact that we could pay",
-  topic: "Shop order",
+  topic: "Nordic Forest Spa",
 };
 
 /** /shop/thank-you, beside the tour and spa links. */

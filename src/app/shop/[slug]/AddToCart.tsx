@@ -93,6 +93,8 @@ export function AddToCart({
   const max = selected?.stock && selected.stock > 0 ? Math.min(99, selected.stock) : 99;
   const scarcity = selected ? scarcityLabel(selected.stock) : null;
   const multi = variants.length > 1;
+  // Six sizes: two even rows of three at 320, one row of six from 380.
+  const evenGrid = optionName === "Size" && variants.length === 6;
   // "from" only when the options differ in price (sized apparel doesn't).
   const priceVaries = new Set(variants.map((v) => v.priceCents)).size > 1;
 
@@ -152,8 +154,22 @@ export function AddToCart({
       : `Add to cart · ${total}`;
   const disabled = allOut || selectedOut;
   const cartHasItems = ready && count > 0;
+  // At 320 the stepper leaves ~145px for the button: the narrow label drops "to cart" /
+  // "a" so it never wraps. The accessible name is the visible text at each width.
+  const buttonText = allOut || selectedOut ? (
+    "Sold out"
+  ) : !selected ? (
+    <>
+      Choose <span className="max-[379px]:hidden">a </span>
+      {(optionName ?? "size").toLowerCase()} · {total}
+    </>
+  ) : (
+    <>
+      Add<span className="max-[379px]:hidden"> to cart</span> · {total}
+    </>
+  );
   const buttonClass = cn(
-    "inline-flex h-[52px] flex-1 items-center justify-center gap-2.5 px-5 text-[15px] font-semibold tracking-[0.02em] transition-colors",
+    "inline-flex h-[52px] min-w-0 flex-1 items-center justify-center gap-2.5 whitespace-nowrap px-3 text-[15px] min-[380px]:px-5 font-semibold tracking-[0.02em] transition-colors",
     disabled ? "cursor-not-allowed bg-paper-shade text-ink-note" : "bg-pine text-paper-light hover:bg-pine-dark",
   );
 
@@ -207,7 +223,7 @@ export function AddToCart({
           <legend className="p-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">
             {optionName ?? "Choose"}
           </legend>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className={cn("mt-2 gap-2", evenGrid ? "grid grid-cols-3 min-[380px]:grid-cols-6" : "flex flex-wrap")}>
             {variants.map((v) => {
               const out = v.stock === 0;
               const on = v.id === selectedId;
@@ -225,6 +241,7 @@ export function AddToCart({
                   }}
                   className={cn(
                     "flex h-12 min-w-12 items-center justify-center border px-3 text-[15px] font-medium",
+                    evenGrid && "min-w-0 px-1",
                     on ? "border-pine bg-pine text-paper-light" : "border-frame bg-paper-light text-ink hover:border-pine",
                     out && !on && "text-ink-note line-through",
                     out && on && "line-through",
@@ -248,7 +265,7 @@ export function AddToCart({
               className={buttonClass}
               aria-live="polite"
             >
-              Added · View cart ({count})
+              <span className="max-[379px]:hidden">Added · </span>View cart ({count})
             </Link>
           ) : (
             <button
@@ -259,7 +276,7 @@ export function AddToCart({
               disabled={disabled}
               className={buttonClass}
             >
-              {addLabel}
+              {buttonText}
             </button>
           )}
         </div>

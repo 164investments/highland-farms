@@ -33,7 +33,7 @@ export interface AddOn {
 }
 
 const keepShopping =
-  "inline-flex min-h-11 items-center gap-2 text-[14px] text-ink-note hover:text-pine";
+  "min-h-11 items-center gap-2 text-[14px] text-ink-note hover:text-pine";
 
 export function CartBody({
   addOns,
@@ -313,7 +313,7 @@ export function CartBody({
                 {quote && <FieldQuoteView {...quote} rule size="sm" className="mt-5" />}
               </aside>
 
-              <Link href="/shop" className={`mt-4 lg:hidden ${keepShopping}`}>
+              <Link href="/shop" className={`mt-4 inline-flex lg:hidden ${keepShopping}`}>
                 <BackArrowIcon />
                 Keep shopping
               </Link>
