@@ -4,7 +4,7 @@
 
 Name: Highland Farms Oregon
 Base: https://highlandfarmsoregon.com
-Last-Updated: 2026-10-06
+Last-Updated: 2026-10-07
 Contact: events@highlandfarms-oregon.com | +1 (971) 236-2551
 Sitemap: https://highlandfarmsoregon.com/sitemap.xml
 
@@ -20,8 +20,8 @@ Highland Farms is a five-acre private forest farm in Brightwood, Oregon. It is h
 
 ## Weddings & Events
 
-- [Weddings](https://highlandfarmsoregon.com/weddings): forest weddings for up to 125 guests, with the Highland Cows as honorary guests and lodging on the farm for up to 20. Check a date with the events team or book a free 45-minute call with Connor.
-- [Celebrations & Events](https://highlandfarmsoregon.com/celebrations): birthdays, anniversaries, reunions and retreats. Groups of up to 8 can book a house online and up to 20 can book the whole farm; larger day events go through the inquiry form.
+- [Weddings](https://highlandfarmsoregon.com/weddings): forest weddings for up to 125 guests, with the Highland Cows as honorary guests and lodging on the farm for up to 20. Farm tours and the spa close to the public for weddings, and one- and two-night weddings include a morning-after spa session. Check a date with the events team or book a free 45-minute call with Connor.
+- [Celebrations & Events](https://highlandfarmsoregon.com/celebrations): birthdays, anniversaries, reunions and retreats. Groups of up to 8 can book a house online and up to 20 can book the whole farm; larger day events go through the inquiry form. Gatherings over 20 guests need event insurance, and their alcohol is bought through Highland Farms and served by an OLCC-licensed bartender.
 - [Real Weddings](https://highlandfarmsoregon.com/wedding-portfolio): four couples who married at Highland Farms in 2025, plus two sets made at the farm by visiting photographers, with photographer credits.
 - [Wedding Look Book (PDF)](https://highlandfarmsoregon.com/lookbook.pdf): venue photos and details.
 
@@ -30,11 +30,11 @@ Highland Farms is a five-acre private forest farm in Brightwood, Oregon. It is h
 - [Highland Cow Farm Tours](https://highlandfarmsoregon.com/farm-tours): private 60-minute tours for 2 to 6 guests ($150 for two, $75 each additional guest; kids 4 and under free). Feed, brush and pet the Highland Cows, then meet the Icelandic Sheep, White Peacocks, guardian dogs, chickens and Guinea Fowl. Rain or shine. Booked on Acuity Scheduling.
 - [Nordic Forest Spa](https://highlandfarmsoregon.com/nordic-spa): 90-minute sessions for up to 6 guests at $75 per person, ages 16 and up: a wood-burning cedar dry sauna, wet sauna and cold plunge outdoors in the forest. Robes and towels are provided; bring a swimsuit. Sessions can be shared with other guests unless you book all six spots. (The Lodge and Cottage each have a private cedar hot tub for overnight guests; that is separate from the spa.)
 - [Sauna Near Portland](https://highlandfarmsoregon.com/sauna-near-portland): the Nordic Forest Spa as a day trip from Portland, about an hour from the city.
-- [Gift Certificates](https://highlandfarmsoregon.com/gift-certificates): farm tour, Nordic spa and Highland Day (tour plus spa) gift certificates. The code arrives by email right after checkout and does not expire.
+- [Gift Certificates](https://highlandfarmsoregon.com/gift-certificates): farm tour, Nordic spa and Highland Day (tour plus spa) gift certificates. The code arrives by email, usually within minutes of checkout, and does not expire. No paper copy is mailed.
 
 ## Accommodations
 
-- [Stay Overview](https://highlandfarmsoregon.com/stay): three places to stay among tall evergreens (the Lodge, the Cottage and the Camp), bookable one at a time or together as the Whole Farm. Two-night minimum on Friday to Sunday stays.
+- [Stay Overview](https://highlandfarmsoregon.com/stay): three places to stay among tall evergreens (the Lodge, the Cottage and the Camp), bookable one at a time or together as the Whole Farm. Two-night minimum on Friday to Sunday stays. All stay bookings are final, with no refunds.
 - [The Lodge](https://highlandfarmsoregon.com/stay/lodge): the William Wallace Lodge sleeps 8, with a family room, dining area, full kitchen, private cedar hot tub and a forest deck.
 - [The Cottage](https://highlandfarmsoregon.com/stay/cottage): the Bonnie Lass Cottage sleeps 8, with a kitchenette and a private cedar hot tub.
 - [The Camp](https://highlandfarmsoregon.com/stay/camp): a restored Airstream and canvas tents under the evergreens. Sleeps 4.
@@ -42,7 +42,7 @@ Highland Farms is a five-acre private forest farm in Brightwood, Oregon. It is h
 
 ## Farm Store
 
-- [Shop](https://highlandfarmsoregon.com/shop): Highland Farms merchandise including apparel, weighted Highland Cow plushies, fresh farm eggs, Highland beef, Mangalitsa pork, and firewood. Orders are placed and paid for on this site. Fulfillment is free pickup at the farm in Brightwood, or local delivery ($15) within the Mt. Hood corridor and east Portland metro. Highland Farms does not ship.
+- [Shop](https://highlandfarmsoregon.com/shop): Highland Farms merchandise including apparel, weighted Highland Cow plushies, fresh farm eggs, Highland beef, Mangalitsa pork, and firewood. Orders are placed and paid for on this site. Fulfillment is free pickup at the farm in Brightwood, or local delivery ($15) within the Mt. Hood corridor and east Portland metro. Highland Farms does not ship. Pickup orders are ready at 8 a.m. the day after ordering, and pickup hours are 8 a.m. to 4:30 p.m. All meat is sold frozen.
 
 ### Plush (2)
 - [Princess Fiona, White Highland Cow Plush](https://highlandfarmsoregon.com/shop/weighted-microwavable-highland-cow-plush-white): $65
@@ -106,8 +106,9 @@ Highland Farms is a five-acre private forest farm in Brightwood, Oregon. It is h
 - Nordic Forest Spa availability: session days vary; check the live booking link below for real availability rather than assuming set hours.
 - Farm Tours: 60-minute private tours, 2 to 6 guests, $75 per person (the smallest bookable tour is for two people, $150); kids 4 and under free
 - Cancellation policy (farm tours and spa sessions): Strict. All bookings are final: no refunds, no reschedules, no credits, and no transfers, for cancellations, date changes or no-shows. Please confirm your date, time and guest count before booking. The only exception is if we cancel for severe weather or for the safety of our animals or guests, in which case we will refund or rebook you.
-- Cancellation policy (accommodations): terms are provided at the time of booking.
+- Cancellation policy (accommodations): all stay bookings are final, with no refunds.
 - Cancellation policy (weddings and events): set out in the individual event agreement. Contact the events team for specific terms.
+- Farm tour and spa on the same day: a 10 a.m. tour pairs with the 11 a.m. spa session, 2 p.m. with 3 p.m., and 4 p.m. with 5 p.m.
 - Farm tour booking: https://highlandfarms.as.me/schedule/e759f21b
 - Spa booking: https://highlandfarms.as.me/schedule/e759f21b/appointment/85942611/calendar/13047082
 

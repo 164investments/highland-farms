@@ -180,7 +180,7 @@ export default function WeddingsPage() {
               <p className={cn(bodyLarge, "mt-4 lg:mt-0")}>
                 Five private acres of tall evergreens, sword ferns and moss in Brightwood, Oregon. Couples here
                 have married on the flagstone patio beside the pond and sat down to dinner at long tables on the
-                lawn among the trees.
+                lawn among the trees. Farm tours and the spa close to the public for weddings.
               </p>
             </div>
           </div>
@@ -316,12 +316,11 @@ export default function WeddingsPage() {
                   Breakfast with everyone still here and one more visit to the coos before the drive home.
                 </p>
               </div>
-              <PendingSlot
-                className="col-span-2 mt-3"
-                note="PENDING CONNOR (morning-after-sauna): is the sauna included or a paid add-on? Hides the sauna sentence and Amy D.'s spa quote. If an add-on, ship 'Book the sauna for your people the morning after.' with no price."
-              >
+              {/* Included with one- and two-night weddings (Jalene, 2026-10-07). No head count: a session holds six. */}
+              <div className="col-span-2 mt-3">
                 <p className="font-sans text-[15px] leading-[1.55] text-ink-body lg:text-[16px]">
-                  Then the morning-after sauna for your people: the wood-burning sauna and the cold plunge.
+                  Then a morning-after spa session, included with one- and two-night weddings: the wood-burning
+                  sauna, the wet sauna and the cold plunge.
                 </p>
                 <FieldReview
                   spec={WEDDINGS_SPA_QUOTE}
@@ -329,7 +328,7 @@ export default function WeddingsPage() {
                   className="mt-4"
                   quoteClassName="text-[19px] leading-[1.28] lg:text-[21px]"
                 />
-              </PendingSlot>
+              </div>
             </li>
           </ol>
 

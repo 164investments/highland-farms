@@ -385,7 +385,6 @@ export default function StayPage() {
           <StayKnowRows
             variant="index"
             className="mt-5 lg:mt-0"
-            pendingNote="PENDING JALENE: the exact cancellation terms for each stay, to state here and on each stay page"
           />
         </div>
       </section>

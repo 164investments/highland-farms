@@ -5,7 +5,6 @@ import {
   FieldArrow,
   FieldNumeral,
   FieldQuoteView,
-  PendingSlot,
   Plate,
   fieldCtaClass,
 } from "@/components/ui/FieldGuide";
@@ -14,7 +13,7 @@ import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingBu
 import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { BOOKING_PRODUCTS } from "@/lib/booking/products";
-import { PICKUP_LOCATION } from "@/lib/shop/fulfillment";
+import { PICKUP_HOURS, PICKUP_LOCATION, PICKUP_READY } from "@/lib/shop/fulfillment";
 import { SHOP_THANKS_QUOTE } from "../quotes";
 
 export const metadata: Metadata = {
@@ -27,6 +26,7 @@ const STEP_TITLE = "m-0 font-display text-[21px] font-semibold leading-tight tex
 const STEP_BODY = "m-0 mt-1 text-[14px] leading-[1.5] text-ink-body lg:text-[15px]";
 const DIRECTIONS = `https://maps.google.com/?q=${encodeURIComponent(PICKUP_LOCATION.address).replace(/%20/g, "+")}`;
 const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
+const ORDERS_TEL = `tel:+1${CONTACT.ordersPhone.replace(/\D/g, "")}`;
 
 function SignPlate({ className, frameClassName }: { className?: string; frameClassName: string }) {
   return (
@@ -91,7 +91,15 @@ export default async function ThankYouPage({
                 <FieldNumeral n={2} className="text-[26px] lg:text-[32px]" />
                 <div>
                   <p className={STEP_TITLE}>We pack it and call you</p>
-                  <PendingSlot className="mt-1.5" note="PENDING CONNOR: time to ready. Never 'usually the same day' until he confirms." />
+                  {!delivery && (
+                    <p className={STEP_BODY}>
+                      {PICKUP_READY}. Need it today? Call{" "}
+                      <a href={ORDERS_TEL} className="whitespace-nowrap font-medium text-pine underline decoration-pine-line underline-offset-4">
+                        {CONTACT.ordersPhone}
+                      </a>
+                      .
+                    </p>
+                  )}
                 </div>
               </li>
               <li className={STEP}>
@@ -104,8 +112,9 @@ export default async function ThankYouPage({
                 ) : (
                   <div>
                     <p className={STEP_TITLE}>Collect it at the farm</p>
-                    <p className={STEP_BODY}>{PICKUP_LOCATION.address}. About an hour from Portland.</p>
-                    <PendingSlot className="mt-1.5" note="PENDING CONNOR: pickup hours (D22)." />
+                    <p className={STEP_BODY}>
+                      {PICKUP_LOCATION.address}. About an hour from Portland. Pickup {PICKUP_HOURS}
+                    </p>
                     <SignPlate className="mt-3 lg:hidden" frameClassName="aspect-[3/2]" />
                     <a href={DIRECTIONS} className="mt-1 inline-flex min-h-11 items-center gap-2 text-[15px] font-medium text-pine">
                       <span className="border-b border-pine-line pb-0.5">Get directions</span>

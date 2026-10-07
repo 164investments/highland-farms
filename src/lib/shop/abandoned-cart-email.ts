@@ -23,8 +23,9 @@ import { DELIVERY_FEE_CENTS, DELIVERY_MINIMUM_CENTS, PICKUP_LOCATION } from "./f
  * ⛔ TRUTH RULE (truth audit B6, 2026-10-06). State only what the store already
  * commits to in `fulfillment.ts` and `src/data/shop-faq.ts`: free pickup at the
  * farm, "we call you when your order is packed", $15 local delivery on orders
- * of $50 or more inside the ZIP list, no shipping, pay on the site. No pickup
- * days, cutoffs, delivery days, "frozen", batch or cutting cadence, pig
+ * of $50 or more inside the ZIP list, no shipping, pay on the site, and (Jalene,
+ * 2026-10-07) PICKUP_HOURS, PICKUP_READY and "sold frozen". No pickup
+ * days, cutoffs, delivery days, batch or cutting cadence, pig
  * sourcing or taste claims, and no guarantee (none is approved; D9). A saved
  * cart does NOT hold stock (stock is claimed only at checkout), so never say
  * "set aside" or "held". Reviews: FIVE_STAR_COUNT only, never a literal, and

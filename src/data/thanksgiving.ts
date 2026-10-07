@@ -1,7 +1,9 @@
 // Package details from Anne (AJ) Frankson: the October 5, 2026 package email,
 // her October 6 group-spa answer, and the October 6 edits she and Jalene sent.
 // November 24–28 is four nights; the first email's lone "three nights" was a typo.
-// Stay-package terms must be confirmed by the team, not borrowed from tours/spa.
+// October 7: AJ priced the country breakfast ($30 per person) and said neither package makes the farm
+// private, and that packages are paid in full with no refunds; Jalene confirmed all stays are final sale. Stay terms come from the team,
+// never from the tours/spa policy.
 export const thanksgiving = {
   title: "A Highland Farms Thanksgiving",
   dates: "November 24 to 28, 2026",
@@ -80,7 +82,7 @@ export const thanksgiving = {
   ],
   // The only optional upgrade (wine pairing and the spa charcuterie were dropped October 6).
   upgrade:
-    "Want it cooked for you? Add a chef-cooked country breakfast on Friday morning, with Highland Farms eggs and sausage and signature sides. Ask for pricing.",
+    "Want it cooked for you? Add a chef-cooked country breakfast on Friday morning, with Highland Farms eggs and sausage and signature sides, for $30 per person.",
   steps: [
     {
       title: "Send an inquiry.",
@@ -89,7 +91,7 @@ export const thanksgiving = {
     },
     {
       title: "The team confirms the details.",
-      detail: "Availability, taxes, payment and the stay's cancellation terms, all before you commit.",
+      detail: "Availability, taxes and fees, all before you commit. You pay in full to book, and it's final: no refunds.",
     },
     {
       title: "Plan your four days together.",
@@ -110,7 +112,7 @@ export const thanksgiving = {
     {
       question: "Is breakfast cooked by a chef?",
       answer:
-        "No. The included breakfast is Highland Farms eggs and sausage, in your fridge when you arrive, for you to cook whenever you like. If you'd like a chef to cook for you, add the country breakfast upgrade: a chef-cooked breakfast on Friday morning with Highland Farms eggs and sausage and signature sides. Ask for pricing when you inquire.",
+        "No. The included breakfast is Highland Farms eggs and sausage, in your fridge when you arrive, for you to cook whenever you like. If you'd like a chef to cook for you, add the country breakfast upgrade: a chef-cooked breakfast on Friday morning with Highland Farms eggs and sausage and signature sides. It's $30 per person.",
     },
     {
       question: "How does the spa work?",
@@ -126,6 +128,11 @@ export const thanksgiving = {
       question: "Can you work around allergies and dietary needs?",
       answer:
         "Yes. You shape the Thanksgiving menu with the team around your family's preferences and allergies. List them in your inquiry so the team can plan from the start.",
+    },
+    {
+      question: "Will we have the farm to ourselves?",
+      answer:
+        "Mostly. Public farm tours and spa sessions are closed for the holiday except on Friday, when other visitors may come. With the Lodge package, another group could stay in the Cottage; the Whole Farm package gives your family all three places to stay.",
     },
     {
       question: "What about the other meals?",
@@ -149,7 +156,7 @@ export const thanksgiving = {
     {
       question: "How do we book?",
       answer:
-        "Tap any \"Check availability\" button to open a ready-to-send email, write to info@highlandfarms-oregon.com, or call (971) 236-2551. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes, payment and the stay's cancellation terms before you commit. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
+        "Tap any \"Check availability\" button to open a ready-to-send email, write to info@highlandfarms-oregon.com, or call (971) 236-2551. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes and fees before you commit. You pay in full to book, and all sales are final, with no refunds. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
     },
   ],
 } as const;
@@ -174,7 +181,7 @@ export function thanksgivingInquiryHref(pkg?: ThanksgivingPackage) {
     "Guests 16 and older:",
     "Guests under 16:",
     "Allergies or dietary needs:",
-    "Friday country breakfast upgrade? (yes / no / send pricing)",
+    "Friday country breakfast, $30 per person? (yes / no)",
     "",
     "Name:",
     "Phone:",

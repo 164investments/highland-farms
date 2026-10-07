@@ -15,7 +15,13 @@ import { PRODUCTS, CATEGORIES, getProduct, fromPrice, hasChoices, type Product }
 import { SHOP_BEEF_QUOTE } from "../quotes";
 import { getStockMap, allSoldOut } from "@/lib/shop/inventory";
 import { toCents, formatCents, formatCentsShort } from "@/lib/shop/money";
-import { DELIVERY_FEE_CENTS, DELIVERY_MINIMUM_CENTS, PICKUP_LOCATION } from "@/lib/shop/fulfillment";
+import {
+  DELIVERY_FEE_CENTS,
+  DELIVERY_MINIMUM_CENTS,
+  MEAT_FROZEN_NOTE,
+  PICKUP_HOURS,
+  PICKUP_LOCATION,
+} from "@/lib/shop/fulfillment";
 import { buildProductNode } from "@/lib/shop/product-schema";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { cn } from "@/lib/utils";
@@ -87,6 +93,8 @@ export default async function ProductPage({
   const productUrl = `https://highlandfarmsoregon.com/shop/${product.slug}`;
   const cat = CATEGORIES.find((c) => c.key === product.category)!;
   const isBeef = product.category === "beef";
+  /** All meat is sold frozen (Jalene, 2026-10-07): beef and Mangalitsa pork. */
+  const isMeat = isBeef || product.category === "mangalitsa";
   const isApparel = product.optionName === "Size";
   const quote = isBeef ? resolveFieldQuote(SHOP_BEEF_QUOTE, { role: true }) : null;
   const siblings = PRODUCTS.filter((p) => p.category === product.category);
@@ -245,9 +253,10 @@ export default async function ProductPage({
               <dl className="m-0 mt-7 border-t border-ink lg:mt-10">
                 <div className="grid grid-cols-[84px_1fr] gap-x-3 border-b border-rule py-3 lg:grid-cols-[104px_1fr]">
                   <dt className={DT}>Pickup</dt>
-                  <dd className={DD}>{PICKUP_LOCATION.address.replace(", OR 97011", "")}.</dd>
+                  <dd className={DD}>
+                    {PICKUP_LOCATION.address.replace(", OR 97011", "")}. {PICKUP_HOURS}, ready the day after you order.
+                  </dd>
                 </div>
-                <PendingSlot className="my-2" note="PENDING CONNOR: pickup hours (D22)." />
                 <div className="grid grid-cols-[84px_1fr] gap-x-3 border-b border-rule py-3 lg:grid-cols-[104px_1fr]">
                   <dt className={DT}>Delivery</dt>
                   <dd className={DD}>{deliveryNote}</dd>
@@ -256,11 +265,11 @@ export default async function ProductPage({
                   <dt className={DT}>Shipping</dt>
                   <dd className={DD}>We don&apos;t ship{isApparel ? ", apparel included" : ""}.</dd>
                 </div>
-                {isBeef && (
-                  <PendingSlot
-                    className="my-2"
-                    note={'PENDING CONNOR: sold frozen or fresh? If frozen, add a "Bring" row: "Packed frozen. Bring a cooler for the drive home."'}
-                  />
+                {isMeat && (
+                  <div className="grid grid-cols-[84px_1fr] gap-x-3 border-b border-rule py-3 lg:grid-cols-[104px_1fr]">
+                    <dt className={DT}>Bring</dt>
+                    <dd className={DD}>{MEAT_FROZEN_NOTE}</dd>
+                  </div>
                 )}
               </dl>
 

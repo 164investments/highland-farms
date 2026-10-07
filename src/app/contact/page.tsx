@@ -9,7 +9,6 @@ import {
   FieldArrow,
   FieldLink,
   FieldNumeral,
-  PendingSlot,
   fieldCtaClass,
   fieldEyebrowClass,
 } from "@/components/ui/FieldGuide";
@@ -95,7 +94,7 @@ function doors(): Door[] {
     },
     {
       title: "Parties and retreats",
-      note: "Birthdays, reunions, photo sessions",
+      note: "Birthdays, reunions, photo sessions, up to 125",
       action: "Check your date",
       href: "/celebrations",
     },
@@ -284,10 +283,6 @@ export default function ContactPage() {
                   </a>
                 </li>
               </ul>
-              <PendingSlot
-                note="PENDING CONNOR: events over 20 guests. Once confirmed, the Parties and retreats row can add “up to 125”."
-                className="mt-2"
-              />
             </nav>
           </div>
         </section>

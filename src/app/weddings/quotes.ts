@@ -26,7 +26,7 @@ export const WEDDINGS_FOREST_QUOTE: QuoteSpec = {
   topic: "Wedding",
 };
 
-/** Weekend III, the morning after. Hidden with the sauna sentence until Connor answers. */
+/** Weekend III, the morning after: the included spa session. */
 export const WEDDINGS_SPA_QUOTE: QuoteSpec = {
   author: "Amy Daisy",
   date: "2026-07-28",

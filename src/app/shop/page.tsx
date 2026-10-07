@@ -3,7 +3,6 @@ import Image from "next/image";
 import {
   FieldLeader,
   FieldNumeral,
-  PendingSlot,
   Plate,
   fieldCtaOutlineClass,
   fieldTextLinkClass,
@@ -23,7 +22,13 @@ import { StructuredData as SiteStructuredData } from "@/components/layout/Struct
 import { shopFAQ } from "@/data/shop-faq";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { BOOKING_PRODUCTS } from "@/lib/booking/products";
-import { DELIVERY_FEE_CENTS, DELIVERY_MINIMUM_CENTS, PICKUP_LOCATION } from "@/lib/shop/fulfillment";
+import {
+  DELIVERY_FEE_CENTS,
+  DELIVERY_MINIMUM_CENTS,
+  PICKUP_HOURS,
+  PICKUP_LOCATION,
+  PICKUP_READY,
+} from "@/lib/shop/fulfillment";
 import { isSoldOut } from "@/components/shop/track";
 import { CONTACT } from "@/lib/constants";
 import { PAYMENT_METHODS } from "./checkout/wallets";
@@ -75,6 +80,7 @@ const STEP =
 const STEP_TITLE = "m-0 font-display text-[21px] font-semibold leading-tight text-ink lg:text-[24px]";
 const STEP_BODY = "m-0 mt-1 text-[14px] leading-[1.5] text-ink-body lg:text-[15px]";
 const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
+const ORDERS_TEL = `tel:+1${CONTACT.ordersPhone.replace(/\D/g, "")}`;
 
 export default async function ShopPage() {
   const stock = await getStockMap();
@@ -164,18 +170,22 @@ export default async function ShopPage() {
                 <FieldNumeral n={2} className="text-[26px] lg:text-[32px]" />
                 <div>
                   <p className={STEP_TITLE}>We pack it and call you</p>
-                  <PendingSlot
-                    className="mt-1.5"
-                    note="PENDING CONNOR: time to ready. Add a sentence only once he confirms it (never 'usually the same day' unconfirmed)."
-                  />
+                  <p className={STEP_BODY}>
+                    {PICKUP_READY}. Need it today? Call{" "}
+                    <a href={ORDERS_TEL} className="whitespace-nowrap font-medium text-pine underline decoration-pine-line underline-offset-4">
+                      {CONTACT.ordersPhone}
+                    </a>
+                    .
+                  </p>
                 </div>
               </li>
               <li className={STEP}>
                 <FieldNumeral n={3} className="text-[26px] lg:text-[32px]" />
                 <div>
                   <p className={STEP_TITLE}>Collect it free</p>
-                  <p className={STEP_BODY}>{PICKUP_LOCATION.address.replace(", OR 97011", "")}, about an hour from Portland.</p>
-                  <PendingSlot className="mt-1.5" note="PENDING CONNOR: pickup hours (D22)." />
+                  <p className={STEP_BODY}>
+                    {PICKUP_LOCATION.address.replace(", OR 97011", "")}, about an hour from Portland. Pickup {PICKUP_HOURS}
+                  </p>
                   <Plate
                     className="mt-3 lg:hidden"
                     frameClassName="aspect-[3/2]"

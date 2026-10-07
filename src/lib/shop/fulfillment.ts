@@ -22,6 +22,17 @@ export const PICKUP_LOCATION = {
 };
 
 /**
+ * Pickup terms from Jalene (2026-10-07): orders are ready at 8 a.m. the day
+ * after they're placed, pickup runs 8 a.m. to 4:30 p.m., and same-day pickup is
+ * arranged by phone on `CONTACT.ordersPhone`. No pickup days were given, so
+ * never name days. All meat is sold frozen. PICKUP_HOURS ends in "p.m.", so it
+ * closes a sentence without another period.
+ */
+export const PICKUP_HOURS = "8 a.m. to 4:30 p.m.";
+export const PICKUP_READY = "Ready at 8 a.m. the day after you order";
+export const MEAT_FROZEN_NOTE = "Sold frozen. Bring a cooler for the drive home.";
+
+/**
  * ZIPs the farm will drive to: the Mt. Hood corridor down through Sandy and
  * Gresham into east Portland.
  */

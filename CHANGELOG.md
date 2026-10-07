@@ -2,6 +2,19 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.3.1] - 2026-10-07
+
+### Changed
+
+- Farm store: pickup orders are ready at 8 a.m. the day after you order, pickup runs 8 a.m. to 4:30 p.m., and same-day pickup is arranged by calling (971) 563-1921. Shown on /shop, each product, checkout, the thank-you page and the order email. Beef and pork pages say the meat is sold frozen and to bring a cooler.
+- Stays: every stay page, the booking card and the Terms page now say stay bookings are final, with no refunds (Jalene's answer replaces "terms provided at the time of booking").
+- Weddings: the morning-after spa session is shown as included with one- and two-night weddings, with a guest's spa quote; the page says farm tours and the spa close to the public for weddings; the vendors answer adds the alcohol rule (bought through Highland Farms, served by an OLCC-licensed bartender) and event insurance.
+- Celebrations and Contact: events of every kind are welcome, up to 125 guests; over 20 guests needs event insurance and the same alcohol rule.
+- Highland Day: the tour and spa times that pair (10 and 11 a.m., 2 and 3 p.m., 4 and 5 p.m.).
+- Gift certificates: the code arrives by email, usually within minutes; no paper copy is mailed.
+- Thanksgiving: the country breakfast upgrade is $30 per person, booking is paid in full and final, and a new answer explains public tours and spa run on Friday.
+- The site no longer names or promises names for individual animals: /about now reads "A private forest farm, and a working herd" and the team "care for the herd"; the pending name slots on /about and /farm-tours and the named quote are removed (the team wants a working-farm voice, not a sanctuary one).
+
 ## [0.3.2.1] - 2026-10-07
 
 ### Changed

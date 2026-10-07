@@ -206,7 +206,7 @@ export function StaticGifts() {
             <FieldPriceRows label="Choose a gift · No expiration date" labelId="gift-pick-label" rows={heroRows()} />
             <p className="m-0 mt-2 font-sans text-[12px] leading-[1.5] text-ink-note lg:text-[14px]">
               At checkout, the Highland Day is listed as &ldquo;The Highland Experience.&rdquo; The code arrives by
-              email right after, to print or forward.
+              email, usually within minutes, to print or forward.
             </p>
           </div>
 
@@ -269,7 +269,7 @@ export function StaticGifts() {
               {
                 id: "email",
                 title: "The code arrives by email",
-                body: "Right after checkout, you get an email with the certificate code. Print it for a card, or forward it.",
+                body: "Usually within minutes of checkout, you get an email with the certificate code. Print it for a card, or forward it. We don't mail a paper copy.",
               },
               {
                 id: "book",

@@ -6,7 +6,7 @@ import { StaticGifts } from "./StaticGifts";
 import { StructuredData } from "@/components/layout/StructuredData";
 
 const DESCRIPTION =
-  "Give a private Highland Farms farm tour, a Nordic spa session, or a Highland Day with both. The code arrives by email right after checkout, and they pick the date.";
+  "Give a private Highland Farms farm tour, a Nordic spa session, or a Highland Day with both. The code arrives by email, usually within minutes of checkout, and they pick the date.";
 
 export const metadata: Metadata = {
   title: "Gift Certificates",
