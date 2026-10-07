@@ -2,6 +2,12 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.2.1] - 2026-10-07
+
+### Changed
+
+- Replace the old overhead drone photo (red roof, bare yard, taken before the patio, lawn and gardens were built) with Connor's current-layout aerial at dusk on /about, /celebrations and the Whole Farm stay pages. The new image is a ChatGPT render approved by Hayden; its alt text says "Styled" and AGENTS.md records it as the one exception to the real-photos rule.
+
 ## [0.3.2.0] - 2026-10-07
 
 ### Changed

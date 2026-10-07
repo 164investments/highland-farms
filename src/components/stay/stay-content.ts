@@ -434,13 +434,13 @@ const WHOLE_FARM: StayContent = {
   compareHotTub: "Two cedar",
   picker: (p) => `${bedroomsLabel(p.bedrooms)} · ${bathsLabel(p.baths)}, plus the Camp · two cedar hot tubs`,
   otherLine: (p) => `Sleeps ${p.guests} · ${bedroomsLabel(p.bedrooms)} · ${bathsLabel(p.baths)}, plus the Camp`,
-  thumb: { src: "/images/properties/gallery-7.jpg", alt: "", position: "50% 50%" },
+  thumb: { src: "/images/farm/farm-aerial-patio-lawn-lodge-dusk.jpg", alt: "", position: "70% 50%" },
   sheet: {
     photo: {
-      src: "/images/properties/gallery-7.jpg",
-      alt: "Aerial view of Highland Farms in autumn: the Lodge, the Cottage and the gravel drive loop among the firs",
-      position: "50% 50%",
-      caption: "The Lodge, the Cottage and the drive, from above.",
+      src: "/images/farm/farm-aerial-patio-lawn-lodge-dusk.jpg",
+      alt: "Styled aerial view of Highland Farms at dusk: the Lodge and its deck, the patio, the lawn path and the gravel drive",
+      position: "70% 50%",
+      caption: "The Lodge, the patio and the lawn, from above.",
     },
     who: "All three stays, reserved together for your group.",
     rows: (p) => [
@@ -456,10 +456,10 @@ const WHOLE_FARM: StayContent = {
     promise:
       "All three stays, reserved together for your group, on five forested acres shared with the Highland cows.",
     lead: {
-      src: "/images/properties/gallery-7.jpg",
-      alt: "Aerial view of Highland Farms in autumn: the Lodge, the Cottage and the gravel drive loop among the firs",
-      position: "50% 50%",
-      caption: "The Lodge, the Cottage and the drive, from above.",
+      src: "/images/farm/farm-aerial-patio-lawn-lodge-dusk.jpg",
+      alt: "Styled aerial view of Highland Farms at dusk: the Lodge and its deck, the patio, the lawn path and the gravel drive",
+      position: "70% 50%",
+      caption: "The Lodge, the patio and the lawn, from above.",
     },
     fourth: { label: "Hot tubs", value: "2" },
     aboutTitle: "The farm",
