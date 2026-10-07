@@ -154,7 +154,7 @@ layout and passed through `Header`, since the review snapshot and portfolio
 must not ship to the client. The sheet is portalled to `<body>` and the other
 body children are `inert` while it is open. Visits are rows with a framed
 real photo, the name and the one-line hint (`ChromeDoor.note`, shared with the
-footer). Then "More from the farm" (one dotted line, a two-by-two under 375px) and three
+footer). Then "More from the farm" (one dotted line that wraps after a dot on narrow phones) and three
 uniform quick actions (call, directions, Instagram: `TEL_HREF`, `DIRECTIONS_HREF`). The page action is pinned at the
 thumb. The current page carries a pine bar and "You are here". Photos come
 through `next/image` at 44-640px (3-30 KB) and load only when the sheet opens.

@@ -490,19 +490,10 @@ export function MobileMenu({ isOpen, onClose, type, pathname, facts }: MobileMen
             <p id="menu-more" className={`m-0 mt-5 text-[15px] ${fieldEyebrowClass}`}>
               More from the farm
             </p>
-            {/* One dotted line from 375px, aligned to the list edge; a two-by-two below, where it would wrap. */}
-            <ul
-              role="list"
-              aria-labelledby="menu-more"
-              className="m-0 mt-1 grid list-none grid-cols-2 gap-x-3 p-0 text-[14px] min-[375px]:flex min-[375px]:flex-wrap min-[375px]:gap-x-0 min-[375px]:text-[13px]"
-            >
+            {/* One dotted line aligned to the list edge; on narrow phones it wraps after a dot, never before one. */}
+            <ul role="list" aria-labelledby="menu-more" className="m-0 mt-1 flex list-none flex-wrap p-0 text-[13px]">
               {MORE_LINKS.map((link, i) => (
                 <li key={link.href} data-season-only={link.season} className="flex items-center">
-                  {i > 0 && (
-                    <span aria-hidden="true" className="hidden px-2 text-ink-meta min-[375px]:inline">
-                      ·
-                    </span>
-                  )}
                   <Link
                     href={link.href}
                     onClick={onClose}
@@ -511,6 +502,11 @@ export function MobileMenu({ isOpen, onClose, type, pathname, facts }: MobileMen
                   >
                     {link.menuLabel ?? link.label}
                   </Link>
+                  {i < MORE_LINKS.length - 1 && (
+                    <span aria-hidden="true" className="px-2 text-ink-meta">
+                      ·
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
