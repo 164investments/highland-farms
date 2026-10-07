@@ -5,7 +5,6 @@ import { REVIEW_TIER_COUNTS, GOOGLE_REVIEW_LINK } from "@/components/field/Revie
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import { MastheadName } from "./Masthead";
 import {
-  CHECK_DATE_HREF,
   ELSEWHERE,
   LOOKBOOK_DOOR,
   MORE_LINKS,
@@ -44,7 +43,7 @@ const UNDERLINED =
 
 function FooterDoor({ door }: { door: ChromeDoor }) {
   const className = fieldDoorRowClass("md");
-  const inner = <FieldDoorInner title={door.title} note={door.footerNote} size="md" />;
+  const inner = <FieldDoorInner title={door.title} note={door.note} size="md" />;
   if (door.weddingCall) {
     return (
       <WeddingCallLink content="footer-call" title="Footer: wedding call" className={className}>
@@ -63,15 +62,6 @@ function FooterDoor({ door }: { door: ChromeDoor }) {
   return (
     <Link href={door.href} className={className}>
       {inner}
-    </Link>
-  );
-}
-
-function CheckDateLink({ className }: { className: string }) {
-  return (
-    <Link href={CHECK_DATE_HREF} className={className}>
-      <span className="border-b border-pine-line pb-0.5">Check your date</span>
-      <FieldArrow size={16} />
     </Link>
   );
 }
@@ -124,18 +114,14 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
             {/* Weddings */}
             {!hidden("doors") && (
               <nav aria-label="Weddings" data-footer-part="doors" className="lg:col-span-4">
-                <div className="flex items-center justify-between">
-                  <p className={LABEL}>Weddings</p>
-                  <CheckDateLink className="inline-flex min-h-11 items-center gap-1.5 text-[14px] font-medium text-pine lg:hidden" />
-                </div>
-                <ul role="list" className="m-0 list-none border-t border-rule p-0 lg:mt-2">
+                <p className={LABEL}>Weddings</p>
+                <ul role="list" className="m-0 mt-1.5 list-none border-t border-rule p-0 lg:mt-2">
                   {weddings.map((door) => (
                     <li key={door.title}>
                       <FooterDoor door={door} />
                     </li>
                   ))}
                 </ul>
-                <CheckDateLink className="mt-3 hidden min-h-11 items-center gap-2 text-[14px] font-medium text-pine lg:inline-flex" />
               </nav>
             )}
 
@@ -152,11 +138,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                 </ul>
                 <ul role="list" className="m-0 mt-0.5 flex list-none flex-wrap gap-x-5 p-0 text-[14px] text-ink-body lg:mt-3 lg:gap-x-6">
                   {MORE_LINKS.map((link) => (
-                    <li
-                      key={link.href}
-                      data-season-only={link.season}
-                      className={link.season ? "hidden lg:block" : undefined}
-                    >
+                    <li key={link.href} data-season-only={link.season}>
                       <Link href={link.href} className={TEXT_LINK}>
                         {link.label}
                       </Link>
@@ -230,7 +212,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                     <span className="text-ink">{REVIEW_TIER_COUNTS.compact} reviews on Google</span>
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>
-                  <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className="hidden min-h-11 items-center gap-2 lg:flex">
+                  <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-2">
                     <InstagramGlyph />
                     <span className="text-ink">
                       {INSTAGRAM_FOLLOWERS} follow {CONTACT.instagramHandle}
@@ -238,10 +220,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                   <p className="m-0 flex flex-wrap items-center gap-x-3 text-[13px] lg:gap-x-3.5 lg:text-[14px]">
-                    <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className={`${UNDERLINED} lg:hidden`}>
-                      Instagram
-                    </a>
-                    <span className="hidden text-ink-note lg:inline">Find us on</span>
+                    <span className="text-ink-note">Find us on</span>
                     {ELSEWHERE.map((site) => (
                       <a
                         key={site.href}

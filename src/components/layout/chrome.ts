@@ -115,9 +115,7 @@ export function pageActionFor(type: PageType): PageAction | "cart" | null {
 
 /** The quiet link under the menu's pinned button. */
 export function menuSecondaryFor(type: PageType): { label: string; href: string; external: boolean } | null {
-  const action = ACTIONS[type];
-  if (action && action !== "cart" && (action.href === CHECK_DATE_HREF || type === "home"))
-    return { label: "or see the 2027 look book", href: LOOKBOOK_HREF, external: true };
+  // Round 2b removed the wedding sheet's look-book link: the menu has its own look book row.
   if (type === "celebrations") return null;
   if (type === "tours" || type === "spa" || type === "sauna") {
     const href = giftCertificatesHref();
@@ -197,8 +195,8 @@ export function barFor(type: PageType): { id: BarId; season?: SeasonId } | null 
 
 export interface ChromeDoor {
   title: string;
-  menuNote: string;
-  footerNote: string;
+  /** The hint on the right; the menu and footer use the same words (Round 2b). */
+  note: string;
   href: string;
   external?: boolean;
   /** Rendered with WeddingCallLink (booking_start, booking_type wedding_call). */
@@ -219,22 +217,19 @@ export function weddingDoors(): ChromeDoor[] {
   return [
     {
       title: "Weddings",
-      menuNote: `Up to ${WEDDING_GUESTS}, plus the coos`,
-      footerNote: `Up to ${WEDDING_GUESTS} guests`,
+      note: `Up to ${WEDDING_GUESTS}, plus the coos`,
       href: "/weddings",
       current: (p) => under(p, "/weddings"),
     },
     {
       title: "Real weddings",
-      menuNote: "Couples’ photos",
-      footerNote: "Couples who married here",
+      note: "Couples’ photos",
       href: "/wedding-portfolio",
       current: (p) => under(p, "/wedding-portfolio"),
     },
     {
       title: "Call with Connor",
-      menuNote: `Free, ${call.durationMin} minutes`,
-      footerNote: `Free, ${call.durationMin} minutes`,
+      note: `Free, ${call.durationMin} minutes`,
       href: nativeCalendarEnabled() ? "/wedding-call" : BOOKING_LINKS.weddingCall,
       weddingCall: true,
       current: (p) => under(p, "/wedding-call"),
@@ -242,11 +237,10 @@ export function weddingDoors(): ChromeDoor[] {
   ];
 }
 
-/** Footer only: the look book row. */
+/** The look book row, third in the Weddings group of the menu and footer. */
 export const LOOKBOOK_DOOR: ChromeDoor = {
   title: "2027 look book",
-  menuNote: "20 pages, PDF",
-  footerNote: "20 pages, PDF",
+  note: "20 pages, PDF",
   href: LOOKBOOK_HREF,
   external: true,
 };
@@ -256,37 +250,32 @@ export function visitDoors(): ChromeDoor[] {
   return [
     {
       title: "Farm tours",
-      menuNote: `Private, $${tourForTwo} for two`,
-      footerNote: `Private, $${tourForTwo} for two`,
+      note: `Private, $${tourForTwo} for two`,
       href: "/farm-tours",
       current: (p) => under(p, "/farm-tours"),
     },
     {
       title: "Nordic spa",
-      menuNote: `$${spa.pricePerPersonCents / 100} per person, ${spa.durationMin} min`,
-      footerNote: `$${spa.pricePerPersonCents / 100} per person, ${spa.durationMin} min`,
+      note: `$${spa.pricePerPersonCents / 100} per person, ${spa.durationMin} min`,
       href: "/nordic-spa",
       current: (p) => under(p, "/nordic-spa") || under(p, "/sauna-near-portland"),
     },
     {
       title: "Stays",
-      menuNote: `Sleeps ${Math.min(...sleeps)} to ${Math.max(...sleeps)}`,
-      footerNote: `Sleeps ${Math.min(...sleeps)} to ${Math.max(...sleeps)}`,
+      note: `Sleeps ${Math.min(...sleeps)} to ${Math.max(...sleeps)}`,
       href: "/stay",
       current: (p) => under(p, "/stay"),
     },
     {
       title: "Gift certificates",
-      menuNote: "Tours and spa sessions",
-      footerNote: "Tours and the spa",
+      note: "Tours and spa sessions",
       href: gifts,
       external: !gifts.startsWith("/"),
       current: (p) => under(p, "/gift-certificates"),
     },
     {
       title: "Farm shop",
-      menuNote: "Pickup or local delivery",
-      footerNote: "Pickup or local delivery",
+      note: "Pickup or local delivery",
       href: "/shop",
       current: (p) => under(p, "/shop"),
     },

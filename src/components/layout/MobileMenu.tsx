@@ -8,6 +8,7 @@ import { FieldArrow, FieldDoorInner, fieldDoorRowClass, fieldEyebrowClass } from
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import { MastheadMark, MastheadName, MenuIcon } from "./Masthead";
 import {
+  LOOKBOOK_DOOR,
   MORE_LINKS,
   isQuietChrome,
   menuSecondaryFor,
@@ -27,9 +28,16 @@ interface MobileMenuProps {
 
 const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
 
+/** Weddings, Real weddings, 2027 look book, Call with Connor (Round 2b, same rows as the footer). */
+function withLookbook(doors: ChromeDoor[]): ChromeDoor[] {
+  const rows = [...doors];
+  rows.splice(2, 0, LOOKBOOK_DOOR);
+  return rows;
+}
+
 function Door({ door, pathname, onClose }: { door: ChromeDoor; pathname: string; onClose: () => void }) {
   const current = door.current?.(pathname) ?? false;
-  const inner = <FieldDoorInner title={door.title} note={door.menuNote} current={current} />;
+  const inner = <FieldDoorInner title={door.title} note={door.note} current={current} />;
   const className = fieldDoorRowClass("lg");
   if (door.weddingCall) {
     return (
@@ -145,7 +153,7 @@ export function MobileMenu({ isOpen, onClose, type, pathname }: MobileMenuProps)
       <nav aria-label="Menu" className="flex-1 overflow-y-auto px-5 pb-8">
         <p className={`m-0 pt-4 text-[15px] ${fieldEyebrowClass}`}>Weddings at the farm</p>
         <ul role="list" className="m-0 mt-1 list-none border-t border-rule p-0">
-          {weddingDoors().map((door) => (
+          {withLookbook(weddingDoors()).map((door) => (
             <li key={door.title}>
               <Door door={door} pathname={pathname} onClose={onClose} />
             </li>
