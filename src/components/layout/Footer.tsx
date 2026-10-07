@@ -1,29 +1,25 @@
+import Image from "next/image";
 import Link from "next/link";
-import { CONTACT, INSTAGRAM_FOLLOWERS } from "@/lib/constants";
-import { FieldArrow, FieldDoorInner, FieldDrawing, FieldStars, fieldDoorRowClass } from "@/components/ui/FieldGuide";
+import { BookOpen, CalendarCheck, ChevronRight, Images, type LucideIcon } from "lucide-react";
+import { CONTACT } from "@/lib/constants";
+import { FieldDrawing, FieldStars } from "@/components/ui/FieldGuide";
 import { REVIEW_TIER_COUNTS, GOOGLE_REVIEW_LINK } from "@/components/field/Reviews";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
-import { MastheadName } from "./Masthead";
-import {
-  ELSEWHERE,
-  LOOKBOOK_DOOR,
-  MORE_LINKS,
-  visitDoors,
-  weddingDoors,
-  type ChromeDoor,
-} from "./chrome";
+import { confirmedCouples } from "@/data/wedding-portfolio";
+import { ELSEWHERE, LOOKBOOK_DOOR, MORE_LINKS, WEDDING_MENU_NOTE, visitDoors, weddingDoors } from "./chrome";
 
 /*
- * The shared footer (finish/boards/_shared/footer.html, round 2): paper-shade
- * ground under a double rule. Phones read it top to bottom; desktop opens it
- * into three columns. Server-rendered, no client JS of its own (the call row
- * is the one tracked link).
+ * The shared footer (mobile review board B1, direction A, 2026-10-07): the phone menu laid flat. It
+ * opens on the menu's own plate (a couple between two of the coos, the review count in the mat), then
+ * Weddings as the one large lead with one note and the menu's three steps, the visit doors as plain
+ * rows, the short links on one dotted line, the one public phone line as the only pine link, and the
+ * legal line. One note per group, one link style, no hint column. Server-rendered.
  *
  * Parts a page already shows above can be hidden ("don't repeat what the
  * page above already shows"): render <FooterHide parts={["find", "talk"]} />
  * anywhere in the page, or pass `hide` when rendering <Footer> directly.
- * /contact hides find and talk by route (globals.css). Checkout swaps this
- * footer for the slim one below (also globals.css, keyed off the masthead).
+ * /contact hides find and talk by route (globals.css). Checkout, the cart and
+ * the order pages swap this footer for the slim one below (also globals.css).
  */
 
 export type FooterPart = "doors" | "find" | "talk" | "proof";
@@ -45,70 +41,43 @@ export function FooterHide({ parts }: { parts: readonly FooterPart[] }) {
 const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
 const DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(CONTACT.fullAddress)}`;
 
-const LABEL = "m-0 font-display text-[15px] italic text-fern lg:text-[17px]";
-const TEXT_LINK = "flex min-h-11 items-center transition-colors hover:text-pine";
-/* Contact rows: value left, its label right. On a narrow phone the label wraps under the value, right-aligned. */
-const CONTACT_ROW =
-  "flex min-h-11 flex-wrap content-center items-center justify-between gap-x-3 py-1 text-ink transition-colors hover:text-pine";
-const CONTACT_LABEL = "ml-auto text-[11px] uppercase tracking-[0.08em] text-ink-meta lg:text-[12px] lg:tracking-[0.1em]";
+const NUMBER_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const numberWord = (n: number) => NUMBER_WORDS[n] ?? String(n);
 
-const UNDERLINED =
-  "inline-flex min-h-11 items-center text-ink underline decoration-rule underline-offset-4 transition-colors hover:text-pine";
+/* One link style: Inter, ink, no underline, 44px tall. */
+const LINK = "flex min-h-11 items-center font-sans text-[15px] leading-tight text-ink transition-colors hover:text-pine";
+const EYEBROW = "m-0 font-display text-[16px] italic leading-tight text-fern lg:text-[18px]";
+const NOTE = "m-0 font-display text-[16px] italic leading-tight text-ink-note";
+/* Dotted lines: a dot before each item, clipped where a line starts, so no line begins or ends on a dot. */
+const DOTS = "m-0 flex list-none flex-wrap p-0 [--sep:20px] -ml-[var(--sep)] [clip-path:inset(0_0_0_var(--sep))]";
+const DOT_ITEM =
+  "flex items-center before:w-[var(--sep)] before:flex-none before:text-center before:text-ink-meta before:content-['·']";
 
-function FooterDoor({ door }: { door: ChromeDoor }) {
-  const className = fieldDoorRowClass("md");
-  const inner = <FieldDoorInner title={door.title} note={door.note} size="md" />;
-  if (door.weddingCall) {
-    return (
-      <WeddingCallLink content="footer-call" title="Footer: wedding call" className={className}>
-        {inner}
-      </WeddingCallLink>
-    );
-  }
-  if (door.external) {
-    return (
-      <a href={door.href} target="_blank" rel="noopener noreferrer" className={className}>
-        {inner}
-        <span className="sr-only"> (opens in a new tab)</span>
-      </a>
-    );
-  }
+function Step({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
   return (
-    <Link href={door.href} className={className}>
-      {inner}
+    <>
+      <Icon className="h-[18px] w-[18px] flex-none text-pine" strokeWidth={1.6} aria-hidden="true" />
+      {children}
+    </>
+  );
+}
+
+function Row({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link href={href} className={`${LINK} justify-between`}>
+      {children}
+      <ChevronRight className="h-[18px] w-[18px] flex-none text-ink-meta" strokeWidth={1.6} aria-hidden="true" />
     </Link>
-  );
-}
-
-/** Facebook gets its own row (desktop), so "Find us on" holds the three directories on one line. */
-const FACEBOOK = ELSEWHERE.find((site) => site.label === "Facebook");
-const DIRECTORIES = ELSEWHERE.filter((site) => site.label !== "Facebook");
-
-function FacebookGlyph() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true" focusable="false">
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <path d="M13.5 20v-7h2.4l.4-2.8h-2.8V8.6c0-.8.3-1.4 1.4-1.4h1.5V4.8a19 19 0 0 0-2.2-.1c-2.2 0-3.6 1.3-3.6 3.7v1.8H8.2V13h2.4v7" />
-    </svg>
-  );
-}
-
-function InstagramGlyph() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true" focusable="false">
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" />
-    </svg>
   );
 }
 
 export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
   const year = new Date().getFullYear();
   const hidden = (part: FooterPart) => hide.includes(part);
-  const weddings = [...weddingDoors()];
-  // Board order: Weddings, Real weddings, 2027 look book, Call with Connor.
-  weddings.splice(2, 0, LOOKBOOK_DOOR);
+  const [weddings, realWeddings, call] = weddingDoors();
+  const couples = numberWord(confirmedCouples.length);
+  // The board's directories (Facebook stays out of the phone footer, as before).
+  const directories = ELSEWHERE.filter((site) => site.label !== "Facebook");
 
   return (
     <>
@@ -116,166 +85,164 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
         data-site-footer=""
         className="surface-paper border-t-[3px] border-double border-frame bg-paper-shade font-sans text-ink"
       >
-        <div className="mx-auto max-w-[1440px] px-5 pb-5 pt-7 lg:px-16 lg:pb-10 lg:pt-16">
-          <div className="grid gap-y-5 lg:grid-cols-12 lg:gap-x-12 lg:gap-y-14">
-            {/* Name and promise */}
-            <div className="flex flex-col items-center text-center lg:col-span-4 lg:items-start lg:text-left">
-              <FieldDrawing
-                name="highland-cow-head"
-                className="h-14 w-14 lg:-ml-2 lg:h-[96px] lg:w-[96px]"
-                sizes="(min-width: 1024px) 96px, 56px"
-              />
-              <MastheadName size="footer" className="mt-1 lg:mt-2 lg:items-start lg:text-left" />
-              <p className="m-0 mt-2.5 font-display text-[19px] italic leading-snug text-ink lg:mt-5 lg:text-[23px]">
-                Creating whimsical farm weddings.
-              </p>
-              <p className="m-0 mt-1 max-w-[340px] text-[13.5px] leading-relaxed text-ink-body lg:mt-2 lg:text-[14px]">
-                <span className="lg:hidden">Where the coos are honorary wedding guests.</span>
-                <span className="hidden lg:inline">
-                  A private forest farm where the coos are honorary wedding guests. Come for a private tour, the
-                  Nordic spa, or a night on the farm.
-                </span>
-              </p>
-            </div>
-
-            {/* Weddings */}
-            {!hidden("doors") && (
-              <nav aria-label="Footer: weddings" data-footer-part="doors" className="lg:col-span-4">
-                <p className={LABEL}>Weddings</p>
-                <ul role="list" className="m-0 mt-1.5 list-none border-t border-rule p-0 lg:mt-2">
-                  {weddings.map((door) => (
-                    <li key={door.title}>
-                      <FooterDoor door={door} />
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            )}
-
-            {/* Visit the farm */}
-            {!hidden("doors") && (
-              <nav aria-label="Footer: visit the farm" data-footer-part="doors" className="lg:col-span-4">
-                <p className={LABEL}>Visit the farm</p>
-                <ul role="list" className="m-0 mt-1.5 list-none border-t border-rule p-0 lg:mt-2">
-                  {visitDoors().map((door) => (
-                    <li key={door.title}>
-                      <FooterDoor door={door} />
-                    </li>
-                  ))}
-                </ul>
-                <ul role="list" className="m-0 mt-0.5 grid w-fit list-none grid-cols-2 gap-x-6 p-0 text-[14px] text-ink-body lg:mt-3 lg:gap-x-8">
-                  {MORE_LINKS.map((link) => (
-                    <li key={link.href} data-season-only={link.season}>
-                      <Link href={link.href} className={TEXT_LINK}>
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            )}
-
-            {/* Finding the farm */}
-            {!hidden("find") && (
-              <div data-footer-part="find" className="lg:col-span-4">
-                <p className={LABEL}>Finding the farm</p>
-                <address className="mt-1.5 border-t border-rule pt-2.5 text-[14px] not-italic leading-relaxed text-ink-body lg:mt-2 lg:pt-3">
-                  {CONTACT.address}
-                  <br className="hidden lg:block" />
-                  <span className="lg:hidden">, </span>
-                  {CONTACT.city}, {CONTACT.state} {CONTACT.zip}
-                </address>
-                <p className="m-0 mt-1 text-[14px] leading-relaxed text-ink-body lg:mt-2">
-                  About an hour from Portland, about 25 minutes from Government Camp.
-                  <span className="hidden lg:inline"> Tours and spa sessions are booked ahead.</span>
-                </p>
+        <div className="mx-auto max-w-[1440px] px-5 pb-5 pt-4 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:px-16 lg:pb-10 lg:pt-14">
+          {/* The menu's own plate; the review count sits in its mat. */}
+          {!hidden("proof") && (
+            <div data-footer-part="proof" className="lg:col-span-4">
+              <div className="border border-frame bg-paper-light p-[5px] lg:p-2">
+                <div className="relative h-[112px] overflow-hidden max-[359px]:h-[96px] lg:h-[260px]">
+                  <Image
+                    src="/images/weddings/details.jpg"
+                    alt="A couple at the pasture fence between two of the Highland cows"
+                    fill
+                    sizes="(min-width: 1024px) 30vw, 100vw"
+                    className="object-cover object-[50%_56%]"
+                  />
+                </div>
                 <a
-                  href={DIRECTIONS}
+                  href={GOOGLE_REVIEW_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center gap-2 text-[14px] font-medium text-pine lg:mt-1"
+                  className="flex min-h-9 items-center gap-1.5 px-0.5 pt-1 text-[12px] text-ink-note hover:text-ink"
                 >
-                  <span className="border-b border-pine-line pb-0.5">Get directions</span>
-                  <FieldArrow size={16} />
-                  <span className="sr-only"> (opens Google Maps in a new tab)</span>
+                  <FieldStars size={11} />
+                  <span>{REVIEW_TIER_COUNTS.compact} reviews on Google</span>
+                  <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Talk to us: the one public line */}
-            {!hidden("talk") && (
-              <div data-footer-part="talk" className="-mt-5 lg:col-span-4 lg:mt-0">
-                <p className={`hidden lg:block ${LABEL}`}>Talk to us</p>
-                {/* 13px on phones so each email and its label share one line from 375px up. */}
-                <ul role="list" className="m-0 list-none border-t border-rule p-0 text-[13px] lg:mt-2 lg:text-[14px]">
-                  <li>
-                    <a href={TEL} className={`${CONTACT_ROW} border-b border-rule`}>
-                      <span className="font-medium text-pine">{CONTACT.phone}</span>
-                      <span className={CONTACT_LABEL}>Call us</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href={`mailto:${CONTACT.email}`} className={`${CONTACT_ROW} border-b border-rule`}>
-                      <span className="break-all">{CONTACT.email}</span>
-                      <span className={CONTACT_LABEL}>Weddings</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href={`mailto:${CONTACT.emailAlt}`} className={CONTACT_ROW}>
-                      <span className="break-all">{CONTACT.emailAlt}</span>
-                      <span className={CONTACT_LABEL}>Everything else</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            )}
+          {/* Weddings: the one large lead, one note, the menu's three steps. */}
+          {!hidden("doors") && (
+            <nav aria-label="Footer: weddings" data-footer-part="doors" className="mt-1 lg:col-span-4 lg:mt-0">
+              <Link href={weddings.href} className="flex min-h-11 items-center justify-between text-ink hover:text-pine">
+                <span className="font-display text-[30px] font-semibold leading-none lg:text-[34px]">{weddings.title}</span>
+                <ChevronRight className="h-[18px] w-[18px] flex-none text-ink-meta" strokeWidth={1.6} aria-hidden="true" />
+              </Link>
+              <p className={`${NOTE} -mt-1`}>{WEDDING_MENU_NOTE}</p>
+              <ul role="list" className="m-0 mt-0.5 list-none p-0">
+                <li>
+                  <Link href={realWeddings.href} className={`${LINK} gap-3`}>
+                    <Step icon={Images}>See {couples} real weddings</Step>
+                  </Link>
+                </li>
+                <li>
+                  <a href={LOOKBOOK_DOOR.href} target="_blank" rel="noopener noreferrer" className={`${LINK} gap-3`}>
+                    <Step icon={BookOpen}>{LOOKBOOK_DOOR.title}</Step>
+                    <span className="sr-only"> (PDF, opens in a new tab)</span>
+                  </a>
+                </li>
+                <li>
+                  <WeddingCallLink content="footer-call" title="Footer: wedding call" className={`${LINK} gap-3`}>
+                    <Step icon={CalendarCheck}>
+                      <span className="max-[374px]:hidden">{call.menuTitle}</span>
+                      <span className="min-[375px]:hidden">{call.menuTitleShort}</span>
+                    </Step>
+                  </WeddingCallLink>
+                </li>
+              </ul>
+            </nav>
+          )}
 
-            {/* Reviews and elsewhere: real links only */}
-            {!hidden("proof") && (
-              <div data-footer-part="proof" className="lg:col-span-4">
-                <p className={`hidden lg:block ${LABEL}`}>Reviews and elsewhere</p>
-                <div className="border-t border-rule pt-1 text-[14px] text-ink-body lg:mt-2">
-                  <a href={GOOGLE_REVIEW_LINK} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-2">
-                    <FieldStars size={12} />
-                    <span className="text-ink">{REVIEW_TIER_COUNTS.compact} reviews on Google</span>
-                    <span className="sr-only"> (opens in a new tab)</span>
-                  </a>
-                  <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-2">
-                    <InstagramGlyph />
-                    <span className="text-ink">
-                      {INSTAGRAM_FOLLOWERS} follow {CONTACT.instagramHandle}
-                    </span>
-                    <span className="sr-only"> (opens in a new tab)</span>
-                  </a>
-                  {FACEBOOK && (
-                    <a href={FACEBOOK.href} target="_blank" rel="noopener noreferrer" className="hidden min-h-11 items-center gap-2 lg:flex">
-                      <FacebookGlyph />
-                      <span className="text-ink">Highland Farms on Facebook</span>
-                      <span className="sr-only"> (opens in a new tab)</span>
-                    </a>
-                  )}
-                  <p className="m-0 flex flex-wrap items-center gap-x-3 text-[13px] lg:gap-x-3.5 lg:text-[14px]">
-                    <span className="text-ink-note">Find us on</span>
-                    {DIRECTORIES.map((site) => (
-                      <a key={site.href} href={site.href} target="_blank" rel="noopener noreferrer" className={UNDERLINED}>
-                        {site.label}
+          {/* Visit the farm: plain rows, then the short links on one dotted line. */}
+          {!hidden("doors") && (
+            <nav aria-label="Footer: visit the farm" data-footer-part="doors" className="mt-4 lg:col-span-4 lg:mt-0">
+              <p className={EYEBROW}>Visit the farm</p>
+              <p className={`${NOTE} mt-0.5`}>About an hour from Portland</p>
+              <ul role="list" className="m-0 mt-1 list-none border-t border-rule p-0">
+                {visitDoors().map((door) => (
+                  <li key={door.title} className="border-b border-rule">
+                    {door.external ? (
+                      <a href={door.href} target="_blank" rel="noopener noreferrer" className={`${LINK} justify-between`}>
+                        {door.title}
+                        <ChevronRight className="h-[18px] w-[18px] flex-none text-ink-meta" strokeWidth={1.6} aria-hidden="true" />
+                        <span className="sr-only"> (opens in a new tab)</span>
                       </a>
-                    ))}
-                  </p>
-                </div>
-              </div>
-            )}
+                    ) : (
+                      <Row href={door.href}>{door.title}</Row>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <ul role="list" className={`${DOTS} mt-1.5`}>
+                {MORE_LINKS.map((link) => (
+                  <li key={link.href} data-season-only={link.season} className={DOT_ITEM}>
+                    <Link href={link.href} className={`${LINK} whitespace-nowrap`}>
+                      {link.menuLabel ?? link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+
+          {/* Talk to us: the one public line leads, then the two emails. */}
+          {!hidden("talk") && (
+            <div data-footer-part="talk" className="mt-4 border-t border-rule pt-2 lg:col-span-4 lg:mt-12">
+              <a
+                href={TEL}
+                className="flex min-h-11 items-center font-display text-[28px] font-semibold text-pine [font-feature-settings:'lnum'_1] [font-variant-numeric:lining-nums] hover:text-pine-dark"
+              >
+                {CONTACT.phone}
+              </a>
+              <ul role="list" className="m-0 list-none p-0">
+                <li>
+                  <a href={`mailto:${CONTACT.email}`} className={`${LINK} break-all`}>{CONTACT.email}</a>
+                </li>
+                <li>
+                  <a href={`mailto:${CONTACT.emailAlt}`} className={`${LINK} break-all`}>{CONTACT.emailAlt}</a>
+                </li>
+              </ul>
+            </div>
+          )}
+
+          {/* Finding the farm: the address, then directions in the same quiet link style. */}
+          {!hidden("find") && (
+            <div data-footer-part="find" className="lg:col-span-4 lg:mt-12 lg:border-t lg:border-rule lg:pt-2">
+              <p className={`${NOTE} mt-1`}>
+                {CONTACT.address}, <span className="whitespace-nowrap">{CONTACT.city}, {CONTACT.state} {CONTACT.zip}</span>
+              </p>
+              <a href={DIRECTIONS} target="_blank" rel="noopener noreferrer" className={LINK}>
+                Get directions
+                <span className="sr-only"> (opens Google Maps in a new tab)</span>
+              </a>
+            </div>
+          )}
+
+          {/* Elsewhere and legal: two quiet dotted lines. */}
+          <div className="mt-3 border-t border-rule pt-1 lg:col-span-4 lg:mt-12 lg:pt-2">
+            <ul role="list" className={DOTS}>
+              {directories.map((site) => (
+                <li key={site.href} className={DOT_ITEM}>
+                  <a href={site.href} target="_blank" rel="noopener noreferrer" className={`${LINK} whitespace-nowrap text-[13px] text-ink-meta`}>
+                    {site.label}
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                </li>
+              ))}
+              <li className={DOT_ITEM}>
+                <a href={CONTACT.instagram} target="_blank" rel="noopener noreferrer" className={`${LINK} whitespace-nowrap text-[13px] text-ink-meta`}>
+                  Instagram
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            </ul>
+            <ul role="list" className={`${DOTS} mt-2`}>
+              <li className={DOT_ITEM}><Link href="/privacy" className={`${LINK} text-[13px] text-ink-meta`}>Privacy</Link></li>
+              <li className={DOT_ITEM}><Link href="/terms" className={`${LINK} text-[13px] text-ink-meta`}>Terms</Link></li>
+              <li className={DOT_ITEM}><Link href="/accessibility" className={`${LINK} text-[13px] text-ink-meta`}>Accessibility</Link></li>
+              <li className={DOT_ITEM}><a href="/llms.txt" className={`${LINK} text-[13px] text-ink-meta`}>For AI agents</a></li>
+            </ul>
           </div>
 
-          {/* Legal */}
-          <div className="mt-4 flex flex-col border-t border-rule pt-2 text-[12px] text-ink-meta lg:mt-14 lg:flex-row lg:items-center lg:justify-between lg:gap-1 lg:pt-4">
-            <p className="m-0 pt-1 lg:pt-0">&copy; {year} Highland Farms Oregon. All rights reserved.</p>
-            <ul role="list" className="m-0 flex list-none flex-wrap gap-x-4 p-0 lg:gap-x-5">
-              <li><Link href="/privacy" className={TEXT_LINK}>Privacy</Link></li>
-              <li><Link href="/terms" className={TEXT_LINK}>Terms</Link></li>
-              <li><Link href="/accessibility" className={TEXT_LINK}>Accessibility</Link></li>
-              <li><a href="/llms.txt" className={TEXT_LINK}>For AI agents</a></li>
-            </ul>
+          {/* Colophon. */}
+          <div className="mt-2 flex items-center gap-3 border-t border-rule pt-2.5 lg:col-span-12 lg:mt-10">
+            <FieldDrawing name="highland-cow-head" className="h-10 w-10 flex-none" sizes="40px" />
+            <div>
+              <p className="m-0 font-display text-[18px] italic leading-tight text-ink">Creating whimsical farm weddings.</p>
+              <p className="m-0 pt-0.5 text-[12px] text-ink-meta">&copy; {year} Highland Farms Oregon</p>
+            </div>
           </div>
         </div>
       </footer>
