@@ -153,7 +153,7 @@ export function StaticGifts() {
               {
                 id: "email",
                 title: "The code arrives by email",
-                body: "Right after checkout, you get an email with the certificate code. Print it for a card, or forward it.",
+                body: "Usually within minutes of checkout, you get an email with the certificate code. Print it for a card, or forward it. We don't mail a paper copy.",
               },
               {
                 id: "book",

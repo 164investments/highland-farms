@@ -2,7 +2,7 @@ import { Resend } from "resend";
 import { CONTACT } from "@/lib/constants";
 import { escapeHtml } from "@/lib/html";
 import { formatCents } from "./money";
-import { PICKUP_LOCATION, type Fulfillment } from "./fulfillment";
+import { PICKUP_HOURS, PICKUP_LOCATION, PICKUP_READY, type Fulfillment } from "./fulfillment";
 import type { PricedLine } from "./orders";
 
 /**
@@ -74,7 +74,8 @@ function fulfillmentBlock(d: OrderEmailData): string {
   }
   return `<p style="margin:0 0 4px"><strong>Pick up at the farm:</strong></p>
     <p style="margin:0;color:#4a4a4a">${escapeHtml(PICKUP_LOCATION.address)}</p>
-    <p style="margin:12px 0 0;color:#4a4a4a">We'll call you at ${escapeHtml(d.customerPhone)} when your order is packed and ready.</p>`;
+    <p style="margin:12px 0 0;color:#4a4a4a">We'll call you at ${escapeHtml(d.customerPhone)} when your order is packed and ready.</p>
+    <p style="margin:8px 0 0;color:#4a4a4a">${PICKUP_READY}. Pickup ${PICKUP_HOURS} For same-day pickup, call ${CONTACT.ordersPhone}.</p>`;
 }
 
 export async function sendOrderEmails(d: OrderEmailData): Promise<void> {

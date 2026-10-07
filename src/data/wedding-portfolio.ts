@@ -418,6 +418,8 @@ export const weddingPortfolio: WeddingCouple[] = [
     // Embedded XMP copyright credits "HAZEL EYE PHOTOGRAPHY" on 01.jpg/02.jpg.
     // No capture date is embedded. The invitation suite in 03/04 carries other
     // names, which is why this set is not shown as a named couple's wedding.
+    // AJ, 2026-10-07: 01 is from a Highland Farms marketing shoot (cleared for the
+    // site), so "styled" is confirmed. Same answer for weddings/ceremony-3.jpg.
     photographer: { name: "Hazel Eye Photography" },
     headline: "A calf on a halter, a picnic under the trees.",
     story: "A calf on a halter, a picnic under the trees, and a walk among the big trees.",

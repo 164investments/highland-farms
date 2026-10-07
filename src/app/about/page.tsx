@@ -21,7 +21,7 @@ import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { REVIEW_COUNT } from "@/lib/reviews";
 import { cn } from "@/lib/utils";
 import {
-  ABOUT_FINLEY_QUOTE,
+  ABOUT_HERD_QUOTE,
   ABOUT_HERO_QUOTE,
   ABOUT_ORIGIN_QUOTE,
   ABOUT_TEAM_QUOTE,
@@ -56,7 +56,7 @@ const doubleRule = "border-t-[3px] border-double border-frame";
 interface Resident {
   drawing: FieldDrawingName;
   kind: string;
-  /** Names no animal: animal names wait on Connor (truth-E), so they live only in the PendingSlot below. */
+  /** Names no animal: the site never names individual animals (Jalene and AJ, 2026-10-07). */
   title: string;
   line: string;
   quote?: ReactNode;
@@ -71,6 +71,15 @@ function residents(): Resident[] {
       kind: "Scottish Highland cows",
       title: "The herd",
       line: "Shaggy, gentle and out on every tour, rain or shine. You can feed, brush and pet them.",
+      quote: (
+        <FieldReview
+          spec={ABOUT_HERD_QUOTE}
+          role="Farm tour"
+          size="sm"
+          className="mt-3"
+          quoteClassName={residentQuote}
+        />
+      ),
     },
     {
       drawing: "highland-calf",
@@ -105,13 +114,6 @@ function residents(): Resident[] {
   ];
 }
 
-/** What the roster says once Connor confirms who is on the farm now (dev only, inside the PendingSlot). */
-const NAMED_ROSTER = [
-  "No. 1 title “Finley, Arthur and the herd” (Finley: one review, June 2025; Arthur: Linda V., February 2026), with Chelyn J.’s Finley quote in place of Amber H.’s.",
-  "No. 4 title “Albie, the farm’s alarm clock”, line “Albie runs his own wake-up service and takes no requests.” (Albie: July 2026).",
-  "No. 5 title “Bear and Beau” (Kristin Barnes’s review, May 2026).",
-];
-
 const landRows = [
   { term: "The forest", detail: "Old trees draped in moss, with fern trails and the Acorn Trail running through." },
   { term: "The pond", detail: "Natural and spring-fed." },
@@ -132,7 +134,7 @@ export default function AboutPage() {
                 id="about-title"
                 className="field-heading m-0 mt-1 font-display text-[25px] leading-[1.04] min-[360px]:text-[30px] min-[400px]:text-[35px] min-[400px]:leading-[1.02] lg:mt-3 lg:text-[64px]"
               >
-                A private forest farm, and a herd with names.
+                A private forest farm, and a working herd.
               </h1>
             </div>
 
@@ -234,7 +236,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 3. The residents. Production names no animal: names wait on Connor and live only in the PendingSlot. */}
+        {/* 3. The residents. Never named one by one: a working farm, not a sanctuary (Jalene and AJ, 2026-10-07). */}
         <section
           aria-labelledby="about-residents-title"
           className={cn(doubleRule, "px-5 pb-10 pt-9 lg:px-16 lg:pb-20 lg:pt-20")}
@@ -251,23 +253,6 @@ export default function AboutPage() {
                 <p className="m-0 mt-3 text-[15px] leading-[1.6] text-ink-body lg:mt-0 lg:text-[16px]">
                   Every farm tour goes into the pen with the herd. These are the ones guests write home about.
                 </p>
-                <PendingSlot
-                  note="PENDING CONNOR: animal names. Confirm who is on the farm now; until then production shows the animals without names. Once confirmed, restore:"
-                  className="mt-2"
-                >
-                  <ul className="m-0 list-disc pl-4 font-sans text-[12px] leading-snug text-ink-note">
-                    {NAMED_ROSTER.map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                  <FieldReview
-                    spec={ABOUT_FINLEY_QUOTE}
-                    role="Farm tour"
-                    size="sm"
-                    className="mt-2"
-                    quoteClassName={residentQuote}
-                  />
-                </PendingSlot>
               </div>
             </div>
 
@@ -369,7 +354,7 @@ export default function AboutPage() {
               </h2>
               <p className="m-0 mt-4 text-[15px] leading-[1.65] text-ink-body lg:mt-6 lg:max-w-[600px] lg:text-[17px]">
                 Connor McWilliams owns and runs Highland Farms. Tour guests are met at the carved Highland cow out front by
-                his team, who know every animal by name.
+                his team, who care for the herd.
               </p>
             </div>
             <div className="mt-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-2">

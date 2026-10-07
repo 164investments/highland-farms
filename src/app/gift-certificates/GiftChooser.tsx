@@ -99,7 +99,7 @@ export function GiftChooser({ tiles, proof }: Props) {
         })}
       </div>
       <p className="m-0 mt-2 font-sans text-[13px] leading-[1.4] text-ink-note lg:text-[14px]">
-        The code arrives by email right after checkout.
+        The code arrives by email, usually within minutes. No paper copy is mailed.
       </p>
 
       <div id="gift-panel" role="region" aria-label={tile ? `${tile.name} group sizes` : undefined}>

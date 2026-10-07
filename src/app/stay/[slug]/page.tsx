@@ -343,7 +343,6 @@ export default async function PropertyPage({
                 variant="slug"
                 slug={property.slug}
                 className="mt-4 lg:mt-1"
-                pendingNote={`PENDING JALENE: ${property.name}'s exact cancellation terms, to state here and in the booking card`}
               />
             </section>
             {page.quoteLink && quoteSection}

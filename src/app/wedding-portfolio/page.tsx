@@ -335,7 +335,7 @@ export default function WeddingPortfolioPage() {
             </div>
             <PendingSlot
               className="mt-6"
-              note="PENDING CONNOR C5 + NEW Q: real weddings or styled shoots? If real, each moves into the journal above with its true names and date. Note never ships."
+              note="PENDING CONNOR C5: is Jen & Ryan a real wedding or a styled shoot? If real, it moves into the journal above with its true names and date. Hannah & Max is a marketing shoot (AJ, 2026-10-07). Note never ships."
             />
           </div>
         </section>

@@ -9,6 +9,11 @@ export const SITE = {
 export const CONTACT = {
   /** The farm's sales line (Hayden, 2026-09-14). (831) 214-2053 is Connor's personal cell: never publish it. */
   phone: "(971) 236-2551",
+  /**
+   * Jalene's line. Publish it ONLY for farm-store pickup arrangements and holiday
+   * packages (Jalene, 2026-10-07); everything else uses `phone`.
+   */
+  ordersPhone: "(971) 563-1921",
   email: "events@highlandfarms-oregon.com",
   emailAlt: "info@highlandfarms-oregon.com",
   address: "21261 East Little River Road",

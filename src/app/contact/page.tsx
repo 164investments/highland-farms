@@ -7,7 +7,6 @@ import {
   FieldArrow,
   FieldLink,
   FieldNumeral,
-  PendingSlot,
   fieldCtaClass,
   fieldEyebrowClass,
 } from "@/components/ui/FieldGuide";
@@ -164,10 +163,6 @@ export default function ContactPage() {
                   <span className="text-ink-note">Everything else</span>
                 </a>
               </div>
-              <PendingSlot
-                note="PENDING CONNOR: events over 20 guests. Once confirmed, the Parties and retreats row can add “up to 125”."
-                className="mt-2"
-              />
             </nav>
           </div>
         </section>

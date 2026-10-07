@@ -1,5 +1,5 @@
 import { BookingTextLink } from "@/components/shared/BookingButton";
-import { FieldArrow, FieldSection, PendingSlot } from "@/components/ui/FieldGuide";
+import { FieldArrow, FieldSection } from "@/components/ui/FieldGuide";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { SPA_PRICE_PER_PERSON, withSpaQuantity } from "@/data/nordic-spa";
 import { BOOKING_PRODUCTS } from "@/lib/booking/products";
@@ -124,10 +124,10 @@ export function HighlandDayBlock({
             For two of you: ${DAY_FOR_TWO} in all. Tours are for two to six paying guests; spa guests must be 16 or
             older.
           </p>
-          <PendingSlot
-            className="mt-3"
-            note="PENDING CONNOR (J9): the two time pairs to suggest, for example a 10:00 tour, then the 1:00 spa session"
-          />
+          {/* Jalene's pairs (2026-10-07); each start time is a live Acuity slot (tours 10/12/2/4, spa 9/11/1/3/5). */}
+          <p className="m-0 mt-2 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
+            Times that pair: a 10 a.m. tour with the 11 a.m. spa, 2 p.m. with 3 p.m., or 4 p.m. with 5 p.m.
+          </p>
         </div>
       </div>
     </FieldSection>

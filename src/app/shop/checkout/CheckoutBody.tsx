@@ -3,14 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FieldLeader, FieldReviewLine, PendingSlot } from "@/components/ui/FieldGuide";
+import { FieldLeader, FieldReviewLine } from "@/components/ui/FieldGuide";
 import { ChevronDownIcon, LockIcon } from "@/components/shop/icons";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents, formatCentsShort } from "@/lib/shop/money";
 import {
   DELIVERY_FEE_CENTS,
   DELIVERY_MINIMUM_CENTS,
+  PICKUP_HOURS,
   PICKUP_LOCATION,
+  PICKUP_READY,
   deliveryProblem,
   type Fulfillment,
 } from "@/lib/shop/fulfillment";
@@ -608,7 +610,18 @@ export function CheckoutBody({
                   </span>
                 </label>
               </div>
-              <PendingSlot className="mt-2.5" note="PENDING CONNOR: pickup hours (D22)." />
+              {fulfillment === "pickup" && (
+                <p className="m-0 mt-2.5 text-[13px] leading-[1.45] text-ink-body">
+                  {PICKUP_READY}. Pickup {PICKUP_HOURS} Need it today? Call{" "}
+                  <a
+                    href={`tel:+1${CONTACT.ordersPhone.replace(/\D/g, "")}`}
+                    className="whitespace-nowrap font-medium text-pine underline decoration-pine-line underline-offset-4"
+                  >
+                    {CONTACT.ordersPhone}
+                  </a>
+                  .
+                </p>
+              )}
             </fieldset>
 
             {/* II. Your details */}
