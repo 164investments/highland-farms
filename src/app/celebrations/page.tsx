@@ -288,6 +288,21 @@ export default function CelebrationsPage() {
               </li>
             ))}
           </ol>
+          {/* A real photo in the otherwise text-only run before the form (the caption says what the frame shows). */}
+          <Plate
+            className="mt-6 lg:col-start-2 lg:mt-8"
+            frameClassName="aspect-[4/3] p-[7px] lg:aspect-[16/9] lg:p-2.5"
+            caption="A guide and two guests pet a Highland calf in the barn."
+          >
+            <StayPhoto
+              photo={{
+                src: "/images/farm/cow-2.jpg",
+                alt: "A guide and two guests pet a Highland calf in the barn",
+                position: "50% 62%",
+              }}
+              sizes="(min-width: 1024px) 60vw, calc(100vw - 40px)"
+            />
+          </Plate>
         </div>
       </section>
 
@@ -400,7 +415,9 @@ export default function CelebrationsPage() {
                   {visitPolicy.map((p) => (
                     <div key={p.label} className="pb-5 lg:max-w-[720px]">
                       <p className="m-0 font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-fern">{p.label}</p>
-                      <p className="m-0 mt-1 font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[16px]">{p.text}</p>
+                      <p className="m-0 mt-1 font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[16px]">
+                        <LeadBold text={p.text} />
+                      </p>
                     </div>
                   ))}
                 </details>
@@ -453,5 +470,17 @@ function LadderPhoto({ photo }: { photo: { src: string; alt: string; position: s
         <StayPhoto photo={photo} sizes="(min-width: 1024px) 40vw, 40vw" />
       </Plate>
     </div>
+  );
+}
+
+/** Bolds the first sentence of a canonical answer; every word is kept as it is in the data file. */
+function LeadBold({ text }: { text: string }) {
+  const lead = text.match(/^.+?[.!?](?=\s|$)/)?.[0];
+  if (!lead || lead.length === text.length) return <strong className="font-semibold text-ink">{text}</strong>;
+  return (
+    <>
+      <strong className="font-semibold text-ink">{lead}</strong>
+      {text.slice(lead.length)}
+    </>
   );
 }

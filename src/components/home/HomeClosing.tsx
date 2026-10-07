@@ -1,9 +1,9 @@
 import Image from "next/image";
-import { FieldArrow, Plate, fieldCtaClass } from "@/components/ui/FieldGuide";
+import { Plate } from "@/components/ui/FieldGuide";
 
 /**
- * Closing: the real carved Highland cow sign, the herd, one button to the
- * form on this page. The footer carries the address, drive times and
+ * Closing: the real carved Highland cow sign and one line. No second button: the
+ * form is the screen above. The footer carries the address, drive times and
  * directions, so none of that repeats here.
  */
 export function HomeClosing() {
@@ -33,10 +33,6 @@ export function HomeClosing() {
           >
             Bring your people to meet the herd.
           </h2>
-          <a href="#check-your-date" className={`${fieldCtaClass} mt-6 w-full lg:mt-9 lg:w-auto`}>
-            Check your date
-            <FieldArrow />
-          </a>
         </div>
       </div>
     </section>

@@ -14,7 +14,6 @@ import { resolveFieldQuote } from "@/components/field/Reviews";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { properties } from "@/data/properties";
 import { BOOKING_PRODUCTS } from "@/lib/booking/products";
-import { giftCertificatesHref } from "@/lib/booking/flag";
 import { PRODUCTS, fromPrice } from "@/app/shop/data";
 import { HOME_VISIT_QUOTE } from "./quotes";
 
@@ -112,8 +111,6 @@ function buildDoors(): VisitDoor[] {
  */
 export function HomeVisitIndex() {
   const doors = buildDoors();
-  const giftHref = giftCertificatesHref();
-  const giftExternal = !giftHref.startsWith("/");
   const quote = resolveFieldQuote(HOME_VISIT_QUOTE, { role: "Stay" });
   const whole = guests("whole-farm");
 
@@ -190,15 +187,6 @@ export function HomeVisitIndex() {
                     <span className={linkText}>{d.cta}</span>
                     <FieldArrow size={15} className="text-pine" />
                   </FieldLink>
-                  {d.id === "store" && (
-                    <FieldLink
-                      href={giftHref}
-                      external={giftExternal}
-                      className="inline-flex min-h-11 items-center"
-                    >
-                      <span className={linkText}>Gift certificates</span>
-                    </FieldLink>
-                  )}
                 </div>
               </div>
             </li>

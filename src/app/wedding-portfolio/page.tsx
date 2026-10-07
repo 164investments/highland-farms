@@ -23,7 +23,7 @@ import {
   weddingPortfolio,
   type WeddingCouple,
 } from "@/data/wedding-portfolio";
-import { CASEY_CARD_QUOTE, MAYA_CARD_QUOTE, PORTFOLIO_KATE_QUOTE, PORTFOLIO_PLAN_QUOTE } from "./quotes";
+import { CASEY_CARD_QUOTE, MAYA_CARD_QUOTE, PORTFOLIO_PLAN_QUOTE } from "./quotes";
 import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
 
 export const metadata: Metadata = {
@@ -53,7 +53,6 @@ const storyLinkClass = "font-sans text-[15px] font-medium text-pine";
 /** Pending one-line couple quotes (PF-01): shown only in development until Connor confirms who wrote them. */
 const CARD_QUOTES: Record<string, { id: string; spec: typeof MAYA_CARD_QUOTE }> = {
   "maya-justin": { id: "PF-01-maya", spec: MAYA_CARD_QUOTE },
-  "olivia-connor": { id: "PF-01-olivia", spec: WEDDING_QUOTE },
   "sydney-casey": { id: "PF-01-casey", spec: CASEY_CARD_QUOTE },
 };
 
@@ -174,7 +173,7 @@ export default function WeddingPortfolioPage() {
       <div className="surface-paper bg-paper font-sans text-ink">
         {/* Title (board B8, journal B): on phones a centred title page, the drawn coo, the count as the eyebrow,
             the H1 and the whole Riley & Jordan plate; the sticky bar (two-night line) is the one button and the one price.
-            Stars and the Kate Holt quote land after the first couple. Desktop keeps the two-column title. */}
+            Stars and the Olivia Brown quote land after the first couple. Desktop keeps the two-column title. */}
         <header className="mx-auto max-w-[1440px] px-5 pb-4 pt-[calc(var(--header-h,104px)+0.75rem)] max-lg:text-center lg:grid lg:grid-cols-12 lg:items-end lg:gap-x-16 lg:px-16 lg:pb-12 lg:pt-[calc(var(--header-h,128px)+3.5rem)]">
           <div className="lg:col-span-7">
             <FieldDrawing
@@ -213,7 +212,7 @@ export default function WeddingPortfolioPage() {
             </Link>
           )}
           <FieldReview
-            spec={PORTFOLIO_KATE_QUOTE}
+            spec={WEDDING_QUOTE}
             fullName
             role="Wedding"
             className="hidden lg:col-span-5 lg:block lg:border-l lg:border-rule lg:pl-10"
@@ -231,7 +230,7 @@ export default function WeddingPortfolioPage() {
                 <li aria-label="What guests say" className="border-t border-rule px-5 py-6 lg:hidden">
                   <FieldReviewTier tier="hero" className="justify-center text-[13px]" starSize={13} />
                   <FieldReview
-                    spec={PORTFOLIO_KATE_QUOTE}
+                    spec={WEDDING_QUOTE}
                     fullName
                     role="Wedding"
                     className="mt-3"

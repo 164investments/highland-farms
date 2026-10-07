@@ -71,7 +71,7 @@ export function HomeReasons() {
         />
       ),
       title: "The coos",
-      body: "Our Scottish Highland coos are your honorary wedding guests, and they’ll be in your photos.",
+      body: "Our Scottish Highland coos are your honorary wedding guests, and they can be in your photos.",
       footer: cooQuote && (
         <FieldQuoteView
           {...cooQuote}

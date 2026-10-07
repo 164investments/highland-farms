@@ -140,7 +140,7 @@ export default function WeddingsPage() {
             </h2>
             <p className={cn(bodyLarge, "mt-4 max-w-[34rem] lg:mt-6")}>
               Our Scottish Highland coos are your honorary wedding guests. They stand for portraits at the
-              pasture fence, and your guests get to meet them too.
+              pasture fence.
             </p>
           </div>
           <div className="mt-7 lg:col-span-7 lg:mt-0">
@@ -526,7 +526,7 @@ export default function WeddingsPage() {
         </div>
       </section>
 
-      {/* FAQ: the real anxieties; only rain starts open (CONSISTENCY #10: at most one) */}
+      {/* FAQ: the real anxieties; only the cost answer starts open (CONSISTENCY #10: at most one) */}
       <section aria-labelledby="faq-title" className="surface-paper border-t border-rule bg-paper text-ink">
         <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:px-16 lg:py-24">
           <div className="lg:col-span-4">
@@ -537,6 +537,9 @@ export default function WeddingsPage() {
           </div>
           <div className="mt-6 border-t border-rule lg:col-span-8 lg:mt-0">
             <FaqRow question={weddingFAQ[0].question} open>
+              <p>{COST_ANSWER}</p>
+            </FaqRow>
+            <FaqRow question={weddingFAQ[1].question}>
               <p>{RAIN_LEAD}</p>
               <FieldReview
                 spec={WEDDINGS_RAIN_QUOTE}
@@ -546,9 +549,6 @@ export default function WeddingsPage() {
                 quoteClassName="text-[20px] leading-[1.3]"
               />
               <p className="mt-4">{RAIN_CLOSE}</p>
-            </FaqRow>
-            <FaqRow question={weddingFAQ[1].question}>
-              <p>{COST_ANSWER}</p>
             </FaqRow>
             <FaqRow question={weddingFAQ[2].question}>
               <p>{VENDORS_ANSWER}</p>
@@ -565,6 +565,14 @@ export default function WeddingsPage() {
             <FaqRow question={weddingFAQ[4].question}>
               <p>{GETTING_HERE_ANSWER}</p>
             </FaqRow>
+            {/* The one in-flow "Check your date" after the last answer. */}
+            <a
+              href="#contact"
+              className="mt-5 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine hover:text-pine-dark"
+            >
+              <span className="border-b border-pine-line pb-0.5">Check your date</span>
+              <FieldArrow size={16} />
+            </a>
           </div>
         </div>
       </section>
@@ -582,6 +590,9 @@ export default function WeddingsPage() {
               Check your date
             </h2>
             <p className={cn(bodyLarge, "mt-3 lg:mt-6")}>{WEDDING_FORM_INTRO}</p>
+            <p className="m-0 mt-3 font-sans text-[14px] font-medium leading-snug text-ink-body lg:text-[16px]">
+              Every September 2026 Saturday sold out.
+            </p>
             {/* Desktop: the proof for the call link (Connor himself is introduced at No. 4), then the table. */}
             <div className="mt-10 hidden border-t border-rule pt-8 lg:block">
               <FieldReview

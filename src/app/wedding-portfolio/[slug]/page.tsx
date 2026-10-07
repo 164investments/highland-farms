@@ -274,7 +274,7 @@ function BackLink({ styled = false }: { styled?: boolean }) {
   );
 }
 
-/** "Photographed by …", linked (new tab, tagged) when the image metadata carries the studio's URL. */
+/** "Photographed by …": a credit in plain text (an exit link above the hero pulled people off the page). */
 function PhotographerCredit({ couple, className }: { couple: WeddingCouple; className?: string }) {
   const photographer = couple.photographer;
   if (!photographer) {
@@ -287,21 +287,7 @@ function PhotographerCredit({ couple, className }: { couple: WeddingCouple; clas
   }
   return (
     <p className={cn("font-sans text-[13px] text-ink-note lg:text-[14px]", className)}>
-      Photographed by{" "}
-      {photographer.url ? (
-        <a
-          href={photographer.url}
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-          data-outbound="photographer"
-          className="inline-flex min-h-11 items-center text-pine underline decoration-pine-line underline-offset-4 lg:min-h-0"
-        >
-          {photographer.name}
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>
-      ) : (
-        photographer.name
-      )}
+      Photographed by {photographer.name}
     </p>
   );
 }
@@ -449,7 +435,7 @@ export default async function WeddingDetailPage({
           )}
 
           {/* The day, as plates */}
-          <section aria-labelledby="plates-title" className="mx-auto max-w-[1440px] px-5 pt-12 lg:px-16 lg:pt-20">
+          <section aria-labelledby="plates-title" className="mx-auto max-w-[1440px] px-5 pb-10 pt-12 lg:px-16 lg:pb-14 lg:pt-20">
             <h2 id="plates-title" className="field-heading font-display text-[30px] leading-tight text-ink lg:text-[44px]">
               {plateHeading}
             </h2>
@@ -523,19 +509,24 @@ export default async function WeddingDetailPage({
         </article>
 
         {/* Planning yours? The ask, right after their words, with the coos */}
-        <section id="plan" aria-labelledby="plan-title" className="mt-12 border-t border-rule lg:mt-20">
+        <section id="plan" aria-labelledby="plan-title" className="border-t border-rule">
           <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:py-20">
             <Plate
               className="lg:col-span-5"
               frameClassName="aspect-[4/3] p-[7px] lg:aspect-[4/5] lg:p-2.5"
-              caption="The coos, our honorary wedding guests."
+              caption={confirmed ? "The coos, our honorary wedding guests." : "A calf and two of the herd, by the barn."}
             >
+              {/* Two pages must not end on the same photo: confirmed couples get the forest herd, a styled set the barn. */}
               <Image
-                src="/images/farm/about-hero.jpg"
-                alt="A Highland cow and two calves among tall mossy trees"
+                src={confirmed ? "/images/farm/about-hero.jpg" : "/images/farm/cows.jpg"}
+                alt={
+                  confirmed
+                    ? "A Highland cow and two calves among tall mossy trees"
+                    : "A Highland calf and two shaggy Highland cows stand on straw beside a wooden barn"
+                }
                 fill
                 sizes="(min-width: 1024px) 40vw, calc(100vw - 40px)"
-                className="object-cover object-[62%_60%]"
+                className={confirmed ? "object-cover object-[62%_60%]" : "object-cover object-[50%_60%]"}
               />
             </Plate>
             <div className="mt-7 lg:col-span-6 lg:col-start-7 lg:mt-0">
