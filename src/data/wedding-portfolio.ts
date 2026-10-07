@@ -454,12 +454,7 @@ export const weddingPortfolio: WeddingCouple[] = [
         position: "62% 50%",
         caption: "Strawberries on the stationery.",
       },
-      {
-        src: "/images/weddings/hannah-max/04.jpg",
-        alt: "A wedding stationery suite with painted flowers, a green ring box and sage ribbon",
-        position: "50% 50%",
-        caption: "The stationery suite.",
-      },
+      // 04 (the stationery suite) is left out: the invitation names a couple, and a styled set never does (RULINGS r4 #10).
       {
         src: "/images/weddings/hannah-max/06.jpg",
         alt: "Two people in wedding clothes hold hands among enormous mossy tree trunks",
@@ -471,7 +466,6 @@ export const weddingPortfolio: WeddingCouple[] = [
       { src: "/images/weddings/hannah-max/01.jpg", alt: "A couple kisses beside a Highland calf on a halter" },
       { src: "/images/weddings/hannah-max/02.jpg", alt: "Two people kiss at the foot of a mossy tree, a Highland calf in front of them" },
       { src: "/images/weddings/hannah-max/03.jpg", alt: "A strawberry on a gilt frame" },
-      { src: "/images/weddings/hannah-max/04.jpg", alt: "A wedding stationery suite" },
       { src: "/images/weddings/hannah-max/05.jpg", alt: "A picnic under the trees" },
       { src: "/images/weddings/hannah-max/06.jpg", alt: "Two people hold hands among enormous mossy tree trunks" },
     ],
