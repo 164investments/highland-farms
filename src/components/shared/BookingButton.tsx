@@ -53,6 +53,15 @@ function bookingTypeFromUrl(url: string): string {
  * Quantity (`?quantity=N`, see SPA_SPOT_ROWS); every other spa entry (hero,
  * sticky bar, the 3-to-5 row, stay add-ons) asks the guest to set it.
  */
+/** One line under the modal title: the spa quantity help, or the tour's reassurance. */
+export function wrapperNote(src: string): string | null {
+  const type = bookingTypeFromUrl(src);
+  if (type === "nordic_spa") return spaQuantityNote(src) ?? "Rain or shine. Pick a date and time below.";
+  // Tours are the "Private Tour for N" calendar; the wedding call and the tour menu also fall back to farm_tour.
+  if (type === "farm_tour" && src.includes("calendar/7539520")) return "Private tour, rain or shine. Pick a date and time below.";
+  return null;
+}
+
 export function spaQuantityNote(src: string): string | null {
   if (bookingTypeFromUrl(src) !== "nordic_spa") return null;
   let quantity = NaN;
@@ -208,7 +217,7 @@ export function BookingModalRoot() {
   if (!state) return null;
 
   const title = state.title ?? "Book your tour";
-  const note = spaQuantityNote(state.src);
+  const note = wrapperNote(state.src);
 
   return (
     <div
@@ -219,40 +228,42 @@ export function BookingModalRoot() {
       aria-label={title}
     >
       <div
-        className="relative flex w-full flex-col bg-white shadow-2xl sm:my-4 sm:max-w-3xl sm:rounded-xl"
+        className="relative flex w-full flex-col bg-paper shadow-2xl sm:my-4 sm:max-w-3xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="shrink-0 border-b border-cream-dark/40 px-5 py-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-normal text-charcoal font-display">
+        {/* Paper header like the rest of the site; the title wraps instead of crowding the links. */}
+        <div className="shrink-0 border-b border-rule px-5 pb-3 pt-2">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="m-0 min-w-0 flex-1 pt-2.5 font-display text-[19px] font-semibold leading-tight text-ink">
               {title}
             </h3>
-            <div className="flex items-center gap-4">
+            <div className="flex shrink-0 items-center">
               <a
                 href={state.src}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-muted underline-offset-4 hover:text-charcoal hover:underline font-sans"
+                className="inline-flex min-h-11 items-center px-1 font-sans text-[12px] text-ink-note underline decoration-rule underline-offset-4 hover:text-ink"
               >
-                Open in new tab
+                New tab
+                <span className="sr-only"> (opens the booking page in a new tab)</span>
               </a>
               <button
                 type="button"
                 onClick={() => setState(null)}
-                className="rounded-full p-1.5 text-muted transition-colors hover:bg-cream hover:text-charcoal"
+                className="-mr-2 inline-flex h-11 w-11 items-center justify-center text-ink transition-colors hover:text-pine focus-visible:outline-2 focus-visible:outline-pine"
                 aria-label="Close"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" strokeWidth={1.6} />
               </button>
             </div>
           </div>
-          {note && <p className="m-0 mt-1.5 font-sans text-[13px] leading-[1.45] text-charcoal/80">{note}</p>}
+          {note && <p className="m-0 mt-0.5 font-sans text-[13px] leading-[1.45] text-ink-body">{note}</p>}
         </div>
         {/* Phone: fill what the header leaves (it grows by a line when there is a note). */}
         <iframe
           src={state.src}
           title={title}
-          className="min-h-0 w-full flex-1 sm:h-[80vh] sm:flex-none sm:rounded-b-xl"
+          className="min-h-0 w-full flex-1 bg-paper sm:h-[80vh] sm:flex-none"
         />
       </div>
     </div>

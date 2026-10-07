@@ -171,8 +171,8 @@ export type BarId = "call" | "gift" | "stays" | "shop";
 const BARS: Partial<Record<PageType, { id: BarId; season?: SeasonId }>> = {
   about: { id: "call" },
   shop: { id: "shop" },
+  // The stays index only: on a single stay the bar stacked a third header layer over the page's own booking.
   stays: { id: "stays", season: "thanksgiving-bar" },
-  stay: { id: "stays", season: "thanksgiving-bar" },
   tours: { id: "gift", season: "gift" },
   spa: { id: "gift", season: "gift" },
   sauna: { id: "gift", season: "gift" },
