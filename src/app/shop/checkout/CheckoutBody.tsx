@@ -299,7 +299,7 @@ export function CheckoutBody({
     // Land the field's label (its wrapper) just under the pinned header, not centered under it.
     const target = el.closest("div") ?? el;
     const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 104;
-    const top = target.getBoundingClientRect().top + window.scrollY - header - 16;
+    const top = target.getBoundingClientRect().top + window.scrollY - header - 40;
     window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     el.focus({ preventScroll: true });
   }
@@ -450,6 +450,15 @@ export function CheckoutBody({
   // Red only: the global green focus outline is switched off while the field is in error.
   const errorRing = "border-[#8c3b2a] focus:border-[#8c3b2a] focus-visible:outline-none!";
   const errorText = "m-0 mt-1 text-[12px] font-medium text-[#8c3b2a]";
+  const gapIds = [
+    nameBad && "co-name",
+    emailBad && "co-email",
+    phoneBad && "co-phone",
+    fulfillment === "delivery" && addressBad && "co-address",
+    fulfillment === "delivery" && cityBad && "co-city",
+    fulfillment === "delivery" && zipBad && "co-zip",
+  ].filter((id): id is string => Boolean(id));
+  const gapWords = ["No", "One", "Two", "Three", "Four", "Five", "Six"];
   const shortBy = Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
   const payDisabled = busy || Boolean(blocking);
 
@@ -612,7 +621,7 @@ export function CheckoutBody({
               </div>
               {fulfillment === "pickup" && (
                 <p className="m-0 mt-2.5 text-[13px] leading-[1.45] text-ink-body">
-                  {PICKUP_READY}. Pickup {PICKUP_HOURS} Need it today? Call{" "}
+                  {PICKUP_READY}. Pickup {PICKUP_HOURS} Same-day pickup? Call{" "}
                   <a
                     href={`tel:+1${CONTACT.ordersPhone.replace(/\D/g, "")}`}
                     className="whitespace-nowrap font-medium text-pine underline decoration-pine-line underline-offset-4"
@@ -760,6 +769,22 @@ export function CheckoutBody({
                     className="m-0 mt-4 border-l-2 border-pine-line bg-paper-shade px-4 py-3 text-[14px] text-ink"
                   >
                     {failure?.at === "card" ? failure.message : shownProblem}
+                  </p>
+                )}
+
+                {gapIds.length > 0 && (
+                  <p role="status" className="m-0 mt-4 text-[14px] font-medium text-[#8c3b2a]">
+                    {gapWords[gapIds.length]} {gapIds.length === 1 ? "field needs" : "fields need"} a fix above.{" "}
+                    <a
+                      href={`#${gapIds[0]}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        focusField(gapIds[0]);
+                      }}
+                      className="underline decoration-[#8c3b2a] underline-offset-4"
+                    >
+                      Go to the first
+                    </a>
                   </p>
                 )}
 

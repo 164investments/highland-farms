@@ -94,7 +94,7 @@ export function LedgerRow({
           className={BUY_BUTTON}
         >
           <PlusIcon size={13} />
-          <span className="whitespace-nowrap">{price}</span>
+          <span className="whitespace-nowrap">{price.replace(/^from (.*)$/, "$1+")}</span>
         </Link>
       ) : (
         <QuickAdd product={product} stock={stock} display="price" />
@@ -105,7 +105,7 @@ export function LedgerRow({
 
 /** Same box as QuickAdd's "price" button, so every product has one buy style. */
 const BUY_BUTTON =
-  "flex h-11 shrink-0 items-center gap-1.5 border border-pine px-3 text-[13px] font-semibold text-pine hover:bg-paper-shade max-[374px]:px-2.5 lg:px-4";
+  "flex h-11 w-[92px] shrink-0 items-center justify-center gap-1.5 border border-pine px-2 text-[13px] font-semibold text-pine hover:bg-paper-shade";
 
 /**
  * The one sold-out line for a shelf: "N sold out ... Email me when back".

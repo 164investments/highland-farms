@@ -19,8 +19,6 @@ import {
   DELIVERY_FEE_CENTS,
   DELIVERY_MINIMUM_CENTS,
   MEAT_FROZEN_NOTE,
-  PICKUP_HOURS,
-  PICKUP_LOCATION,
 } from "@/lib/shop/fulfillment";
 import { buildProductNode } from "@/lib/shop/product-schema";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
@@ -166,7 +164,7 @@ export default async function ProductPage({
               <div
                 className={cn(
                   "relative overflow-hidden lg:aspect-square lg:h-auto",
-                  isApparel ? "h-[216px] max-[359px]:h-[140px]" : "h-[176px] max-[359px]:h-[128px]",
+                  isApparel ? "h-[216px] max-[359px]:h-[176px]" : "h-[176px] max-[359px]:h-[128px]",
                 )}
               >
                 <Image
@@ -178,7 +176,7 @@ export default async function ProductPage({
                   className={cn(
                     "object-cover",
                     isApparel
-                      ? "object-cover object-[50%_38%] lg:object-[50%_68%]"
+                      ? "object-cover object-[50%_24%] lg:object-[50%_68%]"
                       : "object-[50%_48%]",
                     soldOut && "opacity-60",
                   )}
@@ -222,16 +220,7 @@ export default async function ProductPage({
                       const out = allSoldOut(stock, p.variants.map((v) => v.id));
                       const here = p.slug === product.slug;
                       const price = formatCentsShort(toCents(fromPrice(p)));
-                      if (here) {
-                        return (
-                          <li key={p.slug} aria-current="page" className="flex min-h-12 items-center gap-2 border-b border-l-2 border-rule border-l-pine pl-3">
-                            <span className="font-display text-[19px] font-semibold lg:text-[21px]">{p.title}</span>
-                            <span className="sr-only">This one</span>
-                            <FieldLeader />
-                            <span className="text-[15px] font-semibold">{price}</span>
-                          </li>
-                        );
-                      }
+                      if (here) return null;
                       return (
                         <li key={p.slug}>
                           <Link href={`/shop/${p.slug}`} className="flex min-h-12 items-center gap-2 border-b border-rule">
@@ -259,12 +248,6 @@ export default async function ProductPage({
               {/* How you'll get it: true fees from fulfillment.ts */}
               <dl className="m-0 mt-7 border-t border-ink lg:mt-10">
                 <div className="grid grid-cols-[84px_1fr] gap-x-3 border-b border-rule py-3 lg:grid-cols-[104px_1fr]">
-                  <dt className={DT}>Pickup</dt>
-                  <dd className={DD}>
-                    {PICKUP_LOCATION.address.replace(", OR 97011", "")}. {PICKUP_HOURS}, ready the day after you order.
-                  </dd>
-                </div>
-                <div className="grid grid-cols-[84px_1fr] gap-x-3 border-b border-rule py-3 lg:grid-cols-[104px_1fr]">
                   <dt className={DT}>Delivery</dt>
                   <dd className={DD}>{deliveryNote}</dd>
                 </div>
@@ -289,14 +272,14 @@ export default async function ProductPage({
               {/* One more true detail from data.ts (sizes and the one price), then the other colorway's real photo. */}
               {isApparel && product.detail && (
                 <p className="m-0 mt-2 max-w-prose text-[15px] leading-[1.6] text-ink-body">
-                  {product.detail}, {formatCentsShort(toCents(fromPrice(product)))} in every size.
+                  {product.detail}.
                 </p>
               )}
               {isApparel && otherColor && (
                 <Plate
                   className="mt-5"
                   frameClassName="aspect-[4/3]"
-                  caption={`The Dream hoodie in ${otherColor.subtitle?.toLowerCase()}.`}
+                  caption={`Also in ${otherColor.subtitle?.toLowerCase()}.`}
                 >
                   <Image
                     src={otherColor.image}

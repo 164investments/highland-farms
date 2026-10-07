@@ -63,7 +63,7 @@ export default async function ThankYouPage({
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
       {/* 1. The receipt moment */}
-      <section className="px-5 pb-12 pt-8 lg:px-16 lg:pb-20 lg:pt-16">
+      <section className="px-5 pb-6 pt-8 lg:px-16 lg:pb-20 lg:pt-16">
         <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-start lg:gap-16">
           <div>
             {/* "Paid" only when checkout handed over an order number (r4). */}
@@ -94,7 +94,7 @@ export default async function ThankYouPage({
                   <p className={STEP_TITLE}>We pack it and call you</p>
                   {!delivery && (
                     <p className={STEP_BODY}>
-                      {PICKUP_READY}. Need it today? Call{" "}
+                      {PICKUP_READY}. Same-day pickup? Call{" "}
                       <a href={ORDERS_TEL} className="whitespace-nowrap font-medium text-pine underline decoration-pine-line underline-offset-4">
                         {CONTACT.ordersPhone}
                       </a>
@@ -126,7 +126,7 @@ export default async function ThankYouPage({
               </li>
             </ol>
             <p className="m-0 mt-4 text-[14px] text-ink-body">
-              Need to change something? Call{" "}
+              Questions about an order? Call{" "}
               <a href={TEL} className="font-medium text-pine underline decoration-pine-line underline-offset-4">
                 <span className="whitespace-nowrap">{CONTACT.phone}</span>
               </a>{" "}
@@ -138,7 +138,7 @@ export default async function ThankYouPage({
       </section>
 
       {/* 2. The second door: this buyer is driving to the farm anyway */}
-      <section className="bg-paper-light px-5 py-12 lg:px-16 lg:py-20">
+      <section className="bg-paper-light px-5 pb-12 pt-6 lg:px-16 lg:py-20">
         <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-center lg:gap-16">
           <Plate
             frameClassName="aspect-[4/3] lg:aspect-[4/5]"

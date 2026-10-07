@@ -139,7 +139,7 @@ export function CartBody({
               type="button"
               onClick={() => addOffer(a)}
               aria-label={`Add to cart: ${a.title}, ${formatCentsShort(a.priceCents)}`}
-              className="mt-1.5 flex h-11 items-center gap-1.5 border border-pine px-4 text-[13px] font-semibold text-pine hover:bg-paper-shade"
+              className="mt-1.5 flex h-11 w-[92px] items-center justify-center gap-1.5 border border-pine px-2 text-[13px] font-semibold text-pine hover:bg-paper-shade"
             >
               + {formatCentsShort(a.priceCents)}
             </button>
@@ -165,7 +165,7 @@ export function CartBody({
               type="button"
               onClick={() => addOffer(a)}
               aria-label={`Add to cart: ${a.title}, ${formatCentsShort(a.priceCents)}`}
-              className="flex h-11 shrink-0 items-center border border-pine px-3 text-[13px] font-semibold text-pine hover:bg-paper-shade"
+              className="flex h-11 w-[92px] shrink-0 items-center justify-center border border-pine px-2 text-[13px] font-semibold text-pine hover:bg-paper-shade"
             >
               + {formatCentsShort(a.priceCents)}
             </button>
@@ -176,7 +176,7 @@ export function CartBody({
 
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
-      <section className="px-5 pb-32 pt-2 lg:px-16 lg:pb-24 lg:pt-8">
+      <section className="px-5 pb-12 pt-2 lg:px-16 lg:pb-24 lg:pt-8">
         <div className="mx-auto max-w-[1312px]">
           {/* The empty cart's one action is its own button; this link is for a filled cart. */}
           {ready && detailed.length > 0 && (

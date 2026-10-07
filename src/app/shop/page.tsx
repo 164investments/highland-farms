@@ -164,7 +164,7 @@ export default async function ShopPage() {
                 <div>
                   <p className={STEP_TITLE}>We pack it and call you</p>
                   <p className={STEP_BODY}>
-                    {PICKUP_READY}. Need it today? Call{" "}
+                    {PICKUP_READY}. Same-day pickup? Call{" "}
                     <a href={ORDERS_TEL} className="whitespace-nowrap font-medium text-pine underline decoration-pine-line underline-offset-4">
                       {CONTACT.ordersPhone}
                     </a>
@@ -228,7 +228,7 @@ export default async function ShopPage() {
           <div className="flex items-end justify-between gap-4 border-b border-ink pb-2">
             <h3 className="field-heading m-0 font-display text-[24px] leading-none lg:text-[30px]">Store questions</h3>
             <a href={TEL} className="flex min-h-11 items-end text-[13px] text-ink-note">
-              Or call <span className="ml-1 whitespace-nowrap font-medium text-pine">{CONTACT.phone}</span>
+              Questions about an order? Call <span className="ml-1 whitespace-nowrap font-medium text-pine">{CONTACT.phone}</span>
             </a>
           </div>
           <FieldFaq items={shopFAQ} size="sm" jsonLd className="border-t-0 lg:grid lg:grid-cols-2 lg:gap-x-16" />

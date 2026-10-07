@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents } from "@/lib/shop/money";
+import { PICKUP_HOURS, PICKUP_READY } from "@/lib/shop/fulfillment";
 import { QtyStepper } from "@/components/shop/QtyStepper";
 import { WaitlistForm } from "@/components/shop/WaitlistForm";
 import { pushEvent, scarcityLabel } from "@/components/shop/track";
@@ -216,6 +217,7 @@ export function AddToCart({
         </div>
       )}
 
+      <div id="choose-and-add">
       {multi && (
         <fieldset className="m-0 mt-4 border-0 p-0 lg:mt-6">
           <legend className="p-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">
@@ -281,6 +283,7 @@ export function AddToCart({
           )}
         </div>
       )}
+      </div>
 
       {selectedOut && !allOut && selected && (
         <WaitlistForm key={selected.id} variantIds={[selected.id]} name={selected.label ?? productTitle} className="mt-3" />
@@ -290,12 +293,13 @@ export function AddToCart({
       )}
 
       <p className="m-0 mt-2.5 text-[13px] leading-[1.45] text-ink-note">
-        Free pickup at the farm in Brightwood. We call you when it&apos;s packed.
+        Free pickup at the farm in Brightwood, {PICKUP_HOURS} {PICKUP_READY}. We call you when it&apos;s packed.
       </p>
 
       {/* The one bottom action on phones: add once the buy button scrolls away, view cart once the cart has items. */}
       <FieldStickyBar
         enabled={!allOut}
+        hideWhenVisible="#choose-and-add"
         primary={
           cartHasItems || added
             ? {
