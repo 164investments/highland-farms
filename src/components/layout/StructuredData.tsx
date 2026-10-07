@@ -366,8 +366,8 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         geo,
         // Owner-confirmed 2026-09-17: maximum event headcount, not beds.
         maximumAttendeeCapacity: 125,
-        // No priceRange: wedding marketing carries no price or price anchor
-        // (Connor's rule), and "$$$$" is one.
+        // No priceRange: "$$$$" tells a couple nothing. Wedding prices may be shown
+        // (Hayden, 2026-10-07); the menu states the true two-night floor (WEDDING_PRICE_NOTE).
         isAccessibleForFree: false,
         publicAccess: false,
         image: `${SITE.url}/images/weddings/couple.jpg`,
