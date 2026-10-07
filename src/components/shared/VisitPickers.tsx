@@ -1,6 +1,6 @@
 import { FieldPriceRows, type FieldPriceRowData } from "@/components/field/PriceRows";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
-import { SPA_SPOT_ROWS } from "@/data/nordic-spa";
+import { SPA_SPOT_ROWS, withSpaQuantity } from "@/data/nordic-spa";
 import { BOOKING_LINKS, FARM_TOUR_PARTY_LINKS, bookingUrl } from "@/lib/constants";
 
 /*
@@ -62,9 +62,11 @@ interface SpaPickerProps extends PickerProps {
 }
 
 /**
- * /nordic-spa and /sauna-near-portland: 1, 2, 3 to 5 or all six spots. Acuity's
- * class calendar takes the quantity on its own screen, so every row opens the
- * same calendar (type 85942611) with its own utm_content.
+ * /nordic-spa and /sauna-near-portland: 1, 2, 3 to 5 or all six spots. Every
+ * row opens the same class calendar (type 85942611) with its own utm_content;
+ * rows with a fixed count also prefill Acuity's Quantity (`?quantity=N`), so
+ * "All six spots, $450" opens at 6 x $75 with only fully open sessions
+ * selectable. The modal prints a matching line under its title.
  */
 export function SpaPicker({ where, prefix, label, labelId, native = false }: SpaPickerProps) {
   const rows: FieldPriceRowData[] = SPA_SPOT_ROWS.map((spot) => {
@@ -94,7 +96,10 @@ export function SpaPicker({ where, prefix, label, labelId, native = false }: Spa
     return {
       ...row,
       booking: {
-        href: bookingUrl(BOOKING_LINKS.nordicSpa, `${prefix}-${where}-${spot.key}`),
+        href: withSpaQuantity(
+          bookingUrl(BOOKING_LINKS.nordicSpa, `${prefix}-${where}-${spot.key}`),
+          "quantity" in spot ? spot.quantity : undefined,
+        ),
         label: spot.label,
         title:
           spot.key === "3to5"

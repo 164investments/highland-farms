@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         url: "/images/farm/agritourism-stay.jpg",
         width: 1200,
         height: 630,
-        alt: "Two guests feeding a pair of shaggy Highland calves in the hay",
+        alt: "Two people feeding a pair of shaggy Highland calves in the hay",
       },
     ],
   },

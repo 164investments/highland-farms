@@ -80,7 +80,7 @@ const faqItems: FAQItem[] = [
     answer: "Yes. Gift certificates for the Nordic spa are on our gift certificates page.",
   },
   {
-    question: "What's the cancellation policy?",
+    question: "What is the cancellation policy?",
     answer:
       "Our cancellation policy is strict. All spa bookings are final: no refunds, no reschedules, no credits, and no transfers, including for no-shows. Please confirm your date, time, and guest count before you book. The only exception is if we cancel for severe weather or for the safety of our animals or guests, in which case we will refund or rebook you.",
   },
@@ -134,7 +134,7 @@ const BUYS: { term: string; detail: string }[] = [
 ];
 
 const knowRows: KnowRow[] = [
-  { term: "Ages", detail: "16 and up only." },
+  { term: "Ages", detail: "16 and up, in every session, private ones included." },
   { term: "Bring", detail: "A swimsuit and walking shoes. Robes and towels are here." },
   {
     term: "Session",
@@ -165,7 +165,7 @@ export default function SaunaNearPortlandPage() {
         <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-[18px] lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:grid-rows-[1fr_repeat(6,auto)_1fr] lg:gap-x-16 lg:px-10 lg:pb-10 lg:pt-11 xl:px-10 min-[90rem]:px-16">
           <Plate
             className="lg:col-start-2 lg:row-start-1 lg:row-end-9"
-            frameClassName="h-[190px] max-[359px]:h-[120px] lg:h-auto lg:min-h-0 lg:flex-1"
+            frameClassName="h-[136px] max-[359px]:h-[120px] sm:h-[190px] lg:h-auto lg:min-h-0 lg:flex-1"
             captionClassName="mt-px max-[359px]:hidden lg:mt-0.5"
             caption="Smoke from the sauna stove, through the trees."
           >
@@ -190,8 +190,7 @@ export default function SaunaNearPortlandPage() {
             A forest sauna, about an hour from Portland
           </h1>
           <p className="m-0 mt-2.5 font-sans text-[14px] leading-[1.5] text-ink-body lg:col-start-1 lg:row-start-4 lg:mt-5 lg:max-w-[560px] lg:text-[17px] lg:leading-[1.6]">
-            Drive east on US-26 and trade the city for a wood-fired cedar sauna, a wet sauna and a cold plunge on a
-            deck in the trees.
+            A wood-fired cedar sauna, a wet sauna and a cold plunge on a deck in the trees.
           </p>
           <p className="m-0 mt-3 font-sans text-[12px] uppercase tracking-[0.08em] text-ink lg:col-start-1 lg:row-start-5 lg:mt-6 lg:text-[13px]">
             ${SPA_PRICE_PER_PERSON} per person &middot; {SPA_MINUTES} minutes &middot; Up to {SPA_MAX_PARTY} &middot; Ages 16+
@@ -214,7 +213,8 @@ export default function SaunaNearPortlandPage() {
             </p>
           </div>
 
-          <div className="mt-4 border-t border-rule pt-3.5 lg:col-start-1 lg:row-start-7 lg:mt-7 lg:max-w-[560px] lg:pt-5">
+          {/* Phone: no hairline here, so Mike N.'s whole quote and its attribution clear 660px (US-26 is in "The drive is part of it"). */}
+          <div className="mt-3 lg:col-start-1 lg:row-start-7 lg:mt-7 lg:max-w-[560px] lg:border-t lg:border-rule lg:pt-5">
             <FieldReviewTier tier="hero" />
             <FieldReview
               spec={SAUNA_HERO_QUOTE}
@@ -274,7 +274,7 @@ export default function SaunaNearPortlandPage() {
           <Plate
             className="mt-9 lg:col-span-6 lg:mt-0"
             frameClassName="h-[230px] lg:h-[600px]"
-            caption="Where the road ends: the deck and the plunge, beside a giant tree."
+            caption="Where the drive ends: the deck and the plunge, beside a giant tree."
           >
             <Image
               src="/images/spa/spa-exterior-deck-plunge.jpg"
@@ -343,7 +343,7 @@ export default function SaunaNearPortlandPage() {
                 <Suspense fallback={null}>
                   <NextAvailability product="spa" variant="text" label="Next open:" />
                 </Suspense>
-                {SPA_WEEKEND && ` ${SPA_WEEKEND}`} Booking all six? Choose 6 spots on the calendar.
+                {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
               </p>
               <FieldReviewTier tier="nearCta" className="mt-2" />
               <BookingPolicyNote

@@ -395,7 +395,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         "@id": `${SITE.url}/#farm-tour-product`,
         name: "Highland Cow Farm Tour",
         description:
-          "Private 60-minute Highland Cow farm tour for 2 to 6 guests at $75 per person. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl.",
+          "Private 60-minute Highland Cow farm tour for 2 to 6 guests: $150 for two, $75 each additional guest. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl.",
         url: `${SITE.url}/farm-tours`,
         image: `${SITE.url}/images/farm/highland-cows-hero.jpg`,
         brand: {

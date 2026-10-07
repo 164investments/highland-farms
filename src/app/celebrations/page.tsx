@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { FieldReview, FieldReviewTier, resolveFieldQuote } from "@/components/field/Reviews";
-import { cancellationAnswer } from "@/components/field/Faq";
+import { FieldFaq, cancellationAnswer } from "@/components/field/Faq";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import {
   FieldArrow,
@@ -40,10 +40,10 @@ export const metadata: Metadata = {
       "Host your engagement party, birthday, rehearsal dinner, or special celebration at Highland Farms in Brightwood, Oregon.",
     images: [
       {
-        url: "/images/events/celebrations-hero.jpg",
+        url: "/images/events/forest-yoga.jpg",
         width: 1200,
         height: 630,
-        alt: "A long table on the lawn at Highland Farms, with every glass raised",
+        alt: "A group resting on blankets on the flagstone patio under tall firs at Highland Farms",
       },
     ],
   },
@@ -64,13 +64,14 @@ const BANDS = {
 };
 
 /**
- * The same frame as weddings/olivia-connor/01.jpg (a wedding dinner), so the
- * caption says so: it never passes a wedding off as a birthday or reunion.
+ * RULINGS #8: no wedding photo in this hero. A real non-wedding group on the
+ * farm, captioned with only what it shows (the event itself is unconfirmed).
+ * Not a first screen anywhere else (CONSISTENCY #12).
  */
 const HERO_PHOTO = {
-  src: "/images/events/celebrations-hero.jpg",
-  alt: "Wedding guests raise their glasses along one long table set on the lawn under string lights, with a cabin and tall firs behind",
-  position: "50% 45%",
+  src: "/images/events/forest-yoga.jpg",
+  alt: "A group resting on blankets on the flagstone patio under tall firs",
+  position: "50% 85%",
 };
 
 const bring: { drawing: FieldDrawingName; title: string; body: string }[] = [
@@ -108,9 +109,11 @@ export default function CelebrationsPage() {
     const q = resolveFieldQuote(quote.spec, { role: quote.role });
     return q ? [{ occasion, q }] : [];
   });
-  // Both visits are sold on this page, so both strict lines show, word for word from their data files.
-  const tourPolicy = cancellationAnswer(farmTourFAQ);
-  const spaPolicy = cancellationAnswer(nordicSpaFAQ);
+  // RULINGS #8: one closed row holds both strict answers, word for word from their data files,
+  // beside the visit actions and never above the inquiry form.
+  const visitPolicy = [cancellationAnswer(farmTourFAQ), cancellationAnswer(nordicSpaFAQ)]
+    .filter(Boolean)
+    .join("\n\n");
 
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
@@ -126,17 +129,19 @@ export default function CelebrationsPage() {
             </h1>
           </div>
           <div className="mt-4 lg:mt-10">
+            {/* Phone: about 2:1, so the "21 to 125" row clears 660px (measured 646 at 393x660). */}
             <Plate
-              caption="A wedding dinner at one long table on the lawn by the Lodge."
+              caption="A group resting on the flagstone patio under the firs."
               captionClassName="lg:text-center"
-              frameClassName="h-[192px] min-[380px]:h-[214px] lg:h-[500px]"
+              frameClassName="h-[160px] min-[380px]:h-[176px] lg:h-[500px]"
             >
               <StayPhoto photo={HERO_PHOTO} sizes="(min-width: 1440px) 1312px, 100vw" priority />
             </Plate>
           </div>
-          <FieldReviewTier tier="hero" link className="lg:hidden" />
+          {/* Plain text, as on the other visit pages: no link out to Google on the first screen. */}
+          <FieldReviewTier tier="hero" className="mt-2.5 lg:hidden" />
           <nav aria-label="Choose by group size" data-hero-cta className="lg:hidden">
-            <p className={cn("m-0 mt-1 font-medium", fieldLabelClass)}>How many are coming?</p>
+            <p className={cn("m-0 mt-3 font-medium", fieldLabelClass)}>How many are coming?</p>
             <div className="mt-2 flex flex-col border-t border-ink/70">
               {HEADCOUNT_ROWS.map((r) => (
                 <ClientLink key={r.title} href={r.href} className="flex min-h-[60px] items-center gap-3 border-b border-rule py-2">
@@ -158,7 +163,7 @@ export default function CelebrationsPage() {
           <div className="hidden lg:mx-auto lg:mt-10 lg:block lg:max-w-[1100px]">
             <div className="flex items-baseline justify-between gap-10">
               <p className={cn("m-0 font-medium", fieldLabelClass)}>How many are coming?</p>
-              <FieldReviewTier tier="hero" link />
+              <FieldReviewTier tier="hero" />
             </div>
             <nav aria-label="Choose by group size" data-hero-cta className="mt-3 grid grid-cols-3 gap-10">
               {HEADCOUNT_ROWS.map((r) => (
@@ -231,7 +236,7 @@ export default function CelebrationsPage() {
                 </p>
                 <div className="mt-1 flex flex-col items-start">
                   <Link href="/stay/whole-farm#book" className={ladderLinkClass}>
-                    Check the whole farm&apos;s dates
+                    Check whole-farm dates
                     <FieldArrow size={16} />
                   </Link>
                 </div>
@@ -239,11 +244,12 @@ export default function CelebrationsPage() {
             </li>
             <li id="larger" className={ladderRowClass}>
               <BandHead band={BANDS.gathering} />
+              {/* The forest-yoga photo is now the hero, so this rung shows the grounds (no repeat on the page). */}
               <LadderPhoto
                 photo={{
-                  src: "/images/events/forest-yoga.jpg",
-                  alt: "A group resting on blankets on the flagstone patio under tall firs",
-                  position: "50% 70%",
+                  src: "/images/properties/gallery-7.jpg",
+                  alt: "Aerial view of Highland Farms in autumn: the Lodge, the Cottage and the gravel drive loop among the firs",
+                  position: "50% 50%",
                 }}
               />
               <div className="mt-3 lg:order-2 lg:mt-0">
@@ -334,8 +340,6 @@ export default function CelebrationsPage() {
             detailClassName="text-[15px] leading-[1.55] lg:text-[16px]"
             rows={[
               { term: "Stays", detail: `${STAY_MINIMUM} No outside pets.` },
-              ...(tourPolicy ? [{ term: "Farm tours", detail: tourPolicy }] : []),
-              ...(spaPolicy ? [{ term: "Nordic spa", detail: spaPolicy }] : []),
               { term: "Ages", detail: `The spa is for guests 16 and up. On farm tours, kids 4 and under are free.` },
               { term: "Access", detail: "Farm tours and the spa aren't wheelchair, walker or stroller accessible." },
             ]}
@@ -353,18 +357,9 @@ export default function CelebrationsPage() {
         <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
           <div>
             <p className={cn("m-0 text-[17px] lg:text-[20px]", fieldEyebrowClass)}>Check your date</p>
-            <div className="mt-3">
-              <FieldReview
-                spec={CELEBRATION_FORM_QUOTE.spec}
-                role={CELEBRATION_FORM_QUOTE.role}
-                size="sm"
-                rule
-                quoteClassName="text-[19px] lg:text-[22px]"
-              />
-            </div>
             <h2
               id="contact-title"
-              className="field-heading m-0 mt-6 font-display text-[32px] leading-[1.05] text-ink lg:text-[48px]"
+              className="field-heading m-0 mt-1 font-display text-[32px] leading-[1.05] text-ink lg:text-[48px]"
             >
               Tell us about your gathering
             </h2>
@@ -375,6 +370,14 @@ export default function CelebrationsPage() {
               className="mt-2"
               note='PENDING CONNOR: first name of who answers group inquiries; then the line reads "[Name] checks the farm calendar and writes back with what fits."'
             />
+            <div className="mt-5">
+              <FieldReview
+                spec={CELEBRATION_FORM_QUOTE.spec}
+                role={CELEBRATION_FORM_QUOTE.role}
+                size="sm"
+                quoteClassName="text-[19px] lg:text-[22px]"
+              />
+            </div>
             <p className="m-0 mt-4 font-sans text-[14px] leading-[1.55] text-ink-note lg:text-[15px]">
               Prefer to talk? Call{" "}
               <a href={PHONE_TEL} className="whitespace-nowrap font-medium text-pine underline underline-offset-4">
@@ -397,7 +400,36 @@ export default function CelebrationsPage() {
         </div>
       </section>
 
-      {/* 7. Wedding router. */}
+      {/* 7. The visit actions, with the one closed cancellation row (RULINGS #8: never above the form). */}
+      <section aria-labelledby="visits-title" className="border-t border-rule px-5 py-10 lg:px-16 lg:py-16">
+        <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
+          <FieldSectionHeader
+            id="visits-title"
+            size="md"
+            title="Add a farm tour or the spa"
+            titleClassName="lg:text-[40px]"
+            intro="Each is booked on its own page, for up to six guests at a time."
+            introClassName="text-[15px] lg:text-[16px]"
+          />
+          <div className="mt-4 lg:mt-0">
+            <div className="flex flex-col items-start">
+              <Link href="/farm-tours#choose" className={ladderLinkClass}>
+                See tour dates
+                <FieldArrow size={16} />
+              </Link>
+              <Link href="/nordic-spa#availability" className={ladderLinkClass}>
+                See open sessions
+                <FieldArrow size={16} />
+              </Link>
+            </div>
+            {visitPolicy && (
+              <FieldFaq items={[{ question: "Tour and spa cancellation policy", answer: visitPolicy }]} className="mt-4" />
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Wedding router. */}
       <section className="bg-paper-shade px-5 py-8 lg:px-16 lg:py-12">
         <div className="mx-auto flex max-w-[1312px] flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <p className="m-0 font-display text-[22px] leading-tight text-ink lg:text-[28px]">Planning a wedding instead?</p>

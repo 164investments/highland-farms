@@ -95,7 +95,7 @@ const knowRows: KnowRow[] = [
   {
     term: "Arrival",
     detail:
-      "Park on the right in the gravel past the gate and meet your guide at the cow statue. More than 10 minutes late, and your tour may be shortened or cancelled at your expense.",
+      "Park on the right in the gravel past the gate and meet your guide at the carved Highland cow. More than 10 minutes late, and your tour may be shortened or cancelled at your expense.",
   },
   { term: "Timing", detail: "Book at least a day ahead. Dates open about three to four months out." },
 ];
@@ -159,7 +159,7 @@ export default function FarmToursPage() {
                   You go into the pen with your guide to feed, brush and pet the Highland cows. Bring a phone with
                   room for photos.
                 </p>
-                <FieldReview spec={TOURS_HUG_QUOTE} role="Farm tour" size="sm" rule className="mt-4" />
+                <FieldReview spec={TOURS_HUG_QUOTE} role="Farm tour" size="sm" className="mt-4" />
                 <Plate
                   className="mt-5 lg:hidden"
                   frameClassName="h-[250px]"
@@ -184,7 +184,7 @@ export default function FarmToursPage() {
               <li className="border-b border-rule py-6 lg:py-8">
                 <h3 className={hook}>No passport needed.</h3>
                 <p className={body15}>Scottish Highland cows in Brightwood, Oregon, about an hour from Portland.</p>
-                <FieldReview spec={TOURS_SCOTLAND_QUOTE} role="Farm tour" size="sm" rule className="mt-4" />
+                <FieldReview spec={TOURS_SCOTLAND_QUOTE} role="Farm tour" size="sm" className="mt-4" />
               </li>
             </ul>
           </div>
@@ -210,7 +210,8 @@ export default function FarmToursPage() {
           title="Who you'll meet"
           intro="The Highland cows are the main event: you go into the pen with them. Here's who else you'll meet along the way."
         >
-          <article className="mt-8 grid grid-cols-[1fr_128px] items-start gap-4 border-t border-rule pt-6 lg:mt-14 lg:grid-cols-12 lg:gap-x-16 lg:pt-10">
+          {/* Phone: the drawing sits above the text, so the name, the body and Lizzy D.'s quote run the full column. */}
+          <article className="mt-8 grid grid-cols-1 items-start gap-4 border-t border-rule pt-6 lg:mt-14 lg:grid-cols-12 lg:gap-x-16 lg:pt-10">
             <div className="lg:col-span-7 lg:self-center">
               <p className="m-0 font-sans text-[11px] uppercase tracking-[0.16em] text-ink-meta">No. 1</p>
               <h3 className="field-heading m-0 mt-1 font-display text-[32px] leading-[1.02] text-ink lg:text-[52px]">
@@ -227,7 +228,6 @@ export default function FarmToursPage() {
                 spec={TOURS_COWS_QUOTE}
                 role="Farm tour"
                 size="sm"
-                rule
                 className="mt-4 max-w-[560px]"
               />
               <PendingSlot
@@ -237,8 +237,8 @@ export default function FarmToursPage() {
             </div>
             <FieldDrawing
               name="highland-cow"
-              className="w-[128px] lg:col-span-5 lg:w-[420px] lg:justify-self-end"
-              sizes="(min-width: 1024px) 420px, 128px"
+              className="order-first w-[160px] lg:order-none lg:col-span-5 lg:w-[420px] lg:justify-self-end"
+              sizes="(min-width: 1024px) 420px, 160px"
             />
           </article>
 
@@ -296,9 +296,9 @@ export default function FarmToursPage() {
                   ),
                 },
                 {
-                  id: "statue",
-                  title: "The cow statue",
-                  body: `Your guide meets you at the Highland cow statue. Tours start at ${TOUR_TIMES}, on the hour.`,
+                  id: "carved-cow",
+                  title: "The carved Highland cow",
+                  body: `Your guide meets you at the carved Highland cow. Tours start at ${TOUR_TIMES}, on the hour.`,
                 },
                 {
                   id: "pen",
@@ -337,7 +337,6 @@ export default function FarmToursPage() {
                 spec={TOURS_RAIN_QUOTE}
                 role="Farm tour"
                 size="sm"
-                rule
                 className="mt-4"
                 quoteClassName="lg:text-[21px]"
               />

@@ -15,7 +15,7 @@ import {
   type FieldDrawingName,
 } from "@/components/ui/FieldGuide";
 import { GIFTS, giftAcuityId, giftCatalogUrl, giftFAQ, giftPrice, type GiftFamily } from "@/data/gift-certificates";
-import { GIFTS_HERO_QUOTE, GIFTS_STEWART_QUOTE, GIFTS_VALERIE_QUOTE } from "./quotes";
+import { GIFTS_KSCHROE_QUOTE, GIFTS_STEWART_QUOTE, GIFTS_VALERIE_QUOTE } from "./quotes";
 
 /*
  * The static /gift-certificates page (round 3 board), shown while the native
@@ -88,6 +88,11 @@ function ledgerRows(family: GiftFamily): FieldPriceRowData[] {
   });
 }
 
+/** Phone: two 64px drawings side by side, the second overlapping by 16px (112px in all). */
+function cn64(i: number): string {
+  return i === 0 ? "h-[64px] w-[64px]" : "-ml-4 h-[64px] w-[64px]";
+}
+
 function cn16(bold: boolean): string {
   return bold ? "font-semibold lg:text-[16px]" : "lg:text-[16px]";
 }
@@ -123,7 +128,7 @@ function GiftEntry({ n, title, line, body, family, plates, first }: EntryProps) 
         ))}
       </div>
       <div className="lg:col-span-9">
-        <div className="grid grid-cols-[1fr_88px] items-start gap-3 lg:block">
+        <div className={single ? "grid grid-cols-[1fr_88px] items-start gap-3 lg:block" : "grid grid-cols-[1fr_112px] items-start gap-3 lg:block"}>
           <div>
             <FieldNo n={n} />
             <h3 className="field-heading m-0 mt-1 font-display text-[32px] leading-[1.02] text-ink lg:text-[46px]">
@@ -131,13 +136,13 @@ function GiftEntry({ n, title, line, body, family, plates, first }: EntryProps) 
             </h3>
             <p className="m-0 mt-1 font-display text-[18px] italic text-ink-note lg:text-[21px]">{line}</p>
           </div>
-          <div className={single ? "lg:hidden" : "flex w-[88px] flex-col items-center lg:hidden"}>
-            {plates.map((name) => (
+          <div className={single ? "lg:hidden" : "flex w-[112px] items-center lg:hidden"}>
+            {plates.map((name, i) => (
               <FieldDrawing
                 key={name}
                 name={name}
-                className={single ? "h-[88px] w-[88px]" : "h-[44px] w-[44px]"}
-                sizes={single ? "88px" : "44px"}
+                className={single ? "h-[88px] w-[88px]" : cn64(i)}
+                sizes={single ? "88px" : "64px"}
               />
             ))}
           </div>
@@ -170,12 +175,13 @@ export function StaticGifts() {
           >
             <Image
               src="/images/farm/agritourism-stay.jpg"
-              alt="Two guests feeding a pair of shaggy Highland calves in the hay"
+              alt="Two people feeding a pair of shaggy Highland calves in the hay"
               fill
               priority
               fetchPriority="high"
               sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
-              className="object-cover object-[60%_45%]"
+              // Phone: a 2.1:1 band of the square photo; 33% keeps the man's face in frame (desktop is portrait, so only x matters).
+              className="object-cover object-[60%_33%]"
             />
           </Plate>
 
@@ -196,15 +202,16 @@ export function StaticGifts() {
           <FieldReviewTier tier="hero" className="mt-2.5 lg:col-start-1 lg:row-start-5 lg:mt-5" />
 
           <div data-hero-cta className="mt-3.5 lg:col-start-1 lg:row-start-6 lg:mt-7 lg:max-w-[600px]">
-            <FieldPriceRows label="Choose a gift" labelId="gift-pick-label" rows={heroRows()} />
+            {/* "No expiration date" rides in the label, so it is on the first screen at no height cost. */}
+            <FieldPriceRows label="Choose a gift · No expiration date" labelId="gift-pick-label" rows={heroRows()} />
             <p className="m-0 mt-2 font-sans text-[12px] leading-[1.5] text-ink-note lg:text-[14px]">
-              The code arrives by email right after checkout, to print or forward. No expiration date. At checkout,
-              the Highland Day is listed as &ldquo;The Highland Experience.&rdquo;
+              At checkout, the Highland Day is listed as &ldquo;The Highland Experience.&rdquo; The code arrives by
+              email right after, to print or forward.
             </p>
           </div>
 
           <div className="mt-4 border-t border-rule pt-3.5 lg:col-start-1 lg:row-start-7 lg:mt-6 lg:max-w-[600px] lg:pt-5">
-            <FieldReview spec={GIFTS_HERO_QUOTE} role="Farm tour" size="sm" metaClassName="mt-1 lg:text-[11px]" />
+            <FieldReview spec={GIFTS_VALERIE_QUOTE} role="Farm tour" size="sm" metaClassName="mt-1 lg:text-[11px]" />
           </div>
         </div>
       </section>
@@ -285,7 +292,7 @@ export function StaticGifts() {
             className="m-0 mt-7 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-2 lg:gap-x-16 lg:border-t-0"
           >
             <li className="border-b border-rule py-6 lg:border-b-0 lg:border-t lg:py-8">
-              <FieldReview spec={GIFTS_VALERIE_QUOTE} role="Farm tour" size="lg" />
+              <FieldReview spec={GIFTS_KSCHROE_QUOTE} role="Farm tour" size="lg" />
             </li>
             <li className="border-b border-rule py-6 lg:border-b-0 lg:border-t lg:py-8">
               <FieldReview spec={GIFTS_STEWART_QUOTE} size="lg" />

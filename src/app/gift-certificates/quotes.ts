@@ -5,13 +5,15 @@
  */
 import type { QuoteSpec } from "../../lib/review-quotes";
 
-export const GIFTS_HERO_QUOTE: QuoteSpec = {
+/** Google shows only the handle, so this quote sits in "Booked as a surprise", not on the first screen. */
+export const GIFTS_KSCHROE_QUOTE: QuoteSpec = {
   author: "KSchroe",
   date: "2026-09-03",
   sentenceStartsWith: "My husband surprised me with the Highland Cow",
   topic: "Farm tour",
 };
 
+/** The first-screen quote: a FIRST L. name, and it names Dante and Mary. */
 export const GIFTS_VALERIE_QUOTE: QuoteSpec = {
   author: "Valerie Kitajchuk",
   date: "2026-05-20",

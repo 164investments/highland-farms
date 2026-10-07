@@ -9,8 +9,11 @@ import { nativeCalendarEnabled } from "@/lib/booking/flag";
 /**
  * /nordic-spa first screen (round 3 board): ad-hook H1, the hero-tier proof
  * line, and the spot picker as the CTA. Every row opens the spa calendar
- * (Acuity type 85942611) through BookingTextLink, with its own utm_content
- * and a party size on booking_start. Desktop follows the Field Guide 7/5 grid.
+ * (Acuity type 85942611) through BookingTextLink, with its own utm_content,
+ * a party size on booking_start and, for 1, 2 and 6, Quantity prefilled.
+ * Desktop follows the Field Guide 7/5 grid. Round 4: the phone plate is 140px
+ * and the body two lines, so all four rows, "All six spots" included, sit
+ * above 660px (measured 596 to 652 at 393x660).
  */
 export function SpaHero() {
   return (
@@ -21,7 +24,7 @@ export function SpaHero() {
       <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-[18px] lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(5,auto)_1fr] lg:gap-x-16 lg:px-10 lg:pb-10 lg:pt-11 xl:px-10 min-[90rem]:px-16">
         <Plate
           className="lg:col-start-2 lg:row-start-1 lg:row-end-8"
-          frameClassName="h-[190px] max-[359px]:h-[120px] lg:h-auto lg:min-h-0 lg:flex-1"
+          frameClassName="h-[140px] max-[359px]:h-[120px] sm:h-[190px] lg:h-auto lg:min-h-0 lg:flex-1"
           captionClassName="mt-px max-[359px]:hidden lg:mt-0.5"
           caption="The cold plunge, out on the deck."
         >
@@ -35,7 +38,7 @@ export function SpaHero() {
             // take the 750w rendition instead of 1080w (196 KB); 2x phones take 750w
             // either way. Tablets keep the full frame width. Same photo, same crop.
             sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, (min-width: 640px) calc(100vw - 80px), 250px"
-            className="object-cover object-[50%_60%]"
+            className="object-cover object-[50%_75%]"
           />
         </Plate>
 
@@ -47,8 +50,7 @@ export function SpaHero() {
         </h1>
 
         <p className="m-0 mt-2.5 font-sans text-[14px] leading-[1.5] text-ink-body lg:col-start-1 lg:row-start-3 lg:mt-5 lg:max-w-[600px] lg:text-[17px] lg:leading-[1.6]">
-          A wood-burning cedar sauna, a wet sauna and a cold plunge in the forest. $75 per person, ages 16 and up.
-          Robes and towels are on us.
+          A wood-burning cedar sauna, a wet sauna and a cold plunge. Ages 16 and up; robes and towels are on us.
         </p>
 
         <FieldReviewTier tier="hero" className="mt-2.5 lg:col-start-1 lg:row-start-4 lg:mt-5" />
@@ -67,7 +69,7 @@ export function SpaHero() {
           <Suspense fallback={null}>
             <NextAvailability product="spa" variant="text" label="Next open:" />
           </Suspense>{" "}
-          You pick the number of spots on the calendar. Bring a swimsuit.
+          Bring a swimsuit.
         </p>
       </div>
     </section>

@@ -18,13 +18,34 @@ export const SPA_WEEKEND: string | null = "Weekend sessions go first.";
 /** Session start times (ops fact 18). */
 export const SPA_SESSION_TIMES = "9, 11, 1, 3 and 5";
 
-/** The spot picker shared by the /nordic-spa and /sauna-near-portland booking blocks and hero. */
+/**
+ * The spot picker shared by the /nordic-spa and /sauna-near-portland booking blocks and hero.
+ * Every price is the group's total (RULINGS #12). `quantity` prefills Acuity's Quantity field:
+ * the scheduler reads `?quantity=N` into its first state and keeps it for class types, and it
+ * disables any session with fewer open spots than N (checked on the live scheduler 2026-10-06).
+ * The 3-to-5 row has no fixed count, so the guest sets it on the calendar.
+ */
 export const SPA_SPOT_ROWS = [
-  { key: "1", label: "1 person", price: `$${SPA_PRICE_PER_PERSON}` },
-  { key: "2", label: "2 people", price: `$${SPA_PRICE_PER_PERSON * 2}` },
-  { key: "3to5", label: "3 to 5 people", price: `$${SPA_PRICE_PER_PERSON} per person` },
-  { key: "6", label: "All six spots", price: `$${SPA_PRIVATE_PRICE}`, tag: "A private session", tagExtra: "girls\u2019 day" },
+  { key: "1", label: "1 person", price: `$${SPA_PRICE_PER_PERSON}`, quantity: 1 },
+  { key: "2", label: "2 people", price: `$${SPA_PRICE_PER_PERSON * 2}`, quantity: 2 },
+  { key: "3to5", label: "3 to 5 people", price: `$${SPA_PRICE_PER_PERSON * 3} to $${SPA_PRICE_PER_PERSON * 5}` },
+  {
+    key: "6",
+    label: "All six spots",
+    price: `$${SPA_PRIVATE_PRICE}`,
+    quantity: SPA_MAX_PARTY,
+    tag: "A private session",
+    tagExtra: "girls\u2019 day",
+  },
 ] as const;
+
+/** The spa calendar link with Acuity's Quantity field prefilled (see SPA_SPOT_ROWS). */
+export function withSpaQuantity(href: string, quantity?: number): string {
+  if (!quantity) return href;
+  const url = new URL(href);
+  url.searchParams.set("quantity", String(quantity));
+  return url.toString();
+}
 
 /**
  * Round 3 board: four entries, none repeating a row on the page. The
@@ -34,7 +55,7 @@ export const SPA_SPOT_ROWS = [
  */
 export const nordicSpaFAQ: FAQItem[] = [
   {
-    question: "Staying the night, and your date isn\u2019t open yet?",
+    question: "Staying with us on a date that isn\u2019t open yet?",
     answer: `Overnight guests can book further ahead by phone: call ${CONTACT.phone} and we\u2019ll book it for you.`,
   },
   {

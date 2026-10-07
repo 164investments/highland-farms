@@ -1,7 +1,7 @@
 import { BookingTextLink } from "@/components/shared/BookingButton";
 import { FieldArrow, FieldSection, PendingSlot } from "@/components/ui/FieldGuide";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
-import { SPA_PRICE_PER_PERSON } from "@/data/nordic-spa";
+import { SPA_PRICE_PER_PERSON, withSpaQuantity } from "@/data/nordic-spa";
 import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 
@@ -19,7 +19,9 @@ const stepClass =
  * /nordic-spa and /sauna-near-portland. Hayden's decision (2026-10-06): the
  * Highland Day is a named planned day of two separate bookings, tour first.
  * No bundle, no discount. Each step is a BookingTextLink, so booking_start
- * and the Acuity modal behave as on every other booking row.
+ * and the Acuity modal behave as on every other booking row. Both steps are
+ * set for two (the tour for two; the spa with Quantity prefilled to 2), as
+ * the "For two of you" total and the tracked party size say.
  *
  * `utmPrefix`: "farm-tours-day" | "nordic-spa-day" | "sauna-near-portland-day".
  */
@@ -62,7 +64,7 @@ export function HighlandDayBlock({ utmPrefix }: { utmPrefix: string }) {
             </li>
             <li>
               <BookingTextLink
-                href={bookingUrl(BOOKING_LINKS.nordicSpa, `${utmPrefix}-spa`)}
+                href={withSpaQuantity(bookingUrl(BOOKING_LINKS.nordicSpa, `${utmPrefix}-spa`), 2)}
                 label="Add your spa spots"
                 title="Book spa spots for your Highland Day"
                 className={stepClass}

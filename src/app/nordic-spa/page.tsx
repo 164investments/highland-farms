@@ -59,14 +59,14 @@ export const metadata: Metadata = {
 
 const isProduction = process.env.NODE_ENV === "production";
 
-/** "Know before you book" rows (round 3 board). The Check-in row is a whole pending row: absent in production. */
+/**
+ * "Know before you book" rows (round 3 board). The Check-in row is a whole pending row: absent in production.
+ * Round 4: the age rule holds in every session (ops fact 9); the Session row is gone, since "One spot, or
+ * all six" and the meta line above the picker already say it.
+ */
 const knowRows: KnowRow[] = [
-  { term: "Ages", detail: "16 and up. Sessions are shared, so no one under 16 can join one." },
+  { term: "Ages", detail: "16 and up, in every session, private ones included." },
   { term: "Bring", detail: "A swimsuit and walking shoes. Robes, towels and a changing area are here." },
-  {
-    term: "Session",
-    detail: `Shared, up to six guests, and it ends at ${BOOKING_PRODUCTS["nordic-spa"].durationMin} minutes.`,
-  },
   {
     term: "Arrival",
     detail:
@@ -136,7 +136,6 @@ export default function NordicSpaPage() {
               spec={SPA_CLEAN_QUOTE}
               role="Nordic spa"
               size="sm"
-              rule
               quoteClassName="text-[20px] lg:text-[24px]"
             />
             <Plate
@@ -219,7 +218,7 @@ export default function NordicSpaPage() {
                     <Suspense fallback={null}>
                       <NextAvailability product="spa" variant="text" label="Next open:" />
                     </Suspense>
-                    {SPA_WEEKEND && ` ${SPA_WEEKEND}`} Booking all six? Choose 6 spots on the calendar.
+                    {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
                   </p>
                   <FieldReviewTier tier="nearCta" className="mt-2" />
                   <BookingPolicyNote

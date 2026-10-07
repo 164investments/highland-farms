@@ -59,7 +59,7 @@ function spaRows(spaPricePerPerson?: number): KnowRow[] {
   const each = spaPricePerPerson ?? spa.pricePerPersonCents / 100;
   const session = `${spa.durationMin} minutes, up to ${spa.maxParty} guests. Want it to yourselves? Book all ${spa.maxParty} spots for a private session, $${each * spa.maxParty}.`;
   return [
-    { term: "Ages", detail: "Guests 16 and up." },
+    { term: "Ages", detail: "Guests 16 and up, in every session, private ones included." },
     { term: "Bring", detail: "A swimsuit. We provide robes and towels, and there are changing areas on site." },
     { term: "Session", detail: session },
     {

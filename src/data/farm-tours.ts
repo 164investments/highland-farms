@@ -40,7 +40,7 @@ export const farmTourFAQ: FAQItem[] = [
     answer: `Yes, by phone: call ${CONTACT.phone}. Guests can't be added online once you've booked.`,
   },
   {
-    question: "Staying the night, and your date isn\u2019t open yet?",
+    question: "Staying with us on a date that isn\u2019t open yet?",
     answer: `Overnight guests can book further ahead by phone: call ${CONTACT.phone} and we\u2019ll book it for you.`,
   },
   {
