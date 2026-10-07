@@ -37,10 +37,15 @@ export interface OrderEmailData {
   lines: PricedLine[];
 }
 
+/** Catalog names put a variant after a comma; names from before 2026-10 used an em dash, shown as a comma. */
+function displayName(name: string): string {
+  return name.replace(/\s+—\s+/g, ", ");
+}
+
 function lineRows(lines: PricedLine[]): string {
   return lines
     .map((l) => {
-      const name = escapeHtml(l.productName) + (l.variantLabel ? ` <span style="color:#6b6b6b">(${escapeHtml(l.variantLabel)})</span>` : "");
+      const name = escapeHtml(displayName(l.productName)) + (l.variantLabel ? ` <span style="color:#6b6b6b">(${escapeHtml(l.variantLabel)})</span>` : "");
       return `<tr>
         <td style="padding:8px 0;border-bottom:1px solid #eee">${name}</td>
         <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:center">${l.quantity}</td>
@@ -82,14 +87,14 @@ export async function sendOrderEmails(d: OrderEmailData): Promise<void> {
     </table>`;
 
   const customerHtml = shell(`
-    <h1 style="font-size:22px;font-weight:500;margin:0 0 4px">Thank you — we've got your order</h1>
+    <h1 style="font-size:22px;font-weight:500;margin:0 0 4px">Thank you. We've got your order.</h1>
     <p style="margin:0 0 20px;color:#6b6b6b">Order ${escapeHtml(d.orderNumber)}</p>
     <p style="margin:0 0 4px">Hi ${escapeHtml(d.customerName.split(" ")[0] ?? d.customerName)},</p>
     <p style="margin:0 0 16px;color:#4a4a4a">Your order is paid and we're packing it up here in Brightwood.</p>
     ${itemsTable}
     <div style="background:#f6f4ef;padding:16px;border-radius:12px;margin:20px 0">${fulfillmentBlock(d)}</div>
-    <p style="margin:0 0 16px;color:#4a4a4a">Questions? Call or text ${escapeHtml(CONTACT.phone)}.</p>
-    <p style="margin:0;color:#6b6b6b">— The Highland Farms family</p>
+    <p style="margin:0 0 16px;color:#4a4a4a">Questions? Call ${escapeHtml(CONTACT.phone)}.</p>
+    <p style="margin:0;color:#6b6b6b">The Highland Farms family</p>
   `);
 
   const farmHtml = shell(`

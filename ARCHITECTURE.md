@@ -26,11 +26,20 @@ src/
     shop/                  the farm store — see "Commerce" below
     api/                   route handlers; one directory per integration
   components/
-    layout/                shell: Header (+ Masthead), Footer, GTM, popups, StructuredData
-    ui/                    primitives: Container, Button, SectionHeading, FadeIn,
-                           FieldGuide (paper system: Plate, FieldRows, CTA classes)
-    forms/                 lead capture
-    shared/                cross-page blocks (reviews, email capture)
+    layout/                shell: Header (+ Masthead, AnnouncementBar, MobileMenu),
+                           Footer, EmailPopup, BookedIQWidget, GTM, StructuredData;
+                           chrome.ts = page types, actions, bars, seasons, door rows
+    ui/                    primitives: Container, Button, FieldGuide (paper
+                           system atoms and PendingSlot; client-safe, no data)
+    field/                 Field Guide pieces that read data or open bookings:
+                           Reviews (server only), Faq, PriceRows, StickyBar,
+                           WeddingCallLink, ChatLauncher
+    home/                  the homepage sections, its data and its quotes.ts
+    forms/                 lead capture (InquiryForm, ContactForm, fields)
+    shared/                booking buttons + Acuity modal, visit pickers,
+                           Highland Day block, Know before you book, visit FAQ
+    stay/                  stay pages: booking card, Hospitable widget, facts
+    booking/               native calendar UI (behind the flag)
     shop/                  commerce-only UI that lives outside /app/shop
   lib/
     shop/                  ALL farm-store domain logic (see below)
@@ -71,16 +80,101 @@ its hero lives in `src/app/thanksgiving/ThanksgivingHero.tsx` beside the page.
 | A one-off or cron script | `scripts/` |
 | A review count, rating, or star badge | import from `src/lib/reviews.ts` — never a literal |
 | A Field Guide (paper) first screen | `src/app/<route>/<Name>Hero.tsx` beside the page, built from `src/components/ui/FieldGuide.tsx`; its list copy in `src/data/` |
+| A section, list, quote, price row, FAQ or sticky bar | the shared primitives in `src/components/ui/FieldGuide.tsx` and `src/components/field/` (API: `finish/notes/PRIMITIVES.md`); never a page-local copy |
+| A masthead action, bar or menu/footer row for a page type | `src/components/layout/chrome.ts` |
+| A review quote on a page | a `QuoteSpec` (author + review date) in that page's own `quotes.ts`, kept pure (type-only imports). `scripts/review-quotes.test.mts` globs every `src/**/quotes.ts` and proves each quote verbatim from the snapshot |
+| A fact the farm has not confirmed yet | wrap the whole element (a row, a sentence, a block) in `PendingSlot` (`ui/FieldGuide.tsx`); it renders nothing in production. Never words inside a sentence: the page must read complete and true with every slot removed |
+| Customer-facing copy | no em dashes (titles use ` · `); the one public phone line is `CONTACT.phone` |
+
+**The tours and spa cancellation policy** is strict, and its exception sentence
+("The only exception is if we cancel for severe weather or for the safety of our
+animals or guests, in which case we will refund or rebook you.") must read the
+same everywhere: `src/data/farm-tours.ts`, `src/data/nordic-spa.ts`,
+`src/data/gift-certificates.ts`, `src/app/sauna-near-portland/page.tsx`,
+`src/app/terms/page.tsx`, `src/components/shared/KnowBeforeYouBook.tsx` and
+`public/llms.txt`. Point-of-sale lines render it through `cancellationAnswer()`.
+Stays have their own line ("Cancellation terms are provided at the time of
+booking."), the part that is true until the farm confirms the stay terms; never
+say the strict policy does or does not apply to lodging.
 
 ## The paper masthead and first screens
 
-Approved 2026-10-06 ("Field Guide", led by weddings). The masthead
-(`Header.tsx`, with `Masthead.tsx` shared by the menu overlay) is solid
-paper on every page from the first render; there is no transparent mode
-and no per-page header switch. Its height is fixed (60px, 84px from xl,
-plus the 44px announcement bar) and the static `--header-h` defaults in
-`globals.css` mirror it, so pages offset with `var(--header-h)` rather
-than a fixed `pt-32`.
+Approved 2026-10-06 ("Field Guide", led by weddings); chrome round 2 built
+the same evening from `finish/boards/_shared/` and `finish/boards/shared/`.
+
+**The masthead** (`Header.tsx`, client) is solid paper on every page from the
+first render: no transparent mode. Lockup B sits in the centre, the name in
+words (`MastheadName`: HIGHLAND FARMS over BRIGHTWOOD, OREGON; Hayden's rule
+that the name reads on every page). Below xl: the menu button left, the page's
+own action right. From xl: Weddings · Real weddings · Farm tours · Nordic spa ·
+Stays on the left, Shop · Gifts and the action on the right (the boards' `lg:`
+is `xl:` here because that row does not fit 1024px). Phone name sizes step down
+at 389px and 359px so the name never touches the action (measured with the real
+fonts: at least 16px clear from 320px up).
+
+**Page types** live in `chrome.ts` (`pageTypeFor(pathname)`), and everything
+per page derives from the type: the right-hand action (`pageActionFor`, labels
+from CONSISTENCY #5, in-page anchors such as `#choose`, `#availability`,
+`#book`, `#stays`, `#packages`; the shop shows `Cart (n)` from the cart), the
+menu's pinned button and its quiet second link, and the announcement bar. The
+action carries `data-masthead-action` and fades while the bottom sticky bar
+shows (CONSISTENCY #9). Cart and order pages show no action; checkout gets the
+quiet variant (name, back to cart, "Secure") and the slim footer.
+
+**The bar** (`AnnouncementBar.tsx`) is one 40px pine line with no dismiss
+button. Only about (the free call), shop (pickup and delivery terms, numbers
+from `src/lib/shop/fulfillment.ts`), stays (Thanksgiving, until Nov 23) and
+tours/spa/sauna (gift certificates, Nov 1 to Dec 24) have one. Season gates
+run in the visitor's Pacific date: an inline script sets `<html data-season>`
+and `data-bar-hidden` before first paint, so a page prerendered weeks earlier
+still shows the right bar; an effect keeps them right on client navigation.
+Any element with `data-season-only="gift|thanksgiving-bar|thanksgiving-links"`
+hides outside its season (globals.css).
+
+**Heights.** The bar (40px) plus the name row (60px, 96px from xl, 3px double
+rule included). The static `--header-h` defaults in `globals.css` mirror them
+(100/136px, 60/96px without a bar, 60/84px on checkout) and the
+ResizeObserver in Header keeps them exact, so pages offset with
+`var(--header-h)`. Past 40px of scroll the whole masthead moves up 40px: the
+bar scrolls away, the name row stays pinned, and page padding does not change.
+
+**The menu** (`MobileMenu.tsx`) is a paper dialog: close and the name on top,
+"Weddings at the farm" and "Visit the farm" door rows with price hints read
+from the data files (`chrome.ts`: `TOUR_PARTY_SIZES`, `BOOKING_PRODUCTS`,
+`properties`), the short links, the one public phone line, Instagram, the
+lettermark and address, and the page action pinned at the thumb. Escape,
+focus trap, scroll lock, `aria-current` with "You are here".
+
+**The footer** (`Footer.tsx`, server) is paper-shade under a double rule:
+name and promise, Weddings and Visit door rows, Finding the farm, Talk to us
+(the one public line), reviews (`REVIEW_COUNT`, compact tier) and listings.
+A page hides parts it already shows with `<FooterHide parts={["find"]} />`
+(`doors | find | talk | proof`; pure CSS through `:has()`, so it is right in
+the server HTML); /contact hides find and talk by route.
+
+**Wedding-call links** in the chrome go through `WeddingCallLink`, which pushes
+the same `booking_start` (`booking_type: "wedding_call"`) as the inquiry form.
+
+**The popup** (`EmailPopup.tsx`) offers the 2027 look book to couples only:
+the real-weddings journal, /about, and home after a wedding page in the same
+visit; never on a form or booking page. It promises no email; success hands
+over `/lookbook.pdf` and the call. Pushes `lookbook_email_submit` (plus the
+existing `email_subscribe`) and `lookbook_open`.
+
+**The bottom sticky bar** (`field/StickyShell.tsx`, used by `FieldStickyBar`)
+is the page's one phone action. It appears once the first-screen CTA
+(`data-hero-cta`) scrolls away, or from load with `showOnLoad` on pages that
+have no first-screen button (the wedding portfolio and couple pages). It hides
+while its `hideWhenVisible` target or any `[data-sticky-stop]` element is on
+screen, and while a text field has focus. It sets `<html data-sticky>` while
+mounted, which adds its height under `[data-site-footer]` and to
+`scroll-padding-bottom` so it never covers content or focus, and
+`data-sticky-shown` while visible. The chat lift is measured from the bubble's
+resting position (`field/chatLift.ts`), so it never stacks. **The chat launcher** (`field/ChatLauncher.tsx`,
+mounted by `BookedIQWidget`) adopts one rule into the LeadConnector shadow root
+so the launcher follows `--hf-chat-lift` (above the bar) and
+`--hf-chat-visibility` (hidden under any `aria-modal` dialog, cart and
+checkout). It never defers or changes the widget script.
 
 The home, /weddings, /farm-tours and /nordic-spa first screens share the
 paper tokens (`--paper`, `--ink*`, `--pine`, `--rule`, `--frame`) and one
@@ -103,17 +197,18 @@ Google Business Profile v4 API
   └─ scripts/pull-gmb-reviews.mjs        (weekly, via GitHub Actions)
        └─ src/data/google-reviews.json   (committed → Vercel auto-deploys)
             └─ src/lib/reviews.ts        (the only module that reads the JSON)
-                 ├─ ReviewBadge          hero / near-CTA / compact tiers
-                 ├─ GoogleReviewsSection  topic-filtered review cards
-                 ├─ TestimonialSection
+                 ├─ field/Reviews.tsx    FieldReviewTier (hero / near-CTA /
+                 │                       compact tiers), FieldReview and
+                 │                       FieldReviewList (quotes from each
+                 │                       page's quotes.ts via review-quotes.ts)
                  └─ StructuredData        aggregateRating JSON-LD
 ```
 
 ### The rules that keep this honest
 
 1. **`src/lib/reviews.ts` is the single source of truth.** Nothing else imports
-   `google-reviews.json`. `GoogleReviewsSection` re-exports its constants only
-   so older import sites keep working.
+   `google-reviews.json`. `field/Reviews.tsx` is server-only so the snapshot
+   never ships to the browser; client components receive resolved props.
 2. ⛔ **Never hardcode a review count or a rating.** They went stale for three
    months precisely because `188` and `"4.9"` were typed into three files.
    Import `REVIEW_COUNT` / `FIVE_STAR_COUNT` / `REVIEW_RATING` instead.
@@ -384,7 +479,9 @@ src/app/api/booking/
   availability/route.ts   GET — offered slots per product (or combo pairs)
   checkout/route.ts       POST — the one transactional booking endpoint
   gift/checkout/route.ts  POST — gift certificate purchase (charge, then issue)
-src/app/gift-certificates/page.tsx + GiftBody.tsx   gift certificate purchase page
+src/app/gift-certificates/page.tsx   flag off: StaticGifts.tsx (each gift links to
+                                     its Acuity catalog product); flag on:
+                                     GiftBody.tsx (native purchase)
 src/app/wedding-call/page.tsx   wedding-call scheduling page (mounts BookingFlow
                                  directly — no pricing card, the product is free)
 src/app/api/cron/booking-reminders/route.ts   expired-hold sweep + reminder sends

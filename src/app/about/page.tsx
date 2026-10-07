@@ -1,377 +1,473 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
-import { Bed, UtensilsCrossed, Wifi, Car, Users, BedDouble, Bath } from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Button } from "@/components/ui/Button";
-import { ImageCarousel } from "@/components/gallery/ImageCarousel";
-import { EventCategoryCards } from "@/components/shared/EventCategoryCards";
-import { properties } from "@/data/properties";
+import type { ReactNode } from "react";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { CHECK_DATE_HREF } from "@/components/layout/chrome";
+import { WeddingCallLink } from "@/components/field/WeddingCallLink";
+import { FieldReview, FieldReviewTier, GOOGLE_REVIEW_LINK } from "@/components/field/Reviews";
+import {
+  FieldArrow,
+  FieldDrawing,
+  FieldLeader,
+  FieldLink,
+  PendingSlot,
+  Plate,
+  fieldCtaClass,
+  fieldEyebrowClass,
+  type FieldDrawingName,
+} from "@/components/ui/FieldGuide";
+import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
+import { REVIEW_COUNT } from "@/lib/reviews";
+import { cn } from "@/lib/utils";
+import {
+  ABOUT_FINLEY_QUOTE,
+  ABOUT_HERD_QUOTE,
+  ABOUT_HERO_QUOTE,
+  ABOUT_ORIGIN_QUOTE,
+  ABOUT_TEAM_QUOTE,
+} from "./quotes";
 
 export const metadata: Metadata = {
-  title: "About The Farm — Brightwood, Oregon",
+  title: "About Highland Farms: Connor's Forest Farm in Brightwood",
   description:
-    "The story of Highland Farms — from a California ranch dream to a five-acre forest property at the base of Mt. Hood. Scottish Highland Cows, forest lodging for 20 guests, Nordic spa, and unforgettable experiences in Brightwood, Oregon.",
+    "Meet Connor McWilliams and the herd at Highland Farms, a private forest farm in Brightwood, Oregon: Highland cows, five forested acres, weddings, tours and stays.",
   alternates: { canonical: "/about" },
   openGraph: {
-    title: "About The Farm — Highland Farms Brightwood, Oregon",
+    title: "About Highland Farms: Connor's Forest Farm in Brightwood",
     description:
-      "The story of Highland Farms — from a California ranch dream to a five-acre forest property at the base of Mt. Hood.",
+      "Meet Connor McWilliams and the herd at Highland Farms, a private forest farm in Brightwood, Oregon.",
     images: [
       {
         url: "/images/farm/about-hero.jpg",
         width: 1200,
         height: 630,
-        alt: "Highland Farms property at the base of Mt. Hood",
+        alt: "Highland Farms in Brightwood, Oregon",
       },
     ],
   },
 };
 
-const amenities = [
-  { icon: Bed, label: "Lodging for 20", description: "Three places to stay across the property — lodge, cottage, and camp" },
-  { icon: UtensilsCrossed, label: "Full Time Hospitality Team", description: "Our hospitality team believes in unreasonable hospitality" },
-  { icon: Wifi, label: "WiFi Access", description: "Stay connected throughout the property" },
-  { icon: Car, label: "Event Parking", description: "Ample parking for guests and vendors" },
+const TOUR_FOR_TWO = TOUR_PARTY_SIZES.find((p) => p.guests === 2)?.total ?? 150;
+
+const eyebrow = cn(fieldEyebrowClass, "m-0 text-[17px] lg:text-[20px]");
+const h2 = "field-heading m-0 mt-1 font-display text-[30px] leading-[1.05] lg:text-[46px]";
+const doubleRule = "border-t-[3px] border-double border-frame";
+
+interface Resident {
+  drawing: FieldDrawingName;
+  kind: string;
+  /** Names no animal: animal names wait on Connor (truth-E), so they live only in the PendingSlot below. */
+  title: string;
+  line: string;
+  quote?: ReactNode;
+}
+
+const residentQuote = "text-[17px] leading-[1.3] lg:text-[19px]";
+
+function residents(): Resident[] {
+  return [
+    {
+      drawing: "highland-cow",
+      kind: "Scottish Highland cows",
+      title: "The herd",
+      line: "Shaggy, gentle and out on every tour, rain or shine. You can feed, brush and pet them.",
+      quote: (
+        <FieldReview
+          spec={ABOUT_HERD_QUOTE}
+          role="Farm tour"
+          size="sm"
+          className="mt-3"
+          quoteClassName={residentQuote}
+        />
+      ),
+    },
+    {
+      drawing: "highland-calf",
+      kind: "Highland calves",
+      title: "The newest arrivals",
+      line: "Calves are born in the front pastures, and tours often get time with the youngest.",
+    },
+    {
+      drawing: "icelandic-sheep",
+      kind: "Icelandic sheep",
+      title: "The flock at the end of the fern trail",
+      line: "Curly fleece, small curled horns, and they come running when the feed comes out.",
+    },
+    {
+      drawing: "white-peacock",
+      kind: "The peacocks",
+      title: "The farm’s alarm clock",
+      line: "They run their own wake-up service and take no requests.",
+    },
+    {
+      drawing: "guardian-dog",
+      kind: "The farm dogs",
+      title: "The guardians",
+      line: "They keep an eye on the herd, and on everyone who comes to visit it.",
+    },
+    {
+      drawing: "hen",
+      kind: "The hens",
+      title: "The egg layers",
+      line: "Their eggs go to the farm shop by the dozen, for pickup or local delivery.",
+    },
+  ];
+}
+
+/** What the roster says once Connor confirms who is on the farm now (dev only, inside the PendingSlot). */
+const NAMED_ROSTER = [
+  "No. 1 title “Finley, Arthur and the herd” (Finley: one review, June 2025; Arthur: Linda V., February 2026), with Chelyn J.’s Finley quote in place of Amber H.’s.",
+  "No. 4 title “Albie, the farm’s alarm clock”, line “Albie runs his own wake-up service and takes no requests.” (Albie: July 2026).",
+  "No. 5 title “Bear and Beau” (Kristin Barnes’s review, May 2026).",
 ];
 
-const galleryImages = [
-  { src: "/images/farm/farm-aerial-new.jpg", alt: "Aerial drone view of Highland Farms with mountains" },
-  { src: "/images/farm/lodge-bridge.jpg", alt: "Lodge with wooden bridge at golden hour" },
-  { src: "/images/farm/barn-exterior.jpg", alt: "Modern barn with cedar accents and geometric windows" },
-  { src: "/images/farm/hot-tub-aerial.jpg", alt: "Cedar hot tub and deck from above" },
-  { src: "/images/farm/airstream-golden.jpg", alt: "Airstream nestled in the forest at golden hour" },
-  { src: "/images/farm/forest-creek.jpg", alt: "Forest creek with ferns and mossy stones" },
-  { src: "/images/farm/farm-aerial-2.jpg", alt: "Aerial view of Highland Farms with Mt. Hood foothills" },
-  { src: "/images/farm/cottage-snow.jpg", alt: "Cottage exterior in winter snow among the evergreens" },
+const landRows = [
+  { term: "The forest", detail: "Old trees draped in moss, with fern trails and the Acorn Trail running through." },
+  { term: "The pond", detail: "Natural and spring-fed." },
+  { term: "The pasture", detail: "Home to the herd, between the barn and the Cottage." },
 ];
 
 export default function AboutPage() {
   return (
     <>
       <StructuredData pathname="/about" />
-      {/* Hero */}
-      <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden pt-[var(--header-h,120px)]">
-        <Image
-          src="/images/farm/about-hero.jpg"
-          alt=""
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-black/35" />
-
-        <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-white">
-          <p className="mb-4 text-xl font-normal text-white/80 font-script">
-            Our Story
-          </p>
-          <h1 className="text-4xl font-normal leading-tight sm:text-5xl md:text-6xl">
-            The Farm
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-white/85 leading-relaxed font-sans font-light italic">
-            &ldquo;We created Highland Farms with the intention of providing a space
-            where loved ones can come together to reconnect with nature and each other.&rdquo;
-          </p>
-        </div>
-      </section>
-
-      {/* The Origin Story */}
-      <section className="py-20 lg:py-28 bg-background">
-        <Container>
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="text-lg font-normal text-sage font-script mb-3">
-                The Story of a Farm
-              </p>
-              <h2 className="text-3xl font-normal sm:text-4xl">
-                From a California Ranch to Mt. Hood
-              </h2>
-              <p className="mt-5 text-base text-muted leading-relaxed font-sans">
-                Every farm has a story — that of Highland Farms begins on a ranch
-                600 miles south of Mount Hood, located halfway between the fertile
-                fields of the Central Valley and the Pacific Ocean. The Church ranch
-                in Salinas, California, cultivated a deep love and passion for farm
-                life, the smells of the earth, and the cowboy lifestyle in Connor
-                McWilliams. This passion coupled itself with an enterprising plan in
-                young Connor&apos;s mind: hang a shingle as a general contractor until the
-                moment that career can yield a farm and livestock of his own.
-              </p>
-              <p className="mt-4 text-base text-muted leading-relaxed font-sans">
-                Work in the construction industry naturally led to experience in
-                hospitality and design, and being a natural dreamer, Connor
-                couldn&apos;t imagine owning a property without creating a hospitality
-                experience to share with the world. This vision led to the creation
-                of Highland Farms; an overgrown property uncovered from decades of
-                nature&apos;s re-wilding at the base of Mt. Hood. Highland Farms needed
-                someone with a dream to see its full potential:
-              </p>
-              <div className="mt-4 space-y-3 text-base text-muted leading-relaxed font-sans italic pl-4 border-l-2 border-cream-dark">
-                <p>The potential of its natural spring-fed pond, a sanctuary for rest, retreat, and rejuvenation for animals and humans alike.</p>
-                <p>The potential of its old-growth trees fringing the property, draped in moss and quiet.</p>
-                <p>The potential of its perfect location, tucked into the heart of Oregon&apos;s majestic trees and glacier lakes and sitting directly between Mt. Hood and Oregon&apos;s Rose City.</p>
-                <p>The potential of its field and forest, where guests of the farm can marvel at Scottish Highland cattle foraging amongst the trees, weathering the winter, and welcoming their calves in the front pastures.</p>
-                <p>The potential to be a place for man, a place for nature, a place for everything and everything in its place.</p>
-                <p className="not-italic font-medium">This is Highland Farms.</p>
-              </div>
+      <div className="surface-paper bg-paper pt-[var(--header-h)] font-sans text-ink">
+        {/* 1. Hero */}
+        <section aria-labelledby="about-title" className="px-5 pb-10 pt-3 lg:px-16 lg:pb-20 lg:pt-14">
+          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:grid-rows-[auto_1fr] lg:gap-x-16">
+            <div className="lg:col-start-1 lg:row-start-1 lg:self-end">
+              <p className={eyebrow}>About Highland Farms</p>
+              <h1
+                id="about-title"
+                className="field-heading m-0 mt-1 font-display text-[35px] leading-[1.02] lg:mt-3 lg:text-[64px]"
+              >
+                A private forest farm, and a herd with names.
+              </h1>
             </div>
 
-            <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
+            {/* Phone crop: an aspect-ratio frame (inner about 1.68:1 at every width) from Connor's face down to
+                the calf's muzzle, so the photo's one caption (CAPTIONS.md) is true on both breakpoints.
+                "Check your date" still ends above 660px at 393x660 (rule 15). */}
+            <Plate
+              className="mt-2.5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
+              frameClassName="aspect-[353/217] lg:aspect-auto lg:h-[640px]"
+              caption="Connor and one of the calves, on the forest path."
+            >
               <Image
                 src="/images/farm/farm-life.jpg"
-                alt="Connor with a Highland Cow calf at Highland Farms"
+                alt="Connor McWilliams, in a Highland Farms vest, walking a Highland calf on a lead along a forest path"
                 fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
+                priority
+                sizes="(min-width: 1024px) 520px, 100vw"
+                className="object-cover object-[50%_58%] lg:object-[50%_55%]"
               />
-            </div>
-          </div>
-        </Container>
-      </section>
+            </Plate>
 
-      {/* The Vision */}
-      <section className="py-20 lg:py-28 bg-cream">
-        <Container className="max-w-3xl">
-          <div className="text-center">
-            <h2 className="text-lg font-normal text-sage font-script mb-3">
-              The Vision
-            </h2>
-          </div>
-
-          <blockquote className="text-center">
-            <p className="text-xl font-normal leading-relaxed text-charcoal sm:text-2xl font-display">
-              &ldquo;A place for man, a place for nature,
-              a place for everything and everything in its place. This is Highland Farms.&rdquo;
-            </p>
-          </blockquote>
-        </Container>
-      </section>
-
-      {/* The Farm & Animals */}
-      <section className="py-20 lg:py-28 bg-warm-white">
-        <Container>
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-xl lg:order-1">
-              <Image
-                src="/images/farm/farm-animals.jpg"
-                alt="Guests petting Scottish Highland Cows in the barn at Highland Farms"
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-              />
-            </div>
-
-            <div>
-              <p className="text-lg font-normal text-sage font-script mb-3">
-                Cultivate &amp; Connect
+            <div className="lg:col-start-1 lg:row-start-2 lg:mt-7">
+              <p className="m-0 mt-1.5 text-[15px] leading-[1.5] text-ink-body lg:mt-0 lg:max-w-[540px] lg:text-[18px] lg:leading-[1.6]">
+                Five forested acres about an hour from Portland, home to a herd of Highland cows.
               </p>
-              <h2 className="text-3xl font-normal sm:text-4xl">The Animals</h2>
-              <p className="mt-5 text-base text-muted leading-relaxed font-sans">
-                Curate an event you won&apos;t forget by incorporating the loving
-                animals of Highland Farms. Whether taking photos beside Scottish
-                Highland Cows, enjoying the farm amenities, or having your leadership
-                team unwind with the farm animals in nature, farm proprietor Connor
-                McWilliams and his incredible team help guests get up close to the
-                animals that call the farm home.
-              </p>
-              <p className="mt-4 text-base text-muted leading-relaxed font-sans">
-                Our gentle Scottish Highland Cows are the stars, but they share the
-                property with Icelandic Sheep, White Peacocks, guardian dogs,
-                chickens, and Guinea Fowl. Whether you&apos;re here for a wedding, a farm
-                tour, or a weekend stay — the animals are always there to brighten
-                your day.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button href="/farm-tours" variant="outline" size="sm">
-                  Book a Farm Tour
-                </Button>
-                <Button href="/nordic-spa" variant="outline" size="sm">
-                  Book a Spa Session
-                </Button>
+              <FieldReviewTier tier="hero" className="mt-1.5 text-[14px] lg:mt-5 lg:text-[15px]" />
+              <div className="mt-2.5 lg:mt-6 lg:border-t lg:border-rule lg:pt-6">
+                <p className="m-0 mb-2 font-display text-[18px] leading-snug lg:mb-0 lg:text-[24px]">
+                  Planning a wedding here?
+                </p>
+                <FieldLink
+                  href={CHECK_DATE_HREF}
+                  data-hero-cta=""
+                  className={cn(fieldCtaClass, "w-full lg:mt-2.5 lg:w-auto")}
+                >
+                  Check your date
+                  <FieldArrow />
+                </FieldLink>
+                <FieldReview
+                  spec={ABOUT_HERO_QUOTE}
+                  role="Wedding"
+                  size="sm"
+                  className="mt-5 lg:mt-7 lg:max-w-[540px]"
+                />
               </div>
             </div>
           </div>
-        </Container>
-      </section>
+        </section>
 
-      {/* Property Amenities */}
-      <section className="py-20 lg:py-28 bg-background">
-        <Container>
-          <SectionHeading
-            eyebrow="The Lay of the Land"
-            title="Property Amenities"
-          />
-
-          <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-            {amenities.map((amenity) => (
-              <div key={amenity.label} className="text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-cream">
-                  <amenity.icon className="h-6 w-6 text-forest" />
-                </div>
-                <h3 className="mt-4 text-base font-normal text-charcoal font-sans">
-                  {amenity.label}
-                </h3>
-                <p className="mt-1 text-sm text-muted font-sans">
-                  {amenity.description}
+        {/* 2. How it began */}
+        <section
+          aria-labelledby="about-began-title"
+          className={cn(doubleRule, "px-5 pb-10 pt-9 lg:px-16 lg:pb-20 lg:pt-20")}
+        >
+          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-x-16">
+            <div className="lg:col-start-2 lg:row-start-1">
+              <p className={eyebrow}>How it began</p>
+              <h2 id="about-began-title" className={h2}>
+                It started as five overgrown acres.
+              </h2>
+              {/* flex + gap, not space-y: the paragraphs' m-0 cancelled space-y, so the two ran together. */}
+              <div className="mt-4 flex flex-col gap-4 text-[15px] leading-[1.65] text-ink-body lg:mt-6 lg:max-w-[600px] lg:text-[17px]">
+                <p className="m-0">
+                  Connor grew up loving ranch life on the Church ranch in Salinas, California. He worked as a general
+                  contractor until that work could buy a farm and livestock of his own, and he never pictured a farm
+                  without guests on it.
+                </p>
+                <p className="m-0">
+                  The land he found in Brightwood had spent decades growing back into forest. He and his crew cleared
+                  it, kept the old trees, and rebuilt the place around them.
                 </p>
               </div>
-            ))}
-          </div>
-
-          {/* Property Map */}
-          <div className="mt-16">
-            <div className="relative mx-auto max-w-4xl overflow-hidden rounded-xl bg-forest/15 p-6 sm:p-10">
-              <Image
-                src="/images/farm/property-map.webp"
-                alt="Hand-drawn map of Highland Farms showing the lodge, cottage, barn, wedding area, pond, walking paths, pastures, and forest"
-                width={1320}
-                height={880}
-                sizes="(max-width: 1024px) 100vw, 896px"
-                className="w-full h-auto"
+              <FieldReview
+                spec={ABOUT_ORIGIN_QUOTE}
+                role="Stay"
+                size="sm"
+                className="mt-6 lg:mt-8 lg:max-w-[600px]"
+                quoteClassName="text-[20px] lg:text-[24px]"
+              />
+              <PendingSlot
+                note="PENDING CONNOR C7: the year the farm opened, as one line: “Opened in 20XX.”"
+                className="mt-4"
               />
             </div>
+            <Plate
+              className="mt-7 lg:col-start-1 lg:row-start-1 lg:mt-2"
+              frameClassName="h-[240px] lg:h-[460px]"
+              caption="The Lodge, the Cottage and the drive, from above."
+            >
+              <Image
+                src="/images/properties/gallery-7.jpg"
+                alt="Aerial view looking straight down on Highland Farms: the Lodge's red roof, the Cottage, the gravel drive loop and the forest around them"
+                fill
+                loading="lazy"
+                sizes="(min-width: 1024px) 520px, 100vw"
+                className="object-cover object-[55%_50%]"
+              />
+            </Plate>
           </div>
-        </Container>
-      </section>
+        </section>
 
-      {/* Accommodations */}
-      <section className="py-20 lg:py-28 bg-cream">
-        <Container>
-          <SectionHeading
-            eyebrow="Stay With Us"
-            title="The Accommodations"
-            subtitle="Three distinct places to stay, designed for comfort and connection — sleeping up to 20 guests together."
-          />
+        {/* 3. The residents. Production names no animal: names wait on Connor and live only in the PendingSlot. */}
+        <section
+          aria-labelledby="about-residents-title"
+          className={cn(doubleRule, "px-5 pb-10 pt-9 lg:px-16 lg:pb-20 lg:pt-20")}
+        >
+          <div className="mx-auto max-w-[1312px]">
+            <div className="lg:flex lg:items-end lg:justify-between lg:gap-16">
+              <div>
+                <p className={eyebrow}>Who lives here</p>
+                <h2 id="about-residents-title" className={h2}>
+                  Meet the residents.
+                </h2>
+              </div>
+              <div className="lg:max-w-[460px]">
+                <p className="m-0 mt-3 text-[15px] leading-[1.6] text-ink-body lg:mt-0 lg:text-[16px]">
+                  Every farm tour goes into the pen with the herd. These are the ones guests write home about.
+                </p>
+                <PendingSlot
+                  note="PENDING CONNOR: animal names. Confirm who is on the farm now; until then production shows the animals without names. Once confirmed, restore:"
+                  className="mt-2"
+                >
+                  <ul className="m-0 list-disc pl-4 font-sans text-[12px] leading-snug text-ink-note">
+                    {NAMED_ROSTER.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                  <FieldReview
+                    spec={ABOUT_FINLEY_QUOTE}
+                    role="Farm tour"
+                    size="sm"
+                    className="mt-2"
+                    quoteClassName={residentQuote}
+                  />
+                </PendingSlot>
+              </div>
+            </div>
 
-          {/*
-            All three places to stay — Lodge 8 + Cottage 8 + The Camp 4 = the
-            20 overnight guests quoted above. Guest/bedroom/bath counts come
-            from `@/data/properties` so this section can't drift from the
-            booking data; only the two long lead-ins are trimmed for the card.
-          */}
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-            {properties
-              .filter((p) => p.slug !== "whole-farm")
-              .map((property) => {
-                const shortDescription =
-                  property.slug === "lodge"
-                    ? "Our cedar mill lodge is a warm and inviting retreat where scenic meals, fireside conversations, and lasting memories are made."
-                    : property.slug === "cottage"
-                      ? "A cozy retreat neighboring our barn pasture where the Scottish Highland Cows greet you in the morning and relax with you in the evenings."
-                      : property.description;
+            <ol
+              role="list"
+              className="m-0 mt-6 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-3 lg:border-l"
+            >
+              {residents().map((r, i) => (
+                <li
+                  key={r.kind}
+                  className="grid grid-cols-[100px_1fr] gap-x-4 border-b border-rule py-5 lg:flex lg:flex-col lg:border-r lg:px-8 lg:pb-8 lg:pt-6"
+                >
+                  <FieldDrawing
+                    name={r.drawing}
+                    className="h-[100px] w-[100px] lg:h-[200px] lg:w-full"
+                    sizes="(min-width: 1024px) 300px, 100px"
+                  />
+                  <div className="lg:mt-3">
+                    <p className="m-0 text-[11px] uppercase tracking-[0.14em] text-ink-meta">
+                      No. {i + 1} · {r.kind}
+                    </p>
+                    <h3 className="m-0 mt-1 font-display text-[23px] font-semibold leading-[1.1] lg:text-[27px]">
+                      {r.title}
+                    </h3>
+                    <p className="m-0 mt-1.5 text-[14px] leading-[1.5] text-ink-body lg:text-[15px]">{r.line}</p>
+                    {r.quote}
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <FieldLink
+              href="/farm-tours"
+              className="mt-2 flex min-h-[56px] items-center gap-3 border-b border-rule lg:mt-4"
+            >
+              <span className="font-display text-[22px] font-medium">See tour dates</span>
+              <FieldLeader />
+              <span className="whitespace-nowrap text-[13px] text-ink-note">Private, ${TOUR_FOR_TWO} for two</span>
+              <FieldArrow size={16} className="text-fern" />
+            </FieldLink>
+          </div>
+        </section>
 
-                return (
-                  <Link
-                    key={property.slug}
-                    href={property.bookingUrl}
-                    className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-lg transition-all duration-500"
+        {/* 4. The land */}
+        <section
+          aria-labelledby="about-land-title"
+          className={cn(doubleRule, "px-5 pb-10 pt-9 lg:px-16 lg:pb-20 lg:pt-20")}
+        >
+          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-start lg:gap-x-16">
+            <div>
+              <p className={eyebrow}>The lay of the land</p>
+              <h2 id="about-land-title" className={h2}>
+                The forest, a spring-fed pond, and the pasture.
+              </h2>
+              <dl className="m-0 mt-5 flex flex-col border-t border-rule lg:mt-8">
+                {landRows.map((row) => (
+                  <div
+                    key={row.term}
+                    className="grid grid-cols-[96px_1fr] items-baseline gap-x-3 border-b border-rule py-3 lg:grid-cols-[150px_1fr] lg:gap-x-6 lg:py-4"
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden">
-                      <Image
-                        src={property.imageSrc}
-                        alt={property.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/10 transition-colors" />
-                    </div>
-
-                    <div className="flex flex-col flex-1 p-6 lg:p-7">
-                      <h3 className="text-2xl font-normal text-charcoal font-display">
-                        {property.name}
-                      </h3>
-                      <p className="mt-1 text-sm italic text-sage font-display">
-                        {property.tagline}
-                      </p>
-
-                      <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted font-sans">
-                        <span className="flex items-center gap-1.5">
-                          <Users className="h-3.5 w-3.5" aria-hidden="true" />
-                          <span>{property.guests} guests</span>
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <BedDouble className="h-3.5 w-3.5" aria-hidden="true" />
-                          <span>{property.bedrooms} bedrooms</span>
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <Bath className="h-3.5 w-3.5" aria-hidden="true" />
-                          <span>{property.baths} bathrooms</span>
-                        </span>
-                      </div>
-
-                      <p className="mt-4 text-sm text-muted leading-relaxed font-sans">
-                        {shortDescription}
-                      </p>
-
-                      <div className="mt-4 flex flex-wrap gap-1.5">
-                        {property.highlights.slice(0, 3).map((highlight) => (
-                          <span
-                            key={highlight}
-                            className="rounded-full bg-cream px-2.5 py-1 text-[11px] text-charcoal/70 font-sans"
-                          >
-                            {highlight}
-                          </span>
-                        ))}
-                      </div>
-
-                      <p className="mt-auto pt-5 text-sm font-light text-forest group-hover:text-forest-light transition-colors font-sans tracking-wide">
-                        View &amp; Book &rarr;
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })}
+                    <dt className="font-display text-[20px] font-semibold leading-tight lg:text-[24px]">{row.term}</dt>
+                    <dd className="m-0 text-[14px] leading-[1.5] text-ink-body lg:text-[16px]">{row.detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+            <Plate
+              className="mt-8 lg:mt-2"
+              frameClassName="h-[280px] lg:h-[560px]"
+              caption="A fern trail under the old trees."
+            >
+              <Image
+                src="/images/farm/contact-hero.jpg"
+                alt="A narrow dirt trail through sword ferns under tall, moss-covered trees"
+                fill
+                loading="lazy"
+                sizes="(min-width: 1024px) 520px, 100vw"
+                className="object-cover object-[50%_70%]"
+              />
+            </Plate>
           </div>
-        </Container>
-      </section>
+        </section>
 
-      {/* The Forest Valley */}
-      <section className="py-20 lg:py-28 bg-warm-white">
-        <Container className="max-w-3xl text-center">
-          <div className="flex justify-center mb-6">
-            <Image
-              src="/images/illustrations/mt-hood-white.png"
-              alt=""
-              width={320}
-              height={160}
-              className="h-28 w-auto opacity-60"
-              aria-hidden="true"
-            />
+        {/* 5. Connor and his team */}
+        <section
+          aria-labelledby="about-team-title"
+          className={cn(doubleRule, "px-5 pb-12 pt-9 lg:px-16 lg:pb-24 lg:pt-20")}
+        >
+          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:grid-rows-[auto_1fr] lg:gap-x-16">
+            <div className="lg:col-start-2 lg:row-start-1">
+              <p className={eyebrow}>Who looks after you</p>
+              <h2 id="about-team-title" className={h2}>
+                Connor and his team.
+              </h2>
+              <p className="m-0 mt-4 text-[15px] leading-[1.65] text-ink-body lg:mt-6 lg:max-w-[600px] lg:text-[17px]">
+                Connor McWilliams owns and runs Highland Farms. Tour guests are met at the carved Highland cow out front by
+                his team, who know every animal by name.
+              </p>
+            </div>
+            <div className="mt-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-2">
+              <Plate
+                frameClassName="h-[300px] lg:h-[600px]"
+                caption="A guide, two guests and a calf, in the barn."
+              >
+                <Image
+                  src="/images/farm/cow-2.jpg"
+                  alt="A farm guide in a cap and two guests petting a pale, shaggy Highland calf inside the barn"
+                  fill
+                  loading="lazy"
+                  sizes="(min-width: 1024px) 520px, 100vw"
+                  className="object-cover object-[50%_60%]"
+                />
+              </Plate>
+              <PendingSlot
+                note="PENDING CONNOR: the guide's first name, to name him in this caption"
+                className="mt-1"
+              />
+            </div>
+            <div className="lg:col-start-2 lg:row-start-2">
+              <div className="mt-6 border-y border-rule py-5 lg:mt-8">
+                <FieldReview
+                  spec={ABOUT_TEAM_QUOTE}
+                  role="Farm tour"
+                  size="sm"
+                  quoteClassName="text-[20px] lg:text-[23px]"
+                />
+              </div>
+              <p className="m-0 mt-1">
+                <FieldLink
+                  href={GOOGLE_REVIEW_LINK}
+                  external
+                  className={cn(
+                    "inline-flex min-h-11 items-center text-[14px] text-ink-body underline decoration-rule underline-offset-4",
+                  )}
+                >
+                  Read all {REVIEW_COUNT} reviews on Google
+                </FieldLink>
+              </p>
+            </div>
           </div>
-          <p className="text-lg font-normal text-sage font-script mb-3">
-            Explore &amp; Engage
-          </p>
-          <h2 className="text-3xl font-normal sm:text-4xl">
-            Experience Mt. Hood Territory
-          </h2>
-          <p className="mt-5 text-base text-muted leading-relaxed font-sans">
-            Brightwood, Oregon, sits in a forested valley midway between Mount Hood
-            and the fertile Willamette Valley. Perched on a sloping foothill above
-            the confluence of the Sandy and Salmon Rivers, Highland Farms shares the
-            same views witnessed by the fur traders and trappers that established
-            the infamous Oregon Trail.
-          </p>
-          <p className="mt-4 text-base text-muted leading-relaxed font-sans">
-            Just about an hour from Portland and about 25 minutes from Government Camp, Highland
-            Farms is accessible yet feels worlds away from the city. Experience the
-            Mount Hood Territory at your doorstep.
-          </p>
-        </Container>
-      </section>
+        </section>
 
-      {/* Property Gallery */}
-      <section className="py-20 lg:py-28 bg-background">
-        <Container>
-          <SectionHeading title="The Property" subtitle="Five enchanted acres where nature and experience meet." />
-          <ImageCarousel images={galleryImages} aspectRatio="video" />
-        </Container>
-      </section>
-
-      <EventCategoryCards />
+        {/* 6. The wedding close: the page ends on its primary action. A real couple with the herd proves the headline;
+            placed here, away from the resident plates, so CONSISTENCY #11 holds. One caption, from CAPTIONS.md. */}
+        <section
+          aria-labelledby="about-wedding-title"
+          className={cn(doubleRule, "px-5 pb-12 pt-9 lg:px-16 lg:pb-24 lg:pt-20")}
+        >
+          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:grid-rows-[auto_1fr] lg:gap-x-16">
+            <div className="lg:col-start-1 lg:row-start-1 lg:self-end">
+              <p className={eyebrow}>Weddings at Highland Farms</p>
+              <h2
+                id="about-wedding-title"
+                className="field-heading m-0 mt-1 font-display text-[31px] leading-[1.04] lg:text-[48px]"
+              >
+                Your wedding, with the coos as honorary guests.
+              </h2>
+            </div>
+            <Plate
+              className="mt-5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
+              frameClassName="aspect-[3/2] lg:aspect-auto lg:h-[384px]"
+              caption="Riley & Jordan with two of the herd, June 2025."
+            >
+              <Image
+                src="/images/weddings/riley-jordan/04.jpg"
+                alt="Riley and Jordan at the pasture fence, between a black and a white Highland cow"
+                fill
+                loading="lazy"
+                sizes="(min-width: 1024px) 560px, 100vw"
+                className="object-cover object-[50%_60%]"
+              />
+            </Plate>
+            <div className="mt-5 lg:col-start-1 lg:row-start-2 lg:mt-6">
+              <p className="m-0 text-[15px] leading-[1.6] text-ink-body lg:max-w-[560px] lg:text-[17px]">
+                Whimsical forest weddings for up to 125 guests. Your wedding is a weekend, not a day: up to 20 of your
+                people can stay on the farm.
+              </p>
+              <FieldLink href={CHECK_DATE_HREF} className={cn(fieldCtaClass, "mt-5 w-full lg:mt-7 lg:w-auto")}>
+                Check your date
+                <FieldArrow />
+              </FieldLink>
+              <WeddingCallLink
+                content="about-wedding"
+                title="About: wedding call"
+                className="mt-1 flex min-h-11 items-center justify-center text-[14px] font-medium text-pine lg:justify-start lg:text-[15px]"
+              >
+                <span className="border-b border-pine-line pb-0.5">Book a free 45-minute call with Connor</span>
+              </WeddingCallLink>
+            </div>
+          </div>
+        </section>
+      </div>
     </>
   );
 }

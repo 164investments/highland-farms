@@ -1,7 +1,7 @@
 import { CONTACT, SITE, BOOKING_LINKS } from "@/lib/constants";
 import { REVIEW_COUNT, REVIEW_RATING } from "@/lib/reviews";
 import { properties } from "@/data/properties";
-import { weddingPortfolio } from "@/data/wedding-portfolio";
+import { displayName, weddingPortfolio } from "@/data/wedding-portfolio";
 import { getProduct } from "@/app/shop/data";
 
 const address = {
@@ -12,6 +12,9 @@ const address = {
   postalCode: CONTACT.zip,
   addressCountry: "US",
 };
+
+/** Owner-confirmed whole-farm bedroom count (not the sum of the three stays). */
+const WHOLE_FARM_BEDROOMS = properties.find((p) => p.slug === "whole-farm")?.bedrooms ?? 7;
 
 const geo = {
   "@type": "GeoCoordinates",
@@ -60,7 +63,7 @@ const STATIC_ROUTE_LABELS: Record<string, string> = {
   "/sauna-near-portland": "Sauna Near Portland",
   "/stay": "Stay",
   "/thanksgiving": "Thanksgiving 2026",
-  "/wedding-portfolio": "Wedding Portfolio",
+  "/wedding-portfolio": "Real Weddings",
   "/celebrations": "Celebrations",
   "/about": "About",
   "/contact": "Contact",
@@ -99,7 +102,8 @@ function segmentLabel(fullPath: string, parentPath: string, slug: string): strin
 
   if (parentPath === "/wedding-portfolio") {
     const couple = weddingPortfolio.find((item) => item.slug === slug);
-    if (couple) return couple.names;
+    // A styled set never prints its names, here as on its page (Google shows breadcrumb names).
+    if (couple) return displayName(couple);
   }
 
   if (parentPath === "/shop") {
@@ -190,8 +194,6 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         geo,
         hasMap: `https://www.google.com/maps?q=${CONTACT.coordinates.lat},${CONTACT.coordinates.lng}`,
         sameAs: SAME_AS,
-        // "Family-run Since 2019", stated on /shop.
-        foundingDate: "2019",
         founder: { "@id": `${SITE.url}/#connor` },
         image: [
           `${SITE.url}/images/hero/farm-aerial.jpg`,
@@ -200,7 +202,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         ],
         logo: `${SITE.url}/images/logo/HF-Lettermark.png`,
         currenciesAccepted: "USD",
-        paymentAccepted: "Cash, Credit Card",
+        paymentAccepted: "Credit Card",
         areaServed: [
           {
             "@type": "City",
@@ -259,10 +261,10 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         keywords:
           "Oregon wedding venue, farm wedding venue Oregon, outdoor wedding venue Oregon, Mt Hood wedding venue, Highland Cow farm tour, Nordic spa Oregon, sauna near Portland, sauna Mt Hood, cold plunge Portland, outdoor sauna Oregon, sauna day trip Portland, farm stay Oregon, Brightwood Oregon, Portland wedding venue, forest wedding, intimate wedding venue, destination wedding Oregon",
         slogan: SITE.tagline,
-        numberOfRooms: 8,
+        // Owner-confirmed whole-farm bedrooms (properties.ts). No check-in or
+        // check-out times: the farm publishes none.
+        numberOfRooms: WHOLE_FARM_BEDROOMS,
         petsAllowed: false,
-        checkinTime: "15:00",
-        checkoutTime: "11:00",
         amenityFeature: [
           { "@type": "LocationFeatureSpecification", name: "Free WiFi", value: true },
           { "@type": "LocationFeatureSpecification", name: "Free Parking", value: true },
@@ -271,7 +273,6 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
           { "@type": "LocationFeatureSpecification", name: "Nordic Spa (Dry Sauna, Wet Sauna, Cold Plunge)", value: true },
           { "@type": "LocationFeatureSpecification", name: "Forest Setting", value: true },
           { "@type": "LocationFeatureSpecification", name: "On-Site Lodging", value: true },
-          { "@type": "LocationFeatureSpecification", name: "Event Coordination", value: true },
         ],
         aggregateRating: {
           "@type": "AggregateRating",
@@ -289,7 +290,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
             "@type": "Accommodation",
             name: "William Wallace Lodge",
             description:
-              "Cedar mill lodge sleeping 8 guests across 4 bedrooms with wrap-around deck, full kitchen, wood fireplace, and cedar hot tub.",
+              "Cedar lodge sleeping 8 guests across 4 bedrooms with wrap-around deck, full kitchen, wood fireplace, and cedar hot tub.",
             url: `${SITE.url}/stay/lodge`,
             occupancy: {
               "@type": "QuantitativeValue",
@@ -325,12 +326,12 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
             numberOfBathroomsTotal: 1,
           },
           {
-            // The whole-property booking: both accommodations plus full farm
-            // access. Listed because /stay/whole-farm is a live, indexed page.
+            // The whole-property booking: all three stays together. Listed
+            // because /stay/whole-farm is a live, indexed page.
             "@type": "Accommodation",
             name: "The Whole Farm",
             description:
-              "The full Highland Farms experience: William Wallace Lodge, Bonnie Lass Cottage and The Camp together, sleeping 20 with full farm access and two cedar hot tubs. The lodge and cottage provide 7 bedrooms and 3.5 baths; The Camp adds a restored Airstream and canvas tents.",
+              "William Wallace Lodge, Bonnie Lass Cottage and The Camp reserved together, sleeping 20: 7 bedrooms and 3.5 baths in the two houses, plus the Camp, with two cedar hot tubs.",
             url: `${SITE.url}/stay/whole-farm`,
             // Owner-confirmed 2026-09-17: 20 overnight guests, which includes
             // The Camp (Lodge 8 + Cottage 8 + Camp 4).
@@ -359,15 +360,14 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         "@id": `${SITE.url}/#venue`,
         name: "Highland Farms Wedding Venue",
         description:
-          "All-inclusive farm and forest wedding venue at the base of Mt. Hood. Five acres of old-growth forest, Scottish Highland Cows, on-site lodging for 20 guests, and dedicated event coordination.",
+          "Private forest farm wedding venue in Brightwood, Oregon, about an hour from Portland. Five acres of forest, the Scottish Highland Cows as honorary guests, up to 125 guests, and up to 20 can stay on the farm.",
         url: `${SITE.url}/weddings`,
         address,
         geo,
         // Owner-confirmed 2026-09-17: maximum event headcount, not beds.
         maximumAttendeeCapacity: 125,
-        // Venue-scoped. Deliberately NOT on #business: that node also covers the
-        // $75 farm tour and $75 spa session, and an engine reads $$$$ literally.
-        priceRange: "$$$$",
+        // No priceRange: wedding marketing carries no price or price anchor
+        // (Connor's rule), and "$$$$" is one.
         isAccessibleForFree: false,
         publicAccess: false,
         image: `${SITE.url}/images/weddings/couple.jpg`,
@@ -379,7 +379,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         "@id": `${SITE.url}/#attraction`,
         name: "Highland Farms Highland Cow Farm Tours",
         description:
-          "Private 60-minute farm tours for 2 to 6 guests. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl at the base of Mt. Hood.",
+          "Private 60-minute farm tours for 2 to 6 guests. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl in Brightwood, Oregon, about an hour from Portland.",
         url: `${SITE.url}/farm-tours`,
         address,
         geo,
@@ -395,7 +395,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         "@id": `${SITE.url}/#farm-tour-product`,
         name: "Highland Cow Farm Tour",
         description:
-          "Private 60-minute Highland Cow farm tour for 2 to 6 guests at $75 per person. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl.",
+          "Private 60-minute Highland Cow farm tour for 2 to 6 guests: $150 for two, $75 each additional guest. Meet Scottish Highland Cows, Icelandic Sheep, White Peacocks, guardian dogs, chickens, and Guinea Fowl.",
         url: `${SITE.url}/farm-tours`,
         image: `${SITE.url}/images/farm/highland-cows-hero.jpg`,
         brand: {
@@ -460,7 +460,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
         "@id": `${SITE.url}/#spa`,
         name: "Highland Farms Nordic Spa",
         description:
-          "Public outdoor wood-burning sauna, wet sauna & cold plunge about an hour from Portland, Oregon. 90-minute sessions for up to 6 guests in an old-growth Mt. Hood forest.",
+          "Public outdoor wood-burning sauna, wet sauna & cold plunge about an hour from Portland, Oregon. 90-minute sessions for up to 6 guests in a forest setting in Brightwood.",
         url: `${SITE.url}/nordic-spa`,
         telephone: CONTACT.phone,
         address,
@@ -491,7 +491,7 @@ export function StructuredData({ pathname = "/" }: { pathname?: string }) {
               "@type": "Offer",
               itemOffered: {
                 "@type": "Service",
-                name: "Nordic Spa Session — Sauna & Cold Plunge",
+                name: "Nordic Spa Session: Sauna & Cold Plunge",
                 description: "90-minute public session with wood-burning dry sauna, wet sauna, and cold plunge for up to 6 guests.",
               },
               price: "75",

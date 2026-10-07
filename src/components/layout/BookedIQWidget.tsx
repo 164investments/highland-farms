@@ -1,7 +1,13 @@
 import Script from "next/script";
+import { ChatLauncherBridge } from "@/components/field/ChatLauncher";
 
 const LOCATION_ID = process.env.NEXT_PUBLIC_BOOKEDIQ_LOCATION_ID;
 
+/**
+ * The BookedIQ (LeadConnector) chat widget, loaded as before. The bridge only
+ * positions its launcher: above the bottom sticky bar while that shows, and
+ * hidden under the menu, booking sheet, popup, cart and checkout.
+ */
 export function BookedIQWidget() {
   if (!LOCATION_ID) return null;
 
@@ -21,6 +27,7 @@ export function BookedIQWidget() {
         data-widget-id={LOCATION_ID}
         strategy="afterInteractive"
       />
+      <ChatLauncherBridge />
     </>
   );
 }

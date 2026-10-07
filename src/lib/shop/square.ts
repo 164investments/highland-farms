@@ -285,7 +285,7 @@ export async function createOrder(
   // by adjustInventory(), which keeps pricing and stock independent.
   const lineItems = lines.map((l) => ({
     quantity: String(l.quantity),
-    name: [l.name, l.variantLabel].filter(Boolean).join(" — ").slice(0, 512),
+    name: [l.name, l.variantLabel].filter(Boolean).join(", ").slice(0, 512),
     base_price_money: { amount: l.unitPriceCents, currency: "USD" },
   }));
 

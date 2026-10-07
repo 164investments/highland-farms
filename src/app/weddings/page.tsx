@@ -1,27 +1,51 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Check, Users, TreePine, Camera, UtensilsCrossed, Music, Heart } from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { Button } from "@/components/ui/Button";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { ImageGallery } from "@/components/gallery/ImageGallery";
-import { FAQAccordion } from "@/components/shared/FAQAccordion";
+import Link from "next/link";
 import { ContactForm } from "@/components/forms/ContactForm";
-import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
-import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
-import { CONTACT } from "@/lib/constants";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { FieldReview } from "@/components/field/Reviews";
+import { JsonLd, faqPageJsonLd } from "@/components/field/Faq";
+import { FieldStickyBar } from "@/components/field/StickyBar";
+import {
+  FieldArrow,
+  FieldDrawing,
+  PendingSlot,
+  Plate,
+  fieldLabelClass,
+  FieldStars,
+} from "@/components/ui/FieldGuide";
+import { REVIEWS } from "@/lib/reviews";
+import { cn } from "@/lib/utils";
+import { formatWeddingDate, weddingPortfolio } from "@/data/wedding-portfolio";
+import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
 import { WeddingsHero } from "./WeddingsHero";
+import {
+  COST_ANSWER,
+  GETTING_HERE_ANSWER,
+  RAIN_CLOSE,
+  RAIN_LEAD,
+  RESTROOMS_ANSWER,
+  VENDORS_ANSWER,
+  weddingFAQ,
+} from "./faq";
+import {
+  WEDDINGS_CALL_QUOTE,
+  WEDDINGS_CONNOR_QUOTE,
+  WEDDINGS_COOS_QUOTE,
+  WEDDINGS_FOREST_QUOTE,
+  WEDDINGS_RAIN_QUOTE,
+  WEDDINGS_SPA_QUOTE,
+} from "./quotes";
 
 export const metadata: Metadata = {
-  title: { absolute: "Mt. Hood Wedding Venue | All-Inclusive | Highland Farms" },
+  title: { absolute: "Forest Wedding Venue near Mt. Hood, with Highland Cows | Highland Farms" },
   description:
-    "All-inclusive forest weddings with Scottish Highland cows, about an hour from Portland at the base of Mt. Hood. See the venue and real weddings.",
+    "Whimsical forest weddings with Scottish Highland cows as honorary guests, about an hour from Portland. See real weddings and check your date.",
   alternates: { canonical: "/weddings" },
   openGraph: {
-    title: "Mt. Hood Wedding Venue | All-Inclusive | Highland Farms",
+    title: "Forest Wedding Venue near Mt. Hood, with Highland Cows | Highland Farms",
     description:
-      "All-inclusive forest weddings with Scottish Highland cows, about an hour from Portland at the base of Mt. Hood. See the venue and real weddings.",
+      "Whimsical forest weddings with Scottish Highland cows as honorary guests, about an hour from Portland. See real weddings and check your date.",
     url: "https://highlandfarmsoregon.com/weddings",
     type: "website",
     images: [
@@ -29,283 +53,583 @@ export const metadata: Metadata = {
         url: "/images/hero/wedding-hero.jpg",
         width: 1200,
         height: 630,
-        alt: "Forest wedding ceremony at Highland Farms Oregon farm wedding venue",
+        // The file is a couple on a fallen log in the forest, not a ceremony (images.csv).
+        alt: "A couple on a fallen log in the forest, she in a long white dress",
       },
     ],
   },
 };
 
-const weddingFAQ = [
-  {
-    question: "What type of wedding venue is Highland Farms?",
-    answer:
-      "Highland Farms is an all-inclusive farm and forest wedding venue at the base of Mt. Hood in Brightwood, Oregon. You get exclusive use of our private 5-acre property with Scottish Highland Cows, on-site lodging for 20 guests, a Nordic spa, and dedicated event coordination — all just about an hour from Portland.",
-  },
-  {
-    question: "How far is Highland Farms from Portland?",
-    answer:
-      "We're located in Brightwood, Oregon — about an hour east of Portland via US-26 (the Mt. Hood Highway). For Portland-area couples, Highland Farms is a destination wedding experience without a long travel burden for your guests.",
-  },
-  {
-    question: "Is Highland Farms an all-inclusive wedding venue?",
-    answer:
-      "Yes. Every Highland Farms wedding includes exclusive property use, on-site lodging for up to 20 guests across our William Wallace Lodge, Bonnie Lass Cottage, and The Camp, full kitchen access for your caterer, Highland Cow photo opportunities, Nordic spa access, and dedicated event coordination.",
-  },
-  {
-    question: "What makes Highland Farms different from other Oregon wedding venues?",
-    answer:
-      "Three things: exclusivity, intimacy, and setting. You get the entire 5-acre farm to yourselves — not a shared venue. Our Scottish Highland Cows create one-of-a-kind wedding photos. And our old-growth forest setting is unlike any other Oregon wedding venue. Plus, you're just about an hour from Portland.",
-  },
-  {
-    question: "Is this an outdoor wedding venue?",
-    answer:
-      "Yes. Highland Farms features stunning outdoor forest ceremony sites and reception areas surrounded by old-growth evergreens, moss-draped trees, and a spring-fed pond. The farm also has indoor spaces within the lodge for shelter if needed.",
-  },
-  {
-    question: "When should I book my Oregon farm wedding?",
-    answer:
-      "We recommend booking 12–18 months in advance. Summer and fall weekends fill earliest. 2027 bookings are now open — contact us to check your date.",
-  },
-  {
-    question: "Do you allow outside catering?",
-    answer:
-      "Yes. Our full kitchen is available to your catering team throughout the event. We can also recommend experienced local caterers who know our property well.",
-  },
-];
+/** Reviews that name Connor (also spelled Conner or Conor), read from the snapshot. */
+const CONNOR_REVIEW_COUNT = REVIEWS.filter((r) => /conner|connor|conor/i.test(r.text)).length;
 
-function WeddingsSchema() {
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: weddingFAQ.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer,
-      },
-    })),
-  };
+const sectionLabel = fieldLabelClass;
+const h2Class = "field-heading font-display text-[36px] leading-[1.02] text-ink lg:text-[56px]";
+const bodyLarge = "font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]";
+
+const SLEEP = [
+  { drawing: "lodge", name: "William Wallace Lodge", detail: "Sleeps 8" },
+  { drawing: "cottage", name: "Bonnie Lass Cottage", detail: "Sleeps 8" },
+  { drawing: "airstream-camp", name: "The Camp", detail: "Sleeps 4, Airstream and canvas tents" },
+] as const;
+
+const INCLUSIONS = [
+  ["Tables, chairs", "19 wood harvest tables, 125 chairs"],
+  ["Lights", "Firefly string lights over dinner"],
+  ["Dance floor", "18 by 18 feet, checkered"],
+  ["Sound", "Two speakers and a microphone"],
+  ["Warmth", "Six patio heaters"],
+  ["Restrooms", "A three-stall restroom trailer"],
+  ["Bar and arbor", "Live-edge cedar"],
+  ["Spaces", "The Ceremony Patio, the Cocktail Terrace and the Grove"],
+] as const;
+
+const faqSummary =
+  "flex min-h-[60px] cursor-pointer list-none items-center justify-between gap-4 py-3 font-display text-[22px] font-semibold leading-tight text-ink lg:text-[26px] [&::-webkit-details-marker]:hidden";
+const faqBody = "pb-6 font-sans text-[16px] leading-[1.6] text-ink-body";
+
+function FaqRow({
+  question,
+  open,
+  children,
+}: {
+  question: string;
+  open?: boolean;
+  children: React.ReactNode;
+}) {
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-    />
+    <details open={open} className="group border-b border-rule">
+      <summary className={faqSummary}>
+        {question}
+        <span aria-hidden="true" className="font-sans text-[22px] font-normal text-pine group-open:hidden">
+          +
+        </span>
+        <span aria-hidden="true" className="hidden font-sans text-[22px] font-normal text-pine group-open:inline">
+          &minus;
+        </span>
+      </summary>
+      <div className={faqBody}>{children}</div>
+    </details>
   );
 }
 
-const included = [
-  { icon: TreePine, text: "Exclusive use of the entire 5-acre property" },
-  { icon: Users, text: "On-site lodging for up to 20 guests" },
-  { icon: UtensilsCrossed, text: "Full kitchen access for catering" },
-  { icon: Camera, text: "Highland Cow photo opportunities" },
-  { icon: Music, text: "Ceremony and reception areas" },
-  { icon: Heart, text: "Dedicated event coordination" },
-];
+/**
+ * No. 1's plate: Riley & Jordan's kiss at the fence. The homepage's No. 1 is their 04 frame, so a
+ * visitor coming from home meets a new photo here; the caption is the one the data file gives it.
+ */
+const rileyFence = weddingPortfolio.find((c) => c.slug === "riley-jordan")!.plates[0];
 
-const galleryImages = [
-  { src: "/images/weddings/ceremony-3.jpg", alt: "Couple kissing with Highland Cow calf on forest bridge" },
-  { src: "/images/weddings/forest-ceremony.jpg", alt: "Forest ceremony under towering evergreens" },
-  { src: "/images/weddings/couple.jpg", alt: "Forest ceremony setup with wooden arch" },
-  { src: "/images/weddings/reception-toast.jpg", alt: "Guests toasting at outdoor forest dinner" },
-  { src: "/images/weddings/details.jpg", alt: "Couple with Scottish Highland Cows at golden hour" },
-  { src: "/images/weddings/guests.jpg", alt: "Bride crowd surfing at outdoor dance floor" },
-  { src: "/images/weddings/getting-ready.jpg", alt: "Bride getting ready in the cedar cabin" },
-  { src: "/images/weddings/couple-dinner.jpg", alt: "Couple at sweetheart table with string lights" },
-  { src: "/images/weddings/sunset.jpg", alt: "Evening reception at Highland Farms" },
-];
+/** The three real weddings shown on the teaser (the fourth, Riley & Jordan, is No. 1 above). */
+const teaser = {
+  maya: weddingPortfolio.find((c) => c.slug === "maya-justin")!,
+  olivia: weddingPortfolio.find((c) => c.slug === "olivia-connor")!,
+  sydney: weddingPortfolio.find((c) => c.slug === "sydney-casey")!,
+};
 
 export default function WeddingsPage() {
   return (
     <>
       <StructuredData pathname="/weddings" />
-      <WeddingsSchema />
-      {/* First screen (Field Guide) */}
+      <JsonLd data={faqPageJsonLd(weddingFAQ)} />
+
       <WeddingsHero />
 
-      {/* Why Highland Farms */}
-      <section className="py-20 lg:py-28 bg-warm-white">
-        <Container className="max-w-4xl">
-          <SectionHeading
-            eyebrow="Why Highland Farms"
-            title="An All-Inclusive Experience"
-            subtitle="We take care of everything so you can focus on what matters — each other."
-          />
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {included.map((item) => (
-              <div
-                key={item.text}
-                className="flex items-start gap-4 rounded-xl bg-white p-5 shadow-sm"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cream shrink-0">
-                  <item.icon className="h-5 w-5 text-forest" />
-                </div>
-                <p className="text-sm text-charcoal leading-relaxed font-sans">
-                  {item.text}
-                </p>
-              </div>
-            ))}
+      {/* No. 1 The coos (Connor's first reason, and the ad's hook). No quote here: a quote beside
+          Riley & Jordan's photo reads as theirs, and none of the snapshot's reviews is confirmed as theirs. */}
+      <section aria-labelledby="coos-title" className="surface-paper border-t border-rule bg-paper text-ink">
+        <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:px-16 lg:py-24">
+          <div className="lg:col-span-5 lg:self-center">
+            <p className={sectionLabel}>No. 1 &middot; The coos</p>
+            <h2 id="coos-title" className={cn(h2Class, "mt-1.5 lg:mt-3")}>
+              The guest list includes cows.
+            </h2>
+            <p className={cn(bodyLarge, "mt-4 max-w-[34rem] lg:mt-6")}>
+              Our Scottish Highland coos are your honorary wedding guests. They stand for portraits at the
+              pasture fence, and your guests get to meet them too.
+            </p>
           </div>
-        </Container>
+          <div className="mt-7 lg:col-span-7 lg:mt-0">
+            <Plate
+              frameClassName="aspect-[4/3] p-[7px] lg:aspect-[3/2] lg:p-2.5"
+              caption={rileyFence.caption}
+            >
+              <Image
+                src={rileyFence.src}
+                alt={rileyFence.alt}
+                fill
+                sizes="(min-width: 1024px) 58vw, calc(100vw - 40px)"
+                className="object-cover"
+                style={{ objectPosition: rileyFence.position }}
+              />
+            </Plate>
+          </div>
+        </div>
       </section>
 
-      {/* The Venue */}
-      <section className="py-20 lg:py-28 bg-background">
-        <Container>
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="text-lg font-normal text-sage font-script mb-3">
-                The Venue
-              </p>
-              <h2 className="text-3xl font-normal sm:text-4xl">
-                Five Enchanted Acres
+      {/* No. 2 The whimsical forest */}
+      <section aria-labelledby="forest-title" className="surface-paper border-t border-rule bg-paper text-ink">
+        <div className="mx-auto max-w-[1440px] px-5 py-12 lg:px-16 lg:py-24">
+          <div className="lg:grid lg:grid-cols-12 lg:items-end lg:gap-x-16">
+            <div className="lg:col-span-6">
+              <p className={sectionLabel}>No. 2 &middot; The whimsical forest</p>
+              <h2 id="forest-title" className={cn(h2Class, "mt-1.5 lg:mt-3")}>
+                Say your vows under the evergreens.
               </h2>
-              <p className="mt-4 text-base text-muted leading-relaxed font-sans">
-                Highland Farms sits on five forested acres at the base of Mt.
-                Hood. The property features a cedar mill lodge,
-                spring-fed pond, old-growth trees draped in moss, and of course —
-                our beloved Scottish Highland Cows.
-              </p>
-              <p className="mt-4 text-base text-muted leading-relaxed font-sans">
-                Your wedding party can stay on site in the William Wallace Lodge,
-                Bonnie Lass Cottage and The Camp &mdash; 20 beds for your closest
-                people &mdash; while the property hosts weddings of up to 125
-                guests. A true destination wedding, about an hour from Portland.
-              </p>
-
-              <ul className="mt-6 space-y-2">
-                {[
-                  "Forest ceremony sites",
-                  "Outdoor reception areas",
-                  "Highland Cow photo ops",
-                  "The Nordic Spa",
-                  "Cedar Hot Tubs",
-                  "On-site accommodations for 20",
-                  "Full kitchen for catering",
-                ].map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-center gap-2 text-sm text-charcoal font-sans"
-                  >
-                    <Check className="h-4 w-4 text-forest shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
             </div>
-
-            <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
+            <div className="lg:col-span-5 lg:col-start-8">
+              <p className={cn(bodyLarge, "mt-4 lg:mt-0")}>
+                Five private acres of tall evergreens, sword ferns and moss in Brightwood, Oregon. Couples here
+                have married on the flagstone patio beside the pond and sat down to dinner at long tables on the
+                lawn among the trees.
+              </p>
+            </div>
+          </div>
+          <div className="mt-7 lg:mt-12 lg:grid lg:grid-cols-12 lg:gap-x-16">
+            <Plate
+              className="lg:col-span-8"
+              frameClassName="aspect-[4/3] p-[7px] lg:aspect-[16/10] lg:p-2.5"
+              caption="A ceremony in the forest at Highland Farms."
+            >
               <Image
-                src="/images/hero/farm-aerial.jpg"
-                alt="Aerial view of Highland Farms wedding venue"
+                src="/images/weddings/forest-ceremony.jpg"
+                alt="Guests seated under tall evergreens watch a couple exchange vows"
                 fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
+                sizes="(min-width: 1024px) 62vw, calc(100vw - 40px)"
+                className="object-cover object-[60%_52%]"
+              />
+            </Plate>
+            <div className="mt-6 lg:col-span-4 lg:mt-0 lg:flex lg:flex-col lg:gap-8">
+              {/* Neutral imagery beside Kristen B.'s quote: her family's wedding is not one the page names. */}
+              <Plate
+                className="hidden lg:flex"
+                frameClassName="aspect-[5/4] lg:p-2.5"
+                captionClassName="lg:text-[17px]"
+                caption="A fern trail under the old trees."
+              >
+                <Image
+                  src="/images/farm/contact-hero.jpg"
+                  alt="A narrow dirt trail through sword ferns under tall, moss-covered trees"
+                  fill
+                  loading="lazy"
+                  sizes="30vw"
+                  className="object-cover object-[50%_70%]"
+                />
+              </Plate>
+              <FieldReview
+                spec={WEDDINGS_FOREST_QUOTE}
+                role="Wedding"
+                quoteClassName="text-[20px] leading-[1.28] lg:text-[24px]"
               />
             </div>
           </div>
-        </Container>
+        </div>
       </section>
 
-      {/* Gallery */}
-      <section id="gallery" className="scroll-mt-[var(--header-h,120px)] py-20 lg:py-28 bg-cream">
-        <Container>
-          <SectionHeading
-            title="Wedding Gallery"
-            subtitle="See real celebrations at Highland Farms."
-          />
-          <ImageGallery images={galleryImages} columns={3} />
-          <div className="mt-10 text-center">
-            <Button href="/wedding-portfolio" variant="outline">
-              View Full Wedding Portfolio &rarr;
-            </Button>
+      {/* No. 3 Your people stay (the weekend: a sequence in time, so Roman numerals) */}
+      <section aria-labelledby="weekend-title" className="surface-paper border-t border-rule bg-paper text-ink">
+        <div className="mx-auto max-w-[1440px] px-5 py-12 lg:px-16 lg:py-24">
+          <div className="max-w-[62rem]">
+            <p className={sectionLabel}>No. 3 &middot; Your people stay</p>
+            <h2 id="weekend-title" className={cn(h2Class, "mt-1.5 lg:mt-3")}>
+              Your wedding is a weekend, not a day.
+            </h2>
+            <p className={cn(bodyLarge, "mt-4 lg:mt-6")}>
+              Make a weekend of it, with your closest people staying on the farm.
+            </p>
           </div>
-        </Container>
+          <ol className="m-0 mt-8 grid list-none gap-8 p-0 lg:mt-14 lg:grid-cols-3 lg:gap-12">
+            <li className="grid grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-x-4 lg:block">
+              <h3 className="field-heading col-span-2 flex items-baseline gap-3 font-display text-[26px] leading-tight text-ink lg:text-[32px]">
+                <span aria-hidden="true" className="font-display text-[22px] italic text-fern lg:text-[26px]">
+                  I
+                </span>
+                The night before
+              </h3>
+              <Plate
+                className="mt-3 lg:mt-4"
+                frameClassName="aspect-[4/5] p-[5px] lg:p-2.5"
+                captionClassName="text-[14px] leading-snug lg:text-[17px]"
+                caption="Settling in at the Camp."
+              >
+                <Image
+                  src="/images/properties/camp-1.jpg"
+                  alt="Guests in Adirondack chairs beside the Airstream at the Camp, under tall trees"
+                  fill
+                  sizes="(min-width: 1024px) 28vw, 40vw"
+                  className="object-cover object-[50%_62%]"
+                />
+              </Plate>
+              <p className="mt-3 font-sans text-[15px] leading-[1.55] text-ink-body lg:text-[16px]">
+                Your people arrive and settle into the Lodge, the Cottage and the Camp. A long dinner, a fire,
+                and a first visit to the herd.
+              </p>
+            </li>
+            <li className="grid grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-x-4 lg:block">
+              <h3 className="field-heading col-span-2 flex items-baseline gap-3 font-display text-[26px] leading-tight text-ink lg:text-[32px]">
+                <span aria-hidden="true" className="font-display text-[22px] italic text-fern lg:text-[26px]">
+                  II
+                </span>
+                The wedding day
+              </h3>
+              <Plate
+                className="mt-3 lg:mt-4"
+                frameClassName="aspect-[4/5] p-[5px] lg:p-2.5"
+                captionClassName="text-[14px] leading-snug lg:text-[17px]"
+                caption="Getting ready in a cedar-walled room."
+              >
+                <Image
+                  src="/images/weddings/getting-ready.jpg"
+                  alt="An older woman fastens a bride's dress beside a window in a cedar-walled room"
+                  fill
+                  sizes="(min-width: 1024px) 28vw, 40vw"
+                  className="object-cover object-[55%_38%]"
+                />
+              </Plate>
+              <p className="mt-3 font-sans text-[15px] leading-[1.55] text-ink-body lg:text-[16px]">
+                Getting ready together, vows in the forest, portraits with the coos, dinner under the trees and
+                dancing after dark.
+              </p>
+            </li>
+            <li className="grid grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-x-4 lg:block">
+              <h3 className="field-heading col-span-2 flex items-baseline gap-3 font-display text-[26px] leading-tight text-ink lg:text-[32px]">
+                <span aria-hidden="true" className="font-display text-[22px] italic text-fern lg:text-[26px]">
+                  III
+                </span>
+                The morning after
+              </h3>
+              <Plate
+                className="mt-3 lg:mt-4"
+                frameClassName="aspect-[4/5] p-[5px] lg:p-2.5"
+                captionClassName="text-[14px] leading-snug lg:text-[17px]"
+                caption="A calf and two of the herd, by the barn."
+              >
+                <Image
+                  src="/images/farm/cows.jpg"
+                  alt="A Highland calf and two shaggy Highland cows stand on straw beside a wooden barn"
+                  fill
+                  sizes="(min-width: 1024px) 28vw, 40vw"
+                  className="object-cover object-[50%_60%]"
+                />
+              </Plate>
+              <div className="mt-3">
+                <p className="font-sans text-[15px] leading-[1.55] text-ink-body lg:text-[16px]">
+                  Breakfast with everyone still here and one more visit to the coos before the drive home.
+                </p>
+              </div>
+              <PendingSlot
+                className="col-span-2 mt-3"
+                note="PENDING CONNOR (morning-after-sauna): is the sauna included or a paid add-on? Hides the sauna sentence and Amy D.'s spa quote. If an add-on, ship 'Book the sauna for your people the morning after.' with no price."
+              >
+                <p className="font-sans text-[15px] leading-[1.55] text-ink-body lg:text-[16px]">
+                  Then the morning-after sauna for your people: the wood-burning sauna and the cold plunge.
+                </p>
+                <FieldReview
+                  spec={WEDDINGS_SPA_QUOTE}
+                  role="Wedding"
+                  className="mt-4"
+                  quoteClassName="text-[19px] leading-[1.28] lg:text-[21px]"
+                />
+              </PendingSlot>
+            </li>
+          </ol>
+
+          {/* Where your people sleep: building drawings beside a defined list */}
+          <div className="mt-12 border-t-[3px] border-double border-frame pt-8 lg:mt-16 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:pt-10">
+            <div className="lg:col-span-3">
+              <h3 className="field-heading font-display text-[28px] leading-tight text-ink lg:text-[34px]">
+                Where your people sleep
+              </h3>
+            </div>
+            {/* Each row holds only dt and dd (a valid <dl>); the decorative drawing sits inside the dt. */}
+            <dl className="m-0 mt-5 grid grid-cols-3 gap-x-3 lg:col-span-9 lg:mt-0 lg:gap-x-8">
+              {SLEEP.map((s) => (
+                <div key={s.name}>
+                  <dt className="font-display text-[17px] font-semibold leading-tight text-ink lg:text-[24px]">
+                    <FieldDrawing
+                      name={s.drawing}
+                      className="block w-full"
+                      sizes="(min-width: 1024px) 22vw, 30vw"
+                    />
+                    <span className="mt-1 block">{s.name}</span>
+                  </dt>
+                  <dd className="m-0 mt-0.5 font-sans text-[13px] leading-snug text-ink-body lg:text-[15px]">
+                    {s.detail}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          {/* PENDING C2: the whole block, heading included, until Connor confirms the 2027 list */}
+          <PendingSlot
+            className="mt-12 lg:mt-16"
+            note="PENDING CONNOR C2: confirm the 2027 inclusions list. Hides the whole block (heading, lede and all eight rows)."
+          >
+            <div className="lg:grid lg:grid-cols-12 lg:gap-x-16">
+              <div className="lg:col-span-3">
+                <h3 className="field-heading font-display text-[28px] leading-tight text-ink lg:text-[34px]">
+                  Already here when you arrive
+                </h3>
+                <p className="mt-2 font-sans text-[14px] leading-[1.55] text-ink-note lg:text-[15px]">
+                  You bring your caterer, your photographer and your people.
+                </p>
+              </div>
+              <div className="mt-4 lg:col-span-9 lg:mt-0">
+                <dl className="m-0 mt-2 grid border-t border-rule lg:grid-cols-2 lg:gap-x-10">
+                  {INCLUSIONS.map(([term, detail]) => (
+                    <div key={term} className="flex min-h-[48px] items-baseline gap-3 border-b border-rule py-2">
+                      <dt className="w-[128px] shrink-0 font-display text-[19px] font-semibold leading-tight text-ink lg:w-[130px] lg:text-[21px]">
+                        {term}
+                      </dt>
+                      <dd className="m-0 font-sans text-[14px] leading-snug text-ink-body">{detail}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </div>
+          </PendingSlot>
+        </div>
       </section>
 
-      {/* Testimonial */}
-      <GoogleReviewsSection
-        topic="wedding"
-        max={6}
-        eyebrow="What wedding couples and guests are saying"
-        background="background"
-      />
-
-      {/* FAQ */}
-      <section className="py-20 lg:py-28 bg-warm-white">
-        <Container className="max-w-3xl">
-          <SectionHeading
-            eyebrow="Common Questions"
-            title="Oregon Farm Wedding Venue FAQ"
-            subtitle="Everything you want to know about hosting your wedding at Highland Farms."
-          />
-          <FAQAccordion items={weddingFAQ} />
-        </Container>
-      </section>
-
-      {/* Inquiry Form */}
-      <section id="contact" className="scroll-mt-[var(--header-h,120px)] py-20 lg:py-28 bg-background">
-        <Container className="max-w-4xl">
-          <div className="flex justify-center mb-6">
+      {/* No. 4 Connor (the call is offered twice on this page: hero and form) */}
+      <section aria-labelledby="connor-title" className="surface-paper border-t border-rule bg-paper text-ink">
+        <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:py-24">
+          <Plate
+            className="lg:col-span-4"
+            frameClassName="mx-auto aspect-[4/5] w-[78%] p-[7px] lg:w-full lg:p-2.5"
+            captionClassName="mx-auto w-[78%] lg:w-full"
+            caption="Connor and one of the calves, on the forest path."
+          >
             <Image
-              src="/images/illustrations/farm-scene.png"
-              alt=""
-              width={280}
-              height={160}
-              className="h-24 w-auto opacity-50"
-              aria-hidden="true"
+              src="/images/farm/farm-life.jpg"
+              alt="Connor smiling on a forest path, leading a Highland calf on a rope"
+              fill
+              sizes="(min-width: 1024px) 30vw, 78vw"
+              className="object-cover object-[45%_88%]"
             />
-          </div>
-          <SectionHeading
-            eyebrow="Ready to Start Planning?"
-            title="Check Availability for Your Date"
-            subtitle="Now booking 2027 weddings. Every wedding at Highland Farms is unique — tell us your vision and we'll create a custom package."
-          />
-          <p className="mx-auto mb-5 max-w-xl text-center text-base text-charcoal font-sans font-light leading-relaxed">
-            Prefer to talk first?{" "}
-            <a
-              href="/wedding-call"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-normal text-forest underline underline-offset-4 hover:text-forest-light"
+          </Plate>
+          <div className="mt-7 lg:col-span-7 lg:col-start-6 lg:mt-0">
+            <p className={sectionLabel}>No. 4 &middot; Connor</p>
+            <h2 id="connor-title" className={cn(h2Class, "mt-1.5 lg:mt-3 lg:text-[52px]")}>
+              Your first call is with Connor.
+            </h2>
+            <p className={cn(bodyLarge, "mt-4 lg:mt-6")}>
+              Connor McWilliams owns the farm. He grew up on a ranch in Salinas, California, worked as a
+              general contractor, and turned an overgrown forest property in Brightwood into Highland Farms.
+              The call is free and runs 45 minutes, on video or walking the farm, and covers your date, your
+              people and how a weekend here works.
+            </p>
+            <PendingSlot
+              className="mt-3"
+              note="PENDING CONNOR C3: is he on the farm for every wedding? Hides one sentence."
             >
-              Book a free 45-minute call with Connor, who owns the farm.
-            </a>{" "}
-            Or{" "}
-            <a
-              href="https://highlandfarmsoregon.com/lookbook.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-forest underline underline-offset-4 hover:text-forest-light"
-            >
-              see the 2027 look book
-            </a>
-            .
-          </p>
-          <div className="mx-auto max-w-xl rounded-xl border border-cream-dark bg-white p-6 sm:p-8 shadow-sm">
-            <ContactForm
-              defaultEventType="wedding"
-              heading=""
-              subtitle=""
-              ctaText="Check Availability"
-            />
+              <p className={bodyLarge}>He is on the farm for every wedding.</p>
+            </PendingSlot>
+            <p className="mt-4 flex items-center gap-2.5 font-sans text-[14px] text-ink-note lg:text-[15px]">
+              <FieldStars size={14} />
+              <span>Guests name Connor in {CONNOR_REVIEW_COUNT} Google reviews.</span>
+            </p>
+            <div className="mt-6 border-t border-rule pt-6">
+              <FieldReview
+                spec={WEDDINGS_CONNOR_QUOTE}
+                role="Wedding"
+                quoteClassName="text-[20px] leading-[1.28] lg:text-[22px]"
+              />
+            </div>
+            <div className="mt-6 border-t border-rule pt-6">
+              <FieldReview
+                spec={WEDDINGS_COOS_QUOTE}
+                role="Wedding"
+                quoteClassName="text-[20px] leading-[1.28] lg:text-[22px]"
+              />
+            </div>
           </div>
-          <p className="mt-6 text-center text-sm text-muted font-sans">
-            Prefer to talk? Call us at{" "}
-            <a href={`tel:${CONTACT.phone.replace(/\s/g, "")}`} className="text-forest font-medium hover:text-forest-light transition-colors">
-              {CONTACT.phone}
-            </a>
-          </p>
-        </Container>
+        </div>
       </section>
 
-      {/* Sticky mobile CTA */}
-      <StickyMobileCTA
-        label="Check your date"
-        href="#contact"
-      />
-      <div className="h-20 lg:hidden" />
+      {/* Real weddings (portfolio teaser) */}
+      <section aria-labelledby="real-title" className="surface-paper border-t border-rule bg-paper text-ink">
+        <div className="mx-auto max-w-[1440px] px-5 py-12 lg:px-16 lg:py-24">
+          <div className="lg:flex lg:items-end lg:justify-between">
+            <div>
+              <p className="font-display text-[18px] italic text-fern lg:text-[22px]">Real weddings</p>
+              <h2 id="real-title" className="field-heading mt-1 font-display text-[36px] leading-[1.02] text-ink lg:mt-2 lg:text-[52px]">
+                Couples who married here
+              </h2>
+            </div>
+            <Link
+              href="/wedding-portfolio"
+              className="mt-2 hidden min-h-11 items-center gap-2 border-b border-pine-line font-sans text-[15px] font-medium text-pine lg:inline-flex lg:min-h-0 lg:pb-0.5"
+            >
+              See every real wedding
+              <FieldArrow size={16} />
+            </Link>
+          </div>
+          <div className="mt-7 grid grid-cols-2 gap-x-3 gap-y-6 lg:mt-12 lg:grid-cols-3 lg:gap-x-8">
+            <Link href="/wedding-portfolio/maya-justin" className="group col-span-2 block lg:col-span-1">
+              <Plate frameClassName="aspect-[4/3] p-[7px] lg:aspect-[4/5] lg:p-2.5">
+                <Image
+                  src="/images/weddings/maya-justin/02.jpg"
+                  alt="Maya and Justin's wedding invitation, topped with a painted Highland cow in a flower crown, among pearl shoes and a bolo tie"
+                  fill
+                  sizes="(min-width: 1024px) 30vw, calc(100vw - 40px)"
+                  className="object-cover object-[50%_35%]"
+                />
+              </Plate>
+              <p className="mt-1">
+                <span className="flex items-center gap-1.5 font-display text-[22px] font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]">
+                  Maya &amp; Justin
+                  <FieldArrow size={15} strokeWidth={1.8} className="shrink-0 text-pine" />
+                </span>
+                <span className="mt-0.5 block font-sans text-[13px] text-ink-note">
+                  {formatWeddingDate(teaser.maya.date!)} &middot; a coo on the invitation
+                </span>
+              </p>
+            </Link>
+            {[
+              {
+                couple: teaser.olivia,
+                src: "/images/weddings/olivia-connor/06.jpg",
+                alt: "Olivia and Connor kiss on the flagstone after their ceremony",
+                position: "50% 40%",
+              },
+              {
+                couple: teaser.sydney,
+                src: "/images/weddings/sydney-casey/03.jpg",
+                alt: "Sydney and Casey with their whole wedding party, arms raised, in front of a dark-timbered building",
+                position: "52% 55%",
+              },
+            ].map(({ couple, src, alt, position }) => (
+              <Link key={couple.slug} href={`/wedding-portfolio/${couple.slug}`} className="group block">
+                <Plate frameClassName="aspect-[4/5] p-[7px] lg:p-2.5">
+                  <Image
+                    src={src}
+                    alt={alt}
+                    fill
+                    sizes="(min-width: 1024px) 30vw, 46vw"
+                    className="object-cover"
+                    style={{ objectPosition: position }}
+                  />
+                </Plate>
+                <p className="mt-1">
+                  <span className="flex items-center gap-1.5 font-display text-[20px] font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]">
+                    {couple.names}
+                    <FieldArrow size={15} strokeWidth={1.8} className="shrink-0 text-pine" />
+                  </span>
+                  <span className="mt-0.5 block font-sans text-[13px] text-ink-note">
+                    {formatWeddingDate(couple.date!)}
+                  </span>
+                </p>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-7 border-t border-rule pt-3 lg:hidden">
+            <Link
+              href="/wedding-portfolio"
+              className="inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine"
+            >
+              <span className="border-b border-pine-line pb-0.5">See every real wedding</span>
+              <FieldArrow size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ: the real anxieties; only rain starts open (CONSISTENCY #10: at most one) */}
+      <section aria-labelledby="faq-title" className="surface-paper border-t border-rule bg-paper text-ink">
+        <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:px-16 lg:py-24">
+          <div className="lg:col-span-4">
+            <p className="font-display text-[18px] italic text-fern lg:text-[22px]">Before you ask</p>
+            <h2 id="faq-title" className="field-heading mt-1 font-display text-[36px] leading-[1.02] text-ink lg:mt-2 lg:text-[52px]">
+              What couples ask us first
+            </h2>
+          </div>
+          <div className="mt-6 border-t border-rule lg:col-span-8 lg:mt-0">
+            <FaqRow question={weddingFAQ[0].question} open>
+              <p>{RAIN_LEAD}</p>
+              <FieldReview
+                spec={WEDDINGS_RAIN_QUOTE}
+                role="Wedding"
+                rule
+                className="mt-4"
+                quoteClassName="text-[20px] leading-[1.3]"
+              />
+              <p className="mt-4">{RAIN_CLOSE}</p>
+            </FaqRow>
+            <FaqRow question={weddingFAQ[1].question}>
+              <p>{COST_ANSWER}</p>
+            </FaqRow>
+            <FaqRow question={weddingFAQ[2].question}>
+              <p>{VENDORS_ANSWER}</p>
+            </FaqRow>
+            <FaqRow question={weddingFAQ[3].question}>
+              <p>{RESTROOMS_ANSWER}</p>
+              <PendingSlot
+                className="mt-3"
+                note="PENDING CONNOR C2: restroom trailer. Hides one sentence."
+              >
+                <p>For the wedding itself there is a three-stall restroom trailer.</p>
+              </PendingSlot>
+            </FaqRow>
+            <FaqRow question={weddingFAQ[4].question}>
+              <p>{GETTING_HERE_ANSWER}</p>
+            </FaqRow>
+          </div>
+        </div>
+      </section>
+
+      {/* Check your date (#contact): the page owns the header, the Connor note and the plate; the built form sits at right */}
+      <section
+        id="contact"
+        aria-labelledby="contact-title"
+        className="surface-paper scroll-mt-[var(--header-h,96px)] border-t-[3px] border-double border-frame bg-paper-shade text-ink"
+      >
+        <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:px-16 lg:py-24">
+          <div className="lg:col-span-5">
+            <p className="font-display text-[18px] italic text-fern lg:text-[22px]">Now booking 2027</p>
+            <h2 id="contact-title" className="field-heading mt-1 font-display text-[44px] leading-[1.0] text-ink lg:mt-2 lg:text-[68px]">
+              Check your date
+            </h2>
+            <p className={cn(bodyLarge, "mt-3 lg:mt-6")}>{WEDDING_FORM_INTRO}</p>
+            {/* Desktop: the proof for the call link (Connor himself is introduced at No. 4), then the table. */}
+            <div className="mt-10 hidden border-t border-rule pt-8 lg:block">
+              <FieldReview
+                spec={WEDDINGS_CALL_QUOTE}
+                role="Wedding"
+                quoteClassName="text-[22px] leading-[1.3]"
+              />
+              <Plate
+                className="mt-10"
+                frameClassName="aspect-[4/3] lg:p-2.5"
+                caption="A long table on the lawn, set for dinner."
+              >
+                <Image
+                  src="/images/weddings/reception-aerial.jpg"
+                  alt="From above: one long dinner table on a lawn ringed by ferns and evergreens, patio heaters at each end"
+                  fill
+                  sizes="40vw"
+                  className="object-cover object-[50%_55%]"
+                />
+              </Plate>
+            </div>
+          </div>
+
+          <div className="mt-7 lg:col-span-7 lg:mt-0">
+            <div className="lg:border lg:border-frame lg:bg-paper lg:p-10">
+              <ContactForm defaultEventType="wedding" heading="" subtitle="" placement="weddings" />
+            </div>
+            {/* Phones: the fear of the call, answered right under the form's call link. */}
+            <FieldReview
+              spec={WEDDINGS_CALL_QUOTE}
+              role="Wedding"
+              className="mt-5 lg:hidden"
+              quoteClassName="text-[20px] leading-[1.3]"
+            />
+          </div>
+        </div>
+      </section>
+
+      <FieldStickyBar primary={{ label: "Check your date", href: "#contact" }} hideWhenVisible="#contact" />
     </>
   );
 }

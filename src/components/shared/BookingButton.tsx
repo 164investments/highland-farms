@@ -3,8 +3,9 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
 import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
+import { bookingTrackingFromUrl } from "@/lib/booking/tracking";
+import { SPA_MAX_PARTY, SPA_PRICE_PER_PERSON } from "@/data/nordic-spa";
 
 const OPEN_EVENT = "hf:open-booking";
 
@@ -46,18 +47,51 @@ function bookingTypeFromUrl(url: string): string {
   return "farm_tour";
 }
 
+/**
+ * One line under the dialog title for the spa's class calendar, where Acuity
+ * shows "@ $75.00" and a Quantity field. A row with a fixed count prefills
+ * Quantity (`?quantity=N`, see SPA_SPOT_ROWS); every other spa entry (hero,
+ * sticky bar, the 3-to-5 row, stay add-ons) asks the guest to set it.
+ */
+export function spaQuantityNote(src: string): string | null {
+  if (bookingTypeFromUrl(src) !== "nordic_spa") return null;
+  let quantity = NaN;
+  try {
+    quantity = Number(new URL(src).searchParams.get("quantity"));
+  } catch {
+    return null;
+  }
+  const each = SPA_PRICE_PER_PERSON;
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    return `Set Quantity below to your number of guests, $${each} each.`;
+  }
+  if (quantity === 1) return null;
+  const total = `${quantity} × $${each} = $${quantity * each}`;
+  if (quantity >= SPA_MAX_PARTY) {
+    return `Quantity is set to ${quantity} for the whole session: ${total}. You can pick only times with all six spots open.`;
+  }
+  return `Quantity is set to ${quantity}: ${total}.`;
+}
+
 function prepareBookingUrl(href: string): string {
   return appendAttributionToUrl(href, getClientAttribution());
 }
 
-function trackBookingStart(href: string, title?: string) {
+/**
+ * `href` is the link as written; `src` the same URL with the visitor's stored
+ * attribution applied (which overwrites utm_content). The party-size and
+ * gift fields come from the written link.
+ */
+function trackBookingStart(href: string, title: string | undefined, written: string) {
   if (typeof window === "undefined") return;
 
   const bookingType = bookingTypeFromUrl(href);
+  const extras = bookingTrackingFromUrl(written);
   const payload = {
     booking_type: bookingType,
     booking_url: href,
     booking_title: title,
+    ...extras,
   };
 
   window.dataLayer = window.dataLayer || [];
@@ -69,6 +103,7 @@ function trackBookingStart(href: string, title?: string) {
   window.fbq?.("track", "InitiateCheckout", {
     content_category: bookingType,
     content_name: title ?? bookingType,
+    ...(extras.value !== undefined ? { value: extras.value, currency: extras.currency } : {}),
   });
 }
 
@@ -94,7 +129,7 @@ export function BookingButton({
 }: BookingButtonProps) {
   const handleClick = () => {
     const src = prepareBookingUrl(href);
-    trackBookingStart(src, title ?? label);
+    trackBookingStart(src, title ?? label, href);
     openBookingModal({ src, title });
   };
 
@@ -127,34 +162,12 @@ export function BookingTextLink({ href, label, title, className, children }: Boo
       className={className}
       onClick={() => {
         const src = prepareBookingUrl(href);
-        trackBookingStart(src, title ?? label);
+        trackBookingStart(src, title ?? label, href);
         openBookingModal({ src, title });
       }}
     >
       {children ?? label}
     </button>
-  );
-}
-
-interface BookingStickyCTAProps {
-  href: string;
-  label: string;
-  title?: string;
-}
-
-export function BookingStickyCTA({ href, label, title }: BookingStickyCTAProps) {
-  const handleClick = () => {
-    const src = prepareBookingUrl(href);
-    trackBookingStart(src, title ?? label);
-    openBookingModal({ src, title });
-  };
-
-  return (
-    <StickyMobileCTA
-      label={label}
-      href={href}
-      onClick={handleClick}
-    />
   );
 }
 
@@ -195,6 +208,7 @@ export function BookingModalRoot() {
   if (!state) return null;
 
   const title = state.title ?? "Book your tour";
+  const note = spaQuantityNote(state.src);
 
   return (
     <div
@@ -208,33 +222,37 @@ export function BookingModalRoot() {
         className="relative flex w-full flex-col bg-white shadow-2xl sm:my-4 sm:max-w-3xl sm:rounded-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-cream-dark/40 px-5 py-4">
-          <h3 className="text-base font-normal text-charcoal font-display">
-            {title}
-          </h3>
-          <div className="flex items-center gap-4">
-            <a
-              href={state.src}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-muted underline-offset-4 hover:text-charcoal hover:underline font-sans"
-            >
-              Open in new tab
-            </a>
-            <button
-              type="button"
-              onClick={() => setState(null)}
-              className="rounded-full p-1.5 text-muted transition-colors hover:bg-cream hover:text-charcoal"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5" />
-            </button>
+        <div className="shrink-0 border-b border-cream-dark/40 px-5 py-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-normal text-charcoal font-display">
+              {title}
+            </h3>
+            <div className="flex items-center gap-4">
+              <a
+                href={state.src}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-muted underline-offset-4 hover:text-charcoal hover:underline font-sans"
+              >
+                Open in new tab
+              </a>
+              <button
+                type="button"
+                onClick={() => setState(null)}
+                className="rounded-full p-1.5 text-muted transition-colors hover:bg-cream hover:text-charcoal"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
+          {note && <p className="m-0 mt-1.5 font-sans text-[13px] leading-[1.45] text-charcoal/80">{note}</p>}
         </div>
+        {/* Phone: fill what the header leaves (it grows by a line when there is a note). */}
         <iframe
           src={state.src}
           title={title}
-          className="h-[calc(100vh-64px)] w-full sm:h-[80vh] sm:rounded-b-xl"
+          className="min-h-0 w-full flex-1 sm:h-[80vh] sm:flex-none sm:rounded-b-xl"
         />
       </div>
     </div>

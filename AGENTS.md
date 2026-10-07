@@ -26,17 +26,17 @@ npm run indexnow # only when live indexing is authorized
 - Accommodation photo identity follows `properties.ts` and the stay-page galleries. Legacy filenames are reversed: `properties/cottage.jpg` is William Wallace Lodge, and `properties/lodge.jpg` is Bonnie Lass Cottage. Do not infer identity from filenames or rename live files.
 - Dynamic: `src/app/stay/[slug]/page.tsx` (4 properties), `src/app/wedding-portfolio/[slug]/page.tsx`
 - API routes: `src/app/api/` (inquiries, acuity/webhook, meta/webhook, subscribe, cron/daily-report)
-- Data: `src/data/` (properties, farm-tours, nordic-spa, navigation, wedding-portfolio)
+- Data: `src/data/` (properties, farm-tours, nordic-spa, gift-certificates, wedding-portfolio, thanksgiving); review quotes live in each page's own `quotes.ts`
 - Libs: `src/lib/` (supabase, acuity, daily-report, html, hubspot, bookediq, email, ga4, meta, meta-leads, schemas)
 - Native booking calendar (Phase 1, behind `NEXT_PUBLIC_NATIVE_CALENDAR`): `src/lib/booking/`, `src/app/api/booking/*`, `src/app/api/cron/booking-reminders` — spec: `docs/superpowers/specs/2026-08-27-native-calendar-design.md`, plan: `docs/superpowers/plans/2026-08-27-native-calendar-engine.md`; structure and rules in `ARCHITECTURE.md` under "Booking (native calendar)"
 - Native booking calendar Phase 2 (booking UX, wedding-call + gift certs, admin surface, still behind the same flag except admin): `src/components/booking/` (BookingFlow, BookingPayment, NativeBookingSection), `src/app/wedding-call/`, `src/app/gift-certificates/`, `src/app/api/booking/gift/checkout`, `src/app/api/shop/admin/booking/*` (blackouts, schedules, manual, cancel, certs), `src/app/shop/admin/` (CalendarTab, SchedulesTab, CertsTab), `src/lib/booking/google-calendar.ts` + `ics.ts` + `cancel-email.ts` + `gift-email.ts` — plan: `docs/superpowers/plans/2026-08-27-native-calendar-phase2.md`; cutover verification recipe: `scripts/booking-e2e.md`
 - Native booking calendar Phase 3a (Acuity mirror + cutover prep, armed but not flipped): `src/lib/booking/acuity-import.ts` (owns `bookings` rows with `source='acuity_import'` only), `scripts/import-acuity-bookings.mts` (backfill/sweep + `reconcileCancellations`), `scripts/acuity-archive.mts` (full read-only Acuity snapshot → `acuity_archive_appointments` + gzipped JSON), `scripts/acuity-schedule-suggest.mts` (observation-only schedule-seeding report), `scripts/publish-booking-gtm.mjs` (provisions the booking GA4 event tags in GTM-MBH36BJH) — structure and rules in `ARCHITECTURE.md` under "Booking (native calendar)" → "The Acuity mirror"; the flip sequence itself is `docs/superpowers/plans/2026-08-27-cutover-runbook.md`
 - Google review social proof: `src/lib/reviews.ts` is the ONLY reader of `src/data/google-reviews.json`; the snapshot is refreshed weekly by `.github/workflows/refresh-google-reviews.yml` (runs `scripts/pull-gmb-reviews.mjs`, commits to main, Vercel deploys). Rules in `ARCHITECTURE.md` under "Social proof (Google reviews)".
-- Layout: `src/components/layout/` (Header + Masthead, Footer, GTM, EmailPopup, BookedIQWidget, StructuredData, AttributionTracker); paper first-screen primitives in `src/components/ui/FieldGuide.tsx` (see ARCHITECTURE.md, "The paper masthead and first screens")
-- Forms: `src/components/forms/ContactForm.tsx`
+- Layout: `src/components/layout/` (Header + Masthead, AnnouncementBar, MobileMenu, Footer, SkipLink, GTM, EmailPopup, BookedIQWidget, StructuredData, AttributionTracker; `chrome.ts` = per-page actions, bars and door rows); Field Guide primitives in `src/components/ui/FieldGuide.tsx` and `src/components/field/` (see ARCHITECTURE.md, "The paper masthead and first screens")
+- Forms: `src/components/forms/` (InquiryForm, ContactForm, fields); field-to-CRM mapping in `src/lib/inquiry-mapping.ts`, proven by `scripts/inquiry-mapping.test.mts`
 - Booked-wedding feed tooling: `scripts/build-booked-wedding-ad-feeds.py`, read-only account-state scripts, and `scripts/test_booked_wedding_ad_feeds.py`
 - Booked-wedding feed docs and approval-gated live-account plan: `docs/meta-booked-wedding-feed.md`, `docs/live-ads-plan-2026-08-13.md`
-- Config: `next.config.ts` (17 redirects, security headers), `vercel.json` (daily cron)
+- Config: `next.config.ts` (redirects, rewrites, security headers), `vercel.json` (daily cron)
 
 ## Environment Variables
 
@@ -135,8 +135,11 @@ Validate cron header →
 - Fire-and-forget pattern: Supabase write first, then async syncs to downstream systems
 - All tracking server-side via GA4 Measurement Protocol + Meta CAPI
 - Properties defined statically in `src/data/properties.ts` (whole-farm, lodge, cottage, camp)
-- Framer Motion animations via `FadeIn` and `StaggerChildren` components
-- Image galleries use Embla Carousel
+- Pages use the Field Guide primitives (`ui/FieldGuide.tsx`, `components/field/`); never a page-local section, quote, price row, FAQ or sticky bar. `framer-motion` and `embla-carousel-react` have no importers since the October 2026 redesign (removing them is a separate package change)
+- Booking actions always go through `BookingButton` / `BookingTextLink` (they push `booking_start` and open the Acuity modal); keep `data-hero-cta` on first-screen CTAs
+- Unconfirmed facts render through `PendingSlot`, which outputs nothing in production; wrap whole elements only
+- Customer copy: no em dashes; the only public phone line is `CONTACT.phone` ((971) 236-2551). Real farm photos only, never AI lifestyle or people imagery
+- The tours/spa cancellation exception sentence must stay identical in every place ARCHITECTURE.md lists
 - Shop: native commerce, built Aug 2026 after the Squarespace store was cancelled and went dark. Catalog is static in `src/app/shop/data.ts`; stock is live in Supabase `shop_inventory`. Payment is **Square** (`src/lib/shop/square.ts`). Fulfillment is farm pickup + local delivery — **the site must NOT promise shipping**. Structure and the rules that keep it correct: `ARCHITECTURE.md`.
 - ⛔ The server re-prices every checkout line from `data.ts`; the browser never sends prices. Don't "optimise" that away.
 - ⛔ **Square is the PRICE source of truth** (Hayden, 2026-08-26). Linked variants carry Square's price; re-sync with `scripts/sync-square-prices.mjs --apply`. Unlinked products (apparel, plush, bouquets) keep their own price.

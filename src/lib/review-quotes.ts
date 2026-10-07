@@ -14,8 +14,10 @@ export interface QuoteSpec {
   date: string;
   /** Take the first N sentences (default 1). */
   firstSentences?: number;
-  /** Instead, take the single sentence that starts with this text. */
+  /** Instead, take the sentence that starts with this text. */
   sentenceStartsWith?: string;
+  /** With sentenceStartsWith: take this many sentences from there (default 1). */
+  sentenceCount?: number;
   /** Short, true topic used in the attribution line. */
   topic: string;
 }
@@ -29,10 +31,13 @@ export function splitSentences(text: string): string[] {
 export function buildQuote(text: string, spec: QuoteSpec): string | null {
   const sentences = splitSentences(text);
   if (spec.sentenceStartsWith) {
-    const hit = sentences.find((s) => s.includes(spec.sentenceStartsWith!));
-    if (!hit) return null;
+    const at = sentences.findIndex((s) => s.includes(spec.sentenceStartsWith!));
+    if (at < 0) return null;
+    const hit = sentences[at];
     // Drop leftovers from the previous sentence (e.g. an emoticon) before the match.
-    return hit.slice(hit.indexOf(spec.sentenceStartsWith));
+    const first = hit.slice(hit.indexOf(spec.sentenceStartsWith));
+    const count = Math.max(1, spec.sentenceCount ?? 1);
+    return [first, ...sentences.slice(at + 1, at + count)].join(" ");
   }
   const n = spec.firstSentences ?? 1;
   const picked = sentences.slice(0, n).join(" ");

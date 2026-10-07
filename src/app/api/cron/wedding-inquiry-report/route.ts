@@ -5,6 +5,7 @@ import { getAppointments } from "@/lib/acuity";
 import type { AcuityAppointment } from "@/lib/acuity";
 import { getWeddingGA4Data, type GA4WeddingData } from "@/lib/ga4-data";
 import { escapeHtml } from "@/lib/html";
+import { formatPreferredDate, guestBandPhrase, referralLabel } from "@/lib/inquiry-mapping";
 
 // ── Config ───────────────────────────────────────────────────────────────────
 
@@ -326,7 +327,7 @@ function buildReport(data: ReportData): string {
               </tr></table>
               <table width="100%" style="margin-top:6px;"><tr>
                 <td style="font-family:${SANS};font-size:13px;color:#404f52;">
-                  <span style="font-weight:600;">${escapeHtml(typeLabel)}</span>${inq.guest_count ? ` &middot; ${escapeHtml(inq.guest_count)} guests` : ""}${inq.preferred_date ? ` &middot; ${escapeHtml(inq.preferred_date)}` : ""}
+                  <span style="font-weight:600;">${escapeHtml(typeLabel)}</span>${inq.guest_count ? ` &middot; ${escapeHtml(guestBandPhrase(inq.guest_count))}` : ""}${inq.preferred_date ? ` &middot; ${escapeHtml(formatPreferredDate(inq.preferred_date))}` : ""}
                 </td>
               </tr></table>
               <table width="100%" style="margin-top:4px;"><tr>
@@ -495,7 +496,8 @@ function buildReport(data: ReportData): string {
   const refCounts: Record<string, number> = {};
   for (const inq of ytdInquiries) {
     if (inq.referral_source) {
-      const src = inq.referral_source.trim();
+      // Group by the stored slug, show the form's label ("google" → "Google search").
+      const src = referralLabel(inq.referral_source.trim());
       refCounts[src] = (refCounts[src] || 0) + 1;
     }
   }

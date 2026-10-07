@@ -1,63 +1,129 @@
+import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { CONTACT } from "@/lib/constants";
+import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
+import { BOOKING_PRODUCTS } from "@/lib/booking/products";
+import { FieldRows } from "@/components/ui/FieldGuide";
 
 type Product = "tour" | "spa";
 
-const TOUR_ITEMS: string[] = [
-  "Ages 5 and up are $75. Kids 4 and under come free and don't count toward your group.",
-  `Online booking covers two or more paying guests. Coming as one adult with a little one? Call us at ${CONTACT.phoneAlt} and we'll set it up.`,
-  "Wear closed-toe shoes you don't mind getting muddy. October to March, bring rain boots and a rain jacket. Tours run rain or shine.",
-  "The farm paths aren't stroller or wheelchair friendly.",
-  "Pull through the gate, park on the right in the gravel, and meet your guide at the Highland cow statue. If you're more than 10 minutes late, your tour may be shortened or cancelled at your expense.",
-];
+export interface KnowRow {
+  term: string;
+  detail: ReactNode;
+}
 
-const SPA_ITEMS: string[] = [
-  "Guests 16 and up.",
-  "Bring a swimsuit. We provide robes and towels, and there are changing areas on site.",
-  "Sessions are shared, up to 6 guests, and run a maximum of 90 minutes.",
-  "Park on the right in the gravel after the gate. If you're more than 15 minutes late, your session may be shortened or cancelled at your expense.",
-  "Rain or shine, your session runs. The spa isn't wheelchair, walker or stroller accessible.",
-];
+const TOUR_FOR_TWO = TOUR_PARTY_SIZES[0].total;
+const TOUR_EACH_AFTER = TOUR_PARTY_SIZES[1].total - TOUR_PARTY_SIZES[0].total;
+const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
 
 /**
- * "Know before you book": the answers that decide whether a visitor commits,
- * shown directly above the pricing-card booking button. Facts come from the
- * Hayden-confirmed ops sheet (agent-memory highland-farms support-chat-ops-facts
- * 2026-07-24). Keep them in sync with the FAQ entries in src/data/*.ts.
+ * Tour rows: shared board 4 round 2. Facts from the Hayden-confirmed ops
+ * sheet (agent-memory highland-farms support-chat-ops-facts 2026-07-24);
+ * prices from TOUR_PARTY_SIZES. Keep in sync with farmTourFAQ.
+ */
+function tourRows(): KnowRow[] {
+  return [
+    {
+      term: "Ages",
+      detail: `$${TOUR_FOR_TWO} for two, $${TOUR_EACH_AFTER} for each guest after that. Kids 4 and under are free and don't count toward your group.`,
+    },
+    {
+      term: "Group",
+      detail: (
+        <>
+          Online booking covers two or more paying guests. Coming as one adult with a little one? Call us at{" "}
+          <a href={TEL} className="whitespace-nowrap text-pine underline underline-offset-4">
+            {CONTACT.phone}
+          </a>{" "}
+          and we&apos;ll set it up.
+        </>
+      ),
+    },
+    {
+      term: "Wear",
+      detail:
+        "Closed-toe shoes you don't mind getting muddy. October to March, bring rain boots and a rain jacket. Tours run rain or shine.",
+    },
+    { term: "Access", detail: "The farm paths aren't stroller or wheelchair friendly." },
+    {
+      term: "Arrival",
+      detail:
+        "Pull through the gate, park on the right in the gravel, and meet your guide at the carved Highland cow. If you're more than 10 minutes late, your tour may be shortened or cancelled at your expense.",
+    },
+  ];
+}
+
+/** Spa rows. Duration, seats and price from BOOKING_PRODUCTS (the same $75, 90 minutes, 6 seats as Acuity). */
+function spaRows(spaPricePerPerson?: number): KnowRow[] {
+  const spa = BOOKING_PRODUCTS["nordic-spa"];
+  const each = spaPricePerPerson ?? spa.pricePerPersonCents / 100;
+  const session = `${spa.durationMin} minutes, up to ${spa.maxParty} guests. Want it to yourselves? Book all ${spa.maxParty} spots for a private session, $${each * spa.maxParty}.`;
+  return [
+    { term: "Ages", detail: "Guests 16 and up, in every session, private ones included." },
+    { term: "Bring", detail: "A swimsuit. We provide robes and towels, and there are changing areas on site." },
+    { term: "Session", detail: session },
+    {
+      term: "Arrival",
+      detail:
+        "Park on the right in the gravel after the gate. If you're more than 15 minutes late, your session may be shortened or cancelled at your expense.",
+    },
+    {
+      term: "Access",
+      detail: "Rain or shine, your session runs. The spa isn't wheelchair, walker or stroller accessible.",
+    },
+  ];
+}
+
+interface KnowBeforeYouBookProps {
+  product?: Product;
+  /** Rows from the page's data file; replaces the product defaults. */
+  rows?: readonly KnowRow[];
+  /** Spa only: overrides the per-person price in the private-session sentence (default from BOOKING_PRODUCTS). */
+  spaPricePerPerson?: number;
+  heading?: string;
+  /** The paper-light frame (default). Off when the section itself is the frame. */
+  framed?: boolean;
+  /** The booking action, then <BookingPolicyNote text={cancellationAnswer(faq)} />. */
+  children?: ReactNode;
+  className?: string;
+}
+
+/**
+ * "Know before you book": the answers that decide whether a visitor commits
+ * to a final-sale booking, in ruled rows directly above the booking button.
  */
 export function KnowBeforeYouBook({
-  product,
-  className = "",
-}: {
-  product: Product;
-  className?: string;
-}) {
-  const items = product === "tour" ? TOUR_ITEMS : SPA_ITEMS;
+  product = "tour",
+  rows,
+  spaPricePerPerson,
+  heading = "Know before you book",
+  framed = true,
+  children,
+  className,
+}: KnowBeforeYouBookProps) {
+  const list = rows ?? (product === "tour" ? tourRows() : spaRows(spaPricePerPerson));
   return (
-    <div
-      className={`rounded-lg border border-cream-dark/50 bg-cream/40 p-4 text-left sm:p-5 ${className}`}
-    >
-      <p className="mb-2 text-xs font-normal uppercase tracking-[0.18em] text-sage font-sans">
-        Know before you book
-      </p>
-      <ul className="space-y-1.5 text-sm text-charcoal font-sans font-light leading-relaxed">
-        {items.map((item) => (
-          <li key={item} className="flex gap-2">
-            <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-forest" />
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
+    <div className={cn("text-left", framed && "border border-frame bg-paper-light p-5 lg:p-8", className)}>
+      <h3 className="m-0 font-display text-[24px] font-semibold leading-tight text-ink lg:text-[28px]">
+        {heading}
+      </h3>
+      <FieldRows rows={list} size="list" className="mt-3" />
+      {children && <div className="mt-5">{children}</div>}
     </div>
   );
 }
 
-/** Weather and finality framing shown under the booking button (no policy change). */
-export function BookingPolicyNote({ className = "" }: { className?: string }) {
+/**
+ * The point-of-sale policy line under a booking button (CONSISTENCY #10).
+ * Pass the data file's cancellation answer word for word:
+ *   <BookingPolicyNote text={cancellationAnswer(farmTourFAQ)} />
+ * Without `text` it falls back to the older summary (kept until every page passes the data).
+ */
+export function BookingPolicyNote({ text, className = "" }: { text?: string; className?: string }) {
   return (
-    <p className={`text-center text-xs text-muted font-sans ${className}`}>
-      Rain or shine, your visit runs. If we cancel for severe weather or for the
-      safety of our animals or guests, we will refund or rebook you. All other
-      bookings are final, so check your date and group size before you pay.
+    <p className={cn("m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]", className)}>
+      {text ??
+        "Rain or shine, your visit runs. If we cancel for severe weather or for the safety of our animals or guests, we will refund or rebook you. All other bookings are final, so check your date and group size before you pay."}
     </p>
   );
 }

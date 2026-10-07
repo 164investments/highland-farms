@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Lock, MapPin, Truck } from "lucide-react";
-import { Container } from "@/components/ui/Container";
+import { FieldLeader, FieldReviewLine, PendingSlot } from "@/components/ui/FieldGuide";
+import { ChevronDownIcon, LockIcon } from "@/components/shop/icons";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents, formatCentsShort } from "@/lib/shop/money";
 import {
@@ -15,9 +15,11 @@ import {
   type Fulfillment,
 } from "@/lib/shop/fulfillment";
 import { CONTACT } from "@/lib/constants";
-import { Star } from "lucide-react";
-import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
-import { ExpressPay } from "./ExpressPay";
+import { pushEvent } from "@/components/shop/track";
+import { ExpressPay, type WalletBlock } from "./ExpressPay";
+import { getProduct } from "../data";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 /**
  * Checkout.
@@ -56,27 +58,38 @@ declare global {
   }
 }
 
-function pushEvent(event: string, payload: Record<string, unknown>) {
-  if (typeof window === "undefined") return;
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ event, ...payload });
-}
+/**
+ * The email check `POST /api/shop/checkout` runs (zod 4's `.email()` pattern).
+ * The form must be at least as strict as the server: a wallet token is only
+ * requested once the details pass, so the server never rejects them after the
+ * shopper has approved a payment.
+ */
+const EMAIL_RE =
+  /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
+
+/** Where the last payment error belongs: under the wallets or under the card. */
+type Failure = { at: "wallet" | "card"; message: string };
 
 type Status = "loading" | "ready" | "submitting" | "unavailable";
 
 export function CheckoutBody({
   applicationId,
   locationId,
+  reviewCount,
 }: {
   applicationId: string;
   locationId: string;
+  /** FIVE_STAR_COUNT: the near-CTA tier, directly under Pay. */
+  reviewCount: number;
 }) {
   const router = useRouter();
   const { detailed, subtotalCents, count, clear, ready: cartReady } = useCart();
 
   const [status, setStatus] = useState<Status>("loading");
-  const [error, setError] = useState<string | null>(null);
-  const [fulfillment, setFulfillment] = useState<Fulfillment>("pickup");
+  const [failure, setFailure] = useState<Failure | null>(null);
+  const [paidWith, setPaidWith] = useState<Failure["at"]>("card");
+  const [chosen, setFulfillment] = useState<Fulfillment>("pickup");
+  const [touched, setTouched] = useState({ email: false, phone: false });
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -98,6 +111,9 @@ export function CheckoutBody({
     idempotencyKeyRef.current = crypto.randomUUID();
   }
 
+  // Delivery is locked below the minimum, so a cart that shrank falls back to pickup.
+  const deliveryLocked = subtotalCents < DELIVERY_MINIMUM_CENTS;
+  const fulfillment: Fulfillment = deliveryLocked ? "pickup" : chosen;
   const feeCents = fulfillment === "delivery" ? DELIVERY_FEE_CENTS : 0;
   const totalCents = subtotalCents + feeCents;
 
@@ -237,26 +253,66 @@ export function CheckoutBody({
       ? blocking
       : null;
 
-  /** True when the order is ready to send. Wallets check this before opening. */
+  // The details the server requires (`checkoutSchema` in the checkout route).
+  // One computation feeds the card check and the wallet gate, so they can't drift.
+  const nameOk = form.name.trim().length > 0;
+  const emailOk = EMAIL_RE.test(form.email.trim());
+  const phoneOk = form.phone.replace(/\D/g, "").length >= 7;
+  const contactOk = nameOk && emailOk && phoneOk;
+  const addressOk =
+    fulfillment !== "delivery" ||
+    (form.address.trim().length > 0 && form.city.trim().length > 0 && form.zip.trim().length >= 5);
+  const walletBlock: WalletBlock = !contactOk ? "contact" : !addressOk ? "address" : blocking ? "zip" : null;
+
+  /** A tap on a held wallet: take the shopper to the first field still missing. */
+  function showFirstGap() {
+    setTouched({ email: true, phone: true });
+    const id = !nameOk
+      ? "co-name"
+      : !emailOk
+        ? "co-email"
+        : !phoneOk
+          ? "co-phone"
+          : !form.address.trim()
+            ? "co-address"
+            : !form.city.trim()
+              ? "co-city"
+              : "co-zip";
+    document.getElementById(id)?.focus();
+  }
+
+  // Put the focus on a payment error where it was raised, so a phone user
+  // who paid from the top of the page sees it without scrolling.
+  useEffect(() => {
+    if (!failure) return;
+    document.getElementById(failure.at === "wallet" ? "wallet-alert" : "card-alert")?.focus();
+  }, [failure]);
+
+  /** True when the card form's order is ready to send. */
   function readyToPay(): boolean {
-    setError(null);
-    if (blocking) {
-      setError(blocking);
+    setFailure(null);
+    const fail = (message: string) => {
+      setFailure({ at: "card", message });
       return false;
-    }
+    };
+    if (blocking) return fail(blocking);
     if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
-      setError("Add your name, email and phone first, then pay.");
-      return false;
+      return fail("Add your name, email and phone first, then pay.");
     }
-    if (fulfillment === "delivery" && (!form.address.trim() || !form.city.trim())) {
-      setError("Add your delivery address first, then pay.");
-      return false;
-    }
+    if (!emailOk) return fail("Check your email address, then pay.");
+    if (!phoneOk) return fail("Check your phone number, then pay.");
+    if (!addressOk) return fail("Add your delivery address first, then pay.");
     return true;
   }
 
-  /** Everything after a token exists, shared by the card form and the wallets. */
-  async function submitWithToken(sourceId: string) {
+  /**
+   * Everything after a token exists, shared by the card form and the wallets.
+   * A wallet token always reaches this call: the wallet gate (`walletBlock`)
+   * runs before the sheet opens, never after approval.
+   */
+  async function submitWithToken(sourceId: string, at: Failure["at"]) {
+    setPaidWith(at);
+    setFailure(null);
     setStatus("submitting");
     try {
       const response = await fetch("/api/shop/checkout", {
@@ -287,7 +343,7 @@ export function CheckoutBody({
       };
 
       if (!response.ok || !body.success) {
-        setError(body.error ?? "Something went wrong. Please try again.");
+        setFailure({ at, message: body.error ?? "Something went wrong. Please try again." });
         setStatus("ready");
         // The Square card TOKEN is single-use and is always regenerated by the
         // next tokenize() call. The IDEMPOTENCY KEY is different: it is the only
@@ -318,10 +374,12 @@ export function CheckoutBody({
       });
 
       clear();
-      router.push(`/shop/thank-you?order=${encodeURIComponent(body.orderNumber ?? "")}`);
+      router.push(
+        `/shop/thank-you?order=${encodeURIComponent(body.orderNumber ?? "")}&f=${fulfillment}`,
+      );
     } catch (err) {
       console.error("[shop] checkout submit failed:", err);
-      setError("We couldn't reach the farm. Please try again.");
+      setFailure({ at, message: "We couldn't reach the farm. Please try again." });
       setStatus("ready");
     }
   }
@@ -331,287 +389,366 @@ export function CheckoutBody({
     if (!cardRef.current || status !== "ready") return;
     if (!readyToPay()) return;
 
+    setPaidWith("card");
     setStatus("submitting");
     const result = await cardRef.current.tokenize();
     if (result.status !== "OK" || !result.token) {
-      setError(
-        result.errors?.[0]?.message ?? "Please check your card details and try again.",
-      );
+      setFailure({
+        at: "card",
+        message: result.errors?.[0]?.message ?? "Please check your card details and try again.",
+      });
       setStatus("ready");
       return;
     }
-    await submitWithToken(result.token);
-  }
-
-  if (cartReady && count === 0) {
-    return (
-      <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20">
-        <Container className="max-w-2xl text-center">
-          <h1 className="font-display text-3xl font-light text-charcoal">Your cart is empty</h1>
-          <Link
-            href="/shop"
-            className="mt-6 inline-flex min-h-[52px] items-center rounded-full bg-forest px-8 text-sm uppercase tracking-[0.12em] text-white font-sans"
-          >
-            Browse the farm store
-          </Link>
-        </Container>
-      </main>
-    );
+    await submitWithToken(result.token, "card");
   }
 
   const busy = status === "submitting";
+  const emailBad = touched.email && !emailOk;
+  const phoneBad = touched.phone && !phoneOk;
+  const shortBy = Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
+  const payDisabled = busy || status !== "ready" || Boolean(blocking);
+
+  // The shop has one empty state, the cart's (r4): an empty checkout goes there.
+  // Never while an order is being placed: a paid order clears the cart just
+  // before it navigates to the thank-you page, and that navigation must win.
+  const cartEmpty = cartReady && count === 0;
+  const placing = status === "submitting";
+  useEffect(() => {
+    if (cartEmpty && !placing) router.replace("/shop/cart");
+  }, [cartEmpty, placing, router]);
+
+  if (cartEmpty) {
+    // Paper only, for the moment before the cart or thank-you page loads.
+    return <div aria-busy="true" className="surface-paper min-h-svh bg-paper" />;
+  }
+
+  const legend =
+    "float-left w-full font-display text-[23px] font-semibold leading-tight lg:text-[26px]";
+  const numeral = "mr-2 text-fern [font-variant-numeric:lining-nums]";
+  const orderLines = (
+    <ul className="m-0 list-none border-t border-rule p-0 text-[14px]">
+      {detailed.map((line) => {
+        const product = getProduct(line.slug);
+        return (
+          <li key={line.variantId} className="flex items-center gap-3 border-b border-rule py-2.5">
+            <span className="relative h-12 w-12 shrink-0 border border-frame bg-paper p-[2px]">
+              <span className="relative block h-full w-full overflow-hidden">
+                <Image src={line.image} alt="" fill sizes="48px" className="object-cover" />
+              </span>
+              {line.quantity > 1 && (
+                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center bg-ink px-1 text-[11px] font-semibold text-paper-light">
+                  {line.quantity}
+                </span>
+              )}
+            </span>
+            <span className="min-w-0 flex-1 leading-snug">
+              {product?.title ?? line.name}
+              {line.label && <span className="text-ink-note"> · {line.label}</span>}
+            </span>
+            <span className="font-medium">{formatCents(line.lineTotalCents)}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+  const input =
+    "mt-1.5 h-12 w-full border border-frame bg-paper-light px-3.5 text-[16px] text-ink focus:border-pine";
 
   return (
-    <main className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
-      <Container className="max-w-3xl">
-        <Link
-          href="/shop/cart"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-forest font-sans"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to cart
-        </Link>
+    // min-h-svh: the paper ground reaches the bottom of a short screen; the slim
+    // footer sits below it, never above a band of white (r4).
+    <div className="surface-paper min-h-svh bg-paper pt-[var(--header-h,60px)] font-sans text-ink">
+      <form onSubmit={handleSubmit} noValidate className="px-5 pb-14 pt-5 lg:px-16 lg:pb-24 lg:pt-12">
+        <div className="mx-auto max-w-[1180px] lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-x-16">
+          <div className="lg:col-start-1 lg:row-start-1">
+            <h1 className="field-heading m-0 font-display text-[34px] leading-none lg:text-[52px]">Checkout</h1>
+            <p className="m-0 mt-2 text-[14px] text-ink-note">Guest checkout. No account to make.</p>
 
-        <h1 className="font-display text-3xl font-light tracking-tight text-charcoal sm:text-4xl">
-          Checkout
-        </h1>
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-          {/* ---- Fulfillment ---- */}
-          <fieldset className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-            <legend className="px-1 text-xs uppercase tracking-[0.12em] text-muted font-sans">
-              How would you like it?
-            </legend>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {(
-                [
-                  {
-                    key: "pickup" as const,
-                    icon: MapPin,
-                    title: "Farm pickup",
-                    detail: "Free · Brightwood",
-                  },
-                  {
-                    key: "delivery" as const,
-                    icon: Truck,
-                    title: "Local delivery",
-                    detail: `${formatCents(DELIVERY_FEE_CENTS)} · orders ${formatCentsShort(DELIVERY_MINIMUM_CENTS)}+ · Mt. Hood & east Portland`,
-                  },
-                ]
-              ).map((opt) => {
-                const Icon = opt.icon;
-                const selected = fulfillment === opt.key;
-                return (
-                  <button
-                    key={opt.key}
-                    type="button"
-                    onClick={() => setFulfillment(opt.key)}
-                    aria-pressed={selected}
-                    className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-all ${
-                      selected
-                        ? "border-forest bg-forest/5 shadow-sm"
-                        : "border-cream-dark bg-white hover:border-forest/40"
-                    }`}
-                  >
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
-                    <span className="font-sans">
-                      <span className="block text-sm text-charcoal">{opt.title}</span>
-                      <span className="block text-xs text-muted">{opt.detail}</span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-            {fulfillment === "pickup" && (
-              <p className="mt-3 text-xs text-muted font-sans">
-                {PICKUP_LOCATION.address} — we&apos;ll call when it&apos;s packed.
-              </p>
-            )}
-          </fieldset>
-
-          {/* ---- Contact ---- */}
-          <fieldset className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-            <legend className="px-1 text-xs uppercase tracking-[0.12em] text-muted font-sans">
-              Your details
-            </legend>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <Field label="Name" value={form.name} onChange={set("name")} required autoComplete="name" />
-              <Field label="Phone" value={form.phone} onChange={set("phone")} required type="tel" autoComplete="tel" />
-              <div className="sm:col-span-2">
-                <Field label="Email" value={form.email} onChange={set("email")} required type="email" autoComplete="email" />
-              </div>
-            </div>
-
-            {fulfillment === "delivery" && (
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <Field label="Street address" value={form.address} onChange={set("address")} required autoComplete="address-line1" />
-                </div>
-                <Field label="City" value={form.city} onChange={set("city")} required autoComplete="address-level2" />
-                <Field label="ZIP" value={form.zip} onChange={set("zip")} required inputMode="numeric" autoComplete="postal-code" />
-              </div>
-            )}
-
-            <label className="mt-3 block">
-              <span className="mb-1.5 block text-xs uppercase tracking-[0.1em] text-muted font-sans">
-                Notes for the farm (optional)
-              </span>
-              <textarea
-                value={form.notes}
-                onChange={set("notes")}
-                rows={2}
-                maxLength={1000}
-                className="w-full rounded-xl border border-cream-dark bg-white px-3.5 py-2.5 text-sm text-charcoal outline-none transition-colors focus:border-forest font-sans"
-              />
-            </label>
-
-            {/* Honeypot — hidden from people, irresistible to bots. */}
-            <input
-              type="text"
-              tabIndex={-1}
-              autoComplete="off"
-              aria-hidden="true"
-              value={form.website}
-              onChange={set("website")}
-              className="absolute left-[-9999px] h-0 w-0 opacity-0"
-            />
-          </fieldset>
-
-          {/* ---- Payment ---- */}
-          <fieldset className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-            <legend className="px-1 text-xs uppercase tracking-[0.12em] text-muted font-sans">
-              Payment
-            </legend>
-
-            {status === "unavailable" ? (
-              <div className="mt-3 rounded-xl bg-cream p-4 text-sm text-charcoal font-sans">
-                <p>Card payment isn&apos;t available right now.</p>
-                <p className="mt-1.5 text-muted">
-                  Call or text {CONTACT.phone} and we&apos;ll take your order over the
-                  phone.
+            {/* Phone: the order as one collapsed row, so Pay sits right under the card field */}
+            <details className="group mt-5 border-y border-rule lg:hidden">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 py-2 text-[15px] [&::-webkit-details-marker]:hidden">
+                <span>
+                  <span className="font-semibold">Your order</span>{" "}
+                  <span className="text-ink-note">
+                    · {count} {count === 1 ? "item" : "items"}
+                  </span>
+                </span>
+                <span className="flex items-center gap-2 font-semibold">
+                  {formatCents(totalCents)}
+                  <ChevronDownIcon size={14} className="text-pine transition-transform group-open:rotate-180" />
+                </span>
+              </summary>
+              <div className="pb-3">
+                {orderLines}
+                <p className="m-0 mt-2 text-[12px] text-ink-note">
+                  <Link href="/shop/cart" className="font-medium text-pine">Edit your order</Link>
                 </p>
               </div>
-            ) : (
-              <>
-                <ExpressPay
-                  payments={payments}
-                  totalCents={totalCents}
-                  disabled={busy || status !== "ready"}
-                  onToken={(t) => {
-                    if (!readyToPay()) return;
-                    void submitWithToken(t);
-                  }}
-                  onError={setError}
+            </details>
+
+            {/* Wallets: first screen, pickup preselected. The payment request asks
+                for no contact fields, so the wallets stay held (aria-disabled, with
+                a plain line) until name, email and phone pass the server's rules. */}
+            <ExpressPay
+              payments={payments}
+              totalCents={totalCents}
+              disabled={busy || status !== "ready"}
+              blocked={walletBlock}
+              onBlocked={showFirstGap}
+              onToken={(t) => void submitWithToken(t, "wallet")}
+              onError={(message) => setFailure({ at: "wallet", message })}
+              alert={failure?.at === "wallet" ? failure.message : null}
+              placing={busy && paidWith === "wallet"}
+            />
+
+            {/* I. How you'll get it */}
+            <fieldset className="m-0 mt-5 border-0 border-t border-ink p-0 pt-4">
+              <legend className={legend}>
+                <span className={numeral}>I</span>How you&apos;ll get it
+              </legend>
+              <div className="clear-left grid gap-2.5 pt-3 lg:grid-cols-2 lg:gap-3">
+                <label
+                  className={cn(
+                    "flex cursor-pointer gap-3 border-2 bg-paper-light p-4",
+                    fulfillment === "pickup" ? "border-pine" : "border-frame",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="fulfillment"
+                    checked={fulfillment === "pickup"}
+                    onChange={() => setFulfillment("pickup")}
+                    className="mt-1 h-5 w-5 shrink-0 accent-pine"
+                  />
+                  <span>
+                    <span className="flex items-baseline gap-2">
+                      <span className="text-[16px] font-semibold">Pick up at the farm</span>
+                      <span className="text-[14px] font-semibold text-fern">Free</span>
+                    </span>
+                    <span className="mt-1 block text-[13px] leading-[1.45] text-ink-body">
+                      {PICKUP_LOCATION.address.replace(", OR 97011", "")}. We call you when it&apos;s packed.
+                    </span>
+                  </span>
+                </label>
+                <label
+                  className={cn(
+                    "flex gap-3 border-2 p-4",
+                    deliveryLocked ? "cursor-not-allowed border-frame bg-paper" : "cursor-pointer bg-paper-light",
+                    !deliveryLocked && (fulfillment === "delivery" ? "border-pine" : "border-frame"),
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="fulfillment"
+                    disabled={deliveryLocked}
+                    checked={fulfillment === "delivery"}
+                    onChange={() => setFulfillment("delivery")}
+                    className="mt-1 h-5 w-5 shrink-0 accent-pine"
+                  />
+                  <span>
+                    <span className="flex items-baseline gap-2">
+                      <span className={cn("text-[16px] font-semibold", deliveryLocked && "text-ink-note")}>Local delivery</span>
+                      <span className="text-[14px] text-ink-note">{formatCents(DELIVERY_FEE_CENTS).replace(/\.00$/, "")}</span>
+                    </span>
+                    <span className={cn("mt-1 block text-[13px] leading-[1.45]", deliveryLocked ? "text-ink-note" : "text-ink-body")}>
+                      {/* The fee is in the label above; the body says it once (Jobs r3). */}
+                      On orders of {formatCentsShort(DELIVERY_MINIMUM_CENTS)} or more, Mt. Hood corridor to east Portland.
+                      {deliveryLocked && (
+                        <>
+                          {" "}Yours is {formatCents(shortBy).replace(/\.00$/, "")} short.{" "}
+                          <Link href="/shop/cart" className="font-medium text-pine underline decoration-pine-line underline-offset-4">
+                            Add to it
+                          </Link>
+                        </>
+                      )}
+                    </span>
+                  </span>
+                </label>
+              </div>
+              <PendingSlot className="mt-2.5" note="PENDING CONNOR: pickup hours (D22)." />
+            </fieldset>
+
+            {/* II. Your details */}
+            <fieldset className="m-0 mt-8 border-0 border-t border-ink p-0 pt-4">
+              <legend className={legend}>
+                <span className={numeral}>II</span>Your details
+              </legend>
+              <div className="clear-left grid gap-4 pt-3 lg:grid-cols-2 lg:gap-x-5">
+                <div className="lg:col-span-2">
+                  <label htmlFor="co-name" className="block text-[13px] font-medium text-ink">Name</label>
+                  <input id="co-name" type="text" autoComplete="name" required maxLength={120} value={form.name} onChange={set("name")} className={input} />
+                </div>
+                <div>
+                  <label htmlFor="co-email" className="block text-[13px] font-medium text-ink">Email</label>
+                  <input
+                    id="co-email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    maxLength={200}
+                    value={form.email}
+                    onChange={set("email")}
+                    onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+                    aria-describedby="co-email-help"
+                    aria-invalid={emailBad || undefined}
+                    className={input}
+                  />
+                  <p id="co-email-help" className={cn("m-0 mt-1 text-[12px]", emailBad ? "text-ink" : "text-ink-note")}>
+                    {emailBad ? "Check the email so your receipt reaches you." : "Your receipt goes here."}
+                  </p>
+                </div>
+                <div>
+                  <label htmlFor="co-phone" className="block text-[13px] font-medium text-ink">Phone</label>
+                  <input
+                    id="co-phone"
+                    type="tel"
+                    autoComplete="tel"
+                    required
+                    maxLength={40}
+                    value={form.phone}
+                    onChange={set("phone")}
+                    onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+                    aria-describedby="co-phone-help"
+                    aria-invalid={phoneBad || undefined}
+                    className={input}
+                  />
+                  <p id="co-phone-help" className={cn("m-0 mt-1 text-[12px]", phoneBad ? "text-ink" : "text-ink-note")}>
+                    {phoneBad
+                      ? "Add a phone number so we can call you when it's packed."
+                      : "So we can call you when it's packed."}
+                  </p>
+                </div>
+                {fulfillment === "delivery" && (
+                  <>
+                    <div className="lg:col-span-2">
+                      <label htmlFor="co-address" className="block text-[13px] font-medium text-ink">Street address</label>
+                      <input id="co-address" type="text" autoComplete="address-line1" required maxLength={240} value={form.address} onChange={set("address")} className={input} />
+                    </div>
+                    <div>
+                      <label htmlFor="co-city" className="block text-[13px] font-medium text-ink">City</label>
+                      <input id="co-city" type="text" autoComplete="address-level2" required maxLength={120} value={form.city} onChange={set("city")} className={input} />
+                    </div>
+                    <div>
+                      <label htmlFor="co-zip" className="block text-[13px] font-medium text-ink">ZIP</label>
+                      <input id="co-zip" type="text" inputMode="numeric" autoComplete="postal-code" required maxLength={10} value={form.zip} onChange={set("zip")} className={input} />
+                    </div>
+                  </>
+                )}
+              </div>
+              <details className="mt-3 border-b border-rule">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-[14px] font-medium text-pine [&::-webkit-details-marker]:hidden">
+                  <span aria-hidden="true">+</span>Add a note for the farm (optional)
+                </summary>
+                <textarea
+                  aria-label="Note for the farm"
+                  value={form.notes}
+                  onChange={set("notes")}
+                  rows={2}
+                  maxLength={1000}
+                  className="mb-3 w-full border border-frame bg-paper-light px-3.5 py-2.5 text-[16px] text-ink focus:border-pine"
                 />
-                <div id="square-card" className="mt-3 min-h-[90px]" />
-                {status === "loading" && (
-                  <p className="flex items-center gap-2 text-sm text-muted font-sans">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Loading secure card form…
+              </details>
+              {/* Honeypot: hidden from people, irresistible to bots. */}
+              <input
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                value={form.website}
+                onChange={set("website")}
+                className="absolute left-[-9999px] h-0 w-0 opacity-0"
+              />
+            </fieldset>
+
+            {/* III. Card, then Pay directly under it */}
+            <fieldset className="m-0 mt-8 border-0 border-t border-ink p-0 pt-4">
+              <legend className={legend}>
+                <span className={numeral}>III</span>Card
+              </legend>
+              <div className="clear-left pt-3">
+                {status === "unavailable" ? (
+                  <p role="status" className="m-0 border-y border-rule py-3 text-[14px] leading-[1.5] text-ink-body">
+                    Card payment isn&apos;t loading right now. Call{" "}
+                    <a href={`tel:+1${CONTACT.phone.replace(/\D/g, "")}`} className="whitespace-nowrap font-medium text-pine">
+                      {CONTACT.phone}
+                    </a>{" "}
+                    and we&apos;ll take the order.
+                  </p>
+                ) : (
+                  <>
+                    {/* #square-card: Square's iframe mounts here; height reserved so nothing jumps */}
+                    <div id="square-card" aria-label="Secure card field from Square" className="min-h-[52px]" />
+                    {status === "loading" && (
+                      <p className="m-0 text-[13px] text-ink-note" role="status">Loading the secure card form…</p>
+                    )}
+                    <p className="m-0 mt-1.5 flex items-center gap-1.5 text-[12px] text-ink-note">
+                      <LockIcon size={12} />
+                      Card details go straight to Square. We never see them.
+                    </p>
+                  </>
+                )}
+
+                {(failure?.at === "card" || shownProblem) && (
+                  <p
+                    id="card-alert"
+                    role="alert"
+                    tabIndex={-1}
+                    className="m-0 mt-4 border-l-2 border-pine-line bg-paper-shade px-4 py-3 text-[14px] text-ink"
+                  >
+                    {failure?.at === "card" ? failure.message : shownProblem}
                   </p>
                 )}
-              </>
-            )}
-          </fieldset>
 
-          {/* ---- Totals ---- */}
-          <div className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-            <ul className="mb-4 space-y-1.5 border-b border-cream-dark/60 pb-4 text-sm font-sans">
-              {detailed.map((line) => (
-                <li key={line.variantId} className="flex justify-between gap-3">
-                  <span className="min-w-0 text-charcoal">
-                    {line.quantity} × {line.name}
-                    {line.label && (
-                      <span className="text-muted"> · {line.label}</span>
-                    )}
-                  </span>
-                  <span className="shrink-0 text-muted">
-                    {formatCents(line.lineTotalCents)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <dl className="space-y-1.5 text-sm font-sans">
-              <div className="flex justify-between">
-                <dt className="text-muted">Subtotal</dt>
-                <dd className="text-charcoal">{formatCents(subtotalCents)}</dd>
+                <button
+                  type="submit"
+                  disabled={payDisabled}
+                  className={cn(
+                    "mt-4 inline-flex h-14 w-full items-center justify-center gap-2.5 px-6 text-[16px] font-semibold tracking-[0.02em]",
+                    payDisabled ? "cursor-not-allowed bg-paper-shade text-ink-note" : "bg-pine text-paper-light hover:bg-pine-dark",
+                  )}
+                >
+                  <LockIcon size={15} />
+                  {busy ? "Paying…" : `Pay ${formatCents(totalCents)}`}
+                </button>
+                <p className="m-0 mt-2.5 text-[13px] text-ink-note lg:hidden">
+                  That&apos;s everything. No tax or added fees.
+                </p>
+                <FieldReviewLine tier="nearCta" count={reviewCount} starSize={12} className="mt-3 text-[13px] text-ink-body lg:text-[13px]" />
               </div>
-              <div className="flex justify-between">
-                <dt className="text-muted">
-                  {fulfillment === "delivery" ? "Local delivery" : "Farm pickup"}
-                </dt>
-                <dd className="text-charcoal">
-                  {feeCents === 0 ? "Free" : formatCents(feeCents)}
-                </dd>
+            </fieldset>
+          </div>
+
+          {/* Desktop: the order summary, sticky on the right */}
+          <aside className="hidden border border-frame bg-paper-light p-8 lg:sticky lg:top-8 lg:col-start-2 lg:row-start-1 lg:block lg:self-start">
+            <div className="flex items-baseline justify-between">
+              <h2 className="m-0 font-display text-[26px] font-semibold leading-none">Your order</h2>
+              <Link href="/shop/cart" className="flex min-h-11 items-center text-[13px] font-medium text-pine">
+                <span className="border-b border-pine-line">Edit</span>
+              </Link>
+            </div>
+            <div className="mt-2">{orderLines}</div>
+            <dl className="m-0 mt-3 space-y-1.5 text-[15px]">
+              <div className="flex items-baseline gap-2">
+                <dt className="text-ink-body">Subtotal</dt>
+                <FieldLeader />
+                <dd className="m-0">{formatCents(subtotalCents)}</dd>
               </div>
-              <div className="flex justify-between border-t border-cream-dark/60 pt-2.5 text-base">
-                <dt className="text-charcoal">Total</dt>
-                <dd className="font-medium text-forest">{formatCents(totalCents)}</dd>
+              <div className="flex items-baseline gap-2">
+                <dt className="text-ink-body">{fulfillment === "delivery" ? "Local delivery" : "Farm pickup"}</dt>
+                <FieldLeader />
+                <dd className="m-0 text-fern">{feeCents === 0 ? "Free" : formatCents(feeCents)}</dd>
+              </div>
+              <div className="flex items-baseline gap-2 border-t border-ink pt-2.5">
+                <dt className="font-display text-[22px] font-semibold">Total</dt>
+                <dd className="m-0 min-w-4 flex-1" />
+                <dd className="m-0 text-[20px] font-semibold">{formatCents(totalCents)}</dd>
               </div>
             </dl>
-
-            {(error || shownProblem) && (
-              <p
-                role="alert"
-                className="mt-4 rounded-xl bg-cream px-4 py-3 text-sm text-charcoal font-sans"
-              >
-                {error ?? shownProblem}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={busy || status !== "ready" || Boolean(blocking)}
-              className={`mt-5 flex min-h-[54px] w-full items-center justify-center gap-2.5 rounded-full text-sm uppercase tracking-[0.12em] transition-all font-sans ${
-                busy || status !== "ready" || blocking
-                  ? "cursor-not-allowed bg-cream-dark text-muted"
-                  : "bg-forest text-white shadow-sm hover:shadow-md"
-              }`}
-            >
-              {busy ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Placing order…
-                </>
-              ) : (
-                <>
-                  <Lock className="h-3.5 w-3.5" />
-                  Pay {formatCents(totalCents)}
-                </>
-              )}
-            </button>
-
-            <p className="mt-3 text-center text-xs text-muted font-sans">
-              Card details go straight to Square. We never see or store your card
-              number.
-            </p>
-            {/* Proof at the highest-anxiety moment. Deliberately NOT the
-                ReviewBadge component — that links out to Google, and a link off
-                the checkout page is a leak, not a convenience. */}
-            <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-xs text-muted font-sans">
-              <Star className="h-3 w-3 fill-forest text-forest" aria-hidden />
-              Loved by {REVIEW_COUNT} guests on Google
-            </p>
-          </div>
-        </form>
-      </Container>
-    </main>
-  );
-}
-
-function Field({
-  label,
-  ...props
-}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 block text-xs uppercase tracking-[0.1em] text-muted font-sans">
-        {label}
-      </span>
-      <input
-        {...props}
-        className="w-full rounded-xl border border-cream-dark bg-white px-3.5 py-2.5 text-sm text-charcoal outline-none transition-colors focus:border-forest font-sans"
-      />
-    </label>
+            <p className="m-0 mt-1 text-[12px] text-ink-note">That&apos;s everything. No tax or added fees.</p>
+          </aside>
+        </div>
+      </form>
+    </div>
   );
 }

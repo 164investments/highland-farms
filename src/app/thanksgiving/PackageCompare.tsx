@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { FieldArrow, Plate, fieldCtaClass } from "@/components/ui/FieldGuide";
-import { FieldQuote } from "@/components/shared/FieldQuote";
+import { FieldReview } from "@/components/field/Reviews";
 import { THANKSGIVING_QUOTE } from "@/lib/review-quotes";
 import { perGuest, thanksgiving, thanksgivingInquiryHref } from "@/data/thanksgiving";
 
@@ -158,12 +158,11 @@ export function PackageCompare() {
             </table>
           </div>
 
-          <FieldQuote
+          <FieldReview
             spec={THANKSGIVING_QUOTE}
-            withTopic
+            role={THANKSGIVING_QUOTE.topic}
             className="mt-8 border-t border-rule pt-5 lg:col-start-2 lg:mt-0 lg:self-center lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0"
             quoteClassName="text-[19px] lg:text-[24px]"
-            metaClassName="mt-2 text-[11px] lg:text-[12px]"
           />
         </div>
       </div>

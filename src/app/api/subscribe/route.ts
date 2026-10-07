@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Allowlisted capture sources so we can segment where a subscriber came from.
 // Unknown/missing values fall back to "popup" (the original site-wide popup).
-const SUBSCRIBE_SOURCES = ["popup", "spa-page", "farm-tours-page"] as const;
+const SUBSCRIBE_SOURCES = ["popup", "spa-page", "farm-tours-page", "lookbook-popup"] as const;
 
 const subscribeSchema = z.object({
   email: z.string().email("Please enter a valid email"),

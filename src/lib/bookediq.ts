@@ -1,16 +1,20 @@
 import { type InquiryFormData } from "@/lib/schemas";
 import { type MetaLeadData } from "@/lib/meta-leads";
-import { formatAttribution } from "@/lib/attribution";
+import { BOOKEDIQ_FIELD, buildBookedIQContact } from "@/lib/inquiry-mapping";
 
 const GHL_API = "https://services.leadconnectorhq.com";
 
-// Custom field IDs for Highland Farms location (MF69VyOlWn4TT9g8AiDp)
-const FIELD_EVENT_TYPE      = "SU7feL5qc3Rof5oH00K9"; // Desired Event Type
-const FIELD_GUEST_COUNT     = "oC80o6RFqL8IjgYfudqM"; // Estimated Number of Guests
-const FIELD_EVENT_DATE      = "bD5UbqcequJXjdwM7q6s"; // Desired Event Date (DATE type — strict)
-const FIELD_EVENT_DATE_META = "P1OnvSvlMzgRA4i526jh"; // Desired Event Date (Meta) — free text for enum ranges
-const FIELD_MESSAGE         = "XdkbuNVwwMGVNIlCRfpE"; // Contact Form Message
+// Custom field IDs for Highland Farms location (MF69VyOlWn4TT9g8AiDp).
+// Definitions and types live with the inquiry mapping (src/lib/inquiry-mapping.ts).
+const FIELD_EVENT_TYPE      = BOOKEDIQ_FIELD.eventType;     // Desired Event Type
+const FIELD_EVENT_DATE_META = BOOKEDIQ_FIELD.eventDateMeta; // Desired Event Date (Meta) — picklist of Meta's timeline enums
+const FIELD_MESSAGE         = BOOKEDIQ_FIELD.message;       // Contact Form Message
 
+/**
+ * Website inquiry → BookedIQ contact upsert. Every field value comes from
+ * buildBookedIQContact (guest band label, first-of-month date, exact
+ * "How did you hear" option, message with the month spelled out).
+ */
 export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void> {
   const locationId = process.env.BOOKEDIQ_LOCATION_ID?.trim();
   const pit = process.env.BOOKEDIQ_PIT?.trim();
@@ -18,45 +22,16 @@ export async function syncInquiryToBookedIQ(data: InquiryFormData): Promise<void
     throw new Error("BookedIQ credentials missing (BOOKEDIQ_LOCATION_ID or BOOKEDIQ_PIT)");
   }
 
-  const [firstName, ...rest] = data.name.trim().split(/\s+/);
-  const lastName = rest.join(" ");
-
-  const attributionText = formatAttribution(data.attribution);
-  const messageText = [data.message, attributionText ? `Attribution:\n${attributionText}` : null]
-    .filter(Boolean)
-    .join("\n\n");
-
-  const customFields: { id: string; field_value: string }[] = [];
-  if (data.event_type)    customFields.push({ id: FIELD_EVENT_TYPE,  field_value: data.event_type });
-  if (data.guest_count)   customFields.push({ id: FIELD_GUEST_COUNT, field_value: data.guest_count });
-  if (data.preferred_date) customFields.push({ id: FIELD_EVENT_DATE, field_value: data.preferred_date });
-  if (messageText)        customFields.push({ id: FIELD_MESSAGE,     field_value: messageText });
-
   const headers = {
     Authorization: `Bearer ${pit}`,
     Version: "2021-07-28",
     "Content-Type": "application/json",
   };
 
-  const tags = ["source :: contact form"];
-  if (data.attribution?.utm_source) tags.push(`utm_source :: ${data.attribution.utm_source}`);
-  if (data.attribution?.utm_campaign) tags.push(`utm_campaign :: ${data.attribution.utm_campaign}`);
-  if (data.consent_marketing_sms)    tags.push("sms consent :: marketing");
-  if (data.consent_appointment_sms)  tags.push("sms consent :: appointments");
-
   const res = await fetch(`${GHL_API}/contacts/upsert`, {
     method: "POST",
     headers,
-    body: JSON.stringify({
-      locationId,
-      firstName,
-      ...(lastName && { lastName }),
-      email: data.email,
-      ...(data.phone && { phone: data.phone }),
-      source: "Website - Contact Form",
-      tags,
-      ...(customFields.length > 0 && { customFields }),
-    }),
+    body: JSON.stringify({ locationId, ...buildBookedIQContact(data) }),
   });
 
   if (!res.ok) {

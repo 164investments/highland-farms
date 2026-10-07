@@ -10,13 +10,13 @@ import {
   fieldEyebrowClass,
   fieldTextLinkClass,
 } from "@/components/ui/FieldGuide";
-import { FAQAccordion } from "@/components/shared/FAQAccordion";
-import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
+import { FieldFaq } from "@/components/field/Faq";
+import { FieldReview } from "@/components/field/Reviews";
+import { FieldStickyBar } from "@/components/field/StickyBar";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { thanksgiving, thanksgivingInquiryHref } from "@/data/thanksgiving";
 import { FIVE_STAR_COUNT, REVIEW_COUNT } from "@/lib/reviews";
 import { THANKSGIVING_FAMILY_QUOTE } from "@/lib/review-quotes";
-import { FieldQuote } from "@/components/shared/FieldQuote";
 import { ThanksgivingHero } from "./ThanksgivingHero";
 import { PackageCompare } from "./PackageCompare";
 import { CopyEmail } from "./CopyEmail";
@@ -125,12 +125,11 @@ export default function ThanksgivingPage() {
                   className="object-cover object-[50%_52%]"
                 />
               </Plate>
-              <FieldQuote
+              <FieldReview
                 spec={THANKSGIVING_FAMILY_QUOTE}
-                withTopic
+                role={THANKSGIVING_FAMILY_QUOTE.topic}
                 className="mt-6 border-t border-rule pt-5"
                 quoteClassName="text-[19px] lg:text-[22px]"
-                metaClassName="mt-2 text-[11px] lg:text-[12px]"
               />
             </div>
           </div>
@@ -208,12 +207,13 @@ export default function ThanksgivingPage() {
             <h2 id="tg-faq-title" className="field-heading m-0 mb-5 text-[30px] leading-[1.05] text-ink lg:mb-8 lg:text-[44px]">
               Before you gather
             </h2>
-            <FAQAccordion items={[...thanksgiving.faqs]} variant="field" />
+            <FieldFaq items={thanksgiving.faqs} />
           </div>
         </div>
       </section>
 
-      <StickyMobileCTA label="Check availability" href={inquiry} reserveChat ctaId="tg-sticky" />
+      {/* The shared sticky bar: hides over the inquiry block, lifts the chat bubble above itself. */}
+      <FieldStickyBar primary={{ label: "Check availability", href: inquiry, cta: "tg-sticky" }} hideWhenVisible="#inquire" />
       <div aria-hidden="true" className="h-20 lg:hidden" />
     </div>
   );

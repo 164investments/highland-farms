@@ -85,3 +85,35 @@ test("shortName shows a first name and last initial", () => {
   assert.equal(shortName("Maya C"), "Maya C.");
   assert.equal(shortName("Cher"), "Cher");
 });
+
+test("sentenceCount takes consecutive whole sentences from the starting one", () => {
+  const text = "First one. Second starts here. Third follows! Fourth.";
+  assert.equal(
+    buildQuote(text, { author: "x", date: "2020-01-01", topic: "t", sentenceStartsWith: "Second starts", sentenceCount: 2 }),
+    "Second starts here. Third follows!",
+  );
+  assert.equal(
+    buildQuote(text, { author: "x", date: "2020-01-01", topic: "t", sentenceStartsWith: "Second starts" }),
+    "Second starts here.",
+  );
+});
+
+// Every page keeps its quote specs in a pure `quotes.ts` (type-only imports), so
+// this test proves each exported spec is verbatim, whole-sentence Google text.
+test("every page quote spec (src/**/quotes.ts) is verbatim from the snapshot", async () => {
+  const { globSync } = await import("node:fs");
+  const root = new URL("../", import.meta.url);
+  const files = globSync("src/**/quotes.ts", { cwd: root.pathname });
+  assert.ok(files.length > 0, "no quotes.ts files found");
+  const isSpec = (v: unknown): v is QuoteSpec =>
+    !!v && typeof v === "object" && "author" in v && "date" in v && "topic" in v;
+  let checked = 0;
+  for (const f of files) {
+    const mod = await import(new URL(f, root).href);
+    for (const value of Object.values(mod)) {
+      const specs = Array.isArray(value) ? value : [value];
+      for (const s of specs) if (isSpec(s)) { check(s); checked++; }
+    }
+  }
+  assert.ok(checked > 0, "found quote files but no specs");
+});

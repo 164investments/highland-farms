@@ -1,14 +1,14 @@
 export const SITE = {
   name: "Highland Farms",
-  tagline: "Oregon's Premier Farm & Forest Wedding Venue",
+  tagline: "Whimsical forest weddings with the Highland coos as honorary guests",
   description:
-    "All-inclusive farm and forest weddings at the base of Mt. Hood. Scottish Highland Cow farm tours, Nordic spa, and luxury farm stays in Brightwood, Oregon.",
+    "Private forest farm weddings in Brightwood, Oregon, about an hour from Portland. Scottish Highland Cow farm tours, Nordic spa, and farm stays.",
   url: "https://highlandfarmsoregon.com",
 } as const;
 
 export const CONTACT = {
-  phone: "(831) 214-2053",
-  phoneAlt: "(971) 236-2551",
+  /** The farm's sales line (Hayden, 2026-09-14). (831) 214-2053 is Connor's personal cell: never publish it. */
+  phone: "(971) 236-2551",
   email: "events@highlandfarms-oregon.com",
   emailAlt: "info@highlandfarms-oregon.com",
   address: "21261 East Little River Road",

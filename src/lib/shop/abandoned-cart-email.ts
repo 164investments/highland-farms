@@ -1,6 +1,8 @@
 import { CONTACT } from "@/lib/constants";
-import { formatCents } from "./money";
+import { FIVE_STAR_COUNT } from "@/lib/reviews";
+import { formatCents, formatCentsShort } from "./money";
 import { resolveSender, type Sender } from "./cart-senders";
+import { DELIVERY_FEE_CENTS, DELIVERY_MINIMUM_CENTS, PICKUP_LOCATION } from "./fulfillment";
 
 /**
  * Cart reminder emails: three competing arguments, three steps each.
@@ -16,9 +18,19 @@ import { resolveSender, type Sender } from "./cart-senders";
  * discount that repeat customers learn to harvest, and repeat purchase is
  * exactly this business's model.
  *
- * Scarcity appears only where it is TRUE, and always carries its mechanism —
- * "we smoke one pig at a time" is what separates a real constraint from an
- * urgency badge.
+ * Scarcity appears only where it is TRUE: a live stock count of 3 or fewer.
+ *
+ * ⛔ TRUTH RULE (truth audit B6, 2026-10-06). State only what the store already
+ * commits to in `fulfillment.ts` and `src/data/shop-faq.ts`: free pickup at the
+ * farm, "we call you when your order is packed", $15 local delivery on orders
+ * of $50 or more inside the ZIP list, no shipping, pay on the site. No pickup
+ * days, cutoffs, delivery days, "frozen", batch or cutting cadence, pig
+ * sourcing or taste claims, and no guarantee (none is approved; D9). A saved
+ * cart does NOT hold stock (stock is claimed only at checkout), so never say
+ * "set aside" or "held". Reviews: FIVE_STAR_COUNT only, never a literal, and
+ * quotes only verbatim from google-reviews.json. The phone is "Call", never
+ * "call or text". These go out from notifications@ with no reply-to, so do not
+ * invite replies until a monitored reply-to exists.
  */
 
 const SITE = "https://highlandfarmsoregon.com";
@@ -68,6 +80,26 @@ function emailThumb(image: string): string {
     .replace(/\.(png|jpe?g)$/i, ".jpg");
 }
 
+const FEE = formatCentsShort(DELIVERY_FEE_CENTS);
+const MINIMUM = formatCentsShort(DELIVERY_MINIMUM_CENTS);
+const PICKUP_PLACE = PICKUP_LOCATION.address.replace(/, OR \d{5}$/, "");
+
+/**
+ * Catalog names put a variant after a comma ("Pork Chop, Boneless"). Names
+ * from before 2026-10 used an em dash; either way the email shows a comma.
+ */
+function displayName(name: string): string {
+  return name.replace(/\s+—\s+/g, ", ");
+}
+
+/** The item without its variant: "Princess Fiona", "Pork Chop". */
+function shortName(name: string): string {
+  return name.split(/,|\s+—\s+/)[0].trim();
+}
+
+/** The near-CTA review line, from the live snapshot. */
+const FIVE_STARS = `${FIVE_STAR_COUNT} five-star reviews on Google.`;
+
 function esc(v: string): string {
   return v
     .replace(/&/g, "&amp;")
@@ -100,37 +132,38 @@ function scarcest(e: ReminderEmail): ReminderLine | null {
 
 export function subjectFor(e: ReminderEmail): string {
   const first = e.lines[0]?.name ?? "your order";
-  const short = first.split("—")[0].trim();
+  const short = shortName(first);
   const scarce = scarcest(e);
 
   if (e.variant === "A") {
     if (e.step === 1) return `I saved your ${short}`;
-    if (e.step === 2) return `Still holding your ${short}`;
+    if (e.step === 2) return `Your ${short} is still in your cart`;
     return `Last note about your ${short}`;
   }
   if (e.variant === "B") {
-    if (e.step === 1) return `Your order, packed frozen and ready Saturday`;
-    if (e.step === 2) return `Pickup at the farm, or on your porch Tuesday`;
-    return `Your ${short} is still set aside`;
+    if (e.step === 1) return `Your order: free pickup at the farm`;
+    if (e.step === 2) return `Free pickup at the farm, or ${FEE} local delivery`;
+    return `Your ${short} is still in your cart`;
   }
   // C leads with the real constraint when there is one.
-  if (scarce) {
-    return scarce.stockLeft === 1
-      ? `One ${scarce.name.split("—")[0].trim()} left from this batch`
-      : `${scarce.stockLeft} ${scarce.name.split("—")[0].trim()} left from this batch`;
-  }
-  if (e.step === 3) return `Thursday 5pm for Saturday pickup`;
-  return `Still yours, ${e.firstName}`;
+  if (scarce) return scarceHeadline(scarce);
+  if (e.step === 3) return `Last note about your cart`;
+  return `Still in your cart, ${e.firstName}`;
+}
+
+/** "Only one Bacon left" / "Only 3 Bacon left", from the live stock count. */
+function scarceHeadline(l: ReminderLine): string {
+  const short = shortName(l.name);
+  return l.stockLeft === 1 ? `Only one ${short} left` : `Only ${l.stockLeft} ${short} left`;
 }
 
 export function preheaderFor(e: ReminderEmail): string {
   if (e.variant === "A") return "It's still saved, and nothing has been charged.";
   if (e.variant === "B")
-    return "Packed frozen, ready Saturday. Or on your porch Tuesday for $15.";
-  const scarce = scarcest(e);
-  return scarce
-    ? "We cut one animal at a time. Thursday 5pm is the cutoff for Saturday."
-    : "Thursday 5pm is the cutoff for Saturday pickup.";
+    return `Free pickup at the farm, or local delivery for ${FEE} on orders of ${MINIMUM} or more.`;
+  return scarcest(e)
+    ? "A saved cart doesn't hold stock. Nothing has been charged."
+    : "It's still saved, and nothing has been charged.";
 }
 
 // ── shared pieces ───────────────────────────────────────────────────────────
@@ -164,11 +197,11 @@ function cartTable(e: ReminderEmail): string {
           : "";
       return `<tr>
         <td width="64" style="padding:9px 13px 9px 0;vertical-align:top">
-          <img src="${SITE}${esc(emailThumb(l.image))}" width="64" height="64" alt="${esc(l.name)}"
+          <img src="${SITE}${esc(emailThumb(l.image))}" width="64" height="64" alt="${esc(displayName(l.name))}"
                style="display:block;width:64px;height:64px;object-fit:cover;border-radius:9px;background:${CREAM}" />
         </td>
         <td style="padding:9px 0;vertical-align:top;font-size:14.5px;color:${CHARCOAL};line-height:1.4">
-          ${esc(l.name)}${label}
+          ${esc(displayName(l.name))}${label}
           <div style="margin-top:2px;font-size:12.5px;color:${MUTED}">Qty ${l.quantity}</div>${scar}
         </td>
         <td align="right" style="padding:9px 0;vertical-align:top;font-size:14.5px;color:${CHARCOAL};white-space:nowrap">
@@ -224,44 +257,40 @@ function shell(e: ReminderEmail, body: string): string {
 
 // ── Variant A · the note from the farm ──────────────────────────────────────
 // Liking + Authority + Unity. Blemish-first: naming the real drawbacks makes
-// everything after them read as honest rather than as marketing. The reply
-// invitation is deliberate — recipient replies are the strongest Primary-tab
-// signal a small sender can earn.
+// everything after them read as honest rather than as marketing. Replies are
+// the strongest Primary-tab signal, but nothing reads them yet (sent from
+// notifications@, no reply-to), so the note asks for a call instead.
 
 function variantA(e: ReminderEmail, sender: Sender): string {
   // Keep each product's own capitalisation: "Princess Fiona" is a name, and
   // lower-casing it reads as a typo rather than as casual.
-  const items = e.lines.map((l) => l.name.split("—")[0].trim());
+  const items = e.lines.map((l) => shortName(l.name));
   const itemPhrase =
     items.length === 1 ? items[0] : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
 
   const openers: Record<CartStep, string> = {
     1: `${esc(sender.name)} here from Highland Farms. I saw ${esc(itemPhrase)} still sitting in
-        your cart, so I've set it aside for you. Nothing has been charged.`,
-    2: `Me again. ${esc(itemPhrase)} is still held under your name, so I wanted to check in
-        once before the week gets away from us.`,
-    3: `Last note from me on this one. ${esc(itemPhrase)} is still yours if you want it, and
-        I'll stop filling your inbox after today.`,
+        your cart. I've saved everything, and nothing has been charged.`,
+    2: `Me again. Your cart is still saved with ${esc(itemPhrase)} in it, so I wanted to check
+        in once before the week gets away from us.`,
+    3: `Last note from me on this one. Your cart still has ${esc(itemPhrase)} in it if you want
+        it, and I'll stop filling your inbox after today.`,
   };
 
   const middle =
     e.step === 1
       ? `<p style="margin:13px 0 0;font-size:15px;line-height:1.62;color:${CHARCOAL}">
-           I'll be straight with you about us: we're an hour's drive up the mountain,
-           we don't ship anywhere, and we run out of cuts regularly. All of that is because
-           everything comes off one small herd here in Brightwood. It's the reason the pork
-           tastes the way it does, and it's also the reason we're a bit of a hassle.
+           I'll be straight with you about us: we're about an hour from Portland, and we
+           don't ship. Pickup at the farm is free, and we call you when your
+           order is packed. On orders of ${MINIMUM} or more we can deliver for ${FEE}, from the
+           Mt. Hood corridor down through Sandy and Gresham into east Portland.
          </p>
          <p style="margin:13px 0 0;font-size:15px;line-height:1.62;color:${CHARCOAL}">
-           One of our 182 five star reviews puts it better than I can:
-         </p>
-         <p style="margin:11px 0 0;padding-left:14px;border-left:2px solid ${LINE};
-            font-size:15px;line-height:1.6;color:${MUTED};font-style:italic">
-           "Best pork we have ever cooked, and the drive out is half the fun."
+           ${FIVE_STARS}
          </p>`
       : `<p style="margin:13px 0 0;font-size:15px;line-height:1.62;color:${CHARCOAL}">
-           Everything comes off one small herd here in Brightwood, which is why some weeks
-           we're short on a cut. 182 families have made the drive and left five stars.
+           Pickup at the farm is free, and we call you when your order is packed.
+           ${FIVE_STARS}
          </p>`;
 
   return shell(
@@ -276,7 +305,7 @@ function variantA(e: ReminderEmail, sender: Sender): string {
           highlandfarmsoregon.com/shop/cart</a>
       </p>
       <p style="margin:13px 0 0;font-size:15px;line-height:1.62;color:${CHARCOAL}">
-        And if this weekend doesn't work, just hit reply and tell me when does. I'll hold it.
+        Questions about a cut? Call ${esc(CONTACT.phone)}.
       </p>
       ${signature(sender)}
     </td></tr>`,
@@ -285,14 +314,14 @@ function variantA(e: ReminderEmail, sender: Sender): string {
 
 // ── Variant B · your pickup, handled ────────────────────────────────────────
 // Hormozi's value equation attacked from the denominator: time delay and
-// effort, not desire. The cart echo is the commitment device; the rest is
-// logistics certainty plus a NAMED guarantee (the name is what carries it).
+// effort, not desire. The cart echo is the commitment device; the rest is the
+// store's real logistics. No guarantee: none is approved (D9).
 
 function variantB(e: ReminderEmail, sender: Sender): string {
   const heads: Record<CartStep, string> = {
-    1: "Your order is two clicks from done",
+    1: "Your order is almost done",
     2: "Two ways to get it, both easy",
-    3: "Still set aside for you",
+    3: "Still saved for you",
   };
 
   return shell(
@@ -306,7 +335,7 @@ function variantB(e: ReminderEmail, sender: Sender): string {
         Still saved, nothing charged. Here is exactly what happens once you finish.</p>
       ${cartTable(e)}
     </td></tr>
-    ${button(e, "Finish and pick a time")}
+    ${button(e, "Finish your order")}
     <tr><td style="padding:16px 24px 0">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
         style="background:${SAND};border-radius:12px">
@@ -314,51 +343,39 @@ function variantB(e: ReminderEmail, sender: Sender): string {
           <div style="font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:${MUTED};font-weight:600">
             What happens next</div></td></tr>
         <tr><td style="padding:0 16px 4px;font-size:14px;line-height:1.55;color:#4a4a4a">
-          <b style="color:${CHARCOAL}">1.</b> We cut and pack it frozen the morning it leaves.</td></tr>
+          <b style="color:${CHARCOAL}">1.</b> You pay on the site, and the receipt comes by email.</td></tr>
         <tr><td style="padding:0 16px 4px;font-size:14px;line-height:1.55;color:#4a4a4a">
-          <b style="color:${CHARCOAL}">2.</b> You choose a Saturday pickup window at the farm. Free,
-          and you can walk out and see the herd while you're here.</td></tr>
+          <b style="color:${CHARCOAL}">2.</b> We call you when your order is packed. Pickup at the
+          farm is free, at ${esc(PICKUP_PLACE)}.</td></tr>
         <tr><td style="padding:0 16px 16px;font-size:14px;line-height:1.55;color:#4a4a4a">
-          <b style="color:${CHARCOAL}">3.</b> Or if you're in Sandy, Welches, Gresham or east Portland,
-          it's on your porch Tuesday for $15.</td></tr>
+          <b style="color:${CHARCOAL}">3.</b> Or, on orders of ${MINIMUM} or more, local delivery is
+          ${FEE} from the Mt. Hood corridor down through Sandy and Gresham into east Portland.
+          Checkout checks your ZIP.</td></tr>
       </table>
-    </td></tr>
-    <tr><td style="padding:14px 24px 0">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-        <td style="vertical-align:top;font-size:14px;line-height:1.55;color:#4a4a4a">
-          <b style="color:${CHARCOAL}">The best chop you've cooked, or the next one's on us.</b><br />
-          Cook it, and if it isn't the best pork you've had, tell us at your next pickup and
-          we'll replace the cut. Keep the first one either way.
-        </td></tr></table>
     </td></tr>
     <tr><td style="padding:14px 24px 26px">
       <p style="margin:0;font-size:13px;line-height:1.55;color:${MUTED}">
-        Order tonight and it's in your skillet Saturday. Questions about a cut, or want to
-        change the order? Call or text ${esc(CONTACT.phone)}.</p>
+        Questions about a cut, or want to change the order? Call ${esc(CONTACT.phone)}.</p>
       ${signature(sender)}
     </td></tr>`,
   );
 }
 
-// ── Variant C · the batch window ────────────────────────────────────────────
+// ── Variant C · the stock count ─────────────────────────────────────────────
 // True scarcity + loss aversion. Cialdini: "newly scarce" beats always-scarce,
-// and scarcity amplifies a desire the cart already proves exists. The count
-// always carries its mechanism. When nothing is genuinely scarce this degrades
-// to the real pickup cutoff rather than inventing a number.
+// and scarcity amplifies a desire the cart already proves exists. The count is
+// the live stock number, and its mechanism is the true one: a saved cart
+// doesn't hold stock. When nothing is genuinely scarce this degrades to a plain
+// reminder rather than inventing a deadline.
 
 function variantC(e: ReminderEmail, sender: Sender): string {
   const scarce = scarcest(e);
-  const headline = scarce
-    ? scarce.stockLeft === 1
-      ? `One ${esc(scarce.name.split("—")[0].trim())} left from this batch`
-      : `${scarce.stockLeft} ${esc(scarce.name.split("—")[0].trim())} left from this batch`
-    : "Thursday is the cutoff for Saturday";
+  const headline = scarce ? esc(scarceHeadline(scarce)) : "Your cart is still saved";
 
   const reason = scarce
-    ? `We cut one animal at a time, so when a batch is gone that cut is gone until the next
-       one, which is about three weeks out. Yours is still held.`
-    : `We pack Saturday's pickups on Friday morning, so Thursday at 5pm is the last call to
-       be on that list. Yours is still held.`;
+    ? `That was the stock count when this email went out. A saved cart doesn't hold stock,
+       so it can sell out before you check out. Nothing has been charged.`
+    : `Nothing has been charged. Your cart is here whenever you're ready.`;
 
   return shell(
     e,
@@ -373,14 +390,15 @@ function variantC(e: ReminderEmail, sender: Sender): string {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
         style="background:${SAND};border-radius:12px">
         <tr><td style="padding:14px 16px;font-size:14px;line-height:1.55;color:#4a4a4a">
-          <b style="color:${CHARCOAL}">Thursday 5pm</b> is the cutoff to pick up this Saturday.
-          Saturday windows usually fill by Thursday afternoon.</td></tr>
+          <b style="color:${CHARCOAL}">Free pickup</b> at the farm in Brightwood, and we call you
+          when your order is packed. Or local delivery for ${FEE} on orders of ${MINIMUM} or
+          more.</td></tr>
       </table>
     </td></tr>
-    ${button(e, "Claim your Saturday window")}
+    ${button(e, "Finish your order")}
     <tr><td style="padding:14px 24px 26px">
       <p style="margin:0;font-size:13px;line-height:1.55;color:${MUTED};text-align:center">
-        182 families have picked up here and left five stars. Come meet the herd while you're out.</p>
+        ${FIVE_STARS}</p>
       ${signature(sender)}
     </td></tr>`,
   );
@@ -401,7 +419,7 @@ export function renderReminderText(e: ReminderEmail): string {
   const lines = e.lines
     .map(
       (l) =>
-        `  ${l.quantity} x ${l.name}${l.variantLabel ? ` (${l.variantLabel})` : ""} — ` +
+        `  ${l.quantity} x ${displayName(l.name)}${l.variantLabel ? ` (${l.variantLabel})` : ""}: ` +
         `${formatCents(l.unitPriceCents * l.quantity)}` +
         `${l.stockLeft !== null && l.stockLeft <= 3 ? `  [only ${l.stockLeft} left]` : ""}`,
     )
@@ -409,10 +427,10 @@ export function renderReminderText(e: ReminderEmail): string {
 
   const opening =
     e.variant === "A"
-      ? `${sender.name} here from Highland Farms. I set your cart aside. Nothing has been charged.`
+      ? `${sender.name} here from Highland Farms. I saved your cart. Nothing has been charged.`
       : e.variant === "B"
-        ? `Still saved, nothing charged. We pack it frozen, you pick a Saturday window at the farm, or it's on your porch Tuesday for $15.`
-        : `${scarcest(e) ? "We cut one animal at a time, so a batch runs out until the next one." : "Thursday 5pm is the cutoff for Saturday pickup."} Yours is still held.`;
+        ? `Still saved, nothing charged. Pickup at the farm is free, and we call you when your order is packed. Or local delivery for ${FEE} on orders of ${MINIMUM} or more.`
+        : `${scarcest(e) ? "A saved cart doesn't hold stock, so a low item can sell out before you check out." : "Your cart is still saved."} Nothing has been charged.`;
 
   return `Hi ${e.firstName},
 
@@ -424,13 +442,13 @@ Subtotal: ${formatCents(e.subtotalCents)}
 
 Finish your order: ${recoveryUrl(e)}
 
-Free pickup at the farm. $15 local delivery. We don't ship.
-Questions? Call or text ${CONTACT.phone}.
+Free pickup at the farm. ${FEE} local delivery on orders of ${MINIMUM} or more. We don't ship.
+Questions? Call ${CONTACT.phone}.
 
 ${sender.name}
 ${sender.role}
 
-—
+--
 ${e.step === 3 ? "Last note about this cart." : ""} You started an order at highlandfarmsoregon.com.
 Unsubscribe: ${unsubUrl(e)}
 Highland Farms Oregon LLC, ${CONTACT.fullAddress}

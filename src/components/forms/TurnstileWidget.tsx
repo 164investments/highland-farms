@@ -10,6 +10,11 @@ interface TurnstileWidgetProps {
   action?: string;
   theme?: "light" | "dark" | "auto";
   size?: "normal" | "flexible" | "compact";
+  /**
+   * Bump to get a fresh token. Tokens are single-use, so after a failed
+   * submit the old one cannot pass siteverify again.
+   */
+  resetSignal?: number;
 }
 
 interface TurnstileRenderOptions {
@@ -41,6 +46,7 @@ export function TurnstileWidget({
   action = "contact-form",
   theme = "light",
   size = "flexible",
+  resetSignal = 0,
 }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
@@ -88,6 +94,16 @@ export function TurnstileWidget({
       }
     };
   }, [scriptReady, siteKey, action, theme, size]);
+
+  useEffect(() => {
+    if (!resetSignal || !widgetIdRef.current || !window.turnstile) return;
+    try {
+      window.turnstile.reset(widgetIdRef.current);
+    } catch {
+      // widget may already be gone
+    }
+    callbackRef.current.onExpire?.();
+  }, [resetSignal]);
 
   return (
     <>

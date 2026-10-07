@@ -3,24 +3,53 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Lock, MapPin, Minus, Plus, Plus as PlusIcon, Star, X } from "lucide-react";
-import { Container } from "@/components/ui/Container";
+import { FieldStickyBar } from "@/components/field/StickyBar";
+import {
+  FieldArrow,
+  FieldDrawing,
+  FieldLeader,
+  FieldQuoteView,
+  FieldReviewLine,
+  fieldCtaClass,
+  type ResolvedFieldQuote,
+} from "@/components/ui/FieldGuide";
+import { BackArrowIcon, LockIcon } from "@/components/shop/icons";
+import { QtyStepper } from "@/components/shop/QtyStepper";
+import { DeliveryGoal } from "@/components/shop/DeliveryGoal";
+import { FarmFavorites } from "@/components/shop/Favorites";
+import { pushEvent, type StockRecord } from "@/components/shop/track";
 import { useCart } from "@/lib/shop/cart";
-import { formatCents } from "@/lib/shop/money";
+import { formatCents, formatCentsShort } from "@/lib/shop/money";
 import { DELIVERY_MINIMUM_CENTS } from "@/lib/shop/fulfillment";
-import { REVIEW_COUNT } from "@/components/shared/GoogleReviewsSection";
-import { formatCentsShort } from "@/lib/shop/money";
+import { getProduct, type Product } from "../data";
 
 export interface AddOn {
   variantId: string;
   slug: string;
-  name: string;
+  title: string;
   image: string;
   priceCents: number;
+  madeToOrder: boolean;
 }
 
-export function CartBody({ addOns }: { addOns: AddOn[] }) {
-  const { detailed, subtotalCents, setQuantity, remove, add, ready } = useCart();
+const keepShopping =
+  "inline-flex min-h-11 items-center gap-2 text-[14px] text-ink-note hover:text-pine";
+
+export function CartBody({
+  addOns,
+  quote,
+  reviewCount,
+  favorites,
+  stock,
+}: {
+  addOns: AddOn[];
+  quote: ResolvedFieldQuote | null;
+  reviewCount: number;
+  /** Farm favorites in stock, for the empty cart. */
+  favorites: Product[];
+  stock: StockRecord;
+}) {
+  const { detailed, subtotalCents, count, setQuantity, remove, add, ready } = useCart();
   const [restored, setRestored] = useState(false);
 
   // ?recover=<token> from a cart reminder. Rebuilds the cart from variant ids,
@@ -49,206 +78,266 @@ export function CartBody({ addOns }: { addOns: AddOn[] }) {
       }
     })();
   }, [ready, add]);
+
+  // Add to reach $50: in-stock items closest to the gap first, then the rest
+  // from the other side; hidden once the cart qualifies.
   const inCart = new Set(detailed.map((l) => l.variantId));
-  const offers = addOns.filter((a) => !inCart.has(a.variantId)).slice(0, 3);
+  const gap = Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
+  const free = addOns.filter((a) => !inCart.has(a.variantId));
+  const offers =
+    gap === 0
+      ? []
+      : [
+          ...free.filter((a) => a.priceCents >= gap).sort((a, b) => a.priceCents - b.priceCents),
+          ...free.filter((a) => a.priceCents < gap).sort((a, b) => b.priceCents - a.priceCents),
+        ].slice(0, 3);
+
+  const addOffer = (a: AddOn) => {
+    add(a.variantId, 1);
+    const p = getProduct(a.slug);
+    pushEvent("add_to_cart", {
+      ecommerce: {
+        currency: "USD",
+        value: a.priceCents / 100,
+        items: [
+          {
+            item_id: a.slug,
+            item_name: p?.name ?? a.title,
+            item_category: p?.category,
+            price: a.priceCents / 100,
+            quantity: 1,
+          },
+        ],
+      },
+    });
+  };
+
+  const note = (a: AddOn) =>
+    [
+      a.madeToOrder ? "Made to order" : null,
+      subtotalCents + a.priceCents >= DELIVERY_MINIMUM_CENTS
+        ? `Gets you to ${formatCentsShort(subtotalCents + a.priceCents)}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+
+  const goalBlock = <DeliveryGoal subtotalCents={subtotalCents} />;
+  const offerList = (layout: "grid" | "list") =>
+    offers.length === 0 ? null : layout === "grid" ? (
+      <ul className="m-0 mt-4 grid list-none grid-cols-3 gap-6 p-0">
+        {offers.map((a) => (
+          <li key={a.variantId}>
+            <Link href={`/shop/${a.slug}`} className="block">
+              <div className="border border-frame bg-paper-light p-2">
+                <div className="relative aspect-square overflow-hidden">
+                  <Image src={a.image} alt="" fill sizes="240px" className="object-cover" />
+                </div>
+              </div>
+              <p className="m-0 mt-2 font-display text-[19px] font-medium leading-tight">{a.title}</p>
+            </Link>
+            {note(a) && <p className="m-0 text-[12px] text-ink-note">{note(a)}</p>}
+            <button
+              type="button"
+              onClick={() => addOffer(a)}
+              aria-label={`Add to cart: ${a.title}, ${formatCentsShort(a.priceCents)}`}
+              className="mt-1.5 flex h-11 items-center gap-1.5 border border-pine px-4 text-[13px] font-semibold text-pine hover:bg-paper-shade"
+            >
+              + {formatCentsShort(a.priceCents)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <ul className="m-0 list-none p-0">
+        {offers.map((a) => (
+          <li key={a.variantId} className="flex items-center gap-3 border-b border-rule py-2">
+            <Link href={`/shop/${a.slug}`} className="h-14 w-14 shrink-0 border border-frame bg-paper-light p-[3px]">
+              <span className="relative block h-full w-full overflow-hidden">
+                <Image src={a.image} alt="" fill sizes="56px" className="object-cover" />
+              </span>
+            </Link>
+            <span className="min-w-0 flex-1">
+              <Link href={`/shop/${a.slug}`} className="block font-display text-[18px] font-medium leading-tight">
+                {a.title}
+              </Link>
+              {note(a) && <span className="text-[12px] text-ink-note">{note(a)}</span>}
+            </span>
+            <button
+              type="button"
+              onClick={() => addOffer(a)}
+              aria-label={`Add to cart: ${a.title}, ${formatCentsShort(a.priceCents)}`}
+              className="flex h-11 shrink-0 items-center border border-pine px-3 text-[13px] font-semibold text-pine hover:bg-paper-shade"
+            >
+              + {formatCentsShort(a.priceCents)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    );
 
   return (
-    <div className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
-      <Container className="max-w-3xl">
-        <Link
-          href="/shop"
-          className="mb-8 inline-flex min-h-11 items-center gap-2 text-sm text-muted transition-colors hover:text-forest font-sans"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Keep shopping
-        </Link>
-
-        <h1 className="font-display text-3xl font-light tracking-tight text-charcoal sm:text-4xl">
-          Your cart
-        </h1>
-
-        {restored && (
-          <p className="mt-4 rounded-xl bg-white px-4 py-3 text-sm text-charcoal shadow-sm font-sans">
-            Picked up where you left off. Prices are today&apos;s.
-          </p>
-        )}
-
-        {/* Until localStorage is read, render nothing rather than a wrong empty state. */}
-        {!ready ? (
-          <div className="mt-10 h-24" aria-hidden />
-        ) : detailed.length === 0 ? (
-          <div className="mt-8 rounded-2xl bg-white p-8 text-center shadow-sm">
-            <p className="text-muted font-sans">Your cart is empty.</p>
-            <Link
-              href="/shop"
-              className="mt-5 inline-flex min-h-[52px] items-center rounded-full bg-forest px-8 text-sm uppercase tracking-[0.12em] text-white shadow-sm transition-shadow hover:shadow-md font-sans"
-            >
-              Browse the farm store
+    <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
+      <section className="px-5 pb-12 pt-2 lg:px-16 lg:pb-24 lg:pt-8">
+        <div className="mx-auto max-w-[1312px]">
+          {/* The empty cart's one action is its own button; this link is for a filled cart. */}
+          {ready && detailed.length > 0 && (
+            <Link href="/shop" className={`hidden lg:inline-flex ${keepShopping}`}>
+              <BackArrowIcon />
+              Keep shopping
             </Link>
-          </div>
-        ) : (
-          <>
-            <ul className="mt-8 space-y-3">
-              {detailed.map((line) => (
-                <li
-                  key={line.variantId}
-                  className="flex gap-4 rounded-2xl bg-white p-3.5 shadow-sm sm:p-4"
-                >
-                  <Link
-                    href={`/shop/${line.slug}`}
-                    className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-cream sm:h-24 sm:w-24"
-                  >
-                    <Image
-                      src={line.image}
-                      alt={line.name}
-                      fill
-                      sizes="96px"
-                      className="object-cover"
-                    />
-                  </Link>
+          )}
 
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
+          {restored && (
+            <p className="m-0 mt-3 border-y border-rule py-2.5 text-[14px] text-ink-body">
+              Picked up where you left off. Prices are today&apos;s.
+            </p>
+          )}
+
+          {/* Until localStorage is read, render nothing rather than a wrong empty state. */}
+          {!ready ? (
+            <div className="mt-3 h-40" aria-hidden />
+          ) : detailed.length === 0 ? (
+            <div className="mt-8 lg:mt-12">
+              <div className="flex flex-col items-start gap-4">
+                <FieldDrawing name="highland-calf" className="w-[140px] lg:w-[200px]" sizes="200px" />
+                <h1 className="field-heading m-0 font-display text-[32px] leading-none lg:text-[52px]">
+                  Nothing in your cart yet.
+                </h1>
+                <Link href="/shop" className={fieldCtaClass}>
+                  Browse the farm shop
+                  <FieldArrow />
+                </Link>
+              </div>
+              {/* Someone who opens the cart first can still start an order in one tap. */}
+              <FarmFavorites products={favorites} stock={stock} className="mt-12 lg:mt-20" />
+            </div>
+          ) : (
+            <div className="mt-3 lg:mt-4 lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start lg:gap-16">
+              {/* 1. The order, as ledger lines */}
+              <div>
+                <div className="flex items-end justify-between gap-4 border-b border-ink pb-2">
+                  <h1 className="field-heading m-0 font-display text-[32px] leading-none lg:text-[52px]">Your order</h1>
+                  <p className="m-0 text-[13px] text-ink-meta">
+                    {count} {count === 1 ? "item" : "items"}
+                  </p>
+                </div>
+                <ul className="m-0 list-none p-0">
+                  {detailed.map((line) => {
+                    const product = getProduct(line.slug);
+                    const title = product?.title ?? line.name;
+                    const unit = formatCentsShort(line.unitPriceCents);
+                    const sub = [line.label ?? product?.detail, `${unit} each`].filter(Boolean).join(" · ");
+                    return (
+                      <li key={line.variantId} className="flex gap-3 border-b border-rule py-2.5 lg:gap-5 lg:py-4">
                         <Link
                           href={`/shop/${line.slug}`}
-                          className="block truncate text-[0.9375rem] text-charcoal hover:text-forest font-sans"
+                          className="h-[72px] w-[72px] shrink-0 border border-frame bg-paper-light p-[3px] lg:h-24 lg:w-24"
                         >
-                          {line.name}
+                          <span className="relative block h-full w-full overflow-hidden">
+                            <Image src={line.image} alt="" fill sizes="96px" className="object-cover" />
+                          </span>
                         </Link>
-                        {line.label && (
-                          <p className="mt-0.5 text-xs uppercase tracking-[0.1em] text-muted font-sans">
-                            {line.label}
-                          </p>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => remove(line.variantId)}
-                        aria-label={`Remove ${line.name}`}
-                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-cream hover:text-charcoal"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
+                        <div className="flex min-w-0 flex-1 flex-col">
+                          <div className="flex items-start justify-between gap-2">
+                            <Link
+                              href={`/shop/${line.slug}`}
+                              className="font-display text-[20px] font-medium leading-[1.12] lg:text-[23px]"
+                            >
+                              {title}
+                            </Link>
+                            <span className="pt-0.5 text-[15px] font-semibold">{formatCents(line.lineTotalCents)}</span>
+                          </div>
+                          <p className="m-0 text-[12px] text-ink-note lg:text-[13px]">{sub}</p>
+                          <div className="mt-1.5 flex items-center justify-between">
+                            <QtyStepper
+                              value={line.quantity}
+                              size="cart"
+                              label={title.toLowerCase()}
+                              onChange={(n) => setQuantity(line.variantId, n)}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => remove(line.variantId)}
+                              aria-label={`Remove ${title}`}
+                              className="flex min-h-11 min-w-11 items-center justify-end text-[13px] text-ink-note"
+                            >
+                              <span className="border-b border-rule">Remove</span>
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
 
-                    <div className="mt-auto flex items-center justify-between pt-3">
-                      <div className="flex items-center gap-1 rounded-full border border-cream-dark bg-white">
-                        <button
-                          type="button"
-                          onClick={() => setQuantity(line.variantId, line.quantity - 1)}
-                          aria-label={`Decrease quantity of ${line.name}`}
-                          className="flex h-11 w-11 items-center justify-center rounded-full text-charcoal transition-colors hover:bg-cream"
-                        >
-                          <Minus className="h-3.5 w-3.5" />
-                        </button>
-                        <span className="min-w-[2ch] text-center text-sm text-charcoal font-sans">
-                          {line.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setQuantity(line.variantId, line.quantity + 1)}
-                          aria-label={`Increase quantity of ${line.name}`}
-                          className="flex h-11 w-11 items-center justify-center rounded-full text-charcoal transition-colors hover:bg-cream"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-
-                      <p className="text-[0.9375rem] font-medium text-forest font-sans">
-                        {formatCents(line.lineTotalCents)}
-                      </p>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-              <div className="flex items-center justify-between">
-                <span className="text-charcoal font-sans">Subtotal</span>
-                <span className="text-lg font-medium text-forest font-sans">
-                  {formatCents(subtotalCents)}
-                </span>
+                {/* Desktop: add to reach $50, under the lines */}
+                <div className="mt-8 hidden lg:block">
+                  {goalBlock}
+                  {offerList("grid")}
+                </div>
               </div>
-              <p className="mt-1.5 text-xs text-muted font-sans">
-                Free pickup at the farm in Brightwood, or $15 delivery on orders of $50
-                or more around Mt. Hood and east Portland. We don&apos;t ship.
-              </p>
-              {/* Goal-gradient: name the actual gap instead of a static rule the
-                  shopper has to do arithmetic on. Only shown when it's reachable
-                  and true — pickup stays free either way. */}
-              {subtotalCents < DELIVERY_MINIMUM_CENTS && (
-                <p className="mt-2 text-xs font-medium text-forest font-sans">
-                  You&apos;re {formatCents(DELIVERY_MINIMUM_CENTS - subtotalCents)}{" "}
-                  from qualifying for local delivery — pickup is always free.
-                </p>
-              )}
-              <Link
-                href="/shop/checkout"
-                className="mt-5 flex min-h-[54px] w-full items-center justify-center rounded-full bg-forest text-sm uppercase tracking-[0.12em] text-white shadow-sm transition-shadow hover:shadow-md font-sans"
-              >
-                Checkout
+
+              {/* 2. The summary at the commitment point */}
+              <aside className="mt-4 border border-frame bg-paper-light p-5 lg:sticky lg:top-[120px] lg:mt-0 lg:p-8">
+                <dl className="m-0 text-[15px]">
+                  <div className="flex items-baseline gap-2">
+                    <dt className="text-ink-body">Subtotal</dt>
+                    <FieldLeader />
+                    <dd className="m-0 font-semibold">{formatCents(subtotalCents)}</dd>
+                  </div>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <dt className="text-ink-body">Farm pickup</dt>
+                    <FieldLeader />
+                    <dd className="m-0 font-semibold text-fern">Free</dd>
+                  </div>
+                </dl>
+                <Link
+                  id="checkout-btn"
+                  href="/shop/checkout"
+                  className={`${fieldCtaClass} mt-4 w-full`}
+                >
+                  Check out · {formatCents(subtotalCents)}
+                  <FieldArrow />
+                </Link>
+
+                <ul className="m-0 mt-3.5 list-none space-y-2 p-0 text-[13px] leading-[1.45] text-ink-body">
+                  <li>
+                    <FieldReviewLine tier="nearCta" count={reviewCount} starSize={12} className="text-[13px] text-ink-body lg:text-[13px]" />
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <LockIcon size={14} className="mt-0.5 shrink-0 text-fern" />
+                    Card details go straight to Square. We never see them.
+                  </li>
+                </ul>
+                {quote && <FieldQuoteView {...quote} rule size="sm" className="mt-5" />}
+              </aside>
+
+              <Link href="/shop" className={`mt-4 lg:hidden ${keepShopping}`}>
+                <BackArrowIcon />
+                Keep shopping
               </Link>
 
-              {/* Reassurance at the point of commitment, not stranded in the
-                  footer six screens down. */}
-              <ul className="mt-4 space-y-1.5 text-xs text-muted font-sans">
-                <li className="flex items-center gap-2">
-                  <Star className="h-3 w-3 shrink-0 fill-forest text-forest" aria-hidden />
-                  Loved by {REVIEW_COUNT} guests on Google
-                </li>
-                <li className="flex items-center gap-2">
-                  <Lock className="h-3 w-3 shrink-0 text-sage" aria-hidden />
-                  Card details go straight to Square. We never see them.
-                </li>
-                <li className="flex items-center gap-2">
-                  <MapPin className="h-3 w-3 shrink-0 text-sage" aria-hidden />
-                  We&apos;ll call you when it&apos;s packed and ready.
-                </li>
-              </ul>
-            </div>
-
-            {/* AOV, sequenced AFTER the primary CTA so it never competes with
-                it. Also the one-tap way to clear the delivery minimum. */}
-            {offers.length > 0 && (
-              <div className="mt-5">
-                <h2 className="mb-3 text-xs uppercase tracking-[0.12em] text-muted font-sans">
-                  Add to your order
-                </h2>
-                <ul className="grid grid-cols-3 gap-3">
-                  {offers.map((a) => (
-                    <li key={a.variantId} className="rounded-2xl bg-white p-2.5 shadow-sm">
-                      <Link href={`/shop/${a.slug}`} className="block">
-                        <span className="relative block aspect-square overflow-hidden rounded-xl bg-cream">
-                          <Image
-                            src={a.image}
-                            alt={a.name}
-                            fill
-                            sizes="33vw"
-                            className="object-cover"
-                          />
-                        </span>
-                        <span className="mt-2 block truncate text-xs text-charcoal font-sans">
-                          {a.name}
-                        </span>
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => add(a.variantId, 1)}
-                        className="mt-1.5 flex w-full items-center justify-center gap-1 rounded-full border border-cream-dark py-1.5 text-xs text-forest transition-colors hover:border-forest/50 font-sans"
-                      >
-                        <PlusIcon className="h-3 w-3" />
-                        {formatCentsShort(a.priceCents)}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              {/* Phone: add-ons after the summary, so they never compete with Check out */}
+              <div className="mt-9 lg:hidden">
+                {goalBlock}
+                {offerList("list")}
               </div>
-            )}
-          </>
-        )}
-      </Container>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* The bar's observer looks up #checkout-btn once, at mount. That button
+          renders only after the stored cart is read (and, from a recovery
+          email, after the async restore), so remount the bar when it appears;
+          otherwise a fresh load leaves the bar on top of the real Check out. */}
+      <FieldStickyBar
+        key={ready && detailed.length > 0 ? "cart" : "empty"}
+        enabled={ready && detailed.length > 0}
+        hideWhenVisible="#checkout-btn"
+        primary={{ label: `Check out · ${formatCents(subtotalCents)}`, href: "/shop/checkout" }}
+      />
     </div>
   );
 }

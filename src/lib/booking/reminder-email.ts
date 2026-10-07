@@ -63,7 +63,7 @@ export async function sendReminder(
       <p>Your ${escapeHtml(product?.name ?? b.product_slug)} for ${b.party_size}
       is ${kind === "48h" ? `coming up ${escapeHtml(day)}` : "today"} at
       <strong>${escapeHtml(time)}</strong> (booking ${escapeHtml(b.booking_number)}).</p>
-      <p>We're in Brightwood at the base of Mt. Hood, about an hour from
+      <p>We're in Brightwood, near Mt. Hood, about an hour from
       Portland. Leave about 70 minutes before your time. Closed-toe shoes; dress for the
       weather.</p>
       <p>Questions? Reply here or call (971) 563-1921.</p>

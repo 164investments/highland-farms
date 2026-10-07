@@ -3,46 +3,89 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { BOOKING_PRODUCTS } from "@/lib/booking/products";
+import { FieldArrow, fieldCtaClass } from "@/components/ui/FieldGuide";
+import { WeddingCallLink } from "@/components/field/WeddingCallLink";
+import { LOOKBOOK_HREF } from "./chrome";
+
+/*
+ * The look-book popup (shared board 5, round 2). It gives the 2027 look book
+ * first and promises nothing that isn't built: no email is promised, and the
+ * success state hands over the PDF and the next small step.
+ *
+ * Couples only, on the pages where a couple is browsing, not deciding:
+ * the real-weddings journal (index and each couple), /about, and home after a
+ * wedding page in the same visit. Never on a form or booking page.
+ * Second page view or later; phones after 30 s AND half the page scrolled,
+ * desktop after 45 s or on leaving the tab. Once per visit; quiet for 30 days
+ * after closing; never again after signing up. Never while another dialog is
+ * open, a field has focus, or a form is on screen.
+ *
+ * Visitors ("new tour dates", J12) and the beef restock note (needs a
+ * confirmed shop_waitlist send) are not built until those exist.
+ */
 
 const STORAGE_KEYS = {
   subscribed: "hf-email-subscribed",
   dismissed: "hf-email-dismissed",
   pageviews: "hf-email-pageviews",
 } as const;
+const SESSION_KEYS = {
+  shown: "hf-popup-shown",
+  weddingSeen: "hf-wedding-page-seen",
+} as const;
 
 const DISMISS_DAYS = 30;
-const TRIGGER_DELAY_MS = 45_000;
-/** Touch devices: 30 s AND half the page scrolled, not time alone. */
+const DESKTOP_DELAY_MS = 45_000;
 const TOUCH_DELAY_MS = 30_000;
 const TOUCH_SCROLL_FRACTION = 0.5;
 const MIN_PAGEVIEWS = 2;
-/** Never interrupt a purchase. */
-const SUPPRESSED_PATHS = ["/shop/cart", "/shop/checkout", "/shop/thank-you", "/shop/order"];
+
+/** Wedding pages: visiting one in this session makes home eligible. */
+const WEDDING_PATHS = ["/weddings", "/wedding-portfolio", "/wedding-call", "/celebrations"];
+
+function under(pathname: string, base: string) {
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
+
+function eligible(pathname: string, weddingSeen: boolean): boolean {
+  if (under(pathname, "/wedding-portfolio") || under(pathname, "/about")) return true;
+  if (pathname === "/") return weddingSeen;
+  return false;
+}
 
 // Blocked or full storage (private mode, strict settings) must never throw.
-const store = {
-  get(key: string): string | null {
-    try {
-      return localStorage.getItem(key);
-    } catch {
-      return null;
-    }
-  },
-  set(key: string, value: string) {
-    try {
-      localStorage.setItem(key, value);
-    } catch {}
-  },
-  remove(key: string) {
-    try {
-      localStorage.removeItem(key);
-    } catch {}
-  },
-};
+function storage(kind: "local" | "session") {
+  return {
+    get(key: string): string | null {
+      try {
+        return (kind === "local" ? localStorage : sessionStorage).getItem(key);
+      } catch {
+        return null;
+      }
+    },
+    set(key: string, value: string) {
+      try {
+        (kind === "local" ? localStorage : sessionStorage).setItem(key, value);
+      } catch {}
+    },
+    remove(key: string) {
+      try {
+        (kind === "local" ? localStorage : sessionStorage).removeItem(key);
+      } catch {}
+    },
+  };
+}
+const local = storage("local");
+const session = storage("session");
+
+function push(event: string, extra: Record<string, unknown> = {}) {
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event, ...extra });
+}
 
 export function EmailPopup() {
   const pathname = usePathname() ?? "";
-  const suppressed = SUPPRESSED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [honeypot, setHoneypot] = useState("");
@@ -56,49 +99,49 @@ export function EmailPopup() {
   const show = useCallback(() => {
     if (triggerFired.current) return;
     triggerFired.current = true;
+    session.set(SESSION_KEYS.shown, "1");
     setVisible(true);
   }, []);
 
   useEffect(() => {
-    if (suppressed) {
-      queueMicrotask(() => setVisible(false));
-      return;
-    }
-    if (store.get(STORAGE_KEYS.subscribed)) return;
+    if (WEDDING_PATHS.some((p) => under(pathname, p))) session.set(SESSION_KEYS.weddingSeen, "1");
 
-    const dismissedAt = store.get(STORAGE_KEYS.dismissed);
+    const views = Number(local.get(STORAGE_KEYS.pageviews) || "0") + 1;
+    local.set(STORAGE_KEYS.pageviews, String(views));
+
+    if (!eligible(pathname, Boolean(session.get(SESSION_KEYS.weddingSeen)))) return;
+    if (local.get(STORAGE_KEYS.subscribed) || session.get(SESSION_KEYS.shown)) return;
+    const dismissedAt = local.get(STORAGE_KEYS.dismissed);
     if (dismissedAt) {
-      const elapsed = Date.now() - Number(dismissedAt);
-      if (elapsed < DISMISS_DAYS * 24 * 60 * 60 * 1000) return;
-      store.remove(STORAGE_KEYS.dismissed);
+      if (Date.now() - Number(dismissedAt) < DISMISS_DAYS * 24 * 60 * 60 * 1000) return;
+      local.remove(STORAGE_KEYS.dismissed);
     }
-
-    const views = Number(store.get(STORAGE_KEYS.pageviews) || "0") + 1;
-    store.set(STORAGE_KEYS.pageviews, String(views));
-    const hasEnoughViews = views >= MIN_PAGEVIEWS;
+    if (views < MIN_PAGEVIEWS) return;
 
     const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
-    // Never interrupt someone who is typing in a form on the page.
-    function fieldFocused() {
-      const el = document.activeElement;
-      return (
-        el instanceof HTMLInputElement ||
-        el instanceof HTMLTextAreaElement ||
-        el instanceof HTMLSelectElement
-      );
-    }
+    // Forms on screen: never interrupt someone reading or filling one.
+    const formsOnScreen = new Set<Element>();
+    const formWatch = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) formsOnScreen.add(e.target);
+        else formsOnScreen.delete(e.target);
+      }
+    });
+    document.querySelectorAll("form").forEach((f) => formWatch.observe(f));
 
-    // Once the visitor has focused any form on this page view, stay quiet.
-    let formTouched = false;
-    function onFocusIn(e: FocusEvent) {
-      if (e.target instanceof Element && e.target.closest("form")) formTouched = true;
+    function blocked() {
+      const el = document.activeElement;
+      const typing =
+        el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement;
+      const otherDialog = document.querySelector('[aria-modal="true"]');
+      return typing || Boolean(otherDialog) || formsOnScreen.size > 0;
     }
 
     let timeOk = false;
     let scrollOk = !isTouch;
     function check() {
-      if (timeOk && scrollOk && !formTouched && !fieldFocused()) show();
+      if (timeOk && scrollOk && !blocked()) show();
     }
     function onScroll() {
       const doc = document.documentElement;
@@ -108,46 +151,38 @@ export function EmailPopup() {
         check();
       }
     }
-
-    const timer = setTimeout(
+    const timer = window.setTimeout(
       () => {
         timeOk = true;
         check();
       },
-      isTouch ? TOUCH_DELAY_MS : TRIGGER_DELAY_MS,
+      isTouch ? TOUCH_DELAY_MS : DESKTOP_DELAY_MS,
     );
-    let focusTimer: ReturnType<typeof setTimeout> | undefined;
-    const onFocusOut = () => {
-      clearTimeout(focusTimer);
-      focusTimer = setTimeout(check, 0);
-    };
-    document.addEventListener("focusin", onFocusIn);
+    // Re-check when a field loses focus or the visitor keeps scrolling.
+    const onFocusOut = () => window.setTimeout(check, 0);
+    function onLeave(e: MouseEvent) {
+      if (e.clientY <= 0 && !blocked()) show();
+    }
     document.addEventListener("focusout", onFocusOut);
-    if (isTouch) window.addEventListener("scroll", onScroll, { passive: true });
-
-    function handleMouseLeave(e: MouseEvent) {
-      if (e.clientY <= 0 && hasEnoughViews && !formTouched && !fieldFocused()) show();
-    }
-
-    if (!isTouch) {
-      document.addEventListener("mouseleave", handleMouseLeave);
-    }
+    window.addEventListener("scroll", isTouch ? onScroll : check, { passive: true });
+    if (!isTouch) document.addEventListener("mouseleave", onLeave);
 
     return () => {
-      clearTimeout(timer);
-      clearTimeout(focusTimer);
-      document.removeEventListener("focusin", onFocusIn);
+      window.clearTimeout(timer);
+      formWatch.disconnect();
       document.removeEventListener("focusout", onFocusOut);
-      window.removeEventListener("scroll", onScroll);
-      if (!isTouch) {
-        document.removeEventListener("mouseleave", handleMouseLeave);
-      }
+      window.removeEventListener("scroll", isTouch ? onScroll : check);
+      if (!isTouch) document.removeEventListener("mouseleave", onLeave);
     };
-  }, [show, pathname, suppressed]);
+  }, [show, pathname]);
+
+  const dismiss = useCallback(() => {
+    setVisible(false);
+    if (status !== "success") local.set(STORAGE_KEYS.dismissed, String(Date.now()));
+  }, [status]);
 
   useEffect(() => {
-    if (!visible || suppressed) return;
-
+    if (!visible) return;
     closeButtonRef.current?.focus();
 
     function handleKeyDown(e: KeyboardEvent) {
@@ -155,192 +190,193 @@ export function EmailPopup() {
         dismiss();
         return;
       }
-
-      if (e.key === "Tab") {
-        const dialog = dialogRef.current;
-        if (!dialog) return;
-
-        const focusable = dialog.querySelectorAll<HTMLElement>(
-          'button, input, [tabindex]:not([tabindex="-1"])'
-        );
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first?.focus();
-        }
+      if (e.key !== "Tab" || !dialogRef.current) return;
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])',
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last?.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first?.focus();
       }
     }
 
     document.addEventListener("keydown", handleKeyDown);
     document.body.style.overflow = "hidden";
-
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [visible, suppressed]);
-
-  function dismiss() {
-    setVisible(false);
-    store.set(STORAGE_KEYS.dismissed, String(Date.now()));
-  }
+  }, [visible, dismiss]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (status === "submitting") return;
-
     setStatus("submitting");
     setErrorMsg("");
-
     try {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          website: honeypot || undefined,
-          _t: loadTime.current,
-        }),
+        body: JSON.stringify({ email, source: "lookbook-popup", website: honeypot || undefined, _t: loadTime.current }),
       });
-
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to subscribe");
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "That didn't go through. Please try again.");
       }
-
       setStatus("success");
-      store.set(STORAGE_KEYS.subscribed, "true");
-      store.remove(STORAGE_KEYS.pageviews);
-
-      if (typeof window !== "undefined" && window.dataLayer) {
-        window.dataLayer.push({ event: "email_subscribe", method: "popup" });
-      }
-
-      setTimeout(() => setVisible(false), 3000);
+      local.set(STORAGE_KEYS.subscribed, "true");
+      local.remove(STORAGE_KEYS.pageviews);
+      push("email_subscribe", { method: "popup" });
+      push("lookbook_email_submit", { placement: "lookbook-popup" });
     } catch (err) {
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
+      setErrorMsg(err instanceof Error ? err.message : "That didn't go through. Please try again.");
     }
   }
 
-  if (!visible || suppressed) return null;
+  if (!visible) return null;
+
+  const callMinutes = BOOKING_PRODUCTS["wedding-call"].durationMin;
+  const closeButton = (
+    <button
+      ref={closeButtonRef}
+      type="button"
+      onClick={dismiss}
+      aria-label="Close"
+      className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center text-ink transition-opacity hover:opacity-70"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true" focusable="false">
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    </button>
+  );
 
   return (
     <div
-      className="fixed inset-0 z-[9990] flex items-center justify-center px-4 animate-[fade-in_0.2s_ease-out]"
+      className="fixed inset-0 z-[9990] flex items-end justify-center bg-ink/45 animate-[fade-in_0.2s_ease-out] lg:items-center lg:px-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) dismiss();
       }}
     >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" aria-hidden="true" />
-
-      {/* Modal */}
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Don't miss what's next at the farm"
-        className="relative w-full max-w-md overflow-hidden rounded-2xl bg-warm-white shadow-xl animate-[popup-slide-up_0.3s_ease-out]"
+        aria-labelledby="lookbook-popup-title"
+        className="surface-paper w-full border-t-[3px] border-double border-frame bg-paper px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 font-sans text-ink animate-[popup-slide-up_0.3s_ease-out] lg:max-w-[480px] lg:border lg:border-frame lg:p-8"
       >
-        {/* Close button */}
-        <button
-          ref={closeButtonRef}
-          onClick={dismiss}
-          aria-label="Close popup"
-          className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white/90 backdrop-blur-sm transition-colors hover:bg-black/50"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        </button>
-
-        {/* Hero image banner */}
-        <div className="relative h-48 sm:h-56">
-          <Image
-            src="/images/farm/cow-calf.jpg"
-            alt="Young visitor feeding a Highland cow calf"
-            fill
-            sizes="(max-width: 448px) 100vw, 448px"
-            className="object-cover object-top"
-            priority
-          />
-        </div>
-
-        {/* Content */}
-        <div className="px-6 pb-6 pt-5 sm:px-8 sm:pb-8">
-          {status === "success" ? (
-            <div className="py-2 text-center">
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-forest/10">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M5 13l4 4L19 7" stroke="var(--forest)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <h3 className="font-display text-xl text-charcoal">You&apos;re on the list!</h3>
-              <p className="mt-1 text-sm text-muted font-sans">
-                We&apos;ll keep you in the loop on all things Highland Farms.
+        {status === "success" ? (
+          <div className="pb-2">
+            <div className="flex items-start justify-between gap-3">
+              <p id="lookbook-popup-title" className="field-heading m-0 pt-3 font-display text-[26px] font-medium leading-[1.05] lg:pt-0 lg:text-[30px]">
+                Here it is.
               </p>
+              {closeButton}
             </div>
-          ) : (
-            <>
-              <h2 className="font-display text-2xl leading-snug text-charcoal">
-                Don&apos;t Miss What&apos;s Next at the Farm
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted font-sans">
-                Seasonal experiences, new availability, and farm happenings — straight to your inbox.
-              </p>
+            <a
+              href={LOOKBOOK_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => push("lookbook_open", { placement: "lookbook-popup-success" })}
+              className={`${fieldCtaClass} mt-3 w-full`}
+            >
+              Open the 2027 look book (PDF)
+              <FieldArrow />
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            <p className="m-0 mt-4 text-[14px] leading-relaxed text-ink-body">
+              When you&apos;ve had a look, Connor&apos;s free {callMinutes}-minute call is here.
+            </p>
+            <WeddingCallLink
+              content="lookbook-popup-success"
+              title="Look book popup: wedding call"
+              className="mt-1 inline-flex min-h-11 items-center gap-2 text-[14px] font-medium text-pine"
+            >
+              <span className="border-b border-pine-line pb-0.5">Book a free {callMinutes}-minute call with Connor</span>
+            </WeddingCallLink>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-start gap-3">
+              <div className="relative mt-3 h-16 w-16 shrink-0 border border-frame bg-paper-light p-1 lg:mt-0 lg:h-[88px] lg:w-[88px]">
+                <div className="relative h-full w-full overflow-hidden">
+                  <Image
+                    src="/images/weddings/lookbook-cover.jpg"
+                    alt="Cover of the Highland Farms 2027 Wedding Lookbook"
+                    fill
+                    sizes="88px"
+                    className="object-cover object-[50%_40%]"
+                  />
+                </div>
+              </div>
+              <div className="min-w-0 flex-1 pt-3 lg:pt-1">
+                <p className="m-0 font-display text-[14px] italic text-fern lg:text-[15px]">For couples planning 2027</p>
+                <p id="lookbook-popup-title" className="field-heading m-0 font-display text-[24px] font-medium leading-[1.05] lg:text-[28px]">
+                  Take the 2027 look book with you.
+                </p>
+              </div>
+              {closeButton}
+            </div>
 
-              <form onSubmit={handleSubmit} className="mt-5 space-y-2.5">
-                {/* Honeypot */}
-                <input
-                  type="text"
-                  name="website"
-                  value={honeypot}
-                  onChange={(e) => setHoneypot(e.target.value)}
-                  tabIndex={-1}
-                  autoComplete="off"
-                  aria-hidden="true"
-                  className="absolute -left-[9999px] h-0 w-0 opacity-0"
-                />
-
-                <label htmlFor="popup-email" className="sr-only">
-                  Email address
-                </label>
-                <input
-                  id="popup-email"
-                  type="email"
-                  required
-                  placeholder="Your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-cream-dark bg-white px-4 py-3 text-sm text-charcoal placeholder:text-muted/60 focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest font-sans"
-                />
-                <button
-                  type="submit"
-                  disabled={status === "submitting"}
-                  className="w-full rounded-lg bg-forest py-3 text-sm font-medium text-white transition-colors hover:bg-forest-light disabled:opacity-60 font-sans"
+            <form onSubmit={handleSubmit} className="mt-3">
+              <input
+                type="text"
+                name="website"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="absolute -left-[9999px] h-0 w-0 opacity-0"
+              />
+              <label htmlFor="popup-email" className="block text-[13px] font-medium text-ink">
+                Your email
+              </label>
+              <input
+                id="popup-email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={status === "error" || undefined}
+                aria-describedby={errorMsg ? "popup-email-error" : undefined}
+                className="mt-1 h-12 w-full rounded-none border border-frame bg-paper-light px-3.5 text-[16px] text-ink placeholder:text-ink-meta focus:border-pine focus:outline-none"
+              />
+              {errorMsg && (
+                <p id="popup-email-error" role="alert" className="m-0 mt-1.5 text-[13px] text-[#8A2A1C]">
+                  {errorMsg}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={status === "submitting"}
+                className={`${fieldCtaClass} mt-2.5 w-full disabled:opacity-60`}
+              >
+                {status === "submitting" ? "One moment" : "Get the look book"}
+              </button>
+              <div className="mt-0.5 flex items-center justify-between gap-3 text-[12px] text-ink-meta">
+                <span>Joins our list. Unsubscribe anytime.</span>
+                <a
+                  href={LOOKBOOK_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => push("lookbook_open", { placement: "lookbook-popup-ask" })}
+                  className="flex min-h-11 shrink-0 items-center whitespace-nowrap text-[13px] font-medium text-pine"
                 >
-                  {status === "submitting" ? "Joining..." : "Keep Me Posted"}
-                </button>
-
-                {errorMsg && (
-                  <p className="text-sm text-red-600 font-sans" role="alert">
-                    {errorMsg}
-                  </p>
-                )}
-              </form>
-
-              <p className="mt-4 text-center text-xs text-muted/60 font-sans">
-                We only email when there is something new. Unsubscribe anytime.
-              </p>
-            </>
-          )}
-        </div>
+                  or open it now
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </div>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
