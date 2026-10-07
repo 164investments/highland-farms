@@ -8,6 +8,13 @@ All notable changes to Highland Farms are documented here.
 
 - Replace the old overhead drone photo (red roof, bare yard, taken before the patio, lawn and gardens were built) with Connor's current-layout aerial at dusk on /about, /celebrations and the Whole Farm stay pages. The new image is a ChatGPT render approved by Hayden; its alt text says "Styled" and AGENTS.md records it as the one exception to the real-photos rule.
 
+## [0.3.3.0] - 2026-10-07
+
+### Changed
+
+- Phone menu, the Weddings block: add the two-night price ("Two-night weddings from $13,000") and "Every September 2026 Saturday sold out", both from the farm's confirmed-weddings record; "See four real weddings" counts the confirmed couples; the look book reads "Free 20-page PDF".
+- Phone menu: the call, directions and Instagram buttons match; the short links sit on one aligned line; captions are at least 12px; the page behind the open menu can no longer be reached by keyboard or screen reader.
+
 ## [0.3.2.0] - 2026-10-07
 
 ### Changed

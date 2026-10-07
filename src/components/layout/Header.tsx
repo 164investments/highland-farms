@@ -8,7 +8,7 @@ import { giftCertificatesHref } from "@/lib/booking/flag";
 import { MobileMenu } from "./MobileMenu";
 import { AnnouncementBar } from "./AnnouncementBar";
 import { MastheadAction, MastheadCart, MastheadName, MenuIcon } from "./Masthead";
-import { isQuietChrome, pageActionFor, pageTypeFor } from "./chrome";
+import { isQuietChrome, pageActionFor, pageTypeFor, type MenuFacts } from "./chrome";
 
 function isCurrent(pathname: string, href: string): boolean {
   if (!href.startsWith("/")) return false;
@@ -45,8 +45,8 @@ const NAV_LINK =
  * Checkout gets the quiet variant: the name, a way back to the cart, and
  * "Secure". No bar, no nav, no menu.
  */
-/** `reviewCount` comes from the server layout: the review snapshot must not ship to the client. */
-export function Header({ reviewCount }: { reviewCount: number }) {
+/** `menuFacts` come from the server layout: the review snapshot and portfolio must not ship to the client. */
+export function Header({ menuFacts }: { menuFacts: MenuFacts }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname() ?? "";
@@ -169,7 +169,7 @@ export function Header({ reviewCount }: { reviewCount: number }) {
         onClose={() => setMenuOpen(false)}
         type={type}
         pathname={pathname}
-        reviewCount={reviewCount}
+        facts={menuFacts}
       />
     </>
   );

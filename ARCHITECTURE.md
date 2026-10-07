@@ -143,13 +143,19 @@ the menu button sits, over the page dimmed behind it (88% wide, at most 380px).
 A tap on the page, a swipe left, Escape or the close button dismisses it; it
 stays mounted for the 300ms slide out, and motion is off under reduced motion.
 Top row: close, the name, tap to call. Weddings leads as a framed photo plate
-(a couple between two coos) with the Google review count (`reviewCount`,
-passed from the server layout through `Header`, since the review snapshot must
-not ship to the client), the coos line (`WEDDING_MENU_NOTE`) and three icon
-steps (real weddings, look book, the free call). Visits are rows with a framed
+(a couple between two coos) captioned with the Google review count, then the
+coos line (`WEDDING_MENU_NOTE`), the two-night price (`WEDDING_PRICE_NOTE`,
+owner-approved by Hayden 2026-10-07 for the menu only, overriding the
+no-price-anchor rule) and the September 2026 sell-out (`WEDDING_DEMAND_NOTE`),
+both sourced from the Confirmed Weddings workbook in `chrome.ts`, and three
+icon steps (see N real weddings, the free 20-page look book, the free call).
+`MenuFacts` (review count, confirmed-couple count) is resolved in the server
+layout and passed through `Header`, since the review snapshot and portfolio
+must not ship to the client. The sheet is portalled to `<body>` and the other
+body children are `inert` while it is open. Visits are rows with a framed
 real photo, the name and the one-line hint (`ChromeDoor.note`, shared with the
-footer). Then "More from the farm" and quick actions (call, directions,
-Instagram: `TEL_HREF`, `DIRECTIONS_HREF`). The page action is pinned at the
+footer). Then "More from the farm" (one dotted line that wraps after a dot on narrow phones) and three
+uniform quick actions (call, directions, Instagram: `TEL_HREF`, `DIRECTIONS_HREF`). The page action is pinned at the
 thumb. The current page carries a pine bar and "You are here". Photos come
 through `next/image` at 44-640px (3-30 KB) and load only when the sheet opens.
 History: 2026-10-07 the hinted rows read "very busy"; the text-only fix read

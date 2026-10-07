@@ -214,6 +214,29 @@ const WEDDING_GUESTS = 125;
 /** The one line under Weddings in the menu (the coos are the #1 reason couples come). */
 export const WEDDING_MENU_NOTE = `Up to ${WEDDING_GUESTS} guests, plus the coos`;
 
+/**
+ * The menu's wedding price line. Owner-approved by Hayden on 2026-10-07 ("If hormozi wants the
+ * starting price then add one"), overriding Connor's no-price-anchor rule for the menu only.
+ * Source: the Confirmed Weddings workbook, 2027 tab: all 13 two-night weddings are $13,000 or
+ * more. Twelve-hour weekday weddings start lower ($6,500), so the line names the two-night wedding.
+ */
+export const WEDDING_PRICE_NOTE = "Two-night weddings from $13,000";
+
+/**
+ * True and past tense, so it cannot go stale: the Confirmed Weddings workbook, 2026 tab, has a
+ * wedding on all four September 2026 Saturday nights (5, 12, 19, 26). Checked 2026-10-07.
+ */
+export const WEDDING_DEMAND_NOTE = "Every September 2026 Saturday sold out";
+/** The same line for phones under 375px, so it stays on one line. */
+export const WEDDING_DEMAND_NOTE_SHORT = "Every Sept 2026 Saturday sold out";
+
+/** Facts the menu shows, resolved on the server so the review snapshot and portfolio stay off the client. */
+export interface MenuFacts {
+  reviewCount: number;
+  /** Confirmed (not styled) couples in src/data/wedding-portfolio.ts. */
+  realWeddings: number;
+}
+
 export function weddingDoors(): ChromeDoor[] {
   return [
     {
@@ -232,7 +255,7 @@ export function weddingDoors(): ChromeDoor[] {
       title: "Call with Connor",
       note: `Free, ${call.durationMin} minutes`,
       menuTitle: `Free ${call.durationMin}-minute call with Connor`,
-      menuTitleShort: "Free call with Connor",
+      menuTitleShort: `Free ${call.durationMin}-min call with Connor`,
       href: nativeCalendarEnabled() ? "/wedding-call" : BOOKING_LINKS.weddingCall,
       weddingCall: true,
       current: (p) => under(p, "/wedding-call"),
