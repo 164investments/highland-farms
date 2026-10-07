@@ -15,6 +15,7 @@ import { LedgerRow, SoldOutRow, priceText } from "@/components/shop/LedgerRow";
 import { QuickAdd } from "@/components/shop/QuickAdd";
 import { isSoldOut, pushEvent, toGA4Item, type StockRecord } from "@/components/shop/track";
 import { CATEGORIES, PRODUCTS, hasChoices, type Category, type Product } from "./data";
+import { shelfProducts } from "./shelf";
 
 /** Where a photo crop differs from the centre (the hoodie is shot high). */
 const CROPS: Record<string, string> = {
@@ -27,14 +28,6 @@ const CROPS: Record<string, string> = {
   "firewood": "50% 65%",
 };
 
-/** In stock first, catalogue order within each group. */
-export function shelfProducts(cat: Category, stock: StockRecord): { open: Product[]; out: Product[] } {
-  const all = PRODUCTS.filter((p) => p.category === cat.key);
-  return {
-    open: all.filter((p) => !isSoldOut(stock, p)),
-    out: all.filter((p) => isSoldOut(stock, p)),
-  };
-}
 
 function metaLine(cat: Category, total: number, open: number): string {
   const noun = total === 1 ? cat.unit.one : cat.unit.many;
