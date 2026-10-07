@@ -1,62 +1,44 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Users, BedDouble, Bath, ArrowLeft } from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { Button } from "@/components/ui/Button";
-import { ImageCarousel } from "@/components/gallery/ImageCarousel";
-import { ReviewBadge } from "@/components/shared/ReviewBadge";
-import { GoogleReviewsSection } from "@/components/shared/GoogleReviewsSection";
-import { HospitableWidget } from "@/components/stay/HospitableWidget";
+import { notFound } from "next/navigation";
 import { properties } from "@/data/properties";
-import { CONTACT } from "@/lib/constants";
+import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
+import { GOOGLE_REVIEW_LINK, REVIEW_COUNT } from "@/lib/reviews";
 import { StructuredData } from "@/components/layout/StructuredData";
-
-/**
- * Facts that are true of every stay, kept in one place so the four property
- * pages can't drift from each other.
- *
- * ⛔ Sourcing: drive times and acreage are the ones already published in
- * `public/llms.txt` and on `/stay`; the address is `CONTACT.fullAddress`; the
- * pet policy is the one in `terms/page.tsx` ("No outside pets allowed. Service
- * animals are permitted in accordance with ADA requirements.") and on `/stay`;
- * free on-site parking is already stated on `/nordic-spa` and
- * `/sauna-near-portland` and is `LocationFeatureSpecification "Free Parking"`
- * in `StructuredData.tsx`. Nothing here is a rate, a minimum stay, a check-in
- * time or an availability claim, because the farm has published none of those —
- * do not add one without the farm saying it first.
- */
-const STAY_FACTS: { label: string; value: string }[] = [
-  {
-    label: "Getting here",
-    value: `About an hour from Portland and about 25 minutes from Government Camp, at ${CONTACT.fullAddress}.`,
-  },
-  {
-    label: "The property",
-    value:
-      "Five forested acres at the base of Mt. Hood, shared with our Scottish Highland Cows. Every stay is on the same working farm.",
-  },
-  {
-    label: "While you're on the farm",
-    value:
-      "Private Highland Cow farm tours and the Nordic Forest Spa run on the property and are booked separately from your stay.",
-  },
-  { label: "Parking", value: "Free on-site parking." },
-  {
-    label: "Pets",
-    value:
-      "No outside pets. Service animals are permitted in accordance with ADA requirements.",
-  },
-];
-
-/** Per-property review filters; the generic "stay" topic also matches tour reviews. */
-const STAY_REVIEW_MATCH: Record<string, RegExp> = {
-  cottage: /\b(cottage|bonnie)\b/i,
-  camp: /\b(airstream|camp|bell tents?)\b/i,
-  lodge: /\b(william wallace|the lodge)\b/i,
-  "whole-farm": /\b(lodge|cottage|airstream|bell tents?|overnight|slept|stayed)\b/i,
-};
+import {
+  FieldArrow,
+  FieldLeader,
+  FieldLink,
+  FieldQuoteView,
+  FieldRows,
+  FieldStars,
+  PendingSlot,
+  Plate,
+  fieldCtaClass,
+  fieldEyebrowClass,
+} from "@/components/ui/FieldGuide";
+import { FieldReviewTier, resolveFieldQuote } from "@/components/field/Reviews";
+import { FieldStickyBar } from "@/components/field/StickyBar";
+import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
+import { BookingCard } from "@/components/stay/BookingCard";
+import { RoomPlates } from "@/components/stay/RoomPlates";
+import { FieldArrowBack, FieldArrowDown, StayPhoto } from "@/components/stay/StayParts";
+import { STAY_CONTENT, capitalize, numberWord, roomCount, type StayContent } from "@/components/stay/stay-content";
+import {
+  PHONE_TEL,
+  SPA_PER_PERSON,
+  STAY_CANCELLATION,
+  STAY_GETTING_HERE_PAGE,
+  STAY_LATER_MONTHS_NOTE,
+  STAY_PARKING,
+  STAY_PETS,
+  THANKSGIVING_DATES,
+  THANKSGIVING_NIGHTS,
+  TOUR_FOR_TWO,
+  thanksgivingPackage,
+} from "@/components/stay/stay-facts";
+import { cn } from "@/lib/utils";
+import type { Property } from "@/lib/types";
 
 export function generateStaticParams() {
   return properties.map((p) => ({ slug: p.slug }));
@@ -91,300 +73,402 @@ export function generateMetadata({
   });
 }
 
+const GROUP_HEAD_CLASS = "field-heading m-0 font-display text-[30px] leading-[1.05] text-ink lg:text-[38px]";
+const SPLIT_SECTION_CLASS = "mt-12 border-t border-rule pt-8 lg:mt-16 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10 lg:pt-12";
+
+/** A row linking to another stay: small real photo, name, what it sleeps, arrow. */
+function StayRow({ property, content, grid }: { property: Property; content: StayContent; grid?: boolean }) {
+  return (
+    <li className={cn("border-b border-rule", grid && "lg:border-b-0")}>
+      <Link
+        href={property.bookingUrl}
+        className={cn("flex items-center gap-4 py-3", grid && "lg:flex-col lg:items-stretch lg:gap-3 lg:py-0")}
+      >
+        <span
+          className={cn(
+            "block h-[78px] w-[104px] shrink-0 border border-frame bg-paper-light p-[4px]",
+            grid && "lg:h-[240px] lg:w-full lg:p-2",
+          )}
+        >
+          <span className="relative block h-full w-full overflow-hidden">
+            <StayPhoto photo={content.thumb} sizes={grid ? "(min-width: 1024px) 28vw, 104px" : "104px"} />
+          </span>
+        </span>
+        <span className="flex flex-1 items-center gap-3">
+          <span className="flex flex-1 flex-col">
+            <span className={cn("font-display text-[21px] font-semibold leading-tight text-ink", grid && "lg:text-[26px]")}>
+              {property.name}
+            </span>
+            <span className={cn("font-sans text-[12px] text-ink-note", grid && "lg:text-[14px]")}>
+              {content.otherLine(property)}
+            </span>
+          </span>
+          <FieldArrow className="text-pine" />
+        </span>
+      </Link>
+    </li>
+  );
+}
+
+/** One "While you're here" row: thumb, name and note, leader, price. */
+function HereRowBody({
+  thumb,
+  title,
+  note,
+  price,
+  priceNote,
+}: {
+  thumb: { src: string; alt: string };
+  title: string;
+  note: string;
+  price: string;
+  priceNote: string;
+}) {
+  return (
+    <>
+      <span className="block h-[56px] w-[72px] shrink-0 border border-frame bg-paper-light p-[3px] lg:h-[64px] lg:w-[84px]">
+        <span className="relative block h-full w-full overflow-hidden">
+          <StayPhoto photo={thumb} sizes="84px" />
+        </span>
+      </span>
+      <span className="flex min-w-0 flex-col">
+        <span className="font-display text-[21px] font-semibold leading-tight lg:text-[23px]">{title}</span>
+        <span className="font-sans text-[12px] text-ink-note lg:text-[13px]">{note}</span>
+      </span>
+      <FieldLeader />
+      <span className="text-right font-sans text-[14px] font-semibold leading-tight">
+        {price}
+        <span className="block text-[11px] font-normal text-ink-note">{priceNote}</span>
+      </span>
+      <FieldArrow className="text-pine" />
+    </>
+  );
+}
+
+const HERE_ROW_CLASS = "flex min-h-[72px] w-full items-center gap-3 border-b border-rule py-2 text-left text-ink hover:text-pine";
+
 export default async function PropertyPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const property = properties.find((p) => p.slug === slug);
+  const index = properties.findIndex((p) => p.slug === slug);
+  if (index < 0) notFound();
 
-  if (!property) notFound();
+  const property = properties[index];
+  const content = STAY_CONTENT[property.slug];
+  const { page } = content;
+  const others = properties.filter((p) => p.slug !== property.slug);
+  const houses = properties.filter((p) => p.slug !== "whole-farm");
+  const photos = roomCount(content);
+  const quote = resolveFieldQuote(page.quote.spec, { role: page.quote.role });
+  const tg = page.thanksgiving ? thanksgivingPackage(page.thanksgiving) : null;
+  const factNumeric = /^\d+$/.test(page.fourth.value);
 
-  const propertyGallery: Record<string, { src: string; alt: string }[]> = {
-    "whole-farm": [
-      { src: "/images/properties/whole-farm.jpg", alt: "The Whole Farm aerial view" },
-      { src: "/images/properties/lodge-winter.jpg", alt: "Lodge in winter with snow-covered grounds and pond" },
-      { src: "/images/properties/cottage.jpg", alt: "William Wallace Lodge exterior" },
-      { src: "/images/properties/lodge.jpg", alt: "Bonnie Lass Cottage exterior" },
-      { src: "/images/properties/lodge-living-pro.jpg", alt: "Lodge living room with Chesterfield sofas, stone fireplace, and curved iron-truss ceiling" },
-      { src: "/images/properties/cottage-living-spiral.jpg", alt: "Cottage living room with spiral staircase and retro red fridge" },
-      { src: "/images/properties/gallery-7.jpg", alt: "Aerial view of Highland Farms property" },
-    ],
-    lodge: [
-      { src: "/images/properties/cottage.jpg", alt: "William Wallace Lodge exterior" },
-      { src: "/images/properties/lodge-living-pro.jpg", alt: "Living room with Chesterfield sofas, curved iron-truss ceiling, and stone fireplace" },
-      { src: "/images/properties/lodge-dining-pro.jpg", alt: "Formal dining room with stone fireplace and seating for ten" },
-      { src: "/images/properties/lodge-kitchen-pro.jpg", alt: "Full chef's kitchen with oak cabinets, granite island, and French doors to the deck" },
-      { src: "/images/properties/lodge-master-bedroom-pro.jpg", alt: "Master bedroom with vaulted cedar ceiling, king bed, and forest-view sitting area" },
-      { src: "/images/properties/lodge-bedroom-cedar.jpg", alt: "Bedroom with cedar herringbone wood paneling and queen plaid bed" },
-      { src: "/images/properties/lodge-bedroom-ladder.jpg", alt: "Bedroom with vaulted ceiling, Mt. Hood painting, and ladder up to a hidden loft" },
-      { src: "/images/properties/lodge-twin-bedroom-pro.jpg", alt: "Twin bedroom with lumberjack plaid bedding and vaulted wood ceiling" },
-      { src: "/images/properties/lodge-master-bath-pro.jpg", alt: "Master bathroom with vaulted wood ceiling, soaking tub, and glass shower" },
-      { src: "/images/properties/lodge-bath-vaulted.jpg", alt: "Guest bath with vaulted wood-beam ceiling and glass shower stall" },
-      { src: "/images/properties/lodge-shuffleboard.jpg", alt: "Game room with full-length shuffleboard table and floor-to-ceiling forest windows" },
-      { src: "/images/properties/lodge-deck.jpg", alt: "Wrap-around deck with lounge chairs" },
-      { src: "/images/properties/lodge-winter.jpg", alt: "Lodge in winter from the pond" },
-    ],
-    cottage: [
-      { src: "/images/properties/lodge.jpg", alt: "Bonnie Lass Cottage exterior" },
-      { src: "/images/properties/cottage-living-spiral.jpg", alt: "Cottage living room with spiral staircase, retro red fridge, and cedar-plank ceiling" },
-      { src: "/images/properties/cottage-living-garage.jpg", alt: "Living room with garage door open to forest, leather sofa, and tree-trunk side table" },
-      { src: "/images/properties/cottage-kitchen-pro.jpg", alt: "Cottage kitchen with spiral staircase to the loft, white cabinets, and pine ceiling" },
-      { src: "/images/properties/cottage-master-bedroom-pro.jpg", alt: "Cottage master bedroom with cedar-plank walls, king bed, and feather wall hanging" },
-      { src: "/images/properties/cottage-bedroom-cedar.jpg", alt: "Cedar-walled bedroom with antique dresser and sliding-door forest view" },
-      { src: "/images/properties/cottage-loft-bedroom-pro.jpg", alt: "Loft bedroom with sloped white ceiling and green-curtained dormer window" },
-      { src: "/images/properties/cottage-loft-twins.jpg", alt: "Loft sleeping platform with twin beds tucked under the eaves" },
-      { src: "/images/properties/cottage-bathroom-pro.jpg", alt: "Cottage bathroom with green tile shower, brass fixtures, and pine walls" },
-      { src: "/images/properties/cottage-exterior-2.jpg", alt: "Cottage exterior with gambrel roof" },
-    ],
-    camp: [
-      { src: "/images/properties/camp-1.jpg", alt: "Airstream trailer under the evergreens" },
-      { src: "/images/properties/camp-interior-kitchen-dining.jpg", alt: "Airstream interior with full kitchen and rear dining nook" },
-      { src: "/images/properties/camp-interior-bedroom.jpg", alt: "Airstream rear sleeping nook with forest view" },
-      { src: "/images/properties/camp-interior-lounge.jpg", alt: "Airstream lounge with TV and view through to the bedroom" },
-      { src: "/images/properties/camp-interior-galley.jpg", alt: "Airstream galley kitchen looking back toward the bedroom" },
-      { src: "/images/properties/camp-interior-dining-door.jpg", alt: "Airstream dining nook with open door to the forest path" },
-      { src: "/images/properties/camp-interior-lounge-wide.jpg", alt: "Wide view of the Airstream lounge and dining area" },
-      { src: "/images/properties/camp-4.jpg", alt: "Airstream nestled in fall foliage" },
-      { src: "/images/properties/camp-6.jpg", alt: "Airstream campsite in the forest" },
-      { src: "/images/properties/camp-7.jpg", alt: "Family meeting the Highland cows" },
-    ],
-  };
-
-  const carouselImages = propertyGallery[property.slug] || [
-    { src: property.imageSrc, alt: `${property.name}` },
+  const facts: { label: string; value: string; big: boolean }[] = [
+    { label: "Guests", value: String(property.guests), big: true },
+    { label: "Bedrooms", value: String(property.bedrooms), big: true },
+    { label: "Baths", value: String(property.baths), big: true },
+    { label: page.fourth.label, value: page.fourth.value, big: factNumeric },
   ];
 
   return (
-    <>
+    <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
       <StructuredData pathname={`/stay/${property.slug}`} />
 
-      {/* Back link + Hero */}
-      <section className="pt-[calc(var(--header-h,120px)+1rem)] pb-4 bg-background">
-        <Container>
+      <nav aria-label="Breadcrumb" className="px-5 lg:px-16">
+        <div className="mx-auto flex max-w-[1312px] items-center justify-between border-b border-rule">
           <Link
             href="/stay"
-            className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-forest transition-colors font-sans"
+            className="flex min-h-11 items-center gap-1.5 font-sans text-[13px] font-medium text-pine lg:text-[14px]"
           >
-            <ArrowLeft className="h-4 w-4" />
-            All Accommodations
+            <FieldArrowBack />
+            All {numberWord(properties.length)} stays
           </Link>
-        </Container>
-      </section>
+          <p className="m-0 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">
+            No. {index + 1} of {properties.length}
+          </p>
+        </div>
+      </nav>
 
-      {/* Gallery */}
-      <section className="pb-12 bg-background">
-        <Container>
-          <ImageCarousel images={carouselImages} aspectRatio="video" eager />
-        </Container>
-      </section>
+      <div className="px-5 lg:px-16">
+        <div className="mx-auto grid max-w-[1312px] grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-x-16">
+          {/* Name, what the count counts, the one-line promise: above the photo on phones. */}
+          <header className="pt-4 lg:col-start-1 lg:row-start-1 lg:pt-10">
+            <p className={cn("m-0 text-[17px] lg:text-[22px]", fieldEyebrowClass)}>
+              Sleeps {property.guests} &middot; Brightwood, Oregon
+            </p>
+            <h1 className="field-heading m-0 mt-0.5 font-display text-[36px] leading-[1.02] text-ink lg:mt-2 lg:text-[60px]">
+              {property.name}
+            </h1>
+            <p className="m-0 mt-2 font-sans text-[15px] leading-[1.55] text-ink-body lg:mt-3 lg:max-w-[600px] lg:text-[18px]">
+              {page.promise}
+            </p>
+            <FieldReviewTier tier="hero" link />
+            <a
+              href="#book"
+              data-hero-cta
+              className={cn(fieldCtaClass, "mt-1 w-full lg:hidden")}
+            >
+              Check dates and price
+              <FieldArrowDown />
+            </a>
+          </header>
 
-      {/* Property Details + Booking Widget */}
-      <section className="py-12 bg-background">
-        <Container>
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-y-8 lg:grid-cols-[1fr_380px] lg:gap-x-12 lg:gap-y-0">
-            {/* Title + stats. On mobile the booking widget follows directly (CSS grid order). */}
-            <div className="lg:col-start-1 lg:row-start-1">
-              <h1 className="text-3xl font-normal sm:text-4xl">
-                {property.name}
-              </h1>
-              <p className="mt-2 text-lg italic text-muted font-sans">
-                {property.tagline}
+          {/* Lead plate: no carousel, so no empty band under it. */}
+          <div className="mt-4 lg:col-start-1 lg:row-start-3 lg:mt-8">
+            <Plate
+              frameClassName="h-[188px] min-[380px]:h-[210px] lg:h-[560px]"
+              captionClassName="flex items-baseline justify-between gap-3"
+              caption={
+                <>
+                  <span>{page.lead.caption}</span>
+                  <a
+                    href={page.rooms === "houses" ? "#houses" : "#rooms"}
+                    className="flex min-h-11 shrink-0 items-center gap-1 font-sans text-[13px] font-medium not-italic text-pine"
+                  >
+                    {page.rooms === "houses" ? `The ${numberWord(houses.length)} houses` : `All ${photos} photos`}
+                    <FieldArrowDown size={14} />
+                  </a>
+                </>
+              }
+            >
+              <StayPhoto photo={page.lead} sizes="(min-width: 1024px) 62vw, 100vw" priority />
+            </Plate>
+          </div>
+
+          {/* Key facts. */}
+          <div className="lg:col-start-1 lg:row-start-2">
+            <dl className="m-0 mt-2 grid grid-cols-4 border-y border-rule lg:mt-6 lg:max-w-[640px]">
+              {facts.map((f, i) => (
+                <div
+                  key={f.label}
+                  className={cn(
+                    "flex flex-col justify-center py-2.5 lg:py-3.5",
+                    i > 0 && "border-l border-rule pl-3 lg:pl-5",
+                  )}
+                >
+                  <dt className="order-2 font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-ink-meta lg:text-[11px]">
+                    {f.label}
+                  </dt>
+                  <dd
+                    className={cn(
+                      "order-1 m-0 font-display font-medium leading-none",
+                      f.big ? "text-[28px] lg:text-[36px]" : "text-[22px] lg:text-[30px]",
+                    )}
+                  >
+                    {f.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          <BookingCard
+            widgetUrl={property.hospitable_widget_url || ""}
+            propertyName={property.name}
+            propertySlug={property.slug}
+            note={page.widgetNote}
+          />
+
+          <div className="lg:col-start-1 lg:row-start-4">
+            {/* The house. */}
+            <section
+              aria-labelledby="house-title"
+              className="mt-10 border-t border-rule pt-8 lg:mt-14 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10 lg:pt-12"
+            >
+              <h2 id="house-title" className={GROUP_HEAD_CLASS}>
+                The house
+              </h2>
+              <p className="m-0 mt-3 font-sans text-[16px] leading-[1.65] text-ink-body lg:mt-1 lg:text-[17px]">
+                {page.house(property)}
               </p>
+            </section>
 
-              {/* Stats */}
-              <div className="mt-6 flex flex-wrap items-center gap-6 text-sm text-charcoal font-sans">
-                <span className="flex items-center gap-1.5">
-                  <Users className="h-4 w-4 text-forest" />
-                  {property.guests} Guests
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <BedDouble className="h-4 w-4 text-forest" />
-                  {property.bedrooms} Bedrooms
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Bath className="h-4 w-4 text-forest" />
-                  {property.baths} Baths
-                </span>
-              </div>
-            </div>
-
-            {/* Booking widget: second on mobile, right column on lg */}
-            <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
-              <div className="lg:sticky lg:top-24">
-                <div className="rounded-xl border border-cream-dark bg-white p-3">
-                  <p className="mb-3 text-center text-xs font-light text-muted font-sans">
-                    Book direct with the farm. You see the full total, cleaning included, before you reserve.
-                  </p>
-                  <HospitableWidget
-                    widgetUrl={property.hospitable_widget_url || ""}
-                    propertyName={property.name}
-                  />
+            {/* A guest's own words, straight after the house and before the photographs. */}
+            {quote && (
+              <section
+                id="reviews"
+                aria-label="What a guest said"
+                className="mt-10 scroll-mt-[var(--header-h,104px)] bg-paper-shade px-5 py-7 max-lg:-mx-5 lg:mt-12 lg:px-10 lg:py-10"
+              >
+                <p className={cn("m-0 text-[17px] lg:text-[20px]", fieldEyebrowClass)}>{page.quoteEyebrow}</p>
+                <div className="mt-3 border-t border-rule pt-4">
+                  <FieldQuoteView {...quote} size="md" />
                 </div>
-                <div className="mt-4 flex justify-center">
-                  <ReviewBadge variant="pill" />
-                </div>
-              </div>
-            </div>
+                <FieldLink
+                  href={GOOGLE_REVIEW_LINK}
+                  external
+                  className="mt-2 flex min-h-11 w-fit items-center gap-2 font-sans text-[13px] text-ink-body transition-colors hover:text-ink lg:text-[14px]"
+                >
+                  <FieldStars size={13} />
+                  <span>Read all {REVIEW_COUNT} reviews on Google</span>
+                </FieldLink>
+              </section>
+            )}
 
-            {/* Details */}
-            <div className="lg:col-start-1 lg:row-start-2">
-              <div className="h-px bg-cream-dark lg:mt-6" />
-
-              <p className="mt-6 text-base text-muted leading-relaxed font-sans">
-                {property.description}
-              </p>
-
-              {/* The space — how the bedrooms, baths and cooking lay out. */}
-              {property.layout && (
-                <div className="mt-6">
-                  <h2 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
-                    The Space
-                  </h2>
-                  <p className="text-base text-muted leading-relaxed font-sans">
-                    {property.layout}
-                  </p>
-                </div>
-              )}
-
-              {property.bestFor && (
-                <div className="mt-6">
-                  <h2 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
-                    Who It Suits
-                  </h2>
-                  <p className="text-base text-muted leading-relaxed font-sans">
-                    {property.bestFor}
-                  </p>
-                </div>
-              )}
-
-              {/* Highlights */}
-              <div className="mt-6">
-                <h2 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
-                  Highlights
+            {/* Room by room: the gallery as numbered plates (or, for the whole farm, its three houses). */}
+            {page.rooms === "rooms" ? (
+              <section
+                id="rooms"
+                aria-labelledby="rooms-title"
+                className="mt-10 scroll-mt-[var(--header-h,104px)] border-t-[3px] border-double border-frame pt-8 lg:mt-16 lg:pt-12"
+              >
+                <p className={cn("m-0 text-[17px] lg:text-[20px]", fieldEyebrowClass)}>
+                  {page.stickyName} in {numberWord(photos)} photographs
+                </p>
+                <h2
+                  id="rooms-title"
+                  className="field-heading m-0 mt-1 font-display text-[30px] leading-[1.05] text-ink lg:text-[44px]"
+                >
+                  Room by room
                 </h2>
-                <ul className="space-y-2">
-                  {property.highlights.map((h) => (
-                    <li
-                      key={h}
-                      className="text-sm text-muted font-sans flex items-center gap-2"
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full bg-forest shrink-0" />
-                      {h}
-                    </li>
+                <RoomPlates groups={page.groups} property={property} />
+              </section>
+            ) : (
+              <section
+                id="houses"
+                aria-labelledby="houses-title"
+                className="mt-10 scroll-mt-[var(--header-h,104px)] border-t-[3px] border-double border-frame pt-8 lg:mt-16 lg:pt-12"
+              >
+                <p className={cn("m-0 text-[17px] lg:text-[20px]", fieldEyebrowClass)}>One booking, all of the farm</p>
+                <h2
+                  id="houses-title"
+                  className="field-heading m-0 mt-1 font-display text-[30px] leading-[1.05] text-ink lg:text-[44px]"
+                >
+                  {capitalize(numberWord(houses.length))} houses
+                </h2>
+                <ul className="m-0 mt-5 flex list-none flex-col border-t border-rule p-0">
+                  {houses.map((h) => (
+                    <StayRow key={h.slug} property={h} content={STAY_CONTENT[h.slug]} />
                   ))}
                 </ul>
-              </div>
+              </section>
+            )}
 
-              <div className="mt-6 h-px bg-cream-dark" />
-
-              {/* Activities */}
-              <div className="mt-6">
-                <h2 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
-                  While You&apos;re Here
-                </h2>
-                <div className="space-y-2">
-                  <Button href="/farm-tours" variant="ghost" className="w-full justify-start text-sm px-0">
-                    Highland Cow Farm Tours &rarr;
-                  </Button>
-                  <Button href="/nordic-spa" variant="ghost" className="w-full justify-start text-sm px-0">
-                    Nordic Forest Spa &rarr;
-                  </Button>
-                  <Button href="/weddings" variant="ghost" className="w-full justify-start text-sm px-0">
-                    Weddings &amp; Events &rarr;
-                  </Button>
+            {/* While you're here: Thanksgiving (until 2026-11-28), tour, spa. */}
+            <section aria-labelledby="here-title" className={SPLIT_SECTION_CLASS}>
+              <h2 id="here-title" className={GROUP_HEAD_CLASS}>
+                While you&apos;re here
+              </h2>
+              <div className="mt-4 lg:mt-1">
+                <div className="flex flex-col border-t border-rule">
+                  {tg && (
+                    <Link href="/thanksgiving" data-season-only="thanksgiving-links" className={HERE_ROW_CLASS}>
+                      <HereRowBody
+                        thumb={{
+                          src: "/images/properties/lodge-dining-room.jpg",
+                          alt: "The Lodge dining room with its long table",
+                        }}
+                        title={tg.name}
+                        note={`${THANKSGIVING_DATES} · ${THANKSGIVING_NIGHTS.lower} for ${tg.guests}`}
+                        price={tg.priceLabel}
+                        priceNote="package"
+                      />
+                    </Link>
+                  )}
+                  <BookingTextLink
+                    href={bookingUrl(BOOKING_LINKS.farmTourForTwo, `stay-${property.slug}-tour`)}
+                    label="See tour dates"
+                    title="Private farm tour"
+                    className={HERE_ROW_CLASS}
+                  >
+                    <HereRowBody
+                      thumb={{ src: "/images/properties/gallery-3.jpg", alt: "Two Highland cows by the barn with a white guardian dog" }}
+                      title="A private farm tour"
+                      note="60 min with the Highland cows, 2 to 6 guests"
+                      price={`$${TOUR_FOR_TWO}`}
+                      priceNote="for two"
+                    />
+                  </BookingTextLink>
+                  <BookingTextLink
+                    href={bookingUrl(BOOKING_LINKS.nordicSpa, `stay-${property.slug}-spa`)}
+                    label="See open sessions"
+                    title="Nordic spa"
+                    className={HERE_ROW_CLASS}
+                  >
+                    <HereRowBody
+                      thumb={{ src: "/images/spa/spa-exterior-cabin.jpg", alt: "The black spa cabin and its cold plunge" }}
+                      title="The Nordic spa"
+                      note="Sauna and cold plunge, 90 min, ages 16+"
+                      price={`$${SPA_PER_PERSON}`}
+                      priceNote="per person"
+                    />
+                  </BookingTextLink>
                 </div>
-              </div>
-
-              <div className="mt-6 h-px bg-cream-dark" />
-
-              {/* Good to know — farm-wide, from STAY_FACTS above. */}
-              <div className="mt-6">
-                <h2 className="text-xs font-light uppercase tracking-[0.15em] text-muted font-sans mb-3">
-                  Good to Know
-                </h2>
-                <dl className="space-y-3">
-                  {STAY_FACTS.map((fact) => (
-                    <div key={fact.label} className="text-sm font-sans">
-                      <dt className="text-charcoal">{fact.label}</dt>
-                      <dd className="mt-0.5 text-muted leading-relaxed">
-                        {fact.value}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-                {/*
-                  Both sentences are the published position and nothing more:
-                  rates and dates live in the Hospitable calendar to the right,
-                  and `public/llms.txt` states the accommodation cancellation
-                  policy as "Terms vary by property and booking date, and are
-                  provided at the time of booking." Do not replace either with a
-                  specific rate, minimum stay or check-in time.
-                */}
-                <p className="mt-4 text-sm text-muted leading-relaxed font-sans">
-                  Rates and open dates are shown in the booking calendar.
-                  Cancellation terms vary by property and booking date, and are
-                  provided at the time of booking.
+                <p className="m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
+                  {STAY_LATER_MONTHS_NOTE} If your stay is later than that, call{" "}
+                  <a href={PHONE_TEL} className="whitespace-nowrap font-medium text-pine underline underline-offset-4">
+                    {CONTACT.phone}
+                  </a>{" "}
+                  and we&apos;ll book them for you.
                 </p>
               </div>
-            </div>
+            </section>
+
+            {/* Good to know (the minimum stay and the price live in the booking card). */}
+            <section aria-labelledby="know-title" className={SPLIT_SECTION_CLASS}>
+              <h2 id="know-title" className={GROUP_HEAD_CLASS}>
+                Good to know
+              </h2>
+              <FieldRows
+                size="list"
+                className="mt-4 lg:mt-1"
+                rowClassName="flex-col gap-0.5 py-3 lg:flex-row lg:gap-6 lg:py-3"
+                termClassName="w-auto lg:w-[150px] lg:text-[21px]"
+                detailClassName="text-[14px] leading-[1.55] lg:text-[15px]"
+                rows={[
+                  { term: "Getting here", detail: STAY_GETTING_HERE_PAGE },
+                  { term: "Parking", detail: STAY_PARKING },
+                  {
+                    term: "Cancellation",
+                    detail: (
+                      <>
+                        {STAY_CANCELLATION}
+                        <PendingSlot
+                          className="mt-2"
+                          note={`PENDING JALENE: ${property.name}'s exact cancellation terms, to state here`}
+                        />
+                      </>
+                    ),
+                  },
+                  { term: "Pets", detail: STAY_PETS },
+                ]}
+              />
+            </section>
           </div>
-        </Container>
-      </section>
+        </div>
+      </div>
 
-      <GoogleReviewsSection
-        topic="stay"
-        match={STAY_REVIEW_MATCH[property.slug]}
-        max={3}
-        eyebrow="What guests say about staying here"
-        background="cream"
-      />
-
-      {/* Other Properties */}
-      <section className="py-20 lg:py-28 bg-warm-white">
-        <Container>
-          <h2 className="text-center text-2xl font-normal mb-10 sm:text-3xl">
-            Explore Other Accommodations
-          </h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {properties
-              .filter((p) => p.slug !== property.slug)
-              .map((p) => (
-                <Link
-                  key={p.slug}
-                  href={p.bookingUrl}
-                  className="group overflow-hidden rounded-xl bg-white shadow-sm hover:shadow-md transition-all duration-500"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <Image
-                      src={p.imageSrc}
-                      alt={p.name}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
-                        p.slug === "whole-farm"
-                          ? "object-[center_60%]"
-                          : ""
-                      }`}
-                    />
-                  </div>
-                  <div className="p-5">
-                    <h3 className="text-lg font-normal text-charcoal font-display">
-                      {p.name}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted font-sans">
-                      {p.guests} Guests &middot; {p.bedrooms} Beds &middot; {p.baths} Baths
-                    </p>
-                    <p className="mt-3 text-sm font-light text-forest group-hover:text-forest-light transition-colors font-sans tracking-wide">
-                      View &amp; Book &rarr;
-                    </p>
-                  </div>
-                </Link>
+      {/* The other stays (the whole farm already lists its three houses above). */}
+      {page.rooms === "rooms" && (
+        <section
+          aria-labelledby="other-title"
+          className="mt-12 border-t-[3px] border-double border-frame px-5 py-9 lg:mt-20 lg:px-16 lg:py-16"
+        >
+          <div className="mx-auto max-w-[1312px]">
+            <h2 id="other-title" className="field-heading m-0 font-display text-[30px] leading-[1.05] text-ink lg:text-[44px]">
+              The other stays
+            </h2>
+            <ul className="m-0 mt-5 flex list-none flex-col border-t border-rule p-0 lg:mt-8 lg:grid lg:grid-cols-3 lg:gap-10 lg:border-t-0">
+              {others.map((p) => (
+                <StayRow key={p.slug} property={p} content={STAY_CONTENT[p.slug]} grid />
               ))}
+            </ul>
           </div>
-        </Container>
-      </section>
-    </>
+        </section>
+      )}
+
+      <FieldStickyBar
+        primary={{
+          label: "Check dates and price",
+          sublabel: `${page.stickyName} · sleeps ${property.guests} · book direct`,
+          href: "#book",
+        }}
+        hideWhenVisible="#book"
+      />
+      <BookingModalRoot />
+    </div>
   );
 }

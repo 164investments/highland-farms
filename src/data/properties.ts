@@ -17,7 +17,7 @@ export const properties: Property[] = [
     name: "The Whole Farm",
     tagline: "The full Highland Farms experience",
     description:
-      "Highland Farms, five acres of old-growth forest at the base of Mt. Hood, where our beloved Scottish Highland Cows set the stage for unforgettable gatherings with family, friends, and the people who matter most.",
+      "Highland Farms, five forested acres in Brightwood where our Scottish Highland Cows live. Reserve the Lodge, the Cottage and the Camp together for a family reunion, a retreat or a big birthday.",
     guests: 20,
     bedrooms: 7,
     baths: 3.5,
@@ -27,7 +27,7 @@ export const properties: Property[] = [
     layout:
       "All three accommodations reserved together — the Lodge, the Cottage and the Camp — for up to twenty guests across seven bedrooms and three and a half baths. Two cedar hot tubs, one at the Lodge and one at the Cottage.",
     bestFor:
-      "Large gatherings that want the property to themselves: exclusive access to all three stays, the farm and the forest, with no other booking alongside you. Twenty guests is the most the farm sleeps.",
+      "Large gatherings of up to twenty guests: all three stays reserved together, with the farm and the forest right outside. Twenty guests is the most the farm sleeps.",
     highlights: [
       "Full farm access",
       "3 separate accommodations",

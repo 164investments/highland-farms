@@ -1,13 +1,23 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Check, Mail } from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { FAQAccordion } from "@/components/shared/FAQAccordion";
 import { StructuredData } from "@/components/layout/StructuredData";
+import { FieldFaq } from "@/components/field/Faq";
+import { FieldReviewTier } from "@/components/field/Reviews";
+import { FieldStickyBar } from "@/components/field/StickyBar";
+import {
+  FieldArrow,
+  FieldLeader,
+  FieldNo,
+  FieldSectionHeader,
+  Plate,
+  fieldCtaClass,
+  fieldEyebrowClass,
+  fieldLabelClass,
+  fieldTextLinkClass,
+} from "@/components/ui/FieldGuide";
+import { FieldArrowDown, StayPhoto } from "@/components/stay/StayParts";
 import { thanksgiving, thanksgivingInquiryHref } from "@/data/thanksgiving";
-import { FIVE_STAR_COUNT, GOOGLE_REVIEW_LINK } from "@/lib/reviews";
-import styles from "./thanksgiving.module.css";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Thanksgiving Stay Package 2026 — Mt. Hood, Oregon",
@@ -23,130 +33,256 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: thanksgiving.title, description: "A four-night holiday on the farm, November 24–28, 2026.", images: ["/images/thanksgiving/highland-farms-lodge-thanksgiving-dining.jpg"] },
 };
 
-const inquiryClass = "inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-forest px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-charcoal focus-visible:outline-forest";
+/** The styled (AI-edited) Lodge dining room: on /thanksgiving only, captioned as styling. */
+const HERO_PHOTO = {
+  src: "/images/thanksgiving/highland-farms-lodge-thanksgiving-dining.jpg",
+  alt: "William Wallace Lodge dining room styled with a Thanksgiving feast, autumn flowers and candlelight",
+  position: "50% 50%",
+};
+
+const COWS_PHOTO = {
+  src: "/images/farm/cows.jpg",
+  alt: "A Highland cow and calf near the barn at Highland Farms",
+  position: "50% 40%",
+};
+
+const SPA_PHOTO = {
+  src: "/images/spa/spa-4.jpg",
+  alt: "Nordic spa cabin with guests visible through the window and smoke rising from its chimney",
+  position: "50% 50%",
+};
+
+const lowestPrice = Math.min(...thanksgiving.packages.map((p) => p.price));
+const headingClass = "field-heading m-0 font-display text-[34px] leading-[1.04] text-ink lg:text-[52px]";
+const bodyClass = "m-0 font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[17px]";
 
 export default function ThanksgivingPage() {
   return (
-    <div className={styles.page}>
+    <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
       <StructuredData pathname="/thanksgiving" />
-      <section className="bg-forest pt-[calc(var(--header-h,120px)+32px)] pb-12 text-white lg:pb-20 lg:pt-[calc(var(--header-h,120px)+56px)]">
-        <Container>
-          <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-14">
-            <div>
-              <p className="mb-5 text-sm text-white/85">{thanksgiving.dates} <span className="mx-2" aria-hidden>·</span> Four nights</p>
-              <h1 className="font-display max-w-xl text-[2.8rem] leading-[1.04] sm:text-6xl lg:text-[4.4rem]">{thanksgiving.title}</h1>
-              <p className="mt-6 max-w-md text-base leading-relaxed text-white/90 lg:text-lg">Gather around our table this year. A holiday dinner rooted in the farm, a warm sauna, and four quiet nights with the people you love.</p>
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-white/85">At the base of Mt. Hood in Brightwood, Oregon. All the time together, without hosting the holiday yourself.</p>
-              <div className="mt-7 flex flex-wrap items-center gap-4">
-                <a href="#packages" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-warm-white px-7 py-3 text-sm font-medium text-forest transition-colors hover:bg-cream">See the packages <ArrowUpRight className="h-4 w-4" aria-hidden /></a>
-                <span className="text-sm text-white/90">From $5,000 for four nights</span>
-              </div>
+
+      {/* Hero. One photo: after the meta line on phones, the right column from lg. */}
+      <section className="px-5 pt-5 pb-9 lg:px-16 lg:pt-14 lg:pb-16">
+        <div className="mx-auto flex max-w-[1312px] flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center lg:gap-14">
+          <div className="contents lg:col-start-1 lg:row-start-1 lg:block">
+            <p className={cn("m-0 text-[18px] lg:text-[22px]", fieldEyebrowClass)}>
+              {thanksgiving.dates} <span className="mx-1.5" aria-hidden="true">&middot;</span> Four nights
+            </p>
+            <h1 className="field-heading m-0 mt-1 font-display text-[36px] leading-[1.02] text-ink lg:mt-3 lg:text-[70px]">
+              {thanksgiving.title}
+            </h1>
+            <p className={cn("m-0 mt-2 font-medium tracking-[0.14em] lg:mt-3", fieldLabelClass)}>
+              Four nights at the farm <span aria-hidden="true">&middot;</span> Dinner, breakfast &amp; experiences included
+            </p>
+            <div className="order-1 mt-5 flex flex-col gap-2 lg:mt-7 lg:flex-row lg:items-center lg:gap-6">
+              <a href="#packages" data-hero-cta className={cn(fieldCtaClass, "w-full lg:w-auto")}>
+                See the packages
+                <FieldArrowDown />
+              </a>
+              <p className="m-0 text-center font-sans text-[14px] text-ink-body lg:text-left">
+                From <span className="font-semibold text-ink">${lowestPrice.toLocaleString("en-US")}</span> for four nights
+              </p>
             </div>
-            <figure>
-              <Image src="/images/thanksgiving/highland-farms-lodge-thanksgiving-dining.jpg" alt="William Wallace Lodge dining room styled with a Thanksgiving feast, autumn flowers and candlelight" width={1536} height={1024} sizes="(max-width: 1024px) 100vw, 55vw" priority fetchPriority="high" className="h-auto w-full rounded-lg" />
-              <figcaption className="mt-2 text-right text-xs text-white/75">The Lodge dining room, styled for Thanksgiving</figcaption>
-            </figure>
+            <FieldReviewTier tier="hero" className="order-2 mt-1 min-h-11 justify-center gap-2.5 text-[14px] lg:justify-start" />
+            <p className="order-3 m-0 mt-4 font-sans text-[16px] leading-[1.6] text-ink-body lg:mt-6 lg:max-w-[460px] lg:text-[18px]">
+              Gather around our table this year. A holiday dinner rooted in the farm, a warm sauna, and four quiet nights with the people you love.
+            </p>
+            <p className="order-4 m-0 mt-4 font-sans text-[14px] leading-[1.6] text-ink-note lg:mt-6 lg:max-w-[460px] lg:text-[15px]">
+              At the base of Mt. Hood in Brightwood, Oregon. All the time together, without hosting the holiday yourself.
+            </p>
           </div>
-        </Container>
-      </section>
-
-      <div className="bg-cream-light py-5">
-        <Container className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-center text-sm text-charcoal">
-          <span>Four nights at the farm</span><span>Dinner, breakfast &amp; experiences included</span>
-          <a href={GOOGLE_REVIEW_LINK} target="_blank" rel="noopener noreferrer" className="underline decoration-forest/40 underline-offset-4 hover:text-forest">{FIVE_STAR_COUNT} five-star Google reviews</a>
-        </Container>
-      </div>
-
-      <section id="packages" className="scroll-mt-[calc(var(--header-h,120px)+24px)] py-14 lg:py-20">
-        <Container>
-          <div className="mb-9 max-w-2xl">
-            <h2 className="font-display text-4xl sm:text-5xl">Two ways to gather</h2>
-            <p className="mt-4 text-base leading-relaxed text-muted">Choose the Lodge for eight or reserve the whole farm for twenty. Both packages include the same Thanksgiving meals and farm experiences.</p>
+          <div className="mt-4 lg:col-start-2 lg:row-start-1 lg:mt-0">
+            <Plate
+              caption="The Lodge dining room, styled for Thanksgiving"
+              captionClassName="lg:text-right"
+              frameClassName="h-[176px] min-[380px]:h-[206px] lg:h-[560px]"
+            >
+              <StayPhoto photo={HERO_PHOTO} sizes="(min-width: 1024px) 52vw, 100vw" priority />
+            </Plate>
           </div>
-          <div className="grid gap-7 md:grid-cols-2">
-            {thanksgiving.packages.map((pkg) => (
-              <article key={pkg.id} className="overflow-hidden rounded-xl border border-cream-dark bg-warm-white">
-                <div className={`grid aspect-[16/9] ${pkg.images.length > 1 ? "grid-cols-3 gap-1" : "grid-cols-1"}`}>
-                  {pkg.images.map((photo) => (
-                    <div key={photo.src} className="relative min-w-0">
-                      <Image src={photo.src} alt={photo.alt} fill sizes={pkg.images.length > 1 ? "(max-width: 768px) 60vw, 25vw" : "(max-width: 768px) 100vw, 50vw"} className="object-cover" />
-                      {pkg.images.length > 1 && <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-forest/90 px-3 py-1 text-xs font-medium text-white">{photo.label}</span>}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex h-auto flex-col p-6 sm:p-8">
-                  <p className="text-sm text-forest">{pkg.accommodation} <span aria-hidden>·</span> Family of {pkg.guests}</p>
-                  <h3 className="font-display mt-3 text-3xl sm:text-4xl">{pkg.name}</h3>
-                  <p className="mt-4 text-[2.5rem] leading-none font-display text-charcoal">${pkg.price.toLocaleString("en-US")}</p>
-                  <p className="mt-2 text-sm text-muted">Four-night package for {pkg.guests} guests</p>
-                  <p className="mt-5 min-h-[3.25rem] text-base leading-relaxed text-charcoal">{pkg.description}</p>
-                  <a href={thanksgivingInquiryHref(pkg.name, pkg.guests)} className={`${inquiryClass} mt-6`}>Ask about the {pkg.id === "lodge" ? "Lodge" : "whole farm"} <Mail className="h-4 w-4" aria-hidden /></a>
-                </div>
-              </article>
-            ))}
+        </div>
+      </section>
+
+      {/* The holiday, taken care of: above the prices. */}
+      <section aria-labelledby="holiday-title" className="bg-paper-shade px-5 py-10 lg:px-16 lg:py-20">
+        <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:grid-rows-[auto_1fr] lg:gap-x-20">
+          <div className="lg:col-start-1 lg:row-start-1">
+            <h2 id="holiday-title" className={cn(headingClass, "lg:text-[52px]")}>
+              The holiday,
+              <br />
+              taken care of.
+            </h2>
+            <p className={cn(bodyClass, "mt-4 lg:max-w-[420px]")}>
+              A table worth lingering at. A forest to unwind in. Time to reconnect between the meals and the memories.
+            </p>
           </div>
-          <p className="mt-5 max-w-3xl text-base leading-relaxed text-muted">Optional upgrades are additional. The team will confirm availability, applicable taxes, payment details and the stay package’s cancellation terms before you book. An inquiry does not reserve the stay.</p>
-        </Container>
-      </section>
-
-      <section className="bg-cream-light py-14 lg:py-20">
-        <Container>
-          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-            <div>
-              <h2 className="font-display text-4xl sm:text-5xl">The holiday,<br />taken care of.</h2>
-              <p className="mt-5 max-w-md text-base leading-relaxed text-muted">A table worth lingering at. A forest to unwind in. Time to reconnect between the meals and the memories.</p>
-              <div className="relative mt-8 aspect-[4/3] overflow-hidden rounded-lg">
-                <Image src="/images/farm/cows.jpg" alt="A Highland cow and calf near the barn at Highland Farms" fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" />
-              </div>
-              <p className="mt-2 text-xs text-muted">Meet the farm’s Highland cows on your guided tour.</p>
-            </div>
-            <div>
-              <p className="mb-6 text-sm font-medium text-forest">Included in both packages</p>
-              <ul className="space-y-6">
-                {thanksgiving.inclusions.map((item) => (
-                  <li key={item.title} className="flex gap-4">
-                    <Check className="mt-1 h-5 w-5 shrink-0 text-forest" aria-hidden />
-                    <div><h3 className="font-sans text-base font-medium">{item.title}</h3><p className="mt-1 text-base leading-relaxed text-muted">{item.description}</p></div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="mt-7 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0">
+            <p className={cn("m-0 text-[18px] lg:text-[20px]", fieldEyebrowClass)}>Included in both packages</p>
+            <ol className="m-0 mt-3 flex list-none flex-col border-t border-rule p-0">
+              {thanksgiving.inclusions.map((item, i) => (
+                <li key={item.title} className="border-b border-rule py-4 lg:py-5">
+                  <FieldNo n={i + 1} />
+                  <h3 className="field-heading m-0 mt-0.5 font-display text-[22px] leading-tight text-ink lg:text-[26px]">{item.title}</h3>
+                  <p className="m-0 mt-1 font-sans text-[15px] leading-[1.55] text-ink-body lg:text-[16px]">{item.description}</p>
+                </li>
+              ))}
+            </ol>
           </div>
-        </Container>
-      </section>
-
-      <section className="py-14 lg:py-20">
-        <Container>
-          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-              <Image src="/images/spa/spa-4.jpg" alt="Nordic spa cabin with guests visible through the window and smoke rising from its chimney" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
-            </div>
-            <div>
-              <h2 className="font-display text-4xl sm:text-5xl">A few extra comforts</h2>
-              <p className="mt-5 text-base leading-relaxed text-muted">Add a little more to your holiday. Ask about pricing for these optional upgrades when you inquire.</p>
-              <ul className="mt-6 space-y-4 text-base text-charcoal">{thanksgiving.upgrades.map((item) => <li key={item} className="flex items-start gap-3"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-forest" aria-hidden />{item}</li>)}</ul>
-            </div>
+          <div className="mt-6 lg:col-start-1 lg:row-start-2 lg:mt-6 lg:self-start">
+            <Plate
+              caption="Meet the farm’s Highland cows on your guided tour."
+              frameClassName="h-[240px] lg:h-[380px]"
+            >
+              <StayPhoto photo={COWS_PHOTO} sizes="(min-width: 1024px) 32vw, 100vw" />
+            </Plate>
           </div>
-        </Container>
+        </div>
       </section>
 
-      <section className="bg-warm-white py-14 lg:py-20">
-        <Container className="max-w-3xl">
-          <h2 className="font-display mb-7 text-4xl sm:text-5xl">Before you gather</h2>
-          <div className="[&_p]:text-base"><FAQAccordion items={[...thanksgiving.faqs]} /></div>
-        </Container>
+      {/* Packages. */}
+      <section id="packages" aria-labelledby="packages-title" className="scroll-mt-[var(--header-h,104px)] px-5 py-10 lg:px-16 lg:py-20">
+        <div className="mx-auto max-w-[1312px]">
+          <div className="max-w-[640px]">
+            <h2 id="packages-title" className={headingClass}>
+              Two ways to gather
+            </h2>
+            <p className={cn(bodyClass, "mt-3")}>
+              Choose the Lodge for eight or reserve the whole farm for twenty. Both packages include the same Thanksgiving meals and farm experiences.
+            </p>
+          </div>
+          <div className="mt-8 grid grid-cols-1 gap-12 lg:mt-12 lg:grid-cols-2 lg:gap-16">
+            {thanksgiving.packages.map((pkg) => {
+              const triptych = pkg.images.length > 1;
+              return (
+                <article key={pkg.id} className="flex flex-col border-t border-ink/70 pt-5 lg:pt-6">
+                  <p className={cn("m-0 font-medium tracking-[0.16em]", fieldLabelClass)}>
+                    {pkg.accommodation} <span aria-hidden="true">&middot;</span> Family of {pkg.guests}
+                  </p>
+                  <h3 className="field-heading m-0 mt-1.5 font-display text-[30px] leading-[1.05] text-ink lg:text-[40px]">{pkg.name}</h3>
+                  <div className="mt-4">
+                    {triptych ? (
+                      <div className="grid grid-cols-3 gap-2 lg:gap-3">
+                        {pkg.images.map((photo) => (
+                          <Plate
+                            key={photo.src}
+                            caption={photo.label}
+                            captionClassName="text-center"
+                            frameClassName="h-[150px] lg:h-[340px]"
+                          >
+                            <StayPhoto
+                              photo={{ src: photo.src, alt: photo.alt, position: "50% 55%" }}
+                              sizes="(min-width: 1024px) 15vw, 32vw"
+                            />
+                          </Plate>
+                        ))}
+                      </div>
+                    ) : (
+                      <Plate frameClassName="h-[220px] lg:h-[340px]">
+                        <StayPhoto
+                          photo={{ src: pkg.images[0].src, alt: pkg.images[0].alt, position: "50% 50%" }}
+                          sizes="(min-width: 1024px) 46vw, 100vw"
+                        />
+                      </Plate>
+                    )}
+                  </div>
+                  <div className="mt-4 flex min-h-[56px] items-center gap-3 border-y border-rule">
+                    <span className="font-sans text-[14px] text-ink-body lg:text-[15px]">
+                      Four-night package for {pkg.guests} guests
+                    </span>
+                    <FieldLeader />
+                    <span className="font-sans text-[20px] font-semibold leading-none text-ink lg:text-[22px]">
+                      ${pkg.price.toLocaleString("en-US")}
+                    </span>
+                  </div>
+                  <p className="m-0 mt-4 font-sans text-[16px] leading-[1.6] text-ink lg:min-h-[3.25rem]">{pkg.description}</p>
+                  <a
+                    href={thanksgivingInquiryHref(pkg.name, pkg.guests)}
+                    className={cn(fieldCtaClass, "mt-5 w-full lg:w-auto lg:self-start")}
+                  >
+                    Ask about the {pkg.id === "lodge" ? "Lodge" : "whole farm"}
+                    <FieldArrow />
+                  </a>
+                </article>
+              );
+            })}
+          </div>
+          <p className="m-0 mt-8 max-w-[760px] border-t border-rule pt-4 font-sans text-[15px] leading-[1.6] text-ink-note lg:text-[16px]">
+            Optional upgrades are additional. The team will confirm availability, applicable taxes, payment details and the stay package’s cancellation terms before you book. An inquiry does not reserve the stay.
+          </p>
+        </div>
       </section>
 
-      <section id="inquire" className="bg-forest py-14 text-white lg:py-20">
-        <Container className="max-w-3xl text-center">
-          <p className="text-sm text-white/85">{thanksgiving.dates}</p>
-          <h2 className="font-display mt-4 text-4xl sm:text-5xl">Bring your people.<br />We’ll set the table.</h2>
-          <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-white/90">Tell us how many are coming and which package you have in mind. We’ll help you plan your Thanksgiving on the farm.</p>
-          <a href={thanksgivingInquiryHref()} className="mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-warm-white px-7 py-3 text-sm font-medium text-forest hover:bg-cream">Inquire about Thanksgiving <Mail className="h-4 w-4" aria-hidden /></a>
-          <p className="mt-4 text-sm text-white/85">Or email <a className="break-all underline underline-offset-4" href={`mailto:${thanksgiving.email}`}>{thanksgiving.email}</a></p>
-          <Link href="/stay" className="mt-7 inline-block text-sm text-white/80 underline underline-offset-4">See the accommodations</Link>
-        </Container>
+      {/* A few extra comforts: upgrades, no prices (the team quotes them). */}
+      <section
+        aria-labelledby="comforts-title"
+        className="border-t-[3px] border-double border-frame px-5 py-10 lg:px-16 lg:py-20"
+      >
+        <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-2 lg:items-center lg:gap-16">
+          <Plate frameClassName="h-[230px] lg:h-[460px]">
+            <StayPhoto photo={SPA_PHOTO} sizes="(min-width: 1024px) 46vw, 100vw" />
+          </Plate>
+          <div className="mt-6 lg:mt-0">
+            <h2 id="comforts-title" className={headingClass}>
+              A few extra comforts
+            </h2>
+            <p className={cn(bodyClass, "mt-3")}>
+              Add a little more to your holiday. Ask about pricing for these optional upgrades when you inquire.
+            </p>
+            <ul className="m-0 mt-5 flex list-none flex-col border-t border-rule p-0">
+              {thanksgiving.upgrades.map((item) => (
+                <li
+                  key={item}
+                  className="flex min-h-[48px] items-center border-b border-rule py-2.5 font-sans text-[15px] leading-snug text-ink lg:text-[16px]"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
+
+      {/* Before you gather: hairline FAQ, first open; FAQPage JSON-LD from the same data. */}
+      <section aria-labelledby="faq-title" className="bg-paper-shade px-5 py-10 lg:px-16 lg:py-20">
+        <div className="mx-auto max-w-[860px]">
+          <FieldSectionHeader id="faq-title" size="lg" title="Before you gather" titleClassName="lg:text-[52px]" />
+          <FieldFaq items={thanksgiving.faqs} size="md" openIndex={0} jsonLd className="mt-6" />
+        </div>
+      </section>
+
+      {/* Inquire (#inquire): the mailto is unchanged. */}
+      <section id="inquire" aria-labelledby="inquire-title" data-sticky-stop className="scroll-mt-[var(--header-h,104px)] px-5 py-12 lg:px-16 lg:py-24">
+        <div className="mx-auto max-w-[760px] text-center">
+          <p className={cn("m-0 text-[18px] lg:text-[20px]", fieldEyebrowClass)}>{thanksgiving.dates}</p>
+          <h2 id="inquire-title" className="field-heading m-0 mt-2 font-display text-[36px] leading-[1.04] text-ink lg:text-[56px]">
+            Bring your people.
+            <br />
+            We’ll set the table.
+          </h2>
+          <p className="mx-auto mb-0 mt-4 max-w-[520px] font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[17px]">
+            Tell us how many are coming and which package you have in mind. We’ll help you plan your Thanksgiving on the farm.
+          </p>
+          <a href={thanksgivingInquiryHref()} className={cn(fieldCtaClass, "mt-7 w-full lg:w-auto")}>
+            Inquire about Thanksgiving
+            <FieldArrow />
+          </a>
+          <FieldReviewTier tier="nearCta" className="mt-1 min-h-11 justify-center gap-2.5 text-[14px]" />
+          <p className="m-0 mt-4 font-sans text-[14px] text-ink-note lg:text-[15px]">
+            Or email{" "}
+            <a className="break-all text-pine underline underline-offset-4" href={`mailto:${thanksgiving.email}`}>
+              {thanksgiving.email}
+            </a>
+          </p>
+          <Link href="/stay" className={cn("mt-5 inline-flex min-h-11 items-center text-[14px]", fieldTextLinkClass)}>
+            See the accommodations
+          </Link>
+        </div>
+      </section>
+
+      <FieldStickyBar
+        primary={{ label: "Inquire about Thanksgiving", href: "#inquire" }}
+        hideWhenVisible="#inquire"
+      />
     </div>
   );
 }
