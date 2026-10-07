@@ -164,7 +164,11 @@ export default async function ProductPage({
               <div
                 className={cn(
                   "relative overflow-hidden lg:aspect-square lg:h-auto",
-                  isApparel ? "h-[216px] max-[359px]:h-[176px]" : "h-[176px] max-[359px]:h-[128px]",
+                  // In-app browsers (about 660px tall) get a shorter apparel frame so the size chips and Add button
+                  // both land on the first screen (mobile review r4).
+                  isApparel
+                    ? "h-[216px] max-[359px]:h-[176px] min-[360px]:max-lg:[@media(max-height:700px)]:h-[158px]"
+                    : "h-[176px] max-[359px]:h-[128px]",
                 )}
               >
                 <Image

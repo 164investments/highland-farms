@@ -25,7 +25,7 @@ const WEDDINGS_NOTE = "Up to 125 guests, plus the coos";
 export default function NotFound() {
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h)] font-sans text-ink">
-      <FooterHide parts={["doors", "proof"]} />
+      <FooterHide parts={["doors", "proof", "talk"]} />
       <section aria-labelledby="not-found-title" className="px-5 pb-14 pt-6 lg:px-16 lg:pb-24 lg:pt-16">
         {/* Phones: a slim real herd photo band above the fold, then the Weddings door and three rows (r1 ruling).
             Desktop keeps the photo on the left. */}

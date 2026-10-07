@@ -128,8 +128,9 @@ body:has([data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead
 body:has([data-masthead="home"], [data-masthead="shop"]) [data-footer-visit-rows] {
   display: none;
 }
-/* Home's own pages already show this couple-and-coos photo: its footer keeps the Weddings group, not the plate (r3). */
-body:has([data-masthead="home"]) [data-footer-part="proof"] {
+/* Home already sells weddings above, so its footer drops the plate and the Weddings group too (r4: four critics read
+   it as the offer a third time) and ends on the short links, contact and legal. */
+body:has([data-masthead="home"]) [data-footer-weddings] {
   display: none;
 }
 @media (max-width: 1023px) {

@@ -106,14 +106,14 @@ const sheep = [
   },
 ];
 
-/** Peacocks, dogs and hens: one compact three-up row (round 3 ruling); cows and sheep stay full. */
+/** Peacocks, dogs and hens: compact rows on phones (drawing left, one line), three across on desktop; cows and sheep stay full. */
 const meet = [
   {
     id: "white-peacock",
     drawing: "white-peacock" as const,
     title: "White peacocks",
     subtitle: "Pavo cristatus, white form",
-    body: "Look up in the barn: they like a high perch.",
+    body: "Look up in the barn.",
   },
   {
     id: "guardian-dog",
@@ -258,19 +258,19 @@ export default function FarmToursPage() {
             }))}
           />
 
-          <ul role="list" className="m-0 grid list-none grid-cols-3 gap-x-3 border-y border-rule p-0 py-5 lg:gap-x-10 lg:py-8">
+          <ul role="list" className="m-0 grid list-none divide-y divide-rule border-y border-rule p-0 lg:grid-cols-3 lg:gap-x-10 lg:divide-y-0 lg:py-8">
             {meet.map((m, i) => (
-              <li key={m.id} className="flex flex-col">
+              <li key={m.id} className="grid grid-cols-[56px_minmax(0,1fr)] items-center gap-x-4 py-3 lg:flex lg:flex-col lg:items-start lg:py-0">
                 <FieldDrawing
                   name={m.drawing}
-                  className="h-[56px] w-[56px] lg:h-[160px] lg:w-full"
+                  className="row-span-2 h-[56px] w-[56px] lg:h-[160px] lg:w-full"
                   sizes="(min-width: 1024px) 300px, 56px"
                 />
-                <FieldNo n={3 + i} className="mt-2" />
-                <h3 className="field-heading m-0 mt-0.5 font-display text-[18px] leading-tight text-ink lg:text-[26px]">
+                <h3 className="field-heading m-0 flex items-baseline gap-2 font-display text-[19px] leading-tight text-ink lg:mt-2 lg:block lg:text-[26px]">
+                  <FieldNo n={3 + i} className="lg:mb-0.5 lg:block" />
                   {m.title}
                 </h3>
-                <p className="m-0 mt-1 font-sans text-[13px] leading-[1.45] text-ink-body lg:text-[15px]">{m.body}</p>
+                <p className="m-0 font-sans text-[13px] leading-[1.45] text-ink-body lg:mt-1 lg:text-[15px]">{m.body}</p>
               </li>
             ))}
           </ul>

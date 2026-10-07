@@ -221,10 +221,13 @@ export default function CelebrationsPage() {
                 <p className="m-0 mt-1.5 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
                   Tell us what you&apos;re planning.
                 </p>
+                <p className="m-0 mt-1 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
+                  Birthdays, reunions, retreats and company days.
+                </p>
                 {/* Jalene, 2026-10-07: every kind of event is taken; over 20 guests is an event, with these two rules. */}
-                <p className="m-0 mt-2 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
-                  Birthdays, reunions, retreats and company days. Over 20 guests, you&apos;ll need event insurance, and
-                  alcohol is bought through Highland Farms and served by an OLCC-licensed bartender.
+                <p className="m-0 mt-1.5 font-sans text-[12.5px] leading-[1.45] text-ink-note lg:text-[14px]">
+                  Over 20 guests, you&apos;ll need event insurance, and alcohol is bought through Highland Farms and served
+                  by an OLCC-licensed bartender.
                 </p>
                 <div className="mt-1 flex flex-col items-start">
                   <a href="#contact" className={ladderLinkClass}>

@@ -63,7 +63,9 @@ export default function ContactPage() {
       <StructuredData pathname="/contact" />
       <div className="surface-paper bg-paper pt-[var(--header-h)] font-sans text-ink">
         <section aria-labelledby="contact-title" className="px-5 pb-10 pt-4 lg:px-16 lg:pb-20 lg:pt-12">
-          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-16">
+          {/* Phones: header, then the form (the page's one ask) on the first screen, then the wedding card and email.
+              Desktop: header, card and email down the left; the form spans the right. */}
+          <div className="mx-auto flex max-w-[1312px] flex-col lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_auto_1fr] lg:items-start lg:gap-x-16">
             {/* First screen: promise, proof, a couple with a calf, one primary.
                 The photo is from a styled session (wedding-portfolio.ts: status "styled"):
                 its caption and alt name no couple and claim no real wedding (CONSISTENCY #3). */}
@@ -78,8 +80,9 @@ export default function ContactPage() {
               <p className="m-0 mt-2.5 text-[14.5px] leading-[1.55] text-ink-body lg:mt-4 lg:text-[17px]">
                 Tours, the spa and stays book online any time. Already booked or running late? Call {phoneThenStop}
               </p>
+            </div>
 
-              <div className="mt-4 border-t border-rule pt-4 lg:mt-7 lg:pt-6">
+            <div className="order-3 mt-8 border-t border-rule pt-4 lg:order-none lg:col-start-1 lg:row-start-2 lg:mt-7 lg:pt-6">
                 <figure className="m-0 grid grid-cols-[118px_1fr] items-center gap-x-4 lg:grid-cols-[180px_1fr] lg:gap-x-6">
                   <div className="h-[150px] border border-frame bg-paper-light p-[5px] lg:h-[230px] lg:p-2">
                     <div className="relative h-full w-full overflow-hidden">
@@ -105,7 +108,6 @@ export default function ContactPage() {
                     </span>
                   </figcaption>
                 </figure>
-              </div>
             </div>
 
             {/* The built inquiry form, general mode: no event type is preset, so a tour or stay question is never
@@ -113,7 +115,7 @@ export default function ContactPage() {
                 so the router sends them there. */}
             <div
               id="inquiry"
-              className="mt-8 scroll-mt-[var(--header-h)] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
+              className="order-2 mt-6 scroll-mt-[var(--header-h)] lg:order-none lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:mt-0"
             >
               {/* The form draws its own framed card (cow seal); success replaces it inside that card, never a card in a card. */}
               <ContactForm
@@ -133,7 +135,7 @@ export default function ContactPage() {
             </div>
 
             {/* Email: the footer carries the doors; the two addresses stay here, labelled. */}
-            <nav aria-label="Email the farm" className="mt-10 lg:col-start-1 lg:row-start-2 lg:mt-12">
+            <nav aria-label="Email the farm" className="order-4 mt-10 lg:order-none lg:col-start-1 lg:row-start-3 lg:mt-12">
               <p className={cn(fieldEyebrowClass, "m-0 text-[17px] lg:text-[20px]")}>Email</p>
               <div className="mt-2 border-y border-rule py-2.5">
                 <a href={`mailto:${CONTACT.email}`} className={emailLink}>

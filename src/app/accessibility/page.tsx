@@ -141,11 +141,12 @@ const shortVersion = (
       Our farm tours and our Nordic Spa are not wheelchair accessible. Tours cover uneven ground, and the spa is
       reached by uneven ground and steps. Please contact us in advance so we can help plan your visit.
     </p>
-    <p className="m-0 mt-3 flex flex-col gap-1 text-[14px] text-ink-body">
-      <span className="flex min-h-11 items-center">
-        <LegalLink href={telHref}>{CONTACT.phone}</LegalLink>
+    {/* One tight pair, phone first (r4: the two 44px rows read as a gap); 32px rows keep a clear target. */}
+    <p className="m-0 mt-2.5 flex flex-col text-[14px] text-ink-body">
+      <span className="flex min-h-8 items-center">
+        Call&nbsp;<LegalLink href={telHref}>{CONTACT.phone}</LegalLink>
       </span>
-      <span className="flex min-h-11 items-center">
+      <span className="flex min-h-8 items-center">
         <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink>
       </span>
     </p>

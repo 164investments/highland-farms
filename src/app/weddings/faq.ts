@@ -9,7 +9,7 @@ import type { FAQItem } from "@/lib/types";
  */
 
 export const RAIN_LEAD =
-  "When it rained on one couple's wedding day, the team moved the reception into the barn. A guest wrote:";
+  "When it rained on one couple's wedding day, the reception ended up in the barn. A guest wrote:";
 export const RAIN_CLOSE =
   "Your rain plan depends on your guest count, so Connor walks through it with you on your call.";
 export const COST_ANSWER =
