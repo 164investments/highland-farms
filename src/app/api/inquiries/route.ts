@@ -4,8 +4,9 @@ import { inquirySchema } from "@/lib/schemas";
 import { sendInquiryNotification } from "@/lib/email";
 import { syncInquiryToHubSpot } from "@/lib/hubspot";
 import { syncInquiryToBookedIQ } from "@/lib/bookediq";
-import { sendLeadEvents, type GA4LeadEventParams } from "@/lib/ga4";
+import { sendLeadEvents } from "@/lib/ga4";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { buildGa4LeadEvents, buildSupabaseRow } from "@/lib/inquiry-mapping";
 
 // In-memory rate limiting (per warm serverless instance)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -107,38 +108,15 @@ export async function POST(request: Request) {
       }
     }
 
-    const { name, email, phone, event_type, guest_count, preferred_date, referral_source, message, consent_marketing_sms, consent_appointment_sms, _sid, attribution } = result.data;
-
-    const inquiryPayload = {
-      name,
-      email,
-      phone: phone || null,
-      event_type,
-      guest_count: guest_count || null,
-      preferred_date: preferred_date || null,
-      referral_source: referral_source || null,
-      message: message || null,
-      consent_marketing_sms: consent_marketing_sms ?? false,
-      consent_appointment_sms: consent_appointment_sms ?? false,
-      attribution: attribution ?? null,
-    };
+    // One mapping for every destination: src/lib/inquiry-mapping.ts.
+    const inquiryPayload = buildSupabaseRow(result.data);
 
     // Insert into Supabase. Retry without the additive attribution column so
     // deploys remain safe if the DB migration has not been applied yet.
     let { error } = await supabase.from("event_inquiries").insert(inquiryPayload);
     if (error && /attribution|schema cache|column/i.test(error.message)) {
-      const fallbackPayload = {
-        name: inquiryPayload.name,
-        email: inquiryPayload.email,
-        phone: inquiryPayload.phone,
-        event_type: inquiryPayload.event_type,
-        guest_count: inquiryPayload.guest_count,
-        preferred_date: inquiryPayload.preferred_date,
-        referral_source: inquiryPayload.referral_source,
-        message: inquiryPayload.message,
-        consent_marketing_sms: inquiryPayload.consent_marketing_sms,
-        consent_appointment_sms: inquiryPayload.consent_appointment_sms,
-      };
+      const { attribution: _omit, ...fallbackPayload } = inquiryPayload;
+      void _omit;
       const fallback = await supabase.from("event_inquiries").insert(fallbackPayload);
       error = fallback.error;
     }
@@ -152,29 +130,13 @@ export async function POST(request: Request) {
     }
 
     const cookieHeader = request.headers.get("cookie");
-    const WEDDING_EVENT_TYPES = ["wedding", "elopement", "engagement-party", "rehearsal-dinner"];
 
     after(async () => {
-      // Build GA4 events list — batch into single Measurement Protocol request
-      // to prevent throttling from near-simultaneous calls with same client_id
-      const ga4Events: GA4LeadEventParams[] = [
-        {
-          event_type,
-          form_name: "event_inquiry",
-          attribution,
-          ...(_sid && { event_id: _sid }),
-        },
-      ];
-
-      if (WEDDING_EVENT_TYPES.includes(event_type)) {
-        ga4Events.push({
-          event_type,
-          form_name: "event_inquiry",
-          event_name: "generate_lead_wedding",
-          attribution,
-          ...(_sid && { event_id: `${_sid}:wedding` }),
-        });
-      }
+      // One Measurement Protocol request for all of this lead's events, so
+      // GA4 does not throttle near-simultaneous calls with the same client_id.
+      // Exactly one generate_lead per lead counting GTM's client tag, plus
+      // generate_lead_wedding for wedding types (Google Ads imports it).
+      const ga4Events = buildGa4LeadEvents(result.data);
 
       await Promise.all([
         sendInquiryNotification(result.data).catch((err) => {

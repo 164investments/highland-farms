@@ -7,11 +7,17 @@ import type { AttributionData } from "@/lib/attribution";
  * blockers and client-side consent gates. Stitches to the browser session
  * by reading the _ga / _ga_XXXX cookies forwarded with the request.
  *
- * Deduplication: pass event_id matching the value pushed to window.dataLayer
- * so a single form submission doesn't count twice when both paths fire.
+ * ⚠️ GA4 does NOT de-duplicate on a custom `event_id` parameter. event_id is
+ * kept so a lead can be traced across the dataLayer push, the server event and
+ * the CRMs, but two sends of the same event name are two events. For website
+ * inquiries, which events the server sends is decided in
+ * buildGa4LeadEvents (src/lib/inquiry-mapping.ts): GTM tag 146 already sends
+ * the browser's `generate_lead`, so the server only sends it when GTM was not
+ * loaded.
  *
  * Product-specific events:
- *   Form submissions → "generate_lead" (all) + "generate_lead_wedding" (weddings)
+ *   Form submissions → one "generate_lead" (all) + "generate_lead_wedding" (wedding types)
+ *   Meta lead ads    → "generate_lead" + "generate_lead_wedding" (server only; no browser)
  *   Acuity bookings → "purchase" (all) + "book_farm_tour" | "book_nordic_spa" | "book_wedding_call"
  *
  * This lets each ad campaign (wedding, spa, farm tour) use its own conversion
@@ -43,7 +49,7 @@ function getSessionId(cookieHeader: string | null, measurementId: string): strin
 export interface GA4LeadEventParams {
   event_type: string;
   form_name: string;
-  /** Matches the event_id pushed to window.dataLayer — prevents double-counting */
+  /** Matches the event_id pushed to window.dataLayer (traceability; GA4 does not de-duplicate on it) */
   event_id?: string;
   /**
    * Override the GA4 event name (default: "generate_lead").
@@ -165,11 +171,12 @@ export async function sendBookingPurchase(
 }
 
 /**
- * Fires a GA4 lead event via Measurement Protocol when the contact form is submitted.
+ * Fires one GA4 lead event via Measurement Protocol.
  *
- * For wedding-type inquiries the caller should invoke this TWICE:
+ * Used by the Meta lead webhook, which sends both events for every lead:
  *   1. event_name: "generate_lead"         — general signal for all campaigns
  *   2. event_name: "generate_lead_wedding" — wedding campaign–specific conversion
+ * Website inquiries use sendLeadEvents with buildGa4LeadEvents instead.
  */
 export async function sendGenerateLead(
   cookieHeader: string | null,

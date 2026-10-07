@@ -1,6 +1,6 @@
 import { type InquiryFormData } from "@/lib/schemas";
 import { type MetaLeadData } from "@/lib/meta-leads";
-import { formatAttribution } from "@/lib/attribution";
+import { buildHubSpotContact, buildHubSpotDeal, buildHubSpotNote } from "@/lib/inquiry-mapping";
 
 const API = "https://api.hubapi.com";
 
@@ -12,9 +12,8 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
   const token = process.env.HUBSPOT_ACCESS_TOKEN?.trim();
   if (!token) return;
 
-  const [firstname, ...rest] = data.name.trim().split(/\s+/);
-  const lastname = rest.join(" ");
-
+  // Every property value comes from the inquiry mapping (src/lib/inquiry-mapping.ts).
+  const contact = buildHubSpotContact(data);
   const authHeader = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
   // ── 1. Create or resolve contact ───────────────────────────────────────────
@@ -24,18 +23,7 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
     const createRes = await fetch(`${API}/crm/v3/objects/contacts`, {
       method: "POST",
       headers: authHeader,
-      body: JSON.stringify({
-        properties: {
-          email: data.email,
-          firstname,
-          ...(lastname && { lastname }),
-          ...(data.phone && { phone: data.phone }),
-          ...(data.event_type && { hf_event_type: data.event_type }),
-          ...(data.guest_count && { hf_guest_count: data.guest_count }),
-          ...(data.preferred_date && { hf_preferred_date: data.preferred_date }),
-          ...(data.referral_source && { hf_referral_source: data.referral_source }),
-        },
-      }),
+      body: JSON.stringify({ properties: contact.create }),
     });
 
     if (createRes.ok) {
@@ -44,7 +32,7 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
     } else if (createRes.status === 409) {
       // Contact already exists — fetch by email, then patch custom properties
       const getRes = await fetch(
-        `${API}/crm/v3/objects/contacts/${encodeURIComponent(data.email)}?idProperty=email`,
+        `${API}/crm/v3/objects/contacts/${encodeURIComponent(contact.create.email)}?idProperty=email`,
         { headers: authHeader }
       );
       if (getRes.ok) {
@@ -55,14 +43,7 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
         await fetch(`${API}/crm/v3/objects/contacts/${contactId}`, {
           method: "PATCH",
           headers: authHeader,
-          body: JSON.stringify({
-            properties: {
-              ...(data.event_type && { hf_event_type: data.event_type }),
-              ...(data.guest_count && { hf_guest_count: data.guest_count }),
-              ...(data.preferred_date && { hf_preferred_date: data.preferred_date }),
-              ...(data.referral_source && { hf_referral_source: data.referral_source }),
-            },
-          }),
+          body: JSON.stringify({ properties: contact.update }),
         });
       }
     }
@@ -74,24 +55,12 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
 
   // ── 2. Add a note with the full free-text message ──────────────────────────
   try {
-    const attributionText = formatAttribution(data.attribution);
-    const noteLines = [
-      `Event Type: ${data.event_type}`,
-      data.guest_count ? `Guest Count: ${data.guest_count}` : null,
-      data.preferred_date ? `Preferred Date: ${data.preferred_date}` : null,
-      data.referral_source ? `Referral Source: ${data.referral_source}` : null,
-      data.message ? `\nMessage:\n${data.message}` : null,
-      attributionText ? `\nAttribution:\n${attributionText}` : null,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
     await fetch(`${API}/crm/v3/objects/notes`, {
       method: "POST",
       headers: authHeader,
       body: JSON.stringify({
         properties: {
-          hs_note_body: `Highland Farms inquiry from website:\n\n${noteLines}`,
+          hs_note_body: buildHubSpotNote(data),
           hs_timestamp: new Date().toISOString(),
         },
         associations: [
@@ -111,18 +80,8 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
   if (!pipelineId) return; // Skip deal creation until pipeline is set up
 
   try {
-    const dealName = [
-      `${firstname}${lastname ? ` ${lastname}` : ""}`,
-      "–",
-      data.event_type || "Inquiry",
-      `(${data.preferred_date || "TBD"})`,
-    ].join(" ");
-
-    // Close date: preferred_date if provided, else 6 months from now
-    const closeDate = data.preferred_date
-      ? new Date(data.preferred_date).toISOString().split("T")[0]
-      : new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-
+    // Close date: first of the chosen month if given, else six months out.
+    const { dealname, closedate } = buildHubSpotDeal(data);
     const dealStage = process.env.HUBSPOT_DEAL_STAGE_NEW_LEAD?.trim() ?? "";
 
     const dealRes = await fetch(`${API}/crm/v3/objects/deals`, {
@@ -130,10 +89,10 @@ export async function syncInquiryToHubSpot(data: InquiryFormData): Promise<void>
       headers: authHeader,
       body: JSON.stringify({
         properties: {
-          dealname: dealName,
+          dealname,
           pipeline: pipelineId,
           dealstage: dealStage,
-          closedate: closeDate,
+          closedate,
         },
       }),
     });

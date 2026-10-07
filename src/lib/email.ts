@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { escapeHtml } from "./html";
+import { buildInquiryEmail, type InquiryInput } from "./inquiry-mapping";
 
 let resend: Resend;
 
@@ -10,91 +11,37 @@ function getResend() {
   return resend;
 }
 
-const EVENT_RECIPIENT_MAP: Record<string, string[]> = {
-  wedding: ["events@highlandfarms-oregon.com"],
-  elopement: ["events@highlandfarms-oregon.com"],
-  "engagement-party": ["events@highlandfarms-oregon.com"],
-  "rehearsal-dinner": ["events@highlandfarms-oregon.com"],
-  celebration: ["events@highlandfarms-oregon.com"],
-  retreat: ["events@highlandfarms-oregon.com"],
-};
+/**
+ * Farm notification for a website inquiry. Recipients, subject and every row
+ * (month + year, flexible, guest band, how they heard) come from
+ * buildInquiryEmail in src/lib/inquiry-mapping.ts.
+ */
+export async function sendInquiryNotification(data: InquiryInput) {
+  const mail = buildInquiryEmail(data);
 
-const DEFAULT_RECIPIENT = ["info@highlandfarms-oregon.com"];
-
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  wedding: "Wedding",
-  elopement: "Elopement",
-  "engagement-party": "Engagement Party",
-  "rehearsal-dinner": "Rehearsal Dinner",
-  celebration: "Birthday / Anniversary",
-  retreat: "Retreat / Reunion",
-  photoshoot: "Photoshoot",
-  "farm-stay": "Farm Stay",
-  other: "Other",
-};
-
-interface InquiryEmailData {
-  name: string;
-  email: string;
-  phone?: string | null;
-  event_type: string;
-  guest_count?: string | null;
-  preferred_date?: string | null;
-  message?: string | null;
-  referral_source?: string | null;
-}
-
-export async function sendInquiryNotification(data: InquiryEmailData) {
-  const to = EVENT_RECIPIENT_MAP[data.event_type] || DEFAULT_RECIPIENT;
-  const eventLabel = EVENT_TYPE_LABELS[data.event_type] || data.event_type;
+  const rows = mail.rows
+    .map((row, i) => {
+      const value = row.href
+        ? `<a href="${escapeHtml(row.href)}" style="color: #2d4a3e;">${escapeHtml(row.value)}</a>`
+        : escapeHtml(row.value);
+      return `
+        <tr${i % 2 === 1 ? ' style="background: #f9f9f9;"' : ""}>
+          <td style="padding: 8px 12px; font-weight: 600; width: 140px; vertical-align: top;">${escapeHtml(row.label)}</td>
+          <td style="padding: 8px 12px;${row.multiline ? " white-space: pre-wrap;" : ""}">${value}</td>
+        </tr>`;
+    })
+    .join("");
 
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #1c1d1d;">
-      <h2 style="color: #2d4a3e; margin-bottom: 4px;">New ${eventLabel} Inquiry</h2>
+      <h2 style="color: #2d4a3e; margin-bottom: 4px;">New ${escapeHtml(mail.eventLabel)} Inquiry</h2>
       <p style="color: #666; margin-top: 0;">Submitted via highlandfarmsoregon.com</p>
       <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 20px 0;" />
-      <table style="width: 100%; border-collapse: collapse;">
-        <tr>
-          <td style="padding: 8px 12px; font-weight: 600; width: 140px; vertical-align: top;">Name</td>
-          <td style="padding: 8px 12px;">${escapeHtml(data.name)}</td>
-        </tr>
-        <tr style="background: #f9f9f9;">
-          <td style="padding: 8px 12px; font-weight: 600; vertical-align: top;">Email</td>
-          <td style="padding: 8px 12px;"><a href="mailto:${escapeHtml(data.email)}" style="color: #2d4a3e;">${escapeHtml(data.email)}</a></td>
-        </tr>
-        ${data.phone ? `
-        <tr>
-          <td style="padding: 8px 12px; font-weight: 600; vertical-align: top;">Phone</td>
-          <td style="padding: 8px 12px;"><a href="tel:${escapeHtml(data.phone)}" style="color: #2d4a3e;">${escapeHtml(data.phone)}</a></td>
-        </tr>` : ""}
-        <tr style="background: #f9f9f9;">
-          <td style="padding: 8px 12px; font-weight: 600; vertical-align: top;">Event Type</td>
-          <td style="padding: 8px 12px;">${escapeHtml(eventLabel)}</td>
-        </tr>
-        ${data.guest_count ? `
-        <tr>
-          <td style="padding: 8px 12px; font-weight: 600; vertical-align: top;">Guest Count</td>
-          <td style="padding: 8px 12px;">${escapeHtml(data.guest_count)}</td>
-        </tr>` : ""}
-        ${data.preferred_date ? `
-        <tr style="background: #f9f9f9;">
-          <td style="padding: 8px 12px; font-weight: 600; vertical-align: top;">Preferred Date</td>
-          <td style="padding: 8px 12px;">${escapeHtml(data.preferred_date)}</td>
-        </tr>` : ""}
-        ${data.referral_source ? `
-        <tr>
-          <td style="padding: 8px 12px; font-weight: 600; vertical-align: top;">Referral</td>
-          <td style="padding: 8px 12px;">${escapeHtml(data.referral_source)}</td>
-        </tr>` : ""}
-        ${data.message ? `
-        <tr style="background: #f9f9f9;">
-          <td style="padding: 8px 12px; font-weight: 600; vertical-align: top;">Message</td>
-          <td style="padding: 8px 12px; white-space: pre-wrap;">${escapeHtml(data.message)}</td>
-        </tr>` : ""}
+      <table style="width: 100%; border-collapse: collapse;">${rows}
       </table>
       <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 20px 0;" />
       <div style="text-align: center; margin: 24px 0;">
-        <a href="https://app-na2.hubspot.com/contacts/241936089?query=${encodeURIComponent(data.email)}"
+        <a href="https://app-na2.hubspot.com/contacts/241936089?query=${encodeURIComponent(mail.replyTo)}"
            style="display: inline-block; background: #2d4a3e; color: #ffffff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">
           View in HubSpot
         </a>
@@ -105,9 +52,9 @@ export async function sendInquiryNotification(data: InquiryEmailData) {
 
   return getResend().emails.send({
     from: "Highland Farms <notifications@highlandfarmsoregon.com>",
-    to,
-    replyTo: data.email,
-    subject: `New ${eventLabel} Inquiry from ${data.name}`,
+    to: mail.to,
+    replyTo: mail.replyTo,
+    subject: mail.subject,
     html,
   });
 }
