@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { FieldArrow, fieldCtaClass, fieldTextLinkClass } from "@/components/ui/FieldGuide";
+import { FieldArrow, fieldCtaClass, fieldTextLinkClass, toRoman } from "@/components/ui/FieldGuide";
 
 export interface InquirySuccessProps {
   firstName: string;
@@ -78,8 +78,8 @@ export function InquirySuccess({
       <ol className="mt-2 border-t border-rule">
         {steps.map((step, i) => (
           <li key={step} className="flex gap-4 border-b border-rule py-3">
-            <span aria-hidden="true" className="w-4 shrink-0 font-display text-[22px] leading-none text-fern">
-              {i + 1}
+            <span aria-hidden="true" className="w-6 shrink-0 font-display text-[20px] italic leading-none text-fern">
+              {toRoman(i + 1)}
             </span>
             <span className="font-sans text-[15px] leading-relaxed text-ink-body">{step}</span>
           </li>
@@ -88,10 +88,7 @@ export function InquirySuccess({
 
       {wedding && callHref && (
         <div className="mt-7">
-          <p className="font-sans text-[15px] leading-relaxed text-ink-body">
-            Want to talk first? Connor, who owns the farm, will walk you through it on a free
-            45-minute call.
-          </p>
+          <p className="font-sans text-[15px] leading-relaxed text-ink-body">Want to talk first?</p>
           <a
             href={callHref}
             target="_blank"
@@ -100,7 +97,7 @@ export function InquirySuccess({
             // Narrow panels wrap the label to two lines; let the button grow instead of clipping.
             className={cn(fieldCtaClass, "mt-4 h-auto min-h-[52px] w-full px-5 py-2.5 sm:w-auto sm:px-[30px]")}
           >
-            Book your free call with Connor
+            Book a free 45-minute call with Connor
             <FieldArrow />
           </a>
           <div className="mt-3">

@@ -67,6 +67,10 @@ export interface InquiryFormProps {
   ctaText?: string;
   /** Wedding types only: the free call with Connor and the look book under the button. Default true. */
   showSoftPaths?: boolean;
+  /** Keep the Event Type select visible even when defaultEventType presets it (general mode arriving from a wedding link). */
+  showEventType?: boolean;
+  /** Offer the call and the look book for every event type (the /contact general mode). Default: wedding types only. */
+  softPathsForAll?: boolean;
   /** utm_content tag for the call links, e.g. "weddings". Default: the page path. */
   placement?: string;
   /** From the server wrapper (FIVE_STAR_COUNT), so the review JSON stays off the client. */
@@ -121,6 +125,8 @@ export function InquiryForm({
   showTrustSignals = true,
   ctaText = "Check my date",
   showSoftPaths = true,
+  showEventType = false,
+  softPathsForAll = false,
   placement,
   fiveStarCount,
 }: InquiryFormProps) {
@@ -183,7 +189,8 @@ export function InquiryForm({
   }, [hasPhone, setValue]);
   const wedding = isWeddingForm(eventType);
   const bands = guestBandsFor(eventType);
-  const presetType = !!defaultEventType;
+  // Preset hides the select unless the page asks to keep it (it then arrives preselected).
+  const presetType = !!defaultEventType && !showEventType;
   const turnstileReady = !TURNSTILE_SITE_KEY || !!turnstileToken;
 
   // Wedding and event bands differ: drop a band the new event type doesn't offer.
@@ -468,7 +475,7 @@ export function InquiryForm({
             <>
               <CheckboxRow id={id("consent-appointment-sms")} fine {...register("consent_appointment_sms")}>
                 I consent to receive non-marketing text messages from Highland Farms Oregon LLC about
-                appointment information - confirmation &amp; reminder messages. Message and data rates may
+                appointment information: confirmation &amp; reminder messages. Message and data rates may
                 apply.
               </CheckboxRow>
               <CheckboxRow id={id("consent-marketing-sms")} fine {...register("consent_marketing_sms")}>
@@ -543,7 +550,7 @@ export function InquiryForm({
           )}
         </button>
 
-        {wedding && showSoftPaths && (
+        {(wedding || softPathsForAll) && showSoftPaths && (
           <div className="-mt-1 flex flex-col gap-x-7 sm:flex-row sm:flex-wrap">
             <a
               // Render-time href must not read window (hydration); onClick refines it.
