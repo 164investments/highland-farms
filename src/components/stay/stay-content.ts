@@ -44,13 +44,13 @@ export interface StayQuote {
 
 export interface StayContent {
   slug: string;
-  /** Field-guide drawing for the picker and the comparison table. */
-  drawing: FieldDrawingName;
+  /** Field-guide drawing for the picker and the comparison table (the whole farm draws its three stays). */
+  drawings: FieldDrawingName[];
   compareName: string;
   compareBedrooms: (p: Property) => string;
   compareHotTub: string;
   picker: (p: Property) => string;
-  /** Row under "The other stays" and "Three houses". */
+  /** Row under "The other stays". */
   otherLine: (p: Property) => string;
   /** Small real photo for those rows (decorative). */
   thumb: StayPhotoSpec;
@@ -64,20 +64,22 @@ export interface StayContent {
   page: {
     promise: string;
     lead: StayCaptionedPhoto;
-    /** The fourth key fact: Cedar hot tub, 2 hot tubs, WiFi. */
+    /** The fourth key fact: Cedar hot tub, 2 hot tubs, Galley kitchen. */
     fourth: { label: string; value: string };
-    house: (p: Property) => string;
+    /** The section label over `about`: each stay names itself (Lodge "The house", Camp "The camp"). */
+    aboutTitle: string;
+    about: (p: Property) => string;
     quoteEyebrow: string;
     quote: StayQuote;
-    /** "Room by room" groups, or "Three houses" for the whole farm. */
-    rooms: "rooms" | "houses";
+    /** A quiet text link under the quote, where the quote raises the next question. */
+    quoteLink?: { label: string; href: string };
+    /** "Room by room" groups, or, for the whole farm, its three stays with their photos. */
+    rooms: "rooms" | "stays";
     groups: StayRoomGroup[];
     /** Short name in the phone sticky bar. */
     stickyName: string;
     /** Which Thanksgiving package this page offers, if any. */
     thanksgiving?: "lodge" | "whole-farm";
-    /** A line under the booking widget. */
-    widgetNote?: string;
   };
 }
 
@@ -139,14 +141,14 @@ export const STAY_SHEET_QUOTES: Record<string, StayQuote> = {
   "whole-farm": q("Leanna Little", "2026-01-01", "As soon as you arrive", "Wedding"),
   lodge: q("Kamakila Waiwaiole", "2025-06-23", "Truly one of the most serene", "Stay"),
   cottage: q("Lauren Case", "2025-11-25", "Our 2 yr old", "Stay"),
-  camp: q("Debbie Brunhoff", "2025-09-19", "Slept in the airstream", "Stay"),
+  camp: q("Amy Bains", "2025-08-16", "We stayed at The Camp", "Stay"),
 };
 
 export const STAY_PAGE_QUOTES: Record<string, StayQuote> = {
   "whole-farm": q("Mellani Calvin", "2025-09-08", "We rented the whole darn farm", "Wedding"),
   lodge: q("Emily Hirsh", "2025-08-16", "We stayed in the lodge", "Stay"),
   cottage: q("Lindsay Hodge", "2026-07-09", "We stayed in The Cottage", "Stay"),
-  camp: q("Amy Bains", "2025-08-16", "We stayed at The Camp", "Stay"),
+  camp: q("Debbie Brunhoff", "2025-09-19", "Slept in the airstream", "Stay"),
 };
 
 /** /celebrations: occasion, then the review that names it. */
@@ -195,7 +197,7 @@ const PHOTO = (src: string, alt: string, name: string, detail: string, position 
 
 const LODGE: StayContent = {
   slug: "lodge",
-  drawing: "lodge",
+  drawings: ["lodge"],
   compareName: "Lodge",
   compareBedrooms: (p) => String(p.bedrooms),
   compareHotTub: "Cedar",
@@ -228,7 +230,8 @@ const LODGE: StayContent = {
       caption: "William Wallace Lodge and its wrap-around deck.",
     },
     fourth: { label: "Hot tub", value: "Cedar" },
-    house: () =>
+    aboutTitle: "The house",
+    about: () =>
       "A warm cedar lodge built for gathering. Cook in the full kitchen, eat at a dining table that seats ten, settle in by the wood fireplace, then take the evening out to the wrap-around deck and the cedar hot tub. There is a BBQ and a Blackstone for the cook, a game room with a full-length shuffleboard table, and the farm and the forest are right outside.",
     quoteEyebrow: "A guest who stayed at the Lodge",
     quote: STAY_PAGE_QUOTES.lodge,
@@ -278,7 +281,7 @@ const LODGE: StayContent = {
 
 const COTTAGE: StayContent = {
   slug: "cottage",
-  drawing: "cottage",
+  drawings: ["cottage"],
   compareName: "Cottage",
   compareBedrooms: (p) => String(p.bedrooms),
   compareHotTub: "Cedar",
@@ -296,7 +299,7 @@ const COTTAGE: StayContent = {
     rows: (p) => [
       { term: "Rooms", detail: `${bedroomsLabel(p.bedrooms)} and ${bathsLabel(p.baths)}, with a spiral stair to the loft` },
       { term: "Kitchen", detail: "Kitchenette, plus a BBQ on the patio" },
-      { term: "Evenings", detail: "Cedar hot tub, beside the barn pasture" },
+      { term: "Evenings", detail: "Cedar hot tub" },
     ],
     sentence:
       "For guests who want the animals at the door. The Cottage sits beside the barn pasture, and the living room opens straight onto the forest.",
@@ -312,8 +315,9 @@ const COTTAGE: StayContent = {
       caption: "Bonnie Lass Cottage, beside the cow pasture.",
     },
     fourth: { label: "Hot tub", value: "Cedar" },
-    house: () =>
-      "Best for guests who want to be closest to the animals. The Cottage neighbors the barn pasture, where the Highland cows greet you in the morning, and a garage-style door opens the living room straight onto the forest. Outside there is a patio, a BBQ and a cedar hot tub. A spiral staircase climbs to the loft bedroom and its twin beds under the eaves. Cooking here is a kitchenette rather than a full kitchen; the Lodge is the one with the full kitchen.",
+    aboutTitle: "The cottage",
+    about: () =>
+      "The Cottage neighbors the barn pasture, where the Highland cows greet you in the morning, and a garage-style door opens the living room straight onto the forest. Outside there is a patio, a BBQ and a cedar hot tub. A spiral staircase climbs to the loft bedroom and its twin beds under the eaves. Cooking here is a kitchenette rather than a full kitchen; the Lodge is the one with the full kitchen.",
     quoteEyebrow: "A guest who stayed at the Cottage",
     quote: STAY_PAGE_QUOTES.cottage,
     rooms: "rooms",
@@ -358,7 +362,7 @@ const COTTAGE: StayContent = {
 
 const CAMP: StayContent = {
   slug: "camp",
-  drawing: "airstream-camp",
+  drawings: ["airstream-camp"],
   compareName: "Camp",
   compareBedrooms: (p) => `${p.bedrooms}, plus tents`,
   compareHotTub: "None",
@@ -390,24 +394,23 @@ const CAMP: StayContent = {
       position: "50% 60%",
       caption: "The Camp's Airstream, down the path in autumn.",
     },
-    fourth: { label: "Includes", value: "WiFi" },
-    house: (p) =>
-      `Best for two to four people who want to sleep out among the trees without giving up a kitchen, WiFi or a bathroom. ${capitalize(numberWord(p.guests))} guests sleep between a restored Airstream and canvas tents under the evergreens. The Airstream holds the bedroom, a sleeping nook at the rear, plus a galley kitchen, a dining nook and a lounge, and there is one bath. It is the smallest of the stays and the only one partly under canvas.`,
+    fourth: { label: "Kitchen", value: "Galley" },
+    aboutTitle: "The camp",
+    about: (p) =>
+      `The Airstream holds the bedroom, a sleeping nook at the rear, plus a galley kitchen, a dining nook and a lounge. The Camp has ${numberWord(p.baths)} ${p.baths === 1 ? "bath" : "baths"} and WiFi. It is the smallest of the stays and the only one partly under canvas.`,
     quoteEyebrow: "A guest who stayed at the Camp",
     quote: STAY_PAGE_QUOTES.camp,
     rooms: "rooms",
     stickyName: "The Camp",
     groups: [
       {
-        group: "The Airstream",
+        group: "Inside",
         note: () => "Bedroom nook, galley, dining nook, lounge",
         items: [
           PHOTO("camp-interior-bedroom", "Airstream rear sleeping nook with forest view", "Sleeping nook", "At the rear, with a forest view"),
           PHOTO("camp-interior-galley", "Airstream galley kitchen looking back toward the bedroom", "Galley", "Kitchen, looking back to the bed"),
           PHOTO("camp-interior-kitchen-dining", "Airstream interior with full kitchen and rear dining nook", "Dining nook", "Kitchen and a rear dining nook"),
           PHOTO("camp-interior-lounge", "Airstream lounge with TV and view through to the bedroom", "Lounge", "A TV and a view through to the bed"),
-          PHOTO("camp-interior-lounge-wide", "Wide view of the Airstream lounge and dining area", "Lounge, wide", "Lounge and dining together"),
-          PHOTO("camp-interior-dining-door", "Airstream dining nook with open door to the forest path", "Dining door", "Open to the forest path"),
         ],
       },
       {
@@ -424,7 +427,7 @@ const CAMP: StayContent = {
 
 const WHOLE_FARM: StayContent = {
   slug: "whole-farm",
-  drawing: "highland-cow",
+  drawings: ["lodge", "cottage", "airstream-camp"],
   compareName: "Whole farm",
   compareBedrooms: (p) => String(p.bedrooms),
   compareHotTub: "Two cedar",
@@ -458,15 +461,17 @@ const WHOLE_FARM: StayContent = {
       caption: "The Lodge, the Cottage and the drive, from above.",
     },
     fourth: { label: "Hot tubs", value: "2" },
-    house: (p) =>
-      `Best for large gatherings of up to ${p.guests} guests. The Lodge, the Cottage and the Camp are reserved together: ${bedroomsLabel(p.bedrooms)} and ${p.baths} baths, with two cedar hot tubs, one at the Lodge and one at the Cottage, and the Lodge's dining table that seats ten. ${p.guests} guests is the most the farm sleeps.`,
+    aboutTitle: "The farm",
+    about: () =>
+      "For reunions, retreats and big birthdays. The Lodge, the Cottage and the Camp are reserved together, with two cedar hot tubs, one at the Lodge and one at the Cottage, and the Lodge's dining table that seats ten.",
     quoteEyebrow: "A guest who rented the whole farm",
     quote: STAY_PAGE_QUOTES["whole-farm"],
-    rooms: "houses",
+    // Mellani rented the farm around her daughter's wedding; weddings are their own offer, so point there.
+    quoteLink: { label: "Planning a wedding? See weddings", href: "/weddings" },
+    rooms: "stays",
     stickyName: "The Whole Farm",
     thanksgiving: "whole-farm",
     groups: [],
-    widgetNote: "Tap the arrow for later months; stays open about 9 to 12 months ahead.",
   },
 };
 

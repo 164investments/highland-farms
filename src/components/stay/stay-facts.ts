@@ -37,13 +37,21 @@ export const STAY_CANCELLATION = "Cancellation terms are provided at the time of
 /** Said beside the cancellation line, so an anxious booker has a person to ask. */
 export const STAY_QUESTIONS_LEAD = "Questions before you book? Call";
 
+/**
+ * Under every booking calendar. Lodging opens 9 to 12 months out (ops fact #1),
+ * true of all four stays; the arrow is the Hospitable widget's month control.
+ */
+export const STAY_CALENDAR_NOTE = "Tap the arrow for later months; stays open about 9 to 12 months ahead.";
+
 export const STAY_DRIVE = "About an hour from Portland and about 25 minutes from Government Camp";
-export const STAY_GETTING_HERE_FARM = `${STAY_DRIVE}, with free parking on the farm.`;
-export const STAY_GETTING_HERE_PAGE = `${STAY_DRIVE}, at ${CONTACT.fullAddress}.`;
-export const STAY_PARKING = "Free, on the farm.";
+/** "Getting here", identical on /stay and every /stay/[slug] (CONSISTENCY #2). */
+export const STAY_GETTING_HERE = `${STAY_DRIVE}, at ${CONTACT.fullAddress}, with free parking on the farm.`;
 
 export const STAY_LATER_MONTHS_NOTE =
   "Tours and spa are booked separately from your stay, and their calendars open about three to four months ahead.";
+/** Said after STAY_LATER_MONTHS_NOTE, around the phone link: "... Call (971) 236-2551 and we'll book them for you." */
+export const STAY_LATER_STAY_LEAD = "Staying with us on a later date? Call";
+export const STAY_LATER_STAY_TAIL = "and we'll book them for you.";
 
 /** Tour: $150 for two, $75 for each additional guest (from TOUR_PARTY_SIZES). */
 export const TOUR_FOR_TWO = TOUR_PARTY_SIZES[0].total;

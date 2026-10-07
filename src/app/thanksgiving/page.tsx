@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/thanksgiving" },
   openGraph: {
     title: thanksgiving.title,
-    description: "November 24–28, 2026. Four nights, a farm-to-table Thanksgiving dinner, forest spa and time together at the base of Mt. Hood. Lodge $5,000; whole farm $11,000.",
+    description: "November 24–28, 2026. Four nights, a farm-to-table Thanksgiving dinner, forest spa and time together in Brightwood, Oregon, near Mt. Hood. Lodge $5,000; whole farm $11,000.",
     url: "https://highlandfarmsoregon.com/thanksgiving",
     type: "website",
     images: [{ url: "/images/thanksgiving/highland-farms-lodge-thanksgiving-dining.jpg", width: 1536, height: 1024, alt: "William Wallace Lodge dining room styled for Thanksgiving" }],
@@ -88,13 +88,12 @@ export default function ThanksgivingPage() {
               Gather around our table this year. A holiday dinner rooted in the farm, a warm sauna, and four quiet nights with the people you love.
             </p>
             <p className="order-4 m-0 mt-4 font-sans text-[14px] leading-[1.6] text-ink-note lg:mt-6 lg:max-w-[460px] lg:text-[15px]">
-              At the base of Mt. Hood in Brightwood, Oregon. All the time together, without hosting the holiday yourself.
+              In Brightwood, Oregon, near Mt. Hood. All the time together, without hosting the holiday yourself.
             </p>
           </div>
           <div className="mt-4 lg:col-start-2 lg:row-start-1 lg:mt-0">
             <Plate
               caption="The Lodge dining room, styled for Thanksgiving"
-              captionClassName="lg:text-right"
               frameClassName="h-[176px] min-[380px]:h-[206px] lg:h-[560px]"
             >
               <StayPhoto photo={HERO_PHOTO} sizes="(min-width: 1024px) 52vw, 100vw" priority />

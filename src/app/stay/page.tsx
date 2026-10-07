@@ -5,11 +5,9 @@ import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 import { StructuredData } from "@/components/layout/StructuredData";
 import {
   FieldArrow,
-  FieldDrawing,
   FieldRows,
   FieldSectionHeader,
   Plate,
-  PendingSlot,
   fieldCtaClass,
   fieldEyebrowClass,
   fieldLabelClass,
@@ -19,7 +17,8 @@ import { FieldReview, FieldReviewTier } from "@/components/field/Reviews";
 import { FieldPriceRow } from "@/components/field/PriceRows";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
-import { StayPhoto } from "@/components/stay/StayParts";
+import { StayKnowRows, StayLaterStayLine } from "@/components/stay/StayLines";
+import { StayDrawing, StayPhoto } from "@/components/stay/StayParts";
 import {
   STAY_CONTENT,
   STAY_HERO_QUOTE,
@@ -27,24 +26,15 @@ import {
   numberWord,
 } from "@/components/stay/stay-content";
 import {
-  PHONE_TEL,
   SPA_PER_PERSON,
   SPA_PRIVATE_SESSION,
-  STAY_CANCELLATION,
-  STAY_QUESTIONS_LEAD,
   STAY_DIRECT_LINE,
-  STAY_GETTING_HERE_FARM,
-  STAY_LATER_MONTHS_NOTE,
-  STAY_MINIMUM,
-  STAY_PETS,
-  STAY_PRICE_PLAIN,
   THANKSGIVING_DATES,
   THANKSGIVING_NIGHTS,
   TOUR_EACH_ADDITIONAL,
   TOUR_FOR_TWO,
   thanksgivingPackage,
 } from "@/components/stay/stay-facts";
-import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -98,7 +88,11 @@ export default function StayPage() {
       <section className="px-5 pt-5 pb-9 lg:px-16 lg:pt-14 lg:pb-20">
         <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-x-16">
           <div className="lg:col-start-1 lg:row-start-1">
-            <p className={cn("m-0 text-[17px] lg:text-[22px]", fieldEyebrowClass)}>Farm stays in Brightwood, Oregon</p>
+            {/* Phones: the drive, which the desktop intro sentence carries (CONSISTENCY #7, once per screen). */}
+            <p className={cn("m-0 text-[17px] lg:text-[22px]", fieldEyebrowClass)}>
+              <span className="lg:hidden">Farm stays, about an hour from Portland</span>
+              <span className="hidden lg:inline">Farm stays in Brightwood, Oregon</span>
+            </p>
             <h1 className="field-heading m-0 mt-1 font-display text-[35px] leading-[1.02] text-ink lg:mt-3 lg:text-[62px]">
               Stay the night on a Highland cow farm.
             </h1>
@@ -121,7 +115,7 @@ export default function StayPage() {
           <div className="mt-4 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0">
             <Plate
               caption="Bonnie Lass Cottage, beside the cow pasture."
-              frameClassName="h-[196px] min-[380px]:h-[220px] lg:h-[600px]"
+              frameClassName="h-[148px] min-[380px]:h-[184px] lg:h-[600px]"
             >
               <StayPhoto photo={HERO_PHOTO} sizes="(min-width: 1024px) 58vw, 100vw" priority />
             </Plate>
@@ -138,11 +132,7 @@ export default function StayPage() {
                     href={`#${p.slug}`}
                     className="flex min-h-[64px] items-center gap-3 border-b border-rule py-2"
                   >
-                    <FieldDrawing
-                      name={c.drawing}
-                      className="h-[40px] w-[50px] shrink-0"
-                      sizes="50px"
-                    />
+                    <StayDrawing drawings={c.drawings} className="h-[40px] w-[50px] shrink-0" sizes="50px" />
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="font-display text-[20px] font-semibold leading-tight text-ink">
                         Up to {p.guests} <span className="font-normal text-ink-body">&middot; {p.name}</span>
@@ -209,10 +199,10 @@ export default function StayPage() {
                       href={`#${p.slug}`}
                       className="flex flex-col justify-end gap-3 font-display text-[26px] font-semibold leading-[1.05] text-ink"
                     >
-                      <FieldDrawing
-                        name={c.drawing}
-                        className="h-[120px] w-auto max-w-full object-left"
-                        sizes="220px"
+                      <StayDrawing
+                        drawings={c.drawings}
+                        className={c.drawings.length > 1 ? "h-[120px] w-[150px] max-w-full" : "h-[120px] w-auto max-w-full object-left"}
+                        sizes={c.drawings.length > 1 ? "80px" : "220px"}
                       />
                       {c.compareName}
                     </a>
@@ -226,7 +216,10 @@ export default function StayPage() {
                   Sleeps
                 </th>
                 {stays.map(({ property: p }) => (
-                  <td key={p.slug} className="px-4 py-3 font-display text-[40px] font-medium leading-none text-ink">
+                  <td
+                    key={p.slug}
+                    className="px-4 py-3 font-display text-[40px] font-medium leading-none text-ink [font-variant-numeric:lining-nums]"
+                  >
                     {p.guests}
                   </td>
                 ))}
@@ -389,34 +382,10 @@ export default function StayPage() {
       <section aria-labelledby="know-title" className="bg-paper-shade px-5 py-10 lg:px-16 lg:py-20">
         <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
           <FieldSectionHeader id="know-title" size="md" eyebrow="Every stay" title="Know before you book" />
-          <FieldRows
-            size="list"
+          <StayKnowRows
+            variant="index"
             className="mt-5 lg:mt-0"
-            rowClassName="gap-4 py-3.5 lg:gap-6 lg:py-5"
-            termClassName="w-[104px] lg:w-[200px] lg:text-[23px]"
-            detailClassName="min-w-0 text-[14px] leading-[1.55] lg:text-[16px]"
-            rows={[
-              { term: "Minimum", detail: STAY_MINIMUM },
-              { term: "Price", detail: STAY_PRICE_PLAIN },
-              {
-                term: "Cancellation",
-                detail: (
-                  <>
-                    {STAY_CANCELLATION.replace(/^Cancellation terms/, "Terms")} {STAY_QUESTIONS_LEAD}{" "}
-                    <a href={PHONE_TEL} className="whitespace-nowrap font-medium text-pine underline underline-offset-4">
-                      {CONTACT.phone}
-                    </a>
-                    .
-                    <PendingSlot
-                      className="mt-2"
-                      note="PENDING JALENE: the exact cancellation terms for each stay, to state here and on each stay page"
-                    />
-                  </>
-                ),
-              },
-              { term: "Pets", detail: STAY_PETS },
-              { term: "Getting here", detail: STAY_GETTING_HERE_FARM },
-            ]}
+            pendingNote="PENDING JALENE: the exact cancellation terms for each stay, to state here and on each stay page"
           />
         </div>
       </section>
@@ -500,11 +469,7 @@ export default function StayPage() {
             </div>
           </div>
           <p className="m-0 mt-8 max-w-[760px] border-t border-rule pt-4 font-sans text-[14px] leading-[1.6] text-ink-note lg:text-[15px]">
-            {STAY_LATER_MONTHS_NOTE} Staying with us on a later date? Call{" "}
-            <a href={PHONE_TEL} className="whitespace-nowrap font-medium text-pine underline underline-offset-4">
-              {CONTACT.phone}
-            </a>{" "}
-            and we&apos;ll book them for you.
+            <StayLaterStayLine />
           </p>
         </div>
       </section>

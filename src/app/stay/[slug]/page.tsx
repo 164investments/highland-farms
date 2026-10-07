@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { properties } from "@/data/properties";
-import { BOOKING_LINKS, CONTACT, bookingUrl } from "@/lib/constants";
+import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 import { GOOGLE_REVIEW_LINK, REVIEW_COUNT } from "@/lib/reviews";
 import { StructuredData } from "@/components/layout/StructuredData";
 import {
@@ -10,28 +10,22 @@ import {
   FieldLeader,
   FieldLink,
   FieldQuoteView,
-  FieldRows,
   FieldStars,
-  PendingSlot,
   Plate,
   fieldCtaClass,
   fieldEyebrowClass,
+  fieldTextLinkClass,
 } from "@/components/ui/FieldGuide";
 import { FieldReviewTier, resolveFieldQuote } from "@/components/field/Reviews";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
 import { BookingCard } from "@/components/stay/BookingCard";
-import { RoomPlates } from "@/components/stay/RoomPlates";
+import { RoomPlates, RoomPreview } from "@/components/stay/RoomPlates";
+import { StayKnowRows, StayLaterStayLine } from "@/components/stay/StayLines";
 import { FieldArrowBack, FieldArrowDown, StayPhoto } from "@/components/stay/StayParts";
 import { STAY_CONTENT, capitalize, numberWord, roomCount, type StayContent } from "@/components/stay/stay-content";
 import {
-  PHONE_TEL,
   SPA_PER_PERSON,
-  STAY_CANCELLATION,
-  STAY_QUESTIONS_LEAD,
-  STAY_GETTING_HERE_PAGE,
-  STAY_LATER_MONTHS_NOTE,
-  STAY_PETS,
   THANKSGIVING_DATES,
   THANKSGIVING_NIGHTS,
   TOUR_FOR_TWO,
@@ -110,7 +104,7 @@ function StayRow({ property, content, grid }: { property: Property; content: Sta
   );
 }
 
-/** One "While you're here" row: thumb, name and note, leader, price. */
+/** One "While you're here" row: thumb, name and note, leader (from 430px), price with its unit on one line. */
 function HereRowBody({
   thumb,
   title,
@@ -131,17 +125,36 @@ function HereRowBody({
           <StayPhoto photo={thumb} sizes="84px" />
         </span>
       </span>
-      <span className="flex min-w-0 flex-col">
+      <span className="flex min-w-0 flex-col max-[430px]:flex-1">
         <span className="font-display text-[21px] font-semibold leading-tight lg:text-[23px]">{title}</span>
         <span className="font-sans text-[12px] text-ink-note lg:text-[13px]">{note}</span>
       </span>
-      <FieldLeader />
-      <span className="text-right font-sans text-[14px] font-semibold leading-tight">
+      <FieldLeader className="max-[430px]:hidden" />
+      <span className="shrink-0 whitespace-nowrap text-right font-sans text-[14px] font-semibold leading-tight">
         {price}
         <span className="block text-[11px] font-normal text-ink-note">{priceNote}</span>
       </span>
       <FieldArrow className="text-pine" />
     </>
+  );
+}
+
+/** One of the whole farm's three stays, with its own photographs in place (the bedrooms first). */
+function IncludedStay({ property, content }: { property: Property; content: StayContent }) {
+  return (
+    <article aria-labelledby={`included-${property.slug}`} className="mt-7 border-t border-rule pt-5 lg:mt-10 lg:pt-6">
+      <h3 id={`included-${property.slug}`} className="m-0">
+        <Link
+          href={property.bookingUrl}
+          className="flex min-h-11 items-center gap-2 font-display text-[26px] font-semibold leading-[1.05] text-ink hover:text-pine lg:text-[32px]"
+        >
+          {property.name}
+          <FieldArrow className="text-pine" />
+        </Link>
+      </h3>
+      <p className="m-0 font-sans text-[12px] text-ink-note lg:text-[14px]">{content.otherLine(property)}</p>
+      <RoomPreview groups={content.page.groups} label={property.name} />
+    </article>
   );
 }
 
@@ -160,16 +173,16 @@ export default async function PropertyPage({
   const content = STAY_CONTENT[property.slug];
   const { page } = content;
   const others = properties.filter((p) => p.slug !== property.slug);
-  const houses = properties.filter((p) => p.slug !== "whole-farm");
+  const included = properties.filter((p) => p.slug !== "whole-farm");
   const photos = roomCount(content);
   const quote = resolveFieldQuote(page.quote.spec, { role: page.quote.role });
   const tg = page.thanksgiving ? thanksgivingPackage(page.thanksgiving) : null;
   const factNumeric = /^\d+$/.test(page.fourth.value);
 
   const facts: { label: string; value: string; big: boolean }[] = [
-    { label: "Guests", value: String(property.guests), big: true },
-    { label: "Bedrooms", value: String(property.bedrooms), big: true },
-    { label: "Baths", value: String(property.baths), big: true },
+    { label: property.guests === 1 ? "Guest" : "Guests", value: String(property.guests), big: true },
+    { label: property.bedrooms === 1 ? "Bedroom" : "Bedrooms", value: String(property.bedrooms), big: true },
+    { label: property.baths === 1 ? "Bath" : "Baths", value: String(property.baths), big: true },
     { label: page.fourth.label, value: page.fourth.value, big: factNumeric },
   ];
 
@@ -197,7 +210,7 @@ export default async function PropertyPage({
           {/* Name, what the count counts, the one-line promise: above the photo on phones. */}
           <header className="pt-4 lg:col-start-1 lg:row-start-1 lg:pt-10">
             <p className={cn("m-0 text-[17px] lg:text-[22px]", fieldEyebrowClass)}>
-              Sleeps {property.guests} &middot; Brightwood, Oregon
+              Sleeps {property.guests} &middot; About an hour from Portland
             </p>
             <h1 className="field-heading m-0 mt-0.5 font-display text-[36px] leading-[1.02] text-ink lg:mt-2 lg:text-[60px]">
               {property.name}
@@ -205,7 +218,7 @@ export default async function PropertyPage({
             <p className="m-0 mt-2 font-sans text-[15px] leading-[1.55] text-ink-body lg:mt-3 lg:max-w-[600px] lg:text-[18px]">
               {page.promise}
             </p>
-            <FieldReviewTier tier="hero" link />
+            <FieldReviewTier tier="hero" link subject="Highland Farms" />
             <a
               href="#book"
               data-hero-cta
@@ -225,10 +238,10 @@ export default async function PropertyPage({
                 <>
                   <span>{page.lead.caption}</span>
                   <a
-                    href={page.rooms === "houses" ? "#houses" : "#rooms"}
+                    href={page.rooms === "stays" ? "#three-stays" : "#rooms"}
                     className="flex min-h-11 shrink-0 items-center gap-1 font-sans text-[13px] font-medium not-italic text-pine"
                   >
-                    {page.rooms === "houses" ? `The ${numberWord(houses.length)} houses` : `All ${photos} photos`}
+                    {page.rooms === "stays" ? `The ${numberWord(included.length)} stays` : `All ${photos} photos`}
                     <FieldArrowDown size={14} />
                   </a>
                 </>
@@ -254,7 +267,7 @@ export default async function PropertyPage({
                   </dt>
                   <dd
                     className={cn(
-                      "order-1 m-0 font-display font-medium leading-none",
+                      "order-1 m-0 font-display font-medium leading-none [font-variant-numeric:lining-nums]",
                       f.big ? "text-[28px] lg:text-[36px]" : "text-[22px] lg:text-[30px]",
                     )}
                   >
@@ -269,24 +282,23 @@ export default async function PropertyPage({
             widgetUrl={property.hospitable_widget_url || ""}
             propertyName={property.name}
             propertySlug={property.slug}
-            note={page.widgetNote}
           />
 
           <div className="lg:col-start-1 lg:row-start-4">
-            {/* The house. */}
+            {/* The stay in a paragraph, under its own name ("The house", "The camp", "The farm"). */}
             <section
-              aria-labelledby="house-title"
+              aria-labelledby="about-title"
               className="mt-10 border-t border-rule pt-8 lg:mt-14 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10 lg:pt-12"
             >
-              <h2 id="house-title" className={GROUP_HEAD_CLASS}>
-                The house
+              <h2 id="about-title" className={GROUP_HEAD_CLASS}>
+                {page.aboutTitle}
               </h2>
               <p className="m-0 mt-3 font-sans text-[16px] leading-[1.65] text-ink-body lg:mt-1 lg:text-[17px]">
-                {page.house(property)}
+                {page.about(property)}
               </p>
             </section>
 
-            {/* A guest's own words, straight after the house and before the photographs. */}
+            {/* A guest's own words, straight after that paragraph and before the photographs. */}
             {quote && (
               <section
                 id="reviews"
@@ -305,10 +317,19 @@ export default async function PropertyPage({
                   <FieldStars size={13} />
                   <span>Read all {REVIEW_COUNT} reviews on Google</span>
                 </FieldLink>
+                {page.quoteLink && (
+                  <Link
+                    href={page.quoteLink.href}
+                    className={cn("flex min-h-11 w-fit items-center gap-1.5 text-[14px]", fieldTextLinkClass)}
+                  >
+                    {page.quoteLink.label}
+                    <FieldArrow size={16} />
+                  </Link>
+                )}
               </section>
             )}
 
-            {/* Room by room: the gallery as numbered plates (or, for the whole farm, its three houses). */}
+            {/* Room by room: the gallery as numbered plates (or, for the whole farm, its three stays with their photos). */}
             {page.rooms === "rooms" ? (
               <section
                 id="rooms"
@@ -328,22 +349,20 @@ export default async function PropertyPage({
               </section>
             ) : (
               <section
-                id="houses"
-                aria-labelledby="houses-title"
+                id="three-stays"
+                aria-labelledby="three-stays-title"
                 className="mt-10 scroll-mt-[var(--header-h,104px)] border-t-[3px] border-double border-frame pt-8 lg:mt-16 lg:pt-12"
               >
-                <p className={cn("m-0 text-[17px] lg:text-[20px]", fieldEyebrowClass)}>One booking, all of the farm</p>
+                <p className={cn("m-0 text-[17px] lg:text-[20px]", fieldEyebrowClass)}>Included in one booking</p>
                 <h2
-                  id="houses-title"
+                  id="three-stays-title"
                   className="field-heading m-0 mt-1 font-display text-[30px] leading-[1.05] text-ink lg:text-[44px]"
                 >
-                  {capitalize(numberWord(houses.length))} houses
+                  {capitalize(numberWord(included.length))} stays
                 </h2>
-                <ul className="m-0 mt-5 flex list-none flex-col border-t border-rule p-0">
-                  {houses.map((h) => (
-                    <StayRow key={h.slug} property={h} content={STAY_CONTENT[h.slug]} />
-                  ))}
-                </ul>
+                {included.map((h) => (
+                  <IncludedStay key={h.slug} property={h} content={STAY_CONTENT[h.slug]} />
+                ))}
               </section>
             )}
 
@@ -398,11 +417,7 @@ export default async function PropertyPage({
                   </BookingTextLink>
                 </div>
                 <p className="m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
-                  {STAY_LATER_MONTHS_NOTE} If your stay is later than that, call{" "}
-                  <a href={PHONE_TEL} className="whitespace-nowrap font-medium text-pine underline underline-offset-4">
-                    {CONTACT.phone}
-                  </a>{" "}
-                  and we&apos;ll book them for you.
+                  <StayLaterStayLine />
                 </p>
               </div>
             </section>
@@ -413,39 +428,17 @@ export default async function PropertyPage({
               <h2 id="know-title" className={GROUP_HEAD_CLASS}>
                 Know before you book
               </h2>
-              <FieldRows
-                size="list"
+              <StayKnowRows
+                variant="slug"
                 className="mt-4 lg:mt-1"
-                rowClassName="flex-col gap-0.5 py-3 lg:flex-row lg:gap-6 lg:py-3"
-                termClassName="w-auto lg:w-[150px] lg:text-[21px]"
-                detailClassName="text-[14px] leading-[1.55] lg:text-[15px]"
-                rows={[
-                  {
-                    term: "Cancellation",
-                    detail: (
-                      <>
-                        {STAY_CANCELLATION} {STAY_QUESTIONS_LEAD}{" "}
-                        <a href={PHONE_TEL} className="whitespace-nowrap font-medium text-pine underline underline-offset-4">
-                          {CONTACT.phone}
-                        </a>
-                        .
-                        <PendingSlot
-                          className="mt-2"
-                          note={`PENDING JALENE: ${property.name}'s exact cancellation terms, to state here`}
-                        />
-                      </>
-                    ),
-                  },
-                  { term: "Pets", detail: STAY_PETS },
-                  { term: "Getting here", detail: `${STAY_GETTING_HERE_PAGE} Parking is free, on the farm.` },
-                ]}
+                pendingNote={`PENDING JALENE: ${property.name}'s exact cancellation terms, to state here and in the booking card`}
               />
             </section>
           </div>
         </div>
       </div>
 
-      {/* The other stays (the whole farm already lists its three houses above). */}
+      {/* The other stays (the whole farm already shows its three stays above). */}
       {page.rooms === "rooms" && (
         <section
           aria-labelledby="other-title"

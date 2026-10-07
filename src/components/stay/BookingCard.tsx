@@ -1,5 +1,8 @@
+import { PendingSlot } from "@/components/ui/FieldGuide";
 import { HospitableWidget } from "./HospitableWidget";
+import { StayCancellationLine } from "./StayLines";
 import {
+  STAY_CALENDAR_NOTE,
   STAY_MINIMUM,
   STAY_PRICE_CARD,
   STAY_PRICE_CARD_LEAD,
@@ -9,17 +12,17 @@ interface BookingCardProps {
   widgetUrl: string;
   propertyName: string;
   propertySlug: string;
-  /** A line under the calendar (the whole farm opens on a month that may be full). */
-  note?: string;
 }
 
 /**
  * Our pine-framed booking card around the Hospitable embed. The iframe itself
  * cannot be restyled (it is Hospitable's page), so the card carries the steps,
- * the price line and the minimum stay. `id="book"` is the in-page "Check dates
- * and price" target for the masthead, the hero button and the phone bar.
+ * the price line, the minimum stay and the point-of-sale policy line
+ * (CONSISTENCY #10: the same sentence as "Know before you book"). `id="book"` is
+ * the in-page "Check dates and price" target for the masthead, the hero button
+ * and the phone bar.
  */
-export function BookingCard({ widgetUrl, propertyName, propertySlug, note }: BookingCardProps) {
+export function BookingCard({ widgetUrl, propertyName, propertySlug }: BookingCardProps) {
   return (
     <section
       id="book"
@@ -51,15 +54,20 @@ export function BookingCard({ widgetUrl, propertyName, propertySlug, note }: Boo
         </ol>
         <div className="px-3 pt-4 pb-3 lg:px-4">
           <HospitableWidget widgetUrl={widgetUrl} propertyName={propertyName} propertySlug={propertySlug} />
-          {note && (
-            <p className="m-0 mt-3 text-center font-sans text-[13px] leading-[1.5] text-ink-note">{note}</p>
-          )}
+          <p className="m-0 mt-3 text-center font-sans text-[13px] leading-[1.5] text-ink-note">{STAY_CALENDAR_NOTE}</p>
         </div>
         <div className="border-t border-rule px-4 py-3.5 font-sans text-[13px] leading-[1.5] text-ink-body lg:px-5">
           <p className="m-0">
             <strong className="font-semibold text-ink">{STAY_PRICE_CARD_LEAD}</strong> {STAY_PRICE_CARD}
           </p>
           <p className="m-0 mt-2">{STAY_MINIMUM}</p>
+          <p className="m-0 mt-2">
+            <StayCancellationLine />
+          </p>
+          <PendingSlot
+            className="mt-2"
+            note={`PENDING JALENE: ${propertyName}'s exact cancellation terms, to replace the cancellation sentence here and in "Know before you book"`}
+          />
         </div>
       </div>
     </section>

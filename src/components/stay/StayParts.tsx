@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { FieldDrawing, type FieldDrawingName } from "@/components/ui/FieldGuide";
 import { cn } from "@/lib/utils";
 import type { StayPhotoSpec } from "./stay-content";
 
@@ -66,5 +67,37 @@ export function FieldArrowBack({ size = 16 }: { size?: number }) {
     >
       <path d="M19 12H5M11 6l-6 6 6 6" />
     </svg>
+  );
+}
+
+/** Where each drawing sits in a group of three: two buildings behind, one in front, slightly overlapped. */
+const GROUP_SLOTS = ["left-0 top-0", "right-0 top-0", "bottom-0 left-[24%]"] as const;
+
+/**
+ * A stay's field-guide drawing. A stay made of several (the whole farm: the
+ * Lodge, the Cottage and the Camp) draws them small and overlapped, so the
+ * plate reads as their sum. The box sets the size (5:4, like the building
+ * drawings); pass its width and height classes.
+ */
+export function StayDrawing({
+  drawings,
+  className,
+  sizes,
+}: {
+  drawings: readonly FieldDrawingName[];
+  /** Size of the box, e.g. "h-[40px] w-[50px]". */
+  className: string;
+  /** Rendered width of a single drawing. */
+  sizes: string;
+}) {
+  if (drawings.length === 1) {
+    return <FieldDrawing name={drawings[0]} className={cn("object-contain", className)} sizes={sizes} />;
+  }
+  return (
+    <span aria-hidden="true" className={cn("relative block shrink-0", className)}>
+      {drawings.slice(0, GROUP_SLOTS.length).map((name, i) => (
+        <FieldDrawing key={name} name={name} className={cn("absolute w-[52%]", GROUP_SLOTS[i])} sizes={sizes} />
+      ))}
+    </span>
   );
 }
