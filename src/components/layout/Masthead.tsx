@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { CHECK_DATE_HREF, type PageAction } from "./chrome";
 
@@ -60,19 +59,6 @@ export function MastheadName({
         Brightwood, Oregon
       </span>
     </Link>
-  );
-}
-
-/** The HF lettermark, printed in ink. Decorative beside the address in the menu sheet. */
-export function MastheadMark({ className }: { className?: string }) {
-  return (
-    <Image
-      src="/images/logo/HF-logo-white.png"
-      alt=""
-      width={65}
-      height={38}
-      className={cn("h-[18px] w-auto brightness-[0.13]", className)}
-    />
   );
 }
 

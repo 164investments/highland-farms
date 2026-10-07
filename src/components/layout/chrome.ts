@@ -114,17 +114,6 @@ export function pageActionFor(type: PageType): PageAction | "cart" | null {
   return ACTIONS[type];
 }
 
-/** The quiet link under the menu's pinned button. */
-export function menuSecondaryFor(type: PageType): { label: string; href: string; external: boolean } | null {
-  // Round 2b removed the wedding sheet's look-book link: the menu has its own look book row.
-  if (type === "celebrations") return null;
-  if (type === "tours" || type === "spa" || type === "sauna") {
-    const href = giftCertificatesHref();
-    return { label: "or give one as a gift", href, external: !href.startsWith("/") };
-  }
-  return null;
-}
-
 /** Pages whose chrome is the name only: no nav, no menu action, no bar. */
 export function isQuietChrome(type: PageType): boolean {
   return type === "cart" || type === "checkout" || type === "order";
@@ -196,8 +185,12 @@ export function barFor(type: PageType): { id: BarId; season?: SeasonId } | null 
 
 export interface ChromeDoor {
   title: string;
-  /** The hint on the right; the menu and footer use the same words (Round 2b). */
+  /** The footer's hint on the right. The menu shows no hints (menu round 2, 2026-10-07). */
   note: string;
+  /** The menu's own wording where it differs from the footer's title. */
+  menuTitle?: string;
+  /** A shorter menu title for phones under 375px, so the row stays on one line. */
+  menuTitleShort?: string;
   href: string;
   external?: boolean;
   /** Rendered with WeddingCallLink (booking_start, booking_type wedding_call). */
@@ -213,6 +206,9 @@ const sleeps = properties.map((p) => p.guests);
 
 /** Up to 125 guests: the wedding capacity stated in src/data/weddings.ts. */
 const WEDDING_GUESTS = 125;
+
+/** The one line under Weddings in the menu (the coos are the #1 reason couples come). */
+export const WEDDING_MENU_NOTE = `Up to ${WEDDING_GUESTS} guests, plus the coos`;
 
 export function weddingDoors(): ChromeDoor[] {
   return [
@@ -231,6 +227,8 @@ export function weddingDoors(): ChromeDoor[] {
     {
       title: "Call with Connor",
       note: `Free, ${call.durationMin} minutes`,
+      menuTitle: `Free ${call.durationMin}-minute call with Connor`,
+      menuTitleShort: "Free call with Connor",
       href: nativeCalendarEnabled() ? "/wedding-call" : BOOKING_LINKS.weddingCall,
       weddingCall: true,
       current: (p) => under(p, "/wedding-call"),
@@ -285,6 +283,8 @@ export function visitDoors(): ChromeDoor[] {
 
 export interface ChromeLink {
   label: string;
+  /** The menu's one-line wording, where shorter than the footer's. */
+  menuLabel?: string;
   href: string;
   season?: SeasonId;
 }
@@ -292,8 +292,8 @@ export interface ChromeLink {
 /** The short text links under the doors, in the footer's two-by-two order (no orphan on a line). */
 export const MORE_LINKS: ChromeLink[] = [
   { label: "Celebrations", href: "/celebrations" },
-  { label: "Thanksgiving 2026", href: "/thanksgiving", season: "thanksgiving-links" },
-  { label: "About the farm", href: "/about" },
+  { label: "Thanksgiving 2026", menuLabel: "Thanksgiving", href: "/thanksgiving", season: "thanksgiving-links" },
+  { label: "About the farm", menuLabel: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 
