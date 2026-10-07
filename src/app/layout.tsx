@@ -13,7 +13,6 @@ import { MicrosoftClarity } from "@/components/layout/MicrosoftClarity";
 import { BookedIQWidget } from "@/components/layout/BookedIQWidget";
 import { AttributionTracker } from "@/components/layout/AttributionTracker";
 import { CartProvider } from "@/lib/shop/cart";
-import { CartButton } from "@/components/shop/CartButton";
 import "./globals.css";
 
 // 600 costs no extra download: both are variable fonts and Google serves the
@@ -162,7 +161,6 @@ export default function RootLayout({
         <CartProvider>
           <Header />
           <main id="main-content">{children}</main>
-          <CartButton />
           <Footer />
         </CartProvider>
         <EmailPopup />

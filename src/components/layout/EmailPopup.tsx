@@ -222,9 +222,7 @@ export function EmailPopup() {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // No `source` yet: /api/subscribe only accepts its allow list, and
-        // "lookbook-popup" is not on it, so it records as "popup".
-        body: JSON.stringify({ email, website: honeypot || undefined, _t: loadTime.current }),
+        body: JSON.stringify({ email, source: "lookbook-popup", website: honeypot || undefined, _t: loadTime.current }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
