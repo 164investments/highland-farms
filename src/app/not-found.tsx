@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import { NotFoundDoors } from "@/app/_not-found/NotFoundDoors";
 import { FieldReviewTier } from "@/components/field/Reviews";
 import { CHECK_DATE_HREF } from "@/components/layout/chrome";
-import { FieldLink, Plate } from "@/components/ui/FieldGuide";
+import { Plate } from "@/components/ui/FieldGuide";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { SPA_PRICE_PER_PERSON } from "@/data/nordic-spa";
-import { CONTACT } from "@/lib/constants";
+import { properties } from "@/data/properties";
 
 export const metadata: Metadata = {
   title: "Page not found",
@@ -15,14 +15,18 @@ export const metadata: Metadata = {
 
 const TOUR_FOR_TWO = TOUR_PARTY_SIZES.find((p) => p.guests === 2)?.total ?? 150;
 
-const moreLink =
-  "inline-flex min-h-11 items-center text-[14px] text-ink-body underline decoration-rule underline-offset-4";
+const guestCounts = properties.map((p) => p.guests);
+const MIN_SLEEPS = Math.min(...guestCounts);
+const MAX_SLEEPS = Math.max(...guestCounts);
+
+/** The menu's own wording for the lead door (weddings.ts: "Up to 125"; the coos are in the portraits). */
+const WEDDINGS_NOTE = "Up to 125 guests, plus the coos";
 
 export default function NotFound() {
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h)] font-sans text-ink">
       <section aria-labelledby="not-found-title" className="px-5 pb-14 pt-6 lg:px-16 lg:pb-24 lg:pt-16">
-        {/* Phones: the four doors first, the photo after them, so every door sits inside 660px (rule 15).
+        {/* Phones: the Weddings door and three rows first, the photo after them, so every door sits inside 660px (rule 15).
             Desktop keeps the photo on the left. */}
         <div className="mx-auto flex max-w-[1180px] flex-col lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-x-16">
           <Plate
@@ -52,47 +56,20 @@ export default function NotFound() {
               The page you wanted isn&rsquo;t here. The herd is, and so is everything below.
             </p>
 
-            <FieldReviewTier
-              tier="compact"
-              link
-              className="mt-1 min-h-11 w-full justify-center text-[13.5px] lg:w-fit lg:justify-start lg:text-[14px]"
-            />
             <NotFoundDoors
               weddingsHref={CHECK_DATE_HREF}
+              weddingsNote={WEDDINGS_NOTE}
               tourHint={`$${TOUR_FOR_TWO} for two`}
               spaHint={`$${SPA_PRICE_PER_PERSON} per person`}
-            />
-            <nav aria-label="More pages" className="mt-5 border-t border-rule pt-1 lg:mt-6">
-              <ul role="list" className="m-0 flex list-none flex-wrap justify-center gap-x-6 p-0 lg:justify-start">
-                <li>
-                  <FieldLink href="/wedding-portfolio" className={moreLink}>
-                    Real weddings
-                  </FieldLink>
-                </li>
-                <li>
-                  <FieldLink href="/shop" className={moreLink}>
-                    Farm shop
-                  </FieldLink>
-                </li>
-                <li>
-                  <FieldLink href="/contact" className={moreLink}>
-                    Contact
-                  </FieldLink>
-                </li>
-              </ul>
-              <p className="m-0 mt-1 text-[14px] text-ink-note">
-                Or call the farm at{" "}
-                <span className="inline-flex min-h-11 items-center whitespace-nowrap">
-                  <a
-                    href={`tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`}
-                    className="font-medium text-pine underline decoration-pine-line underline-offset-4"
-                  >
-                    {CONTACT.phone}
-                  </a>
-                  .
-                </span>
-              </p>
-            </nav>
+              staysHint={`Sleeps ${MIN_SLEEPS} to ${MAX_SLEEPS}`}
+              shopHint="Free pickup"
+            >
+              <FieldReviewTier
+                tier="compact"
+                link
+                className="mt-1.5 min-h-11 w-full justify-center text-[13.5px] lg:w-fit lg:justify-start lg:text-[14px]"
+              />
+            </NotFoundDoors>
           </div>
         </div>
       </section>
