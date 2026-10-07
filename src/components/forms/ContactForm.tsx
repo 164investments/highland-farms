@@ -1,8 +1,8 @@
-import { FIVE_STAR_COUNT } from "@/lib/reviews";
+import { FIVE_STAR_COUNT, REVIEW_COUNT } from "@/lib/reviews";
 import { eventYearOptions } from "@/lib/inquiry-mapping";
 import { InquiryForm, type InquiryFormProps } from "./InquiryForm";
 
-export type ContactFormProps = Omit<InquiryFormProps, "fiveStarCount" | "yearOptions">;
+export type ContactFormProps = Omit<InquiryFormProps, "fiveStarCount" | "reviewTotal" | "yearOptions">;
 
 /**
  * The inquiry form ("Check your date"), for weddings, celebrations and the
@@ -16,5 +16,5 @@ export type ContactFormProps = Omit<InquiryFormProps, "fiveStarCount" | "yearOpt
  * form switches to the visitor's current years after it mounts.
  */
 export function ContactForm(props: ContactFormProps) {
-  return <InquiryForm {...props} fiveStarCount={FIVE_STAR_COUNT} yearOptions={eventYearOptions()} />;
+  return <InquiryForm {...props} fiveStarCount={FIVE_STAR_COUNT} reviewTotal={REVIEW_COUNT} yearOptions={eventYearOptions()} />;
 }

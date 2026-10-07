@@ -49,11 +49,13 @@ const LINK = "flex min-h-11 items-center font-sans text-[15px] leading-tight tex
 const EYEBROW = "m-0 font-display text-[16px] italic leading-tight text-fern lg:text-[18px]";
 const NOTE = "m-0 font-display text-[16px] italic leading-tight text-ink-note";
 /* Dotted lines: a dot before each item, clipped where a line starts, so no line begins or ends on a dot. */
-/* Under 375px the dotted lines become an even two-column grid, so no word sits alone on a line. */
+/* On phones the dotted lines become an even two-column grid, so no word sits alone on a line (mobile review r2). */
 const DOTS =
-  "m-0 flex list-none flex-wrap p-0 [--sep:20px] -ml-[var(--sep)] [clip-path:inset(0_0_0_var(--sep))] max-[374px]:ml-0 max-[374px]:grid max-[374px]:grid-cols-2 max-[374px]:gap-x-4 max-[374px]:[clip-path:none]";
+  "m-0 flex list-none flex-wrap p-0 [--sep:20px] -ml-[var(--sep)] [clip-path:inset(0_0_0_var(--sep))] max-lg:ml-0 max-lg:grid max-lg:grid-cols-2 max-lg:gap-x-4 max-lg:[clip-path:none]";
 const DOT_ITEM =
-  "flex items-center before:w-[var(--sep)] before:flex-none before:text-center before:text-ink-meta before:content-['·'] max-[374px]:before:hidden";
+  "flex items-center before:w-[var(--sep)] before:flex-none before:text-center before:text-ink-meta before:content-['·'] max-lg:before:hidden";
+/* The small label over each email. */
+const EMAIL_LABEL = "m-0 pt-1.5 text-[12px] leading-tight text-ink-meta";
 
 function Step({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
   return (
@@ -110,7 +112,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                   className="flex min-h-9 items-center gap-1.5 px-0.5 pt-1 text-[12px] text-ink-note hover:text-ink"
                 >
                   <FieldStars size={11} />
-                  <span>{REVIEW_TIER_COUNTS.compact} reviews on Google</span>
+                  <span>{REVIEW_TIER_COUNTS.compact} Highland Farms reviews on Google</span>
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </div>
@@ -152,6 +154,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
           {/* Visit the farm: plain rows, then the short links on one dotted line. */}
           {!hidden("doors") && (
             <nav aria-label="Footer: visit the farm" data-footer-part="doors" data-footer-visit="" className="mt-4 lg:col-span-4 lg:mt-0">
+              <div data-footer-visit-rows="">
               <p className={EYEBROW}>Visit the farm</p>
               <ul role="list" className="m-0 mt-1 list-none border-t border-rule p-0">
                 {visitDoors().map((door) => (
@@ -168,6 +171,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                   </li>
                 ))}
               </ul>
+              </div>
               <ul role="list" className={`${DOTS} mt-1.5`}>
                 {MORE_LINKS.map((link) => (
                   <li key={link.href} data-season-only={link.season} className={DOT_ITEM}>
@@ -191,10 +195,12 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
               </a>
               <ul role="list" className="m-0 list-none p-0">
                 <li>
-                  <a href={`mailto:${CONTACT.email}`} className={`${LINK} break-all`}>{CONTACT.email}</a>
+                  <p className={EMAIL_LABEL}>Weddings and events</p>
+                  <a href={`mailto:${CONTACT.email}`} className={`${LINK} min-h-9 break-all`}>{CONTACT.email}</a>
                 </li>
                 <li>
-                  <a href={`mailto:${CONTACT.emailAlt}`} className={`${LINK} break-all`}>{CONTACT.emailAlt}</a>
+                  <p className={EMAIL_LABEL}>Everything else</p>
+                  <a href={`mailto:${CONTACT.emailAlt}`} className={`${LINK} min-h-9 break-all`}>{CONTACT.emailAlt}</a>
                 </li>
               </ul>
             </div>
@@ -255,6 +261,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
         <div className="mx-auto flex max-w-[1180px] flex-col gap-2 text-[13px] text-ink-note lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             <FieldDrawing name="highland-cow-head" className="h-9 w-9 shrink-0" sizes="36px" />
+            <p className="m-0 font-display text-[18px] leading-tight text-ink">Highland Farms</p>
             <p data-footer-slim-help="" className="m-0">
               Questions about an order? Call{" "}
               <a href={TEL} className="whitespace-nowrap font-medium text-pine">

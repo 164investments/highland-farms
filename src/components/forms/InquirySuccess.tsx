@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { FieldArrow, fieldCtaClass, toRoman } from "@/components/ui/FieldGuide";
@@ -44,17 +44,30 @@ export function InquirySuccess({
     ? `Our events team checks ${dateText} against the farm calendar${flexible ? ", knowing you're flexible" : ""}.`
     : "Our events team checks the farm calendar for open dates.";
 
-  const steps = wedding
+  // An email never ends a sentence here: on a narrow phone the closing period wrapped onto a line of
+  // its own (mobile review r2), so the address sits on its own line, as a value, with no period.
+  const steps: { key: string; body: ReactNode }[] = wedding
     ? [
-        checkStep,
-        `They write back to ${email}\u2060 with what's open.`,
-        "If the farm feels right, you set a time to talk it through with Connor.",
+        { key: "check", body: checkStep },
+        { key: "write", body: `They write back to ${email} with what's open.` },
+        { key: "call", body: "If the farm feels right, you set a time to talk it through with Connor." },
       ]
     : [
-        dateText
-          ? `Our team reads your note and checks ${dateText} against the farm calendar.`
-          : "Our team reads your note and checks the farm calendar.",
-        `We write back to ${email}\u2060.`,
+        {
+          key: "check",
+          body: dateText
+            ? `Our team reads your note and checks ${dateText} against the farm calendar.`
+            : "Our team reads your note and checks the farm calendar.",
+        },
+        {
+          key: "write",
+          body: (
+            <>
+              We write back to
+              <span className="block font-medium text-ink">{email}</span>
+            </>
+          ),
+        },
       ];
 
   const telHref = `tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`;
@@ -75,11 +88,11 @@ export function InquirySuccess({
       <p className="mt-5 font-sans text-[14px] font-medium text-ink">What happens next</p>
       <ol className="mt-2 border-t border-rule">
         {steps.map((step, i) => (
-          <li key={step} className="flex gap-4 border-b border-rule py-3">
+          <li key={step.key} className="flex gap-4 border-b border-rule py-3">
             <span aria-hidden="true" className="w-6 shrink-0 font-display text-[20px] italic leading-none text-fern">
               {toRoman(i + 1)}
             </span>
-            <span className="min-w-0 font-sans text-[15px] leading-relaxed text-ink-body [overflow-wrap:anywhere]">{step}</span>
+            <span className="min-w-0 font-sans text-[15px] leading-relaxed text-ink-body [overflow-wrap:anywhere]">{step.body}</span>
           </li>
         ))}
       </ol>

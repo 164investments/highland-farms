@@ -117,10 +117,15 @@ body:has([data-footer-quiet="bare"]) [data-footer-slim-help] {
   display: none;
 }
 
-/* The footer by page type (mobile review r1): pages that already sell weddings (home, weddings, the
-   journal and couple pages, about) and the shop drop the footer's plate and Weddings group; visit,
-   stay, celebration, gift and Thanksgiving pages lead with Visit the farm on phones. */
-body:has([data-masthead="home"], [data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead="about"], [data-masthead="shop"]) [data-footer-weddings] {
+/* The footer by page type (mobile review r1, r2): the wedding pages (weddings, the journal and couple
+   pages, about) and celebrations, which carries its own wedding band, drop the footer's plate and Weddings
+   group; home and the shop keep the plate and Weddings group but drop the visit rows (home's visit index and
+   the shop's gift card sit just above); visit, stay, celebration, gift and Thanksgiving pages lead with Visit
+   the farm on phones. */
+body:has([data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead="about"], [data-masthead="celebrations"]) [data-footer-weddings] {
+  display: none;
+}
+body:has([data-masthead="home"], [data-masthead="shop"]) [data-footer-visit-rows] {
   display: none;
 }
 @media (max-width: 1023px) {
@@ -314,6 +319,13 @@ html {
   action fades (CONSISTENCY #9) and the chat launcher rises above the bar.
   Bar height: --sticky-bar-h (:root).
 */
+/* Under 375px the bar is compact (8px + 48px button + max(10px, inset)), still two lines (mobile review r2). */
+@media (max-width: 374.98px) {
+  :root {
+    --sticky-bar-h: calc(57px + max(10px, env(safe-area-inset-bottom)));
+  }
+}
+
 @media (max-width: 1023.98px) {
   html[data-sticky] {
     scroll-padding-bottom: calc(var(--sticky-bar-h) + 8px);

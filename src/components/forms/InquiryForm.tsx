@@ -80,6 +80,8 @@ export interface InquiryFormProps {
   placement?: string;
   /** From the server wrapper (FIVE_STAR_COUNT), so the review JSON stays off the client. */
   fiveStarCount?: number;
+  /** From the server wrapper (REVIEW_COUNT): the line reads "244 of 254 reviews on Google are five stars". */
+  reviewTotal?: number;
   /**
    * Year options as the server rendered them (the server wrapper computes them
    * at build time). Hydration uses this list, so prerendered HTML and the client
@@ -158,6 +160,7 @@ export function InquiryForm({
   softPathsForAll = false,
   placement,
   fiveStarCount,
+  reviewTotal,
   yearOptions,
 }: InquiryFormProps) {
   const uid = useId();
@@ -632,7 +635,9 @@ export function InquiryForm({
           {showTrustSignals && typeof fiveStarCount === "number" && fiveStarCount > 0 && (
             <p className="-mt-1 flex items-center gap-2 font-sans text-[13px] text-ink-note">
               <FieldStars size={13} />
-              {fiveStarCount} five-star reviews on Google
+              {typeof reviewTotal === "number" && reviewTotal >= fiveStarCount
+                ? `${fiveStarCount} of ${reviewTotal} reviews on Google are five stars`
+                : `${fiveStarCount} five-star reviews on Google`}
             </p>
           )}
         </form>
