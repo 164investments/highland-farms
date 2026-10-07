@@ -12,6 +12,10 @@ interface StickyMobileCTAProps {
   external?: boolean;
   /** If provided, the CTA fires onClick instead of navigating (e.g. to open a modal). */
   onClick?: () => void;
+  /** Leave the right 88px of the strip free for the chat bubble. */
+  reserveChat?: boolean;
+  /** Sets data-cta on the button for click tracking. */
+  ctaId?: string;
 }
 
 export function StickyMobileCTA({
@@ -21,6 +25,8 @@ export function StickyMobileCTA({
   className,
   external,
   onClick,
+  reserveChat,
+  ctaId,
 }: StickyMobileCTAProps) {
   // One primary button on screen at a time: hide while any element marked
   // data-hero-cta is in view. With no marked element, show after 400px of scroll.
@@ -65,22 +71,32 @@ export function StickyMobileCTA({
       aria-hidden={!shown}
       inert={!shown}
     >
-      <div className="bg-paper border-t border-rule px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+      <div
+        className={cn(
+          "bg-paper border-t border-rule px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]",
+          reserveChat && "pr-[88px]",
+        )}
+      >
         {onClick ? (
-          <button type="button" onClick={onClick} className={linkClasses}>
+          <button type="button" onClick={onClick} className={linkClasses} data-cta={ctaId}>
             {inner}
           </button>
+        ) : href.startsWith("mailto:") ? (
+          <a href={href} className={linkClasses} data-cta={ctaId}>
+            {inner}
+          </a>
         ) : external ? (
           <a
             href={href}
             target="_blank"
             rel="noopener noreferrer"
             className={linkClasses}
+            data-cta={ctaId}
           >
             {inner}
           </a>
         ) : (
-          <Link href={href} className={linkClasses}>
+          <Link href={href} className={linkClasses} data-cta={ctaId}>
             {inner}
           </Link>
         )}

@@ -58,6 +58,8 @@ Its hero edits the actual Lodge dining-room photo with Thanksgiving table
 styling, which the caption identifies. Accommodation photo sets live with the
 package data; the whole-farm card shows the Lodge, Cottage and Camp separately.
 Accommodation and experience photos use the existing real farm assets.
+The page uses the Field Guide paper system (`src/components/ui/FieldGuide.tsx`):
+its hero lives in `src/app/thanksgiving/ThanksgivingHero.tsx` beside the page.
 
 | Adding… | Put it in |
 |---|---|
