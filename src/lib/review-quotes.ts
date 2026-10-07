@@ -74,3 +74,15 @@ export const SPA_QUOTE: QuoteSpec = {
   sentenceStartsWith: "The sauna was great",
   topic: "Nordic Forest Spa",
 };
+
+/**
+ * Quote on /thanksgiving. Kamakila Waiwaiole's review (2025-06-23) opens "My
+ * family and I spent a few nights in the lodge a couple weeks back." It does
+ * not mention Thanksgiving, so the attribution says Lodge, not the package.
+ */
+export const THANKSGIVING_QUOTE: QuoteSpec = {
+  author: "Kamakila Waiwaiole",
+  date: "2025-06-23",
+  sentenceStartsWith: "The property is delicately maintained",
+  topic: "Family stay in the Lodge",
+};

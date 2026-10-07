@@ -1,60 +1,190 @@
-// Package details supplied by Anne Frankson, October 5, 2026.
-// November 24–28 is four nights; the email's lone "three nights" was a typo.
+// Package details from Anne (AJ) Frankson: the October 5, 2026 package email,
+// her October 6 group-spa answer, and the October 6 edits she and Jalene sent.
+// November 24–28 is four nights; the first email's lone "three nights" was a typo.
 // Stay-package terms must be confirmed by the team, not borrowed from tours/spa.
 export const thanksgiving = {
   title: "A Highland Farms Thanksgiving",
-  dates: "November 24–28, 2026",
+  dates: "November 24 to 28, 2026",
   nights: 4,
   email: "info@highlandfarms-oregon.com",
   packages: [
     {
       id: "lodge",
-      name: "Thanksgiving at the Lodge",
-      accommodation: "William Wallace Lodge",
-      guests: 8,
+      name: "The Lodge",
+      sleeps: 8,
       price: 5000,
-      description: "Bring your family together in the Lodge, with space for eight and a table to gather around.",
-      images: [
-        { src: "/images/properties/lodge-living-pro.jpg", alt: "Leather sofas beneath the timber ceiling in William Wallace Lodge", label: "Lodge" },
-      ],
+      forWho: "For one family under one roof, around one table.",
+      description:
+        "William Wallace Lodge: four bedrooms, a full kitchen, a wood fireplace, a cedar hot tub and a dining room that seats ten.",
+      stay: "William Wallace Lodge",
+      spa: "1 session",
+      cta: "Check Lodge availability",
     },
     {
       id: "whole-farm",
-      name: "The Whole Farm Thanksgiving",
-      accommodation: "Full private farm stay",
-      guests: 20,
+      name: "The Whole Farm",
+      sleeps: 20,
       price: 11000,
-      description: "Make the farm yours for the holiday, with the Lodge, Cottage and Camp reserved together.",
-      images: [
-        { src: "/images/properties/cottage.jpg", alt: "Cedar-sided William Wallace Lodge with its wrap-around deck", label: "Lodge" },
-        { src: "/images/properties/lodge.jpg", alt: "Bonnie Lass Cottage with its cedar exterior, metal roof and outdoor patio", label: "Cottage" },
-        { src: "/images/properties/camp-1.jpg", alt: "Silver Airstream and outdoor seating at the Highland Farms Camp", label: "Camp" },
-      ],
+      forWho: "For the whole family, grandparents to cousins, with every stay on the farm to yourselves.",
+      description:
+        "The Lodge, Bonnie Lass Cottage and the Camp, with a cedar hot tub at the Lodge and another at the Cottage.",
+      stay: "Lodge, Cottage and Camp",
+      spa: "2 sessions",
+      cta: "Check whole-farm availability",
     },
   ],
-  inclusions: [
-    { title: "Four nights on the farm", description: "Settle into our countryside accommodations, surrounded by towering evergreens and fresh mountain air." },
-    { title: "Thanksgiving dinner", description: "A farm-to-table holiday feast with farm-fresh turkey, seasonal produce from local farmers, and a menu celebrating the harvest." },
-    { title: "Friday breakfast package", description: "Highland Farms sausage, farm-fresh eggs and seasonal accompaniments for the morning after Thanksgiving." },
-    { title: "A Nordic spa session", description: "Warm up in the sauna, take a refreshing cold plunge, and slow down in the forest." },
-    { title: "A guided farm tour", description: "Meet our Scottish Highland cows, get to know their personalities, and hear the stories behind the farm." },
-    { title: "A fall family photoshoot", description: "Capture your Thanksgiving together against the autumn scenery of Highland Farms." },
-    { title: "Time to explore the grounds", description: "Enjoy access to the farm grounds throughout your stay, with time for quiet walks and the simple pleasures of farm life." },
+  // The three stays, shown above the package comparison.
+  // Filename trap: properties/cottage.jpg is the Lodge, properties/lodge.jpg is the Cottage.
+  stays: [
+    { src: "/images/properties/cottage.jpg", alt: "Cedar-sided William Wallace Lodge with its wrap-around deck", label: "Lodge", position: "object-[45%_55%]" },
+    { src: "/images/properties/lodge.jpg", alt: "Bonnie Lass Cottage with its cedar exterior, metal roof and outdoor patio", label: "Cottage", position: "object-[50%_60%]" },
+    { src: "/images/properties/camp-1.jpg", alt: "Silver Airstream and outdoor seating at the Highland Farms Camp", label: "Camp", position: "object-[50%_62%]" },
   ],
-  upgrades: ["Premium local wine pairing with dinner", "A private in-house chef for Friday breakfast", "A spa charcuterie plate"],
+  // Selling order. Every number here came from the team's October 6 edits.
+  inclusions: [
+    {
+      term: "Thanksgiving dinner, cooked for you",
+      detail:
+        "Our in-house chef and team cook a menu you shape around your family's favorites and allergies, so your traditions make the table. Dishes and cleanup are on us, and the leftovers go in your fridge.",
+    },
+    {
+      term: "Four nights on the farm",
+      detail: "Arrive Tuesday, November 24. Leave Saturday, November 28. Thanksgiving dinner is Thursday.",
+    },
+    {
+      term: "A welcome farm tour",
+      detail:
+        "One guided hour when you check in, up close with the Scottish Highland cows and the sheep, peacocks and guardian dogs that share the farm.",
+    },
+    {
+      term: "A family photoshoot",
+      detail:
+        "One hour around the property with our in-house photographer, and 35 edited photos to keep. Photos are taken on the grounds, not in with the animals.",
+    },
+    {
+      term: "Nordic spa time",
+      detail:
+        "1 session with the Lodge, 2 with the whole farm: wood-burning sauna, wet sauna and cold plunge in the forest. Ages 16 and up, any day except Thanksgiving.",
+    },
+    {
+      term: "Breakfast in the fridge",
+      detail: "Highland Farms eggs and sausage, waiting when you arrive. Cook them whenever you like.",
+      upgradeMark: true,
+    },
+    {
+      term: "Your itinerary, planned with you",
+      detail: "Once you book, the team builds a detailed plan for your four days with you and sends it before you arrive.",
+    },
+    {
+      term: "The farm, all four days",
+      detail: "Five acres of forest and pasture to wander between meals.",
+    },
+  ],
+  // The only optional upgrade (wine pairing and the spa charcuterie were dropped October 6).
+  upgrade:
+    "Want breakfast cooked for you too? Add a chef-cooked country breakfast on Friday morning, with Highland Farms eggs and sausage and signature sides. Ask for pricing.",
+  steps: [
+    {
+      title: "Send an inquiry.",
+      detail:
+        "Tell us which package, how many are coming, how many are 16 or older, and any allergies. It reserves nothing and commits you to nothing.",
+    },
+    {
+      title: "The team confirms the details.",
+      detail: "Availability, taxes, payment and the stay's cancellation terms, all before you commit.",
+    },
+    {
+      title: "Plan your four days together.",
+      detail: "Once you book, the team builds your itinerary with you and sends it before you arrive.",
+    },
+  ],
   faqs: [
-    { question: "What are the dates?", answer: "The package is November 24–28, 2026: four nights, arriving Tuesday and departing Saturday. Thanksgiving dinner is Thursday, November 26, and the breakfast package is for Friday morning. The team will confirm arrival and departure times when you book." },
-    { question: "Which package is right for our group?", answer: "The $5,000 Lodge package is for a family of eight. The $11,000 full private farm stay is for a family of twenty, with the Lodge, Cottage and Camp reserved together. Email us with your group size to discuss the best fit and sleeping arrangements." },
-    { question: "Will everyone use the spa at the same time?", answer: "A Nordic spa session is included in each package. Please ask the team to confirm session timing and how your group's spa visits will be arranged when you inquire." },
-    { question: "Is Friday breakfast prepared by a chef?", answer: "The included breakfast package features Highland Farms sausage, farm-fresh eggs and seasonal accompaniments. A private in-house chef for that breakfast is an optional upgrade." },
-    { question: "How do we book?", answer: "Email info@highlandfarms-oregon.com with your preferred package, guest count and any questions. The team will confirm availability, applicable taxes, optional upgrade pricing, payment details and the stay package's cancellation terms before you commit. Sending an inquiry does not reserve the stay." },
-    { question: "Can you accommodate dietary needs?", answer: "Please include any allergies or dietary needs in your inquiry so the team can confirm what can be accommodated before you book." },
-    { question: "Is a day on Mt. Hood included?", answer: "You'll be near Mt. Hood for a mountain day during your stay. Mountain activities, lift tickets and transportation are not listed as package inclusions; ask the team if you'd like help planning your visit." },
+    {
+      question: "What are the dates?",
+      answer:
+        "Four nights: arrive Tuesday, November 24, 2026, and leave Saturday, November 28. Thanksgiving dinner is Thursday, November 26. The team confirms check-in and check-out times when you book.",
+    },
+    {
+      question: "Which package is right for us?",
+      answer:
+        "The Lodge package is William Wallace Lodge, which sleeps 8, for $5,000. The Whole Farm package adds Bonnie Lass Cottage and the Camp, sleeps 20, and includes 2 spa sessions instead of 1, for $11,000. Dinner, breakfast, the farm tour, the photoshoot and your itinerary come with both. Not sure? Send your headcount and the team will help you choose.",
+    },
+    {
+      question: "Is breakfast cooked by a chef?",
+      answer:
+        "No. The included breakfast is Highland Farms eggs and sausage, in your fridge when you arrive, for you to cook whenever you like. If you'd like a chef to cook for you, add the country breakfast upgrade: a chef-cooked breakfast on Friday morning with Highland Farms eggs and sausage and signature sides. Ask for pricing when you inquire.",
+    },
+    {
+      question: "How does the spa work?",
+      answer:
+        "The Lodge package includes 1 Nordic spa session, and the Whole Farm package includes 2. The spa has a wood-burning dry sauna, a wet sauna and a cold plunge in the forest. Robes and towels are provided, so just bring a swimsuit. It's for guests 16 and older, and sessions can't be scheduled on Thanksgiving Day. After you book, the team asks how many adults and kids are coming and plans the sessions with you.",
+    },
+    {
+      question: "Can we bring the kids?",
+      answer:
+        "Yes. Dinner, breakfast, the farm tour and the photoshoot are for the whole family. The spa is for ages 16 and up, so tell us how many guests are under 16 when you inquire. The farm paths aren't stroller friendly.",
+    },
+    {
+      question: "Can you work around allergies and dietary needs?",
+      answer:
+        "Yes. You shape the Thanksgiving menu with the team around your family's preferences and allergies. List them in your inquiry so the team can plan from the start.",
+    },
+    {
+      question: "What about the other meals?",
+      answer:
+        "Thanksgiving dinner and the breakfast package are the meals included. The Lodge has a full kitchen for the rest of your stay.",
+    },
+    {
+      question: "What should we bring?",
+      answer:
+        "Swimsuits for the spa, closed-toe shoes for the farm tour, and rain boots and a rain jacket, because the farm is outdoors and late November here is wet. And bring your family's must-have dishes to the menu planning.",
+    },
+    {
+      question: "Is a day on Mt. Hood included?",
+      answer:
+        "No. Mountain activities, lift tickets and transportation aren't part of the package. If you want a day on the mountain, tell the team while you build your itinerary so the farm experiences fit around it.",
+    },
+    {
+      question: "Can we bring our dog?",
+      answer: "No. Outside pets aren't allowed at Highland Farms. Service animals are permitted under ADA requirements.",
+    },
+    {
+      question: "How do we book?",
+      answer:
+        "Tap any \"Check availability\" button to open a ready-to-send email, or write to info@highlandfarms-oregon.com. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes, payment and the stay's cancellation terms before you commit. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
+    },
   ],
 } as const;
 
-export function thanksgivingInquiryHref(packageName?: string, guests?: number) {
-  const subject = `${thanksgiving.title} 2026${packageName ? `: ${packageName}` : ""}`;
-  const body = `Hello Highland Farms,\n\nI'm interested in the ${thanksgiving.dates} four-night Thanksgiving stay${packageName ? `, ${packageName}` : ""}.\n\nGuest count: ${guests ?? ""}\nOptional upgrades or dietary needs: \n\nPlease confirm availability and booking details.\n`;
+export type ThanksgivingPackage = (typeof thanksgiving.packages)[number];
+
+/** Price per guest when every bed is filled, rounded to the dollar. */
+export function perGuest(pkg: ThanksgivingPackage) {
+  return Math.round(pkg.price / pkg.sleeps);
+}
+
+export function thanksgivingInquiryHref(pkg?: ThanksgivingPackage) {
+  const label = pkg ? `${pkg.name} (sleeps ${pkg.sleeps})` : undefined;
+  const subject = `Thanksgiving 2026 inquiry${label ? `: ${label}` : ""}`;
+  const body = [
+    "Hello Highland Farms,",
+    "",
+    `We'd love to spend Thanksgiving on the farm, ${thanksgiving.dates}.`,
+    "",
+    `Package: ${label ?? "The Lodge (sleeps 8) or The Whole Farm (sleeps 20)?"}`,
+    "Total guests:",
+    "Guests 16 and older:",
+    "Guests under 16:",
+    "Allergies or dietary needs:",
+    "Dishes our family can't skip:",
+    "Interested in the Friday country breakfast upgrade? (yes / no / send pricing)",
+    "Questions:",
+    "",
+    "Name:",
+    "Phone:",
+    "",
+    "Thank you!",
+    "",
+  ].join("\n");
   return `mailto:${thanksgiving.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

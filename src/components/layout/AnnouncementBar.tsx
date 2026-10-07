@@ -198,24 +198,8 @@ const DEFAULT: Variant = {
   ),
 };
 
-const THANKSGIVING: Variant = {
-  id: "hf-bar-thanksgiving-2026",
-  layout: "single",
-  body: (
-    <>
-      <Msg>
-        Thanksgiving on the farm<span className="hidden lg:inline"> &middot; November 24–28, 2026</span>
-      </Msg>
-      <Link href="/thanksgiving#packages" className={LINK_CLASS}>
-        See Packages
-      </Link>
-    </>
-  ),
-};
-
 function pickVariant(pathname: string | null): Variant {
   if (!pathname) return DEFAULT;
-  if (pathname === "/thanksgiving") return THANKSGIVING;
   if (pathname.startsWith("/shop")) return SHOP;
   if (pathname.startsWith("/farm-tours")) return FARM_TOURS;
   if (pathname.startsWith("/sauna-near-portland")) return SAUNA_NEAR_PDX;
@@ -242,8 +226,10 @@ export function AnnouncementBar() {
   const pathname = usePathname();
   const variant = pickVariant(pathname);
   // Checkout and cart get no announcement bar: its CTA is a competing link out
-  // of the one page whose only job is finishing the order.
-  const suppressed = pathname === "/shop/checkout" || pathname === "/shop/cart";
+  // of the one page whose only job is finishing the order. /thanksgiving's
+  // own hero already says what the bar would, so it gets none either.
+  const suppressed =
+    pathname === "/shop/checkout" || pathname === "/shop/cart" || pathname === "/thanksgiving";
 
   useEffect(() => {
     if (suppressed) {

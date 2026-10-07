@@ -5,6 +5,7 @@ import {
   buildQuote,
   HOME_QUOTES,
   SPA_QUOTE,
+  THANKSGIVING_QUOTE,
   WEDDING_QUOTE,
   shortName,
   type QuoteSpec,
@@ -54,6 +55,15 @@ test("wedding first-screen quote is Olivia Brown's words, verbatim", () => {
   // "Married here in 2025": the review says she married "just a few days ago".
   assert.ok(r.publish_time.startsWith("2025-"));
   assert.match(r.text, /got married at highland farms just a few days ago/i);
+});
+
+test("thanksgiving quote is a Lodge family stay, verbatim", () => {
+  check(THANKSGIVING_QUOTE);
+  const r = snapshot.reviews.find(
+    (x) => x.author_name === THANKSGIVING_QUOTE.author && x.publish_time?.startsWith(THANKSGIVING_QUOTE.date),
+  )!;
+  // "Family stay in the Lodge" is the attribution; the review must still say so.
+  assert.match(r.text, /my family and i spent a few nights in the lodge/i);
 });
 
 test("shortName shows a first name and last initial", () => {
