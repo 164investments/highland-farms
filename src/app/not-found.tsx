@@ -1,7 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 import { NotFoundDoors } from "@/app/_not-found/NotFoundDoors";
-import { FieldReviewTier } from "@/components/field/Reviews";
 import { CHECK_DATE_HREF } from "@/components/layout/chrome";
 import { FooterHide } from "@/components/layout/Footer";
 import { Plate } from "@/components/ui/FieldGuide";
@@ -66,13 +65,7 @@ export default function NotFound() {
               spaHint={`$${SPA_PRICE_PER_PERSON} per person`}
               staysHint={`Sleeps ${MIN_SLEEPS} to ${MAX_SLEEPS}`}
               shopHint="Free pickup"
-            >
-              <FieldReviewTier
-                tier="compact"
-                link
-                className="mt-1.5 min-h-11 w-full justify-center text-[13.5px] lg:w-fit lg:justify-start lg:text-[14px]"
-              />
-            </NotFoundDoors>
+            />
           </div>
         </div>
       </section>

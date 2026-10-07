@@ -121,12 +121,14 @@ export default async function UnsubscribePage({
                   Call {CONTACT.phone}
                 </a>
               )}
-              <p className="m-0 mt-1 flex min-h-11 items-center gap-4 font-sans text-[14px] leading-none">
-                {token ? (
+              {token ? (
+                <p className="m-0 mt-1 flex min-h-11 items-center font-sans text-[14px] leading-none">
                   <a href={TEL} className={quietLinkClass}>
                     Or call {CONTACT.phone}
                   </a>
-                ) : null}
+                </p>
+              ) : null}
+              <p className="m-0 flex min-h-11 items-center font-sans text-[14px] leading-none">
                 <Link href="/" className={quietLinkClass}>
                   Back to Highland Farms
                 </Link>

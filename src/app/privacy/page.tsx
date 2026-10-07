@@ -46,7 +46,7 @@ const summary = (
 const notice = (
   <aside
     aria-labelledby="privacy-notice-title"
-    className="border border-frame bg-paper-shade px-4 py-4 text-[15px] leading-[1.65] text-ink-body lg:px-6 lg:py-5 lg:text-[16px]"
+    className="border border-rule px-4 py-4 text-[15px] leading-[1.65] text-ink-body lg:px-6 lg:py-5 lg:text-[16px]"
   >
     <h2 id="privacy-notice-title" className="font-display text-[20px] font-semibold leading-tight text-ink lg:text-[23px]">
       Important Notice Regarding Text Messaging Data
@@ -60,12 +60,7 @@ const notice = (
   </aside>
 );
 
-const lead = (
-  <>
-    {summary}
-    {notice}
-  </>
-);
+const lead = notice;
 
 const sections: LegalSection[] = [
   {
@@ -186,7 +181,7 @@ const sections: LegalSection[] = [
         <LegalList>
           <>Standard message and data rates may apply</>
           <>Carriers are not liable for delayed or undelivered messages</>
-          <>Supported carriers include AT&amp;T, Verizon, T-Mobile, Sprint, and most regional carriers</>
+          <>Supported carriers include AT&amp;T, Verizon, T-Mobile, and most regional carriers</>
         </LegalList>
         <div className="border border-frame bg-paper-light px-4 py-3">
           <h3 className="font-sans text-[15px] font-semibold text-ink">SMS Data Protection Statement</h3>
@@ -242,6 +237,7 @@ const sections: LegalSection[] = [
     children: (
       <>
         <p>We do not sell, rent, or trade personal information. We may share information with:</p>
+        <LegalSub>Analytics and advertising</LegalSub>
         <LegalList>
           <>
             <LegalStrong>Google Tag Manager / Google Analytics:</LegalStrong> website analytics and campaign
@@ -254,6 +250,9 @@ const sections: LegalSection[] = [
           <>
             <LegalStrong>Microsoft Clarity:</LegalStrong> session analytics when enabled
           </>
+        </LegalList>
+        <LegalSub>Booking, hosting and payments</LegalSub>
+        <LegalList>
           <>
             <LegalStrong>Supabase:</LegalStrong> secure form data storage
           </>
@@ -275,6 +274,9 @@ const sections: LegalSection[] = [
           <>
             <LegalStrong>Square:</LegalStrong> farm store payments (card details go directly to Square)
           </>
+        </LegalList>
+        <LegalSub>Links, photos and messaging</LegalSub>
+        <LegalList>
           <>
             <LegalStrong>Instagram (Meta):</LegalStrong> links to our Instagram profile and featured posts; following
             those links is subject to Instagram&rsquo;s own policies
@@ -422,6 +424,7 @@ export default function PrivacyPolicyPage() {
         policy="privacy"
         title="Privacy Policy"
         updated="October 7, 2026"
+        headerExtra={summary}
         lead={lead}
         sections={sections}
         closing="Still have a question?"

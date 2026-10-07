@@ -126,6 +126,27 @@ const sections: LegalSection[] = [
   },
 ];
 
+const telHref = `tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`;
+
+const shortVersion = (
+  <aside
+    aria-label="The short version"
+    className="mt-5 max-w-[68ch] border border-frame bg-paper-shade px-4 py-4 lg:px-6 lg:py-5"
+  >
+    <p className="m-0 font-display text-[20px] font-semibold leading-tight text-ink lg:text-[23px]">
+      The short version
+    </p>
+    <p className="m-0 mt-2 text-[15px] leading-[1.6] text-ink-body">
+      Our farm tours and our Nordic Spa are not wheelchair accessible. Tours cover uneven ground, and the spa is
+      reached by uneven ground and steps. Please contact us in advance so we can help plan your visit.
+    </p>
+    <p className="m-0 mt-2 flex flex-wrap items-center gap-x-5 text-[14px] text-ink-body">
+      <LegalLink href={telHref}>{CONTACT.phone}</LegalLink>
+      <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink>
+    </p>
+  </aside>
+);
+
 export default function AccessibilityPage() {
   return (
     <>
@@ -134,6 +155,7 @@ export default function AccessibilityPage() {
         policy="accessibility"
         title="Accessibility Statement"
         updated="October 7, 2026"
+        headerExtra={shortVersion}
         sections={sections}
         closing="Still have a question?"
       />

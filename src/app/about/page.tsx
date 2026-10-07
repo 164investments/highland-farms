@@ -141,7 +141,7 @@ export default function AboutPage() {
                 "Check your date" still ends above 660px at 393x660 (rule 15). */}
             <Plate
               className="mt-2.5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
-              frameClassName="aspect-[353/217] lg:aspect-auto lg:h-[640px]"
+              frameClassName="aspect-[353/217] max-[374px]:aspect-[353/180] lg:aspect-auto lg:h-[640px]"
               caption="Connor and a calf."
             >
               <Image
@@ -155,7 +155,7 @@ export default function AboutPage() {
             </Plate>
 
             <div className="lg:col-start-1 lg:row-start-2 lg:mt-7">
-              <p className="m-0 mt-1.5 text-[15px] leading-[1.5] text-ink-body lg:mt-0 lg:max-w-[540px] lg:text-[18px] lg:leading-[1.6]">
+              <p className="m-0 mt-1.5 text-[15px] leading-[1.45] max-[374px]:text-[14px] text-ink-body lg:mt-0 lg:max-w-[540px] lg:text-[18px] lg:leading-[1.6]">
                 Five forested acres about an hour from Portland, home to a herd of Highland cows.
               </p>
               <FieldReviewTier tier="hero" className="mt-1.5 text-[14px] lg:mt-5 lg:text-[15px]" />
@@ -300,12 +300,18 @@ export default function AboutPage() {
             </ol>
             <FieldLink
               href="/farm-tours"
-              className="mt-2 flex min-h-[56px] items-center gap-3 border-b border-rule lg:mt-4"
+              className="mt-2 flex min-h-[56px] items-center gap-3 border-b border-rule max-[374px]:py-2 lg:mt-4"
             >
-              <span className="font-display text-[22px] font-medium">See tour dates</span>
-              <FieldLeader />
-              <span className="whitespace-nowrap text-[13px] text-ink-note">Private, ${TOUR_FOR_TWO} for two</span>
-              <FieldArrow size={16} className="text-fern" />
+              <span className="flex min-w-0 flex-col min-[375px]:contents">
+                <span className="font-display text-[22px] font-medium leading-tight">See tour dates</span>
+                <span className="hidden min-[375px]:contents">
+                  <FieldLeader />
+                </span>
+                <span className="whitespace-nowrap text-[13px] text-ink-note">Private, ${TOUR_FOR_TWO} for two</span>
+              </span>
+              <span className="ml-auto min-[375px]:ml-0">
+                <FieldArrow size={16} className="text-fern" />
+              </span>
             </FieldLink>
           </div>
         </section>
@@ -461,7 +467,9 @@ export default function AboutPage() {
       </div>
 
       {/* Phone sticky action: appears once the hero button scrolls away. */}
-      <FieldStickyBar primary={{ label: "Check your date", href: CHECK_DATE_HREF }} />
+      <FieldStickyBar
+        primary={{ label: "Check your date", sublabel: "Two-night weddings from $13,000", href: CHECK_DATE_HREF }}
+      />
     </>
   );
 }

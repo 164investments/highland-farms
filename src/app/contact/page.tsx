@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { StructuredData } from "@/components/layout/StructuredData";
-import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import { FieldReview } from "@/components/field/Reviews";
 import { ContactForm } from "@/components/forms/ContactForm";
 import {
@@ -12,8 +11,6 @@ import {
   fieldCtaClass,
   fieldEyebrowClass,
 } from "@/components/ui/FieldGuide";
-import { FooterHide } from "@/components/layout/Footer";
-import { giftCertificatesHref } from "@/lib/booking/flag";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { CONTACT_FORM_QUOTE } from "./quotes";
@@ -51,24 +48,6 @@ const phoneThenStop = (
 );
 
 const mapsQuery = encodeURIComponent(CONTACT.fullAddress);
-interface Door {
-  title: string;
-  href: string;
-  external?: boolean;
-}
-
-function doors(): Door[] {
-  const gift = giftCertificatesHref();
-  return [
-    { title: "Farm tours", href: "/farm-tours" },
-    { title: "Nordic spa", href: "/nordic-spa" },
-    { title: "Stays", href: "/stay" },
-    { title: "Parties and retreats", href: "/celebrations" },
-    { title: "Gift certificates", href: gift, external: gift.startsWith("http") },
-    { title: "Farm shop", href: "/shop" },
-  ];
-}
-
 const steps = [
   { title: "The drive.", body: "About an hour from Portland, or about 25 minutes from Government Camp." },
   {
@@ -81,7 +60,6 @@ const steps = [
   },
 ] as const;
 
-const rowLink = "flex min-h-[56px] items-center justify-between gap-3 border-b border-rule py-2.5";
 /* Address over its label on phones (both rows alike), side by side from lg. Labels match the footer's. */
 const emailLink = "flex min-h-11 flex-col justify-center py-1 text-[13.5px] lg:flex-row lg:items-center lg:justify-start lg:gap-x-2";
 const mapLink = "inline-flex min-h-11 items-center text-[14px] font-medium text-pine";
@@ -90,7 +68,6 @@ export default function ContactPage() {
   return (
     <>
       <StructuredData pathname="/contact" />
-      <FooterHide parts={["doors"]} />
       <div className="surface-paper bg-paper pt-[var(--header-h)] font-sans text-ink">
         <section aria-labelledby="contact-title" className="px-5 pb-10 pt-4 lg:px-16 lg:pb-20 lg:pt-12">
           <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-16">
@@ -143,25 +120,6 @@ export default function ContactPage() {
                   Check your date
                   <FieldArrow />
                 </FieldLink>
-                <WeddingCallLink
-                  content="contact-hero"
-                  title="Contact: wedding call"
-                  className="mt-2 flex min-h-11 items-center gap-3 lg:mt-5"
-                >
-                  <span className="shrink-0 border border-frame bg-paper-light p-[2px]">
-                    <Image
-                      src="/images/team/connor-mcwilliams.jpg"
-                      alt=""
-                      width={192}
-                      height={192}
-                      sizes="36px"
-                      className="block h-9 w-9 object-cover"
-                    />
-                  </span>
-                  <span className="border-b border-rule pb-0.5 text-[14.5px] text-ink-body lg:text-[15px]">
-                    Book a free 45-minute call with Connor
-                  </span>
-                </WeddingCallLink>
               </div>
             </div>
 
@@ -174,7 +132,7 @@ export default function ContactPage() {
             >
               {/* The form draws its own framed card (cow seal); success replaces it inside that card, never a card in a card. */}
               <ContactForm
-                heading="Check your date"
+                heading="Tell us about your day"
                 headingLevel="h2"
                 subtitle="Now booking 2027 weddings. Tell us your month and guest count, and we'll check the farm calendar for you. No commitment."
                 placement="contact"
@@ -189,34 +147,23 @@ export default function ContactPage() {
               />
             </div>
 
-            {/* Everything else: one row per reason. */}
-            <nav aria-label="Other ways to reach the farm" className="mt-10 lg:col-start-1 lg:row-start-2 lg:mt-12">
-              <p className={cn(fieldEyebrowClass, "m-0 text-[17px] lg:text-[20px]")}>Everything else</p>
-              <ul role="list" className="m-0 mt-2 list-none border-t border-rule p-0">
-                {doors().map((door) => (
-                  <li key={door.title}>
-                    <FieldLink href={door.href} external={door.external} className={rowLink}>
-                      <span className="font-display text-[21px] font-semibold leading-tight">{door.title}</span>
-                      <FieldArrow size={16} className="text-fern" />
-                    </FieldLink>
-                  </li>
-                ))}
-                <li className="border-b border-rule py-2.5">
-                  <span className="block font-display text-[21px] font-semibold leading-tight">Email</span>
-                  <a href={`mailto:${CONTACT.email}`} className={emailLink}>
-                    <span className="font-medium text-ink underline decoration-rule underline-offset-4">
-                      {CONTACT.email}
-                    </span>
-                    <span className="text-ink-note">Weddings</span>
-                  </a>
-                  <a href={`mailto:${CONTACT.emailAlt}`} className={emailLink}>
-                    <span className="font-medium text-ink underline decoration-rule underline-offset-4">
-                      {CONTACT.emailAlt}
-                    </span>
-                    <span className="text-ink-note">Everything else</span>
-                  </a>
-                </li>
-              </ul>
+            {/* Email: the footer carries the doors; the two addresses stay here, labelled. */}
+            <nav aria-label="Email the farm" className="mt-10 lg:col-start-1 lg:row-start-2 lg:mt-12">
+              <p className={cn(fieldEyebrowClass, "m-0 text-[17px] lg:text-[20px]")}>Email</p>
+              <div className="mt-2 border-y border-rule py-2.5">
+                <a href={`mailto:${CONTACT.email}`} className={emailLink}>
+                  <span className="font-medium text-ink underline decoration-rule underline-offset-4">
+                    {CONTACT.email}
+                  </span>
+                  <span className="text-ink-note">Weddings</span>
+                </a>
+                <a href={`mailto:${CONTACT.emailAlt}`} className={emailLink}>
+                  <span className="font-medium text-ink underline decoration-rule underline-offset-4">
+                    {CONTACT.emailAlt}
+                  </span>
+                  <span className="text-ink-note">Everything else</span>
+                </a>
+              </div>
               <PendingSlot
                 note="PENDING CONNOR: events over 20 guests. Once confirmed, the Parties and retreats row can add “up to 125”."
                 className="mt-2"

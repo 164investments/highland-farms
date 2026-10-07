@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { FieldArrow, FieldLink } from "@/components/ui/FieldGuide";
 
@@ -24,8 +24,6 @@ interface NotFoundDoorsProps {
   spaHint: string;
   staysHint: string;
   shopHint: string;
-  /** The review line; rendered once, under the rows. */
-  children?: ReactNode;
 }
 
 const SHOP_PATH = /\/(shop|store|product)/i;
@@ -46,7 +44,6 @@ export function NotFoundDoors({
   spaHint,
   staysHint,
   shopHint,
-  children,
 }: NotFoundDoorsProps) {
   const pathname = usePathname() ?? "";
   const shopVisitor = SHOP_PATH.test(pathname);
@@ -68,11 +65,7 @@ export function NotFoundDoors({
       : { no: 4, title: "Stays", hint: staysHint, href: "/stay" },
   ];
 
-  const quiet: QuietLink[] = [
-    { label: "Real weddings", href: "/wedding-portfolio" },
-    ...(shopVisitor ? [{ label: "Stays", href: "/stay" }] : []),
-    { label: "Contact", href: "/contact" },
-  ];
+  const quiet: QuietLink[] = shopVisitor ? [{ label: "Stays", href: "/stay" }] : [];
 
   return (
     <>
@@ -88,17 +81,13 @@ export function NotFoundDoors({
             <span className="whitespace-nowrap font-display text-[27px] font-medium leading-none min-[390px]:text-[30px] lg:text-[36px]">
               Weddings
             </span>
-            <span className="hidden items-center gap-1.5 whitespace-nowrap text-[13.5px] font-semibold leading-none min-[390px]:flex">
-              Check your date
-              <FieldArrow size={14} />
-            </span>
           </span>
           <span className="mt-1.5 block font-display text-[16px] italic leading-tight text-paper-light/90 lg:text-[18px]">
             {weddingsNote}
           </span>
-          <span className="mt-2.5 flex items-center gap-1.5 whitespace-nowrap text-[13.5px] font-semibold leading-none min-[390px]:hidden">
+          <span className="mt-3 flex min-h-11 items-center justify-center gap-2 whitespace-nowrap bg-paper-light px-4 text-[15px] font-semibold leading-none text-pine">
             Check your date
-            <FieldArrow size={14} />
+            <FieldArrow size={16} />
           </span>
         </FieldLink>
 
@@ -129,19 +118,19 @@ export function NotFoundDoors({
         </ul>
       </nav>
 
-      {children}
-
-      <nav aria-label="More pages" className="mt-0.5">
-        <ul role="list" className="m-0 flex list-none flex-wrap justify-center p-0 lg:justify-start lg:[&>li:first-child>a]:pl-0">
-          {quiet.map((link) => (
-            <li key={link.href}>
-              <FieldLink href={link.href} className={quietLink}>
-                {link.label}
-              </FieldLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {quiet.length > 0 ? (
+        <nav aria-label="More pages" className="mt-0.5">
+          <ul role="list" className="m-0 flex list-none flex-wrap justify-center p-0 lg:justify-start lg:[&>li:first-child>a]:pl-0">
+            {quiet.map((link) => (
+              <li key={link.href}>
+                <FieldLink href={link.href} className={quietLink}>
+                  {link.label}
+                </FieldLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
     </>
   );
 }

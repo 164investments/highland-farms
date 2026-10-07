@@ -69,21 +69,24 @@ const sections: LegalSection[] = [
     title: "Booking & Reservations",
     children: (
       <LegalList>
-        <>All bookings are subject to availability and confirmation by Highland Farms.</>
         <>
-          Farm tours and spa sessions are paid in full when you book. For weddings, events and accommodations, any
+          <LegalStrong>All bookings are subject to availability</LegalStrong> and confirmation by Highland Farms.
+        </>
+        <>
+          <LegalStrong>Farm tours and spa sessions are paid in full when you book.</LegalStrong> For weddings, events and accommodations, any
           deposit and payment terms are specified at the time of booking.
         </>
         <>
-          By booking, you agree to the pricing, dates, and specific terms communicated during the reservation process.
+          <LegalStrong>By booking, you agree to the pricing, dates, and specific terms</LegalStrong> communicated during
+          the reservation process.
         </>
         <>
-          Farm tour and spa bookings are made through our scheduling partner (Acuity Scheduling) and are subject to
-          their terms of service in addition to ours.
+          <LegalStrong>Farm tour and spa bookings are made through our scheduling partner (Acuity Scheduling)</LegalStrong>{" "}
+          and are subject to their terms of service in addition to ours.
         </>
         <>
-          Accommodation bookings may be made through our booking partner (Hospitable) and are subject to their terms
-          in addition to ours.
+          <LegalStrong>Accommodation bookings may be made through our booking partner (Hospitable)</LegalStrong> and are
+          subject to their terms in addition to ours.
         </>
       </LegalList>
     ),
@@ -318,7 +321,10 @@ const sections: LegalSection[] = [
             <LegalStrong>Support Information:</LegalStrong> If you experience issues with the messaging program, reply
             with the keyword &ldquo;HELP&rdquo; for more assistance, or reach out directly to{" "}
             <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink> or call{" "}
-            <LegalLink href={telHref}>{CONTACT.phone}</LegalLink> during business hours.
+            <span className="whitespace-nowrap">
+              <LegalLink href={telHref}>{CONTACT.phone}</LegalLink>
+            </span>{" "}
+            during business hours.
           </>
           <>
             <LegalStrong>Carrier Liability:</LegalStrong> Carriers are not liable for delayed or undelivered messages.
@@ -330,7 +336,7 @@ const sections: LegalSection[] = [
           </>
           <>
             <LegalStrong>Supported Carriers:</LegalStrong> Our SMS program works with all major U.S. wireless
-            carriers, including AT&amp;T, T-Mobile, Verizon, Sprint, and most regional carriers.
+            carriers, including AT&amp;T, T-Mobile, Verizon, and most regional carriers.
           </>
           <>
             <LegalStrong>Age Restriction:</LegalStrong> You must be 18 years or older to participate in our SMS
