@@ -1,7 +1,10 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { Metadata } from "next";
-import { Container } from "@/components/ui/Container";
+import { NotFoundDoors } from "@/app/_not-found/NotFoundDoors";
+import { FieldReviewTier } from "@/components/field/Reviews";
+import { CHECK_DATE_HREF } from "@/components/layout/chrome";
+import { FieldLink, Plate } from "@/components/ui/FieldGuide";
+import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
 import { CONTACT } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -9,55 +12,84 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-const links = [
-  { href: "/farm-tours", label: "Farm tours" },
-  { href: "/nordic-spa", label: "Nordic Forest Spa" },
-  { href: "/weddings", label: "Weddings" },
-  { href: "/shop", label: "Farm store" },
-];
+const TOUR_FOR_TWO = TOUR_PARTY_SIZES.find((p) => p.guests === 2)?.total ?? 150;
+
+const moreLink =
+  "inline-flex min-h-11 items-center text-[14px] text-ink-body underline decoration-rule underline-offset-4";
 
 export default function NotFound() {
   return (
-    <div className="bg-cream pt-[calc(var(--header-h,128px)+1.5rem)] pb-20 sm:pb-28">
-      <Container className="max-w-3xl text-center">
-        <div className="relative mx-auto aspect-[4/3] w-full max-w-md overflow-hidden rounded-2xl shadow-sm">
-          <Image
-            src="/images/farm/cow-1.jpg"
-            alt="A Scottish Highland cow at Highland Farms"
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 448px"
-            className="object-cover"
-          />
-        </div>
-        <h1 className="mt-8 text-3xl font-normal text-charcoal sm:text-4xl">
-          That page wandered off.
-        </h1>
-        <p className="mt-3 text-base text-muted font-sans font-light">
-          Try one of these instead:
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="rounded-full border border-forest/30 px-6 py-3 text-sm text-forest font-sans transition-colors hover:bg-forest/5 hover:border-forest/50"
-            >
-              {l.label}
-            </Link>
-          ))}
-        </div>
-        <p className="mt-8 text-sm text-muted font-sans">
-          Or call us at{" "}
-          <a
-            href={`tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`}
-            className="text-forest underline underline-offset-4"
+    <div className="surface-paper bg-paper pt-[var(--header-h)] font-sans text-ink">
+      <section aria-labelledby="not-found-title" className="px-5 pb-14 pt-6 lg:px-16 lg:pb-24 lg:pt-16">
+        <div className="mx-auto max-w-[1180px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center lg:gap-x-16">
+          <Plate
+            frameClassName="h-[176px] lg:h-[400px]"
+            caption="Two of the herd and a farm dog, by the barn."
           >
-            {CONTACT.phone}
-          </a>
-          .
-        </p>
-      </Container>
+            <Image
+              src="/images/properties/gallery-3.jpg"
+              alt="Two shaggy Highland cows behind the pasture fence by the barn, with a cream farm dog lying in the grass"
+              fill
+              priority
+              sizes="(min-width: 1024px) 440px, 100vw"
+              className="object-cover object-[55%_72%]"
+            />
+          </Plate>
+
+          <div className="mt-4 text-center lg:mt-0 lg:text-left">
+            <p className="m-0 text-[11px] uppercase tracking-[0.16em] text-ink-meta lg:text-[12px]">Page not found</p>
+            <h1
+              id="not-found-title"
+              className="field-heading m-0 mt-2 font-display text-[38px] leading-[1.02] lg:text-[64px]"
+            >
+              You&rsquo;ve wandered off the trail.
+            </h1>
+            <p className="m-0 mx-auto mt-3 max-w-[30ch] text-[15px] leading-[1.55] text-ink-body lg:mx-0 lg:max-w-[46ch] lg:text-[18px]">
+              The page you wanted isn&rsquo;t here. The herd is, and so is everything below.
+            </p>
+
+            <FieldReviewTier
+              tier="compact"
+              link
+              className="mt-1 min-h-11 w-full justify-center text-[13.5px] lg:w-fit lg:justify-start lg:text-[14px]"
+            />
+            <NotFoundDoors
+              weddingsHref={CHECK_DATE_HREF}
+              tourHint={`$${TOUR_FOR_TWO} for two`}
+              spaHint="$75 per person"
+            />
+            <nav aria-label="More pages" className="mt-5 border-t border-rule pt-1 lg:mt-6">
+              <ul role="list" className="m-0 flex list-none flex-wrap justify-center gap-x-6 p-0 lg:justify-start">
+                <li>
+                  <FieldLink href="/wedding-portfolio" className={moreLink}>
+                    Real weddings
+                  </FieldLink>
+                </li>
+                <li>
+                  <FieldLink href="/shop" className={moreLink}>
+                    Farm shop
+                  </FieldLink>
+                </li>
+                <li>
+                  <FieldLink href="/contact" className={moreLink}>
+                    Contact
+                  </FieldLink>
+                </li>
+              </ul>
+              <p className="m-0 mt-1 text-[14px] text-ink-note">
+                Or call the farm at{" "}
+                <a
+                  href={`tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`}
+                  className="inline-flex min-h-11 items-center font-medium text-pine underline decoration-pine-line underline-offset-4"
+                >
+                  {CONTACT.phone}
+                </a>
+                .
+              </p>
+            </nav>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
