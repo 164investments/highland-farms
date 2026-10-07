@@ -28,6 +28,15 @@ import {
 
 export type FooterPart = "doors" | "find" | "talk" | "proof";
 
+/**
+ * A marker for pages that end quietly (the slim footer instead of the full one), like checkout, the cart
+ * and the order pages do by route. `bare` also drops the "Questions about an order?" line, for pages
+ * that already give the phone (the unsubscribe page).
+ */
+export function FooterQuiet({ bare = false }: { bare?: boolean }) {
+  return <span hidden data-footer-quiet={bare ? "bare" : ""} />;
+}
+
 /** A marker a page renders to hide footer parts it already shows. Renders nothing visible. */
 export function FooterHide({ parts }: { parts: readonly FooterPart[] }) {
   return <span hidden data-footer-hide={parts.join(" ")} />;
@@ -271,18 +280,22 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
         </div>
       </footer>
 
-      {/* Checkout: help and legal only (shown instead of the footer above; globals.css). */}
+      {/* Checkout, cart, order pages and FooterQuiet pages: help and legal only (globals.css). */}
       <footer data-footer-slim="" className="surface-paper hidden border-t border-rule bg-paper px-5 py-6 font-sans text-ink lg:px-16">
         <div className="mx-auto flex max-w-[1180px] flex-col gap-2 text-[13px] text-ink-note lg:flex-row lg:items-center lg:justify-between">
-          <p className="m-0">
-            Questions about an order? Call{" "}
-            <a href={TEL} className="whitespace-nowrap font-medium text-pine">
-              {CONTACT.phone}
-            </a>
-          </p>
+          <div className="flex items-center gap-3">
+            <FieldDrawing name="highland-cow-head" className="h-9 w-9 shrink-0" sizes="36px" />
+            <p data-footer-slim-help="" className="m-0">
+              Questions about an order? Call{" "}
+              <a href={TEL} className="whitespace-nowrap font-medium text-pine">
+                {CONTACT.phone}
+              </a>
+            </p>
+          </div>
           <p className="m-0 flex gap-5">
             <Link href="/privacy" className="inline-flex min-h-11 items-center hover:text-pine">Privacy</Link>
             <Link href="/terms" className="inline-flex min-h-11 items-center hover:text-pine">Terms</Link>
+            <Link href="/accessibility" className="inline-flex min-h-11 items-center hover:text-pine">Accessibility</Link>
           </p>
         </div>
       </footer>

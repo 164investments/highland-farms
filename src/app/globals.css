@@ -106,12 +106,15 @@ body:has([data-masthead="contact"]) [data-footer-part="talk"] {
   display: none;
 }
 
-/* Checkout: the slim footer instead of the full one. */
-body:has([data-masthead="checkout"]) [data-site-footer] {
+/* Checkout, the cart, order pages and FooterQuiet pages: the slim footer instead of the full one. */
+body:has([data-masthead="checkout"], [data-masthead="cart"], [data-masthead="order"], [data-footer-quiet]) [data-site-footer] {
   display: none;
 }
-body:has([data-masthead="checkout"]) [data-footer-slim] {
+body:has([data-masthead="checkout"], [data-masthead="cart"], [data-masthead="order"], [data-footer-quiet]) [data-footer-slim] {
   display: block;
+}
+body:has([data-footer-quiet="bare"]) [data-footer-slim-help] {
+  display: none;
 }
 
 /* Seasonal chrome (chrome.ts SEASON_SCRIPT sets html[data-season]). */

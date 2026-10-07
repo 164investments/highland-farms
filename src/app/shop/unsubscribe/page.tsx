@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { FieldArrow, Plate, fieldCtaClass, fieldEyebrowClass } from "@/components/ui/FieldGuide";
 import { CONTACT } from "@/lib/constants";
+import { FooterQuiet } from "@/components/layout/Footer";
 
 /**
  * One-click unsubscribe from cart reminders.
@@ -57,6 +58,7 @@ export default async function UnsubscribePage({
 
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
+      <FooterQuiet bare />
       <section className="px-5 pb-12 pt-4 lg:px-16 lg:pt-16">
         <div className="mx-auto max-w-[560px]">
           <Plate
