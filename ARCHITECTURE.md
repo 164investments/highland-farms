@@ -92,7 +92,8 @@ same everywhere: `src/data/farm-tours.ts`, `src/data/nordic-spa.ts`,
 `src/app/terms/page.tsx`, `src/components/shared/KnowBeforeYouBook.tsx` and
 `public/llms.txt`. Point-of-sale lines render it through `cancellationAnswer()`.
 Stays have their own line ("Cancellation terms are provided at the time of
-booking."); the tours/spa policy never applies to lodging.
+booking."), the part that is true until the farm confirms the stay terms; never
+say the strict policy does or does not apply to lodging.
 
 ## The paper masthead and first screens
 
