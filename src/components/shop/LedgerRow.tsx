@@ -32,12 +32,15 @@ export function LedgerRow({
   stock,
   index,
   objectPosition,
+  showOrderedMost = true,
 }: {
   product: Product;
   stock: StockRecord;
   index: number;
   /** Photo crop, e.g. "50% 30%". */
   objectPosition?: string;
+  /** The "Ordered most" tag; the shelf passes it for one row only. */
+  showOrderedMost?: boolean;
 }) {
   const { lines } = useCart();
   const choices = hasChoices(product);
@@ -67,7 +70,7 @@ export function LedgerRow({
           </span>
         </span>
         <span className="min-w-0 flex-1">
-          {product.featured && (
+          {product.featured && showOrderedMost && (
             <span className="mb-1 block text-[9.5px] font-semibold uppercase leading-none tracking-[0.14em] text-fern">
               Ordered most
             </span>

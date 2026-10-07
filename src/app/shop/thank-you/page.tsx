@@ -92,6 +92,7 @@ export default async function ThankYouPage({
                 <FieldNumeral n={2} className="text-[26px] lg:text-[32px]" />
                 <div>
                   <p className={STEP_TITLE}>We pack it and call you</p>
+                  <p className={STEP_BODY}>We call you when it&apos;s packed.</p>
                   <PendingSlot className="mt-1.5" note="PENDING CONNOR: time to ready. Never 'usually the same day' until he confirms." />
                 </div>
               </li>

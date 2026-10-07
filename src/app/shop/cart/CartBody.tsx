@@ -8,10 +8,8 @@ import {
   FieldArrow,
   FieldDrawing,
   FieldLeader,
-  FieldQuoteView,
   FieldReviewLine,
   fieldCtaClass,
-  type ResolvedFieldQuote,
 } from "@/components/ui/FieldGuide";
 import { BackArrowIcon, LockIcon } from "@/components/shop/icons";
 import { QtyStepper } from "@/components/shop/QtyStepper";
@@ -37,14 +35,14 @@ const keepShopping =
 
 export function CartBody({
   addOns,
-  quote,
   reviewCount,
+  reviewTotal,
   favorites,
   stock,
 }: {
   addOns: AddOn[];
-  quote: ResolvedFieldQuote | null;
   reviewCount: number;
+  reviewTotal: number;
   /** Farm favorites in stock, for the empty cart. */
   favorites: Product[];
   stock: StockRecord;
@@ -303,14 +301,13 @@ export function CartBody({
 
                 <ul className="m-0 mt-3.5 list-none space-y-2 p-0 text-[13px] leading-[1.45] text-ink-body">
                   <li>
-                    <FieldReviewLine tier="nearCta" count={reviewCount} starSize={12} className="text-[13px] text-ink-body lg:text-[13px]" />
+                    <FieldReviewLine tier="nearCta" count={reviewCount} total={reviewTotal} starSize={12} className="text-[13px] text-ink-body lg:text-[13px]" />
                   </li>
                   <li className="flex items-start gap-2.5">
                     <LockIcon size={14} className="mt-0.5 shrink-0 text-fern" />
                     Card details go straight to Square. We never see them.
                   </li>
                 </ul>
-                {quote && <FieldQuoteView {...quote} rule size="sm" className="mt-5" />}
               </aside>
 
               <Link href="/shop" className={`mt-4 inline-flex lg:hidden ${keepShopping}`}>

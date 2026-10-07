@@ -76,11 +76,13 @@ export function CheckoutBody({
   applicationId,
   locationId,
   reviewCount,
+  reviewTotal,
 }: {
   applicationId: string;
   locationId: string;
   /** FIVE_STAR_COUNT: the near-CTA tier, directly under Pay. */
   reviewCount: number;
+  reviewTotal: number;
 }) {
   const router = useRouter();
   const { detailed, subtotalCents, count, clear, ready: cartReady } = useCart();
@@ -403,8 +405,20 @@ export function CheckoutBody({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!cardRef.current || status !== "ready") return;
+    if (status === "submitting") return;
+    // Gaps first: empty required fields are marked and focused even while the card
+    // form is still loading, and this never reaches Square.
     if (!readyToPay()) return;
+    if (!cardRef.current || status !== "ready") {
+      setFailure({
+        at: "card",
+        message:
+          status === "unavailable"
+            ? "Card payment isn't loading right now. Please call us and we'll take the order."
+            : "The secure card form is still loading. Give it a moment and tap Pay again.",
+      });
+      return;
+    }
 
     setPaidWith("card");
     setStatus("submitting");
@@ -430,7 +444,7 @@ export function CheckoutBody({
   const errorRing = "border-[#8c3b2a] focus:border-[#8c3b2a]";
   const errorText = "m-0 mt-1 text-[12px] font-medium text-[#8c3b2a]";
   const shortBy = Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
-  const payDisabled = busy || status !== "ready" || Boolean(blocking);
+  const payDisabled = busy || Boolean(blocking);
 
   // The shop has one empty state, the cart's (r4): an empty checkout goes there.
   // Never while an order is being placed: a paid order clears the cart just
@@ -745,7 +759,7 @@ export function CheckoutBody({
                 <p className="m-0 mt-2.5 text-[13px] text-ink-note lg:hidden">
                   That&apos;s everything. No sales tax.
                 </p>
-                <FieldReviewLine tier="nearCta" count={reviewCount} starSize={12} className="mt-3 text-[13px] text-ink-body lg:text-[13px]" />
+                <FieldReviewLine tier="nearCta" count={reviewCount} total={reviewTotal} starSize={12} className="mt-3 text-[13px] text-ink-body lg:text-[13px]" />
               </div>
             </fieldset>
           </div>

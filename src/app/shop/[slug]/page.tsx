@@ -137,7 +137,7 @@ export default async function ProductPage({
       />
 
       {/* 1. The buy box */}
-      <section className="px-5 pb-10 pt-2 lg:px-16 lg:pb-20 lg:pt-8">
+      <section className={cn("px-5 pt-2 lg:px-16 lg:pb-20 lg:pt-8", isBeef ? "pb-10" : "pb-4")}>
         <div className="mx-auto max-w-[1312px]">
           <nav aria-label="Breadcrumb" className={cn("text-[13px] text-ink-note", isApparel && "max-lg:hidden")}>
             <Link href="/shop" className="inline-flex min-h-11 items-center hover:text-pine">Farm shop</Link>
@@ -148,12 +148,12 @@ export default async function ProductPage({
           </nav>
           <div className="mt-1 lg:mt-4 lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16">
             <div className="border border-frame bg-paper-light p-[7px] lg:self-start lg:p-2.5">
-              {/* Apparel: a taller phone frame set low on the photo, so the
-                  HIGHLAND FARMS chest print is on the first screen (r4). */}
+              {/* Apparel on phones: the whole photo, uncropped, so the face and the full
+                  HIGHLAND FARMS print both show (r1); desktop keeps the square crop. */}
               <div
                 className={cn(
                   "relative overflow-hidden lg:aspect-square lg:h-auto",
-                  isApparel ? "h-[160px] max-[359px]:h-[128px]" : "h-[176px] max-[359px]:h-[128px]",
+                  isApparel ? "h-[184px] max-[359px]:h-[132px]" : "h-[176px] max-[359px]:h-[128px]",
                 )}
               >
                 <Image
@@ -164,7 +164,9 @@ export default async function ProductPage({
                   sizes="(min-width: 1024px) 640px, calc(100vw - 54px)"
                   className={cn(
                     "object-cover",
-                    isApparel ? "object-[50%_68%]" : "object-[50%_48%]",
+                    isApparel
+                      ? "object-contain object-center lg:object-cover lg:object-[50%_68%]"
+                      : "object-[50%_48%]",
                     soldOut && "opacity-60",
                   )}
                 />
@@ -254,7 +256,7 @@ export default async function ProductPage({
                 </div>
                 <div className="grid grid-cols-[84px_1fr] gap-x-3 border-b border-rule py-3 lg:grid-cols-[104px_1fr]">
                   <dt className={DT}>Shipping</dt>
-                  <dd className={DD}>We don&apos;t ship{isApparel ? ", apparel included" : ""}.</dd>
+                  <dd className={DD}>We don&apos;t ship.{isApparel ? " Pickup or local delivery." : ""}</dd>
                 </div>
                 {isBeef && (
                   <PendingSlot
@@ -328,7 +330,7 @@ export default async function ProductPage({
 
       {/* 3. Add to the same order */}
       {extra.length > 0 && (
-        <section className="px-5 py-12 lg:px-16 lg:py-20">
+        <section className={cn("px-5 pb-12 lg:px-16 lg:py-20", isBeef ? "pt-12" : "pt-6")}>
           <div className="mx-auto max-w-[1312px]">
             <h2 className="field-heading m-0 border-b border-ink pb-2 font-display text-[26px] leading-none lg:text-[36px]">
               Add to the same order

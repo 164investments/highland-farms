@@ -26,6 +26,7 @@ const numberClass = "font-display italic [font-variant-numeric:lining-nums]";
 export function ShelfNav({ shelves, tabs }: { shelves: Shelf[]; tabs: Shelf[] }) {
   const buttons = useRef<HTMLElement>(null);
   const [showTabs, setShowTabs] = useState(false);
+  const [footerOn, setFooterOn] = useState(false);
   const [active, setActive] = useState(tabs[0]?.key ?? "");
 
   useEffect(() => {
@@ -35,6 +36,15 @@ export function ShelfNav({ shelves, tabs }: { shelves: Shelf[]; tabs: Shelf[] })
       setShowTabs(!e.isIntersecting && e.boundingClientRect.top < 0),
     );
     io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  // Release the pinned tab strip once the footer is on screen.
+  useEffect(() => {
+    const footer = document.querySelector("footer");
+    if (!footer || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(([e]) => setFooterOn(e.isIntersecting));
+    io.observe(footer);
     return () => io.disconnect();
   }, []);
 
@@ -53,6 +63,8 @@ export function ShelfNav({ shelves, tabs }: { shelves: Shelf[]; tabs: Shelf[] })
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, [tabs]);
+
+  const tabsVisible = showTabs && !footerOn;
 
   const promo = (key: string, label: string, slot: string) =>
     pushEvent("select_promotion", {
@@ -77,7 +89,7 @@ export function ShelfNav({ shelves, tabs }: { shelves: Shelf[]; tabs: Shelf[] })
                 className="group block min-h-11 text-ink"
               >
                 <span className="block border border-frame bg-paper-light p-[3px] group-hover:bg-paper-shade">
-                  <span className="relative block aspect-[3/2] overflow-hidden max-[374px]:aspect-[16/10] lg:aspect-[4/3]">
+                  <span className="relative block aspect-[2/1] overflow-hidden lg:aspect-[4/3]">
                     {s.image && (
                       <Image
                         src={s.image.src}
@@ -113,11 +125,11 @@ export function ShelfNav({ shelves, tabs }: { shelves: Shelf[]; tabs: Shelf[] })
       </nav>
 
       <div
-        aria-hidden={!showTabs}
-        inert={!showTabs}
+        aria-hidden={!tabsVisible}
+        inert={!tabsVisible}
         className={cn(
           "fixed inset-x-0 top-[60px] z-30 border-b border-rule bg-paper xl:top-[96px]",
-          showTabs ? "block" : "hidden",
+          tabsVisible ? "block" : "hidden",
         )}
       >
         <nav

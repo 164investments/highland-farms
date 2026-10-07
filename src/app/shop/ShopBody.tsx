@@ -52,14 +52,16 @@ export function ShopBody({
         const { open, out } = shelfProducts(cat, stock);
         const total = open.length + out.length;
         if (total === 0) return null;
+        // "Ordered most" on one row per shelf: the first featured item in stock.
+        const topSellerSlug = open.find((p) => p.featured)?.slug;
         return (
-          <section key={cat.key} id={cat.key} className={`scroll-mt-32 px-5 lg:scroll-mt-40 lg:px-16 lg:pt-24 ${i === 0 ? "pt-5" : "pt-10"}`}>
+          <section key={cat.key} id={cat.key} className={`scroll-mt-32 px-5 lg:scroll-mt-40 lg:px-16 lg:pt-24 ${i === 0 ? "pt-3" : "pt-10"}`}>
             <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
               <header className="lg:sticky lg:top-[170px] lg:self-start">
                 <FieldNo n={i + 1} />
                 <h2 className="field-heading m-0 mt-1 font-display text-[32px] leading-none lg:text-[44px]">{cat.label}</h2>
                 <p
-                  className={`m-0 mt-2.5 font-display text-[18px] italic leading-[1.35] text-ink-body lg:text-[20px] ${i === 0 ? "max-[374px]:hidden" : ""}`}
+                  className={`m-0 mt-2.5 font-display text-[18px] italic leading-[1.35] text-ink-body lg:text-[20px] ${i === 0 ? "max-lg:hidden" : ""}`}
                 >
                   {cat.story}
                 </p>
@@ -70,7 +72,14 @@ export function ShopBody({
               <div className="mt-4 lg:mt-0">
                 <ul className="m-0 list-none border-t border-ink p-0">
                   {open.map((p, n) => (
-                    <LedgerRow key={p.slug} product={p} stock={stock} index={n} objectPosition={PHOTO_CROPS[p.slug]} />
+                    <LedgerRow
+                      key={p.slug}
+                      product={p}
+                      stock={stock}
+                      index={n}
+                      objectPosition={PHOTO_CROPS[p.slug]}
+                      showOrderedMost={p.slug === topSellerSlug}
+                    />
                   ))}
                   <ShelfSoldOut products={out} />
                 </ul>

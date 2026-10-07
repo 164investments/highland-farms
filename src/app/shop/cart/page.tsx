@@ -4,8 +4,7 @@ import { PRODUCTS, hasChoices } from "../data";
 import { getStockMap, allSoldOut } from "@/lib/shop/inventory";
 import { isSoldOut } from "@/components/shop/track";
 import { toCents } from "@/lib/shop/money";
-import { resolveFieldQuote, REVIEW_TIER_COUNTS } from "@/components/field/Reviews";
-import { SHOP_CART_QUOTE } from "../quotes";
+import { REVIEW_TIER_COUNTS } from "@/components/field/Reviews";
 
 export const metadata: Metadata = {
   title: "Your Order",
@@ -45,8 +44,8 @@ export default async function CartPage() {
   return (
     <CartBody
       addOns={addOns}
-      quote={resolveFieldQuote(SHOP_CART_QUOTE, { role: true })}
       reviewCount={REVIEW_TIER_COUNTS.nearCta}
+      reviewTotal={REVIEW_TIER_COUNTS.compact}
       favorites={favorites}
       stock={record}
     />
