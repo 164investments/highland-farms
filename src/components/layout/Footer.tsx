@@ -38,6 +38,11 @@ const DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${encodeU
 
 const LABEL = "m-0 font-display text-[15px] italic text-fern lg:text-[17px]";
 const TEXT_LINK = "flex min-h-11 items-center transition-colors hover:text-pine";
+/* Contact rows: value left, its label right. On a narrow phone the label wraps under the value, right-aligned. */
+const CONTACT_ROW =
+  "flex min-h-11 flex-wrap content-center items-center justify-between gap-x-3 py-1 text-ink transition-colors hover:text-pine";
+const CONTACT_LABEL = "ml-auto text-[11px] uppercase tracking-[0.08em] text-ink-meta lg:text-[12px] lg:tracking-[0.1em]";
+
 const UNDERLINED =
   "inline-flex min-h-11 items-center text-ink underline decoration-rule underline-offset-4 transition-colors hover:text-pine";
 
@@ -113,7 +118,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
 
             {/* Weddings */}
             {!hidden("doors") && (
-              <nav aria-label="Weddings" data-footer-part="doors" className="lg:col-span-4">
+              <nav aria-label="Footer: weddings" data-footer-part="doors" className="lg:col-span-4">
                 <p className={LABEL}>Weddings</p>
                 <ul role="list" className="m-0 mt-1.5 list-none border-t border-rule p-0 lg:mt-2">
                   {weddings.map((door) => (
@@ -127,7 +132,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
 
             {/* Visit the farm */}
             {!hidden("doors") && (
-              <nav aria-label="Visit the farm" data-footer-part="doors" className="lg:col-span-4">
+              <nav aria-label="Footer: visit the farm" data-footer-part="doors" className="lg:col-span-4">
                 <p className={LABEL}>Visit the farm</p>
                 <ul role="list" className="m-0 mt-1.5 list-none border-t border-rule p-0 lg:mt-2">
                   {visitDoors().map((door) => (
@@ -179,23 +184,24 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
             {!hidden("talk") && (
               <div data-footer-part="talk" className="-mt-5 lg:col-span-4 lg:mt-0">
                 <p className={`hidden lg:block ${LABEL}`}>Talk to us</p>
-                <ul role="list" className="m-0 list-none border-t border-rule p-0 text-[14px] lg:mt-2">
+                {/* 13px on phones so each email and its label share one line from 375px up. */}
+                <ul role="list" className="m-0 list-none border-t border-rule p-0 text-[13px] lg:mt-2 lg:text-[14px]">
                   <li>
-                    <a href={TEL} className="flex min-h-11 items-center justify-between gap-3 border-b border-rule text-ink transition-colors hover:text-pine">
+                    <a href={TEL} className={`${CONTACT_ROW} border-b border-rule`}>
                       <span>{CONTACT.phone}</span>
-                      <span className="text-[12px] uppercase tracking-[0.1em] text-ink-meta">Call us</span>
+                      <span className={CONTACT_LABEL}>Call us</span>
                     </a>
                   </li>
                   <li>
-                    <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center justify-between gap-3 border-b border-rule text-ink transition-colors hover:text-pine">
+                    <a href={`mailto:${CONTACT.email}`} className={`${CONTACT_ROW} border-b border-rule`}>
                       <span className="break-all">{CONTACT.email}</span>
-                      <span className="hidden text-[12px] uppercase tracking-[0.1em] text-ink-meta lg:inline">Weddings</span>
+                      <span className={CONTACT_LABEL}>Weddings</span>
                     </a>
                   </li>
                   <li>
-                    <a href={`mailto:${CONTACT.emailAlt}`} className="flex min-h-11 items-center justify-between gap-3 text-ink transition-colors hover:text-pine">
+                    <a href={`mailto:${CONTACT.emailAlt}`} className={CONTACT_ROW}>
                       <span className="break-all">{CONTACT.emailAlt}</span>
-                      <span className="hidden text-[12px] uppercase tracking-[0.1em] text-ink-meta lg:inline">Everything else</span>
+                      <span className={CONTACT_LABEL}>Everything else</span>
                     </a>
                   </li>
                 </ul>

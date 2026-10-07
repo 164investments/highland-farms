@@ -35,11 +35,12 @@ const NAV_LINK =
  * action (chrome.ts). Weddings come first; About, Celebrations and Contact
  * live in the menu and footer.
  *
- * Heights are fixed: the 40px bar (when the page has one) plus the name row,
- * 60px or 96px from xl, 3px double rule included. The --header-h defaults in
- * globals.css mirror them and the ResizeObserver below keeps them exact.
- * Past 40px of scroll the whole masthead moves up 40px, so the bar scrolls
- * away and the name row stays pinned; pages keep their padding.
+ * Heights are fixed: the bar (when the page has one; --bar-h, 40px or 44px
+ * on touch screens) plus the name row, 60px or 96px from xl, 3px double rule
+ * included. The --header-h defaults in globals.css mirror them and the
+ * ResizeObserver below keeps them exact. Past 40px of scroll the whole
+ * masthead moves up by the bar's height, so the bar scrolls away and the
+ * name row stays pinned; pages keep their padding.
  *
  * Checkout gets the quiet variant: the name, a way back to the cart, and
  * "Secure". No bar, no nav, no menu.
@@ -76,7 +77,7 @@ export function Header() {
     return (
       <div ref={wrap} data-masthead={type} className="fixed inset-x-0 top-0 z-40">
         <AnnouncementBar type={type} />
-        <header className="surface-paper border-b-[3px] border-double border-frame bg-paper pl-2 pr-4 text-ink lg:px-16">
+        <header className="surface-paper border-b-[3px] border-double border-frame bg-paper px-3 text-ink lg:px-16">
           <div className="mx-auto grid h-[60px] max-w-[1180px] grid-cols-[1fr_auto_1fr] items-center gap-x-2 lg:h-[84px]">
             <Link
               href="/shop/cart"
@@ -114,7 +115,10 @@ export function Header() {
         <AnnouncementBar type={type} />
 
         <header className="surface-paper border-b-[3px] border-double border-frame bg-paper text-ink">
-          <div className="mx-auto grid h-[60px] max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-x-3 pl-1.5 pr-2 xl:h-[96px] xl:px-16">
+          {/* Centre column = the name. Side tracks stay `1fr` (not minmax(0,1fr)): when a label is too
+              long to fit beside a centred name, the name moves over instead of colliding with it. The
+              sizes in Masthead.tsx keep that from happening from 374px up; padding is symmetric. */}
+          <div className="mx-auto grid h-[60px] max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-x-3 px-1.5 xl:h-[96px] xl:px-16">
             <div className="flex items-center">
               <button
                 type="button"
@@ -126,7 +130,8 @@ export function Header() {
               >
                 <MenuIcon />
               </button>
-              <nav aria-label="Main" className="hidden items-center gap-[26px] xl:flex">
+              {/* 26px gaps from ~1350px; narrower from 1280 so the five links fit their half and the name stays centred. */}
+              <nav aria-label="Main" className="hidden items-center gap-[clamp(16px,calc((100vw_-_1152px)/8),26px)] xl:flex">
                 {NAV_LEFT.map((item) => (
                   <Link
                     key={item.href}

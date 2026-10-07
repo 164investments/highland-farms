@@ -1,28 +1,35 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { FieldArrow } from "@/components/ui/FieldGuide";
 import { ensureChatLauncherStyles } from "@/components/field/ChatLauncher";
+import { chatLiftFor, translateYOf } from "@/components/field/chatLift";
 
 /*
  * The bottom sticky action on phones (CONSISTENCY #13, shared board 4 r2).
  *
  * - Appears once a first-screen CTA ([data-hero-cta]) is no longer fully on
  *   screen because the visitor scrolled past it (threshold 1.0). With no
- *   visible hero CTA on the page, it appears after 400px of scroll.
+ *   visible hero CTA on the page, it appears after 400px of scroll. With
+ *   `showOnLoad` (pages with no first-screen CTA: the wedding portfolio and
+ *   the couple pages) it shows from the first screen.
  * - Hides while its target is on screen (hideWhenVisible selectors, plus any
  *   [data-sticky-stop] element), while a text field has focus (the keyboard
- *   is open), and while `enabled` is false.
+ *   is open), and while `enabled` is false. Targets that render late (the
+ *   cart's Check out button after the stored cart loads) are picked up when
+ *   they appear.
  * - Reserves its height at the bottom of the page: <html data-sticky> adds
- *   room under [data-site-footer] (globals.css), so it never covers content.
- *   Pages must not add their own spacer.
+ *   room under [data-site-footer] (globals.css), so it never covers content
+ *   at rest, and sets scroll-padding-bottom so keyboard focus is never left
+ *   under it. Pages must not add their own spacer.
  * - <html data-sticky-shown> while visible: fades the masthead's matching
  *   action (CONSISTENCY #9) and lifts the chat launcher above the bar.
  *
- * This module must not import BookingButton (BookingButton imports
- * StickyMobileCTA, which imports this). Booking actions live in StickyBar.tsx.
+ * This module holds the shell and the plain actions only. Booking actions
+ * (BookingTextLink, the Acuity modal) live in StickyBar.tsx, the one public
+ * entry point (FieldStickyBar); keep BookingButton out of this file.
  */
 
 const TEXT_FIELD =
@@ -30,14 +37,32 @@ const TEXT_FIELD =
 
 type HeroState = "in" | "above" | "below" | "absent";
 
+/** The target rule's first read, before its IntersectionObserver reports (same 15% early margin). */
+function onScreenNow(el: Element): boolean {
+  const r = el.getBoundingClientRect();
+  if (r.width === 0 && r.height === 0) return false;
+  return r.bottom > 0 && r.top < window.innerHeight * 1.15 && r.right > 0 && r.left < window.innerWidth;
+}
+
 export interface StickyVisibilityOptions {
   /** Selectors whose elements hide the bar while on screen ("#contact", "#availability"). */
   hideWhenVisible?: string | readonly string[];
   /** Extra gate, e.g. "the cart has items". Default true. */
   enabled?: boolean;
+  /**
+   * Show the bar from the first screen instead of waiting for a first-screen
+   * CTA to scroll away. For pages with no first-screen CTA (the wedding
+   * portfolio and couple pages). The target, keyboard and `enabled` rules
+   * still hide it. Default false.
+   */
+  showOnLoad?: boolean;
 }
 
-export function useStickyVisibility({ hideWhenVisible, enabled = true }: StickyVisibilityOptions): boolean {
+export function useStickyVisibility({
+  hideWhenVisible,
+  enabled = true,
+  showOnLoad = false,
+}: StickyVisibilityOptions): boolean {
   const [heroes, setHeroes] = useState<"none" | "past" | "not-past">("none");
   const [scrolled, setScrolled] = useState(false);
   const [targetOnScreen, setTargetOnScreen] = useState(false);
@@ -46,6 +71,7 @@ export function useStickyVisibility({ hideWhenVisible, enabled = true }: StickyV
 
   // The first-screen CTA rule.
   useEffect(() => {
+    if (showOnLoad) return;
     const els = Array.from(document.querySelectorAll("[data-hero-cta]"));
     if (els.length === 0) return;
     const state = new Map<Element, HeroState>();
@@ -68,21 +94,27 @@ export function useStickyVisibility({ hideWhenVisible, enabled = true }: StickyV
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [showOnLoad]);
 
   // Fallback when the page has no visible hero CTA.
   useEffect(() => {
+    if (showOnLoad) return;
     const onScroll = () => setScrolled(window.scrollY > 400);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [showOnLoad]);
 
   // The target rule: the form, booking widget or shelf the bar points to.
-  useEffect(() => {
+  // Re-runs when `enabled` flips (the cart's Check out button renders in the
+  // same commit that enables the bar), and a MutationObserver picks up
+  // targets that mount, or are replaced, while the bar is enabled. A layout
+  // effect with a first geometric read, so the bar never paints over a
+  // target that is already on screen while the observer warms up.
+  useLayoutEffect(() => {
+    if (!enabled) return;
     const selectors = [...targetKey.split(",").filter(Boolean), "[data-sticky-stop]"].join(",");
-    const els = Array.from(document.querySelectorAll(selectors));
-    if (els.length === 0) return;
+    const observed = new Set<Element>();
     const visible = new Set<Element>();
     const io = new IntersectionObserver(
       (entries) => {
@@ -95,12 +127,44 @@ export function useStickyVisibility({ hideWhenVisible, enabled = true }: StickyV
       // Count the target as on screen a little before it scrolls in.
       { rootMargin: "0px 0px 15% 0px" },
     );
-    els.forEach((el) => io.observe(el));
+    const sync = () => {
+      const current = new Set(document.querySelectorAll(selectors));
+      let changed = false;
+      for (const el of observed) {
+        if (current.has(el)) continue;
+        io.unobserve(el);
+        observed.delete(el);
+        if (visible.delete(el)) changed = true;
+      }
+      for (const el of current) {
+        if (observed.has(el)) continue;
+        observed.add(el);
+        io.observe(el);
+        if (onScreenNow(el)) {
+          visible.add(el);
+          changed = true;
+        }
+      }
+      if (changed) setTargetOnScreen(visible.size > 0);
+    };
+    sync();
+    let frame = 0;
+    const watch = new MutationObserver(() => {
+      if (!frame) {
+        frame = window.requestAnimationFrame(() => {
+          frame = 0;
+          sync();
+        });
+      }
+    });
+    watch.observe(document.body, { childList: true, subtree: true });
     return () => {
+      watch.disconnect();
+      if (frame) window.cancelAnimationFrame(frame);
       io.disconnect();
       setTargetOnScreen(false);
     };
-  }, [targetKey]);
+  }, [targetKey, enabled]);
 
   // The keyboard rule.
   useEffect(() => {
@@ -116,23 +180,28 @@ export function useStickyVisibility({ hideWhenVisible, enabled = true }: StickyV
     };
   }, []);
 
-  const past = heroes === "none" ? scrolled : heroes === "past";
+  const past = showOnLoad || (heroes === "none" ? scrolled : heroes === "past");
   return enabled && past && !targetOnScreen && !typing;
 }
 
-/** How far the launcher must rise to sit 12px above the bar. */
+/**
+ * Sets --hf-chat-lift-measured. Idempotent: it measures the launcher's
+ * resting position (its rect minus its current translate), never the
+ * previous lift, so showing the bar again does not add another lift.
+ */
 function measureChatLift(bar: HTMLElement) {
   const host = document.querySelector("chat-widget");
   const bubble =
     host?.shadowRoot?.querySelector<HTMLElement>(".lc_text-widget--bubble") ??
     host?.querySelector<HTMLElement>(".lc_text-widget--bubble");
-  const html = document.documentElement;
   if (!bubble) return;
-  const current = parseFloat(getComputedStyle(html).getPropertyValue("--hf-chat-lift")) || 0;
-  const naturalBottom = bubble.getBoundingClientRect().bottom + current;
-  const barTop = window.innerHeight - bar.offsetHeight;
-  const lift = Math.max(0, Math.round(naturalBottom - (barTop - 12)));
-  html.style.setProperty("--hf-chat-lift-measured", `${lift}px`);
+  const lift = chatLiftFor({
+    bubbleBottom: bubble.getBoundingClientRect().bottom,
+    bubbleTranslateY: translateYOf(getComputedStyle(bubble).translate),
+    viewportHeight: window.innerHeight,
+    barHeight: bar.offsetHeight,
+  });
+  document.documentElement.style.setProperty("--hf-chat-lift-measured", `${lift}px`);
 }
 
 /* ---------------------------------------------------------------- */

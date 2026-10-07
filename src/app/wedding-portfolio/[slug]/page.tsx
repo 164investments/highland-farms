@@ -532,9 +532,8 @@ export default async function WeddingDetailPage({
         </section>
       </div>
 
-      {/* TODO(showOnLoad): this page has no hero button, so the sticky should show from load (conversion r3).
-          Add `showOnLoad` here once FieldStickyBar/StickyShell accept it (shared-components fix). */}
-      <FieldStickyBar primary={{ label: "Check your date", href: "/weddings#contact" }} hideWhenVisible="#plan" />
+      {/* No first-screen button on this page, so the bar shows from load. */}
+      <FieldStickyBar primary={{ label: "Check your date", href: "/weddings#contact" }} hideWhenVisible="#plan" showOnLoad />
     </>
   );
 }

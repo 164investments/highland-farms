@@ -19,8 +19,10 @@ import {
 /*
  * The one-line pine bar above the name row (CONSISTENCY #8). No dismiss
  * button: it scrolls away with the page while the name row stays pinned
- * (Header translates the masthead up 40px). Home, weddings and the portfolio
- * never get one; seasonal bars hide outside their dates.
+ * (Header translates the masthead up by the bar's height). Height is
+ * --bar-h: 40px, 44px on touch screens so the link is a 44px tap target.
+ * Home, weddings and the portfolio never get one; seasonal bars hide
+ * outside their dates.
  *
  * Visibility lives on <html>: data-bar-hidden collapses the bar and the
  * --header-h defaults in globals.css. The inline scripts set it before the
@@ -30,7 +32,7 @@ import {
  */
 
 const LINK =
-  "ml-1 inline-flex min-h-10 items-center font-medium underline decoration-paper-light/60 underline-offset-4 transition-colors hover:decoration-paper-light";
+  "ml-1 inline-flex min-h-[var(--bar-h)] items-center font-medium underline decoration-paper-light/60 underline-offset-4 transition-colors hover:decoration-paper-light";
 
 const dollars = (cents: number) => `$${cents % 100 === 0 ? cents / 100 : (cents / 100).toFixed(2)}`;
 
@@ -124,7 +126,7 @@ export function AnnouncementBar({ type }: { type: PageType }) {
       {bar && (
         <div
           data-announcement-bar=""
-          className="flex h-10 items-center justify-center overflow-hidden bg-pine px-4 text-center font-sans text-[12.5px] leading-none text-paper-light lg:text-[13px]"
+          className="flex h-[var(--bar-h)] items-center justify-center overflow-hidden bg-pine px-4 text-center font-sans text-[12.5px] leading-none text-paper-light lg:text-[13px]"
         >
           <BarCopy id={bar.id} />
         </div>

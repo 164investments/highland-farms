@@ -15,13 +15,16 @@ export { CHECK_DATE_HREF };
 type NameSize = "masthead" | "checkout" | "footer";
 
 const NAME: Record<NameSize, { name: string; place: string }> = {
-  // Stepped so the name never touches the page action (measured 2026-10-06 with
-  // the real fonts and the longest short label, "See sessions"): at least
-  // 16px clear and no overflow at 320, 359, 360, 375, 389, 390 and 393.
+  // Stepped with ACTION_CLASS so the name sits on the screen's centre line
+  // with the longest short label ("See sessions") at least 12px clear.
+  // Measured 2026-10-06 with the real fonts: centred within 0.5px for every
+  // label from 374px up and on desktop; at 359-360 the longest labels push it
+  // up to 3px left, at 320 up to 12px (the grid shifts it rather than let
+  // them touch).
   masthead: {
-    name: "text-[20px] tracking-[0.06em] min-[360px]:max-[389px]:text-[18px] min-[360px]:max-[389px]:tracking-[0.05em] max-[359px]:text-[16px] max-[359px]:tracking-[0.04em] xl:text-[32px] xl:tracking-[0.07em]",
+    name: "text-[20px] tracking-[0.06em] min-[390px]:max-[414px]:text-[19px] min-[375px]:max-[390px]:text-[18px] min-[375px]:max-[390px]:tracking-[0.05em] min-[360px]:max-[375px]:text-[17px] min-[360px]:max-[375px]:tracking-[0.05em] max-[360px]:text-[16px] max-[360px]:tracking-[0.04em] xl:text-[32px] xl:tracking-[0.07em]",
     place:
-      "mt-[5px] text-[11px] tracking-[0.2em] min-[360px]:max-[389px]:text-[10px] min-[360px]:max-[389px]:tracking-[0.18em] max-[359px]:text-[9px] max-[359px]:tracking-[0.12em] xl:mt-2 xl:text-[11px] xl:tracking-[0.32em]",
+      "mt-[5px] text-[11px] tracking-[0.2em] min-[360px]:max-[390px]:text-[10px] min-[360px]:max-[390px]:tracking-[0.18em] max-[360px]:text-[9px] max-[360px]:tracking-[0.12em] xl:mt-2 xl:text-[11px] xl:tracking-[0.32em]",
   },
   checkout: {
     name: "text-[19px] tracking-[0.06em] lg:text-[28px]",
@@ -73,8 +76,10 @@ export function MastheadMark({ className }: { className?: string }) {
   );
 }
 
+// Phone: no left padding, so the grid gap is the clearance to the name; 10px
+// caps below 414px so even "See sessions" fits beside a centred name.
 const ACTION_CLASS =
-  "flex min-h-11 min-w-16 items-center justify-end whitespace-nowrap px-1 font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-pine underline decoration-pine-line decoration-1 underline-offset-4 transition-[opacity,background-color] duration-200 max-[359px]:text-[10px] max-[359px]:tracking-[0.06em] xl:h-11 xl:min-h-0 xl:px-5 xl:text-[12px] xl:font-semibold xl:tracking-[0.14em] xl:no-underline";
+  "flex min-h-11 min-w-16 items-center justify-end whitespace-nowrap pr-1 font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-pine underline decoration-pine-line decoration-1 underline-offset-4 transition-[opacity,background-color] duration-200 max-[414px]:text-[10px] max-[360px]:tracking-[0.04em] xl:h-11 xl:min-h-0 xl:px-5 xl:text-[12px] xl:font-semibold xl:tracking-[0.14em] xl:no-underline";
 
 /**
  * The page's own right-hand action. Phone: Inter caps with a 1px underline

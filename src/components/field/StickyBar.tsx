@@ -53,6 +53,11 @@ function Action({ action, variant }: { action: FieldStickyAction; variant: "prim
  *                href: bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-sticky-mobile"), booking: true }}
  *     hideWhenVisible="#choose"
  *   />
+ *
+ * Pages with no first-screen CTA pass `showOnLoad`, so the bar is there from
+ * the first screen (still hidden while its target is on screen):
+ *
+ *   <FieldStickyBar primary={{ label: "Check your date", href: "/weddings#contact" }} hideWhenVisible="#plan" showOnLoad />
  */
 export function FieldStickyBar({ primary, secondary, className, ...visibility }: FieldStickyBarProps) {
   return (

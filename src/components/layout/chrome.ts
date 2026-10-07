@@ -62,7 +62,6 @@ export function pageTypeFor(pathname: string): PageType {
   if (under(pathname, "/shop/cart")) return "cart";
   if (
     under(pathname, "/shop/thank-you") ||
-    under(pathname, "/shop/order") ||
     under(pathname, "/shop/admin") ||
     under(pathname, "/shop/unsubscribe")
   )
@@ -92,7 +91,8 @@ const ACTIONS: Record<PageType, PageAction | "cart" | null> = {
   weddings: WEDDING_ACTION,
   portfolio: WEDDING_ACTION,
   about: WEDDING_ACTION,
-  contact: WEDDING_ACTION,
+  // /contact has its own form at #inquiry.
+  contact: { ...WEDDING_ACTION, href: "#inquiry" },
   call: WEDDING_ACTION,
   other: WEDDING_ACTION,
   celebrations: { phone: "Check date", label: "Check your date", href: "#contact" },

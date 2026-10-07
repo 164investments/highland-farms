@@ -16,7 +16,8 @@
     Field Guide paper system (approved 2026-10-06): the masthead and the
     first screens of home, /weddings, /farm-tours and /nordic-spa.
     Text contrast on --paper: ink 13.8:1, ink-body 7.8:1, ink-note 6.0:1,
-    ink-meta 4.8:1, fern 5.2:1, pine 6.6:1. rule/frame/leader are lines only.
+    ink-meta 5.3:1 (4.8:1 on paper-shade, the footer and form ground),
+    fern 5.2:1, pine 6.6:1. rule/frame/leader are lines only.
   */
   --paper: #F2EEE4;
   --paper-light: #F7F4EC;
@@ -24,7 +25,7 @@
   --ink: #22221E;
   --ink-body: #4A4943;
   --ink-note: #5C5A52;
-  --ink-meta: #6B685F;
+  --ink-meta: #64615A;
   --rule: #CDC5B3;
   --frame: #BDB49F;
   --leader: #A9A08B;
@@ -33,8 +34,15 @@
   --pine-dark: #33492D;
   --pine-line: #9FB197;
   --star: #E3A21A;
-  /* Header height before JS measures it: 60px name row (96px from xl) + the 40px bar. */
-  --header-h: 100px;
+  /*
+    The announcement bar: 40px, 44px on touch screens so its links are a
+    44px tap target. Header height before JS measures it: 60px name row
+    (96px from xl) + the bar.
+  */
+  --bar-h: 40px;
+  --header-h: calc(60px + var(--bar-h));
+  /* The bottom sticky bar (StickyShell): 1px rule + 12px + 52px button + max(18px, home-indicator inset). */
+  --sticky-bar-h: calc(65px + max(18px, env(safe-area-inset-bottom)));
   --accent: #B8976A;
   --sage: #8BA888;
   --sage-light: #A3BDA0;
@@ -45,9 +53,15 @@
   --gold-bright: #FBBC04;
 }
 
+@media (pointer: coarse) {
+  :root {
+    --bar-h: 44px;
+  }
+}
+
 @media (min-width: 1280px) {
   :root {
-    --header-h: 136px;
+    --header-h: calc(96px + var(--bar-h));
   }
 }
 
@@ -76,7 +90,7 @@ html[data-bar-hidden] {
 
 /* Past 40px of scroll the bar slides away; the name row stays pinned (Header.tsx). */
 html:not([data-bar-hidden]) [data-masthead][data-scrolled] {
-  transform: translateY(-40px);
+  transform: translateY(calc(-1 * var(--bar-h)));
 }
 
 /*
@@ -186,6 +200,20 @@ html {
   scroll-behavior: smooth;
 }
 
+/*
+  Keyboard focus never lands under the fixed masthead (WCAG 2.4.11). This is
+  scroll-margin on focusable elements, not scroll-padding-top on <html>:
+  anchor targets already carry scroll-mt-[var(--header-h)] (FieldSection and
+  the pages), and scroll-padding would add to that and double every anchor
+  offset. In the base layer, so a focusable element's own scroll-mt utility
+  still wins. Sheets (the menu) scroll on their own and are left out.
+*/
+@layer base {
+  :where(a[href], button, input, select, textarea, summary, iframe, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]):not(:where([role="dialog"] *)) {
+    scroll-margin-top: calc(var(--header-h) + 8px);
+  }
+}
+
 /* Refined selection */
 ::selection {
   background-color: var(--blush-light);
@@ -243,6 +271,17 @@ html {
   outline-color: var(--pine);
 }
 
+/*
+  The skip link sits over the pine bar or the paper masthead, on its own
+  forest fill: a light ring (5.8:1 on forest, 7:1 on pine) inside an ink one
+  (13.8:1 on paper), so one band always reads.
+*/
+[data-skip-link]:focus-visible {
+  outline: 2px solid var(--paper-light);
+  outline-offset: 0;
+  box-shadow: 0 0 0 4px var(--ink);
+}
+
 /* sage as TEXT needs 4.5:1; the fill/border sage (#8BA888) stays as is. */
 .text-sage {
   color: var(--sage-text);
@@ -251,16 +290,21 @@ html {
 /*
   The bottom sticky action on phones (src/components/field/StickyShell.tsx).
   <html data-sticky> is set while a page mounts one: the footer grows by the
-  bar's height so the bar never covers the last content (pages add no spacer).
+  bar's height so the bar never covers the last content (pages add no spacer),
+  and scroll-padding-bottom keeps a focused element above the bar.
   <html data-sticky-shown> is set while it is visible: the masthead's matching
   action fades (CONSISTENCY #9) and the chat launcher rises above the bar.
-  Bar height: 1px rule + 12px + 52px button + max(18px, home-indicator inset).
+  Bar height: --sticky-bar-h (:root).
 */
 @media (max-width: 1023.98px) {
+  html[data-sticky] {
+    scroll-padding-bottom: calc(var(--sticky-bar-h) + 8px);
+  }
+
   html[data-sticky] [data-site-footer]::after {
     content: "";
     display: block;
-    height: calc(65px + max(18px, env(safe-area-inset-bottom)));
+    height: var(--sticky-bar-h);
   }
 
   html[data-sticky-shown] [data-masthead-action] {
