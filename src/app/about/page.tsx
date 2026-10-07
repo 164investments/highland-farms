@@ -229,15 +229,15 @@ export default function AboutPage() {
             <Plate
               className="mt-7 lg:col-start-1 lg:row-start-1 lg:mt-2"
               frameClassName="h-[240px] lg:h-[460px]"
-              caption="The Lodge, the Cottage and the drive, from above."
+              caption="The patio, the lawn and the Lodge, from above."
             >
               <Image
-                src="/images/properties/gallery-7.jpg"
-                alt="Aerial view looking straight down on Highland Farms: the Lodge's red roof, the Cottage, the gravel drive loop and the forest around them"
+                src="/images/farm/farm-aerial-patio-lawn-lodge-dusk.jpg"
+                alt="Styled aerial view of Highland Farms at dusk: the flagstone patio and dance floor, the lawn path and guests outside the Lodge"
                 fill
                 loading="lazy"
                 sizes="(min-width: 1024px) 520px, 100vw"
-                className="object-cover object-[55%_50%]"
+                className="object-cover object-[70%_50%]"
               />
             </Plate>
           </div>

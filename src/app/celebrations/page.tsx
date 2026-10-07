@@ -247,9 +247,9 @@ export default function CelebrationsPage() {
               {/* The forest-yoga photo is now the hero, so this rung shows the grounds (no repeat on the page). */}
               <LadderPhoto
                 photo={{
-                  src: "/images/properties/gallery-7.jpg",
-                  alt: "Aerial view of Highland Farms in autumn: the Lodge, the Cottage and the gravel drive loop among the firs",
-                  position: "50% 50%",
+                  src: "/images/farm/farm-aerial-patio-lawn-lodge-dusk.jpg",
+                  alt: "Styled aerial view at dusk: guests on the patio outside the Lodge, the lawn path and the stone patio with its dance floor",
+                  position: "70% 60%",
                 }}
               />
               <div className="mt-3 lg:order-2 lg:mt-0">
