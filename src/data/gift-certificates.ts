@@ -11,9 +11,10 @@ import { BOOKING_LINKS } from "@/lib/constants";
  * Acuity still charges the old prices until its catalog is updated; the
  * static /gift-certificates page must not go live before that change.
  *
- * `acuityId` is the Acuity product id. Acuity documents a per-product cart
- * link (catalog.php?owner=...&action=addCart&clear=1&id=<id>) but it has not
- * been tested, so every row opens the catalog until it is (giftHref below).
+ * `acuityId` is the Acuity product id. `?productId=<id>` on the catalog URL
+ * shows that one product (category heading, price, "Add to cart"); verified in
+ * a real browser for all 16 ids on 2026-10-06 (the catalog bundle reads
+ * `productId` and `clearCart` only, so there is no per-category URL).
  */
 
 export type GiftFamily = "tour" | "spa" | "day";
@@ -75,14 +76,20 @@ export function giftPrice(family: GiftFamily, guests: number): number | undefine
   return GIFTS[family].sizes.find((s) => s.guests === guests)?.price;
 }
 
+/** Acuity product id of a gift size, or undefined. */
+export function giftAcuityId(family: GiftFamily, guests: number): string | undefined {
+  return GIFTS[family].sizes.find((s) => s.guests === guests)?.acuityId;
+}
+
 /**
  * The URL a gift row opens in the booking modal: the Acuity gift catalog,
  * tagged with `gifts-<family>-<guests>` so booking_start carries the product.
- * (Switch to the per-product cart link here once it is verified on a phone,
- * and extend bookingTypeFromUrl in BookingButton to match catalog.php.)
+ * With a product id the catalog shows that gift on its own (a spa buyer no
+ * longer lands on the farm tours); without one it is the full catalog.
  */
-export function giftCatalogUrl(content: string): string {
+export function giftCatalogUrl(content: string, productId?: string): string {
   const url = new URL(BOOKING_LINKS.giftCertificates);
+  if (productId) url.searchParams.set("productId", productId);
   url.searchParams.set("utm_source", "website");
   url.searchParams.set("utm_medium", "organic");
   url.searchParams.set("utm_content", content);

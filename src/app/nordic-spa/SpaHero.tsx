@@ -31,7 +31,10 @@ export function SpaHero() {
             fill
             priority
             fetchPriority="high"
-            sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
+            // The phone frame is about 334 CSS px wide. Reporting 250px makes a 3x phone
+            // take the 750w rendition instead of 1080w (196 KB); 2x phones take 750w
+            // either way. Tablets keep the full frame width. Same photo, same crop.
+            sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, (min-width: 640px) calc(100vw - 80px), 250px"
             className="object-cover object-[50%_60%]"
           />
         </Plate>

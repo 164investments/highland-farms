@@ -46,7 +46,7 @@ export default function GiftCertificatesPage() {
               A farm tour, a spa session, or a 3-visit spa pack. Pick one, and we&apos;ll
               email the code right away.
             </p>
-            <div className="mt-8">
+            <div id="choose" className="mt-8 scroll-mt-[var(--header-h,128px)]">
               <GiftBody />
             </div>
           </div>

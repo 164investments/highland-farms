@@ -303,7 +303,7 @@ export default function FarmToursPage() {
                 {
                   id: "pen",
                   title: "The pen",
-                  body: "In with the Highland cows. Your guide hands you the brush and the feed, and tells you who's who.",
+                  body: "In with the Highland cows. Your guide hands you the brush and the feed, and tells you who's who. Ask your guide anything.",
                 },
                 {
                   id: "ferns",
@@ -320,11 +320,6 @@ export default function FarmToursPage() {
                       />
                     </Plate>
                   ),
-                },
-                {
-                  id: "rest",
-                  title: "The rest of the farm",
-                  body: "Say hello to the peacocks, the guardian dogs, the hens and the guinea fowl. Ask your guide anything.",
                 },
               ]}
             />
@@ -387,7 +382,7 @@ export default function FarmToursPage() {
                 key={spec.author}
                 className="border-b border-rule py-6 lg:border-b-0 lg:border-t lg:py-8"
               >
-                <FieldReview spec={spec} role="Farm tour" size="lg" stars />
+                <FieldReview spec={spec} role="Farm tour" size="lg" />
               </li>
             ))}
           </ul>

@@ -11,6 +11,8 @@ import { giftPrice, GIFTS, type GiftFamily } from "@/data/gift-certificates";
  *
  *   farm-tours-(hero|pricing)-N          tour for N guests, $75 each
  *   (nordic-spa|sauna-near-portland)-(hero|pricing)-(1|2|3to5|6)
+ *   spa/tour entry points (hero, sticky, stay add-ons): the smallest booking (tour 2, spa 1);
+ *   Highland Day step II: two guests
  *   gifts-(hero-)?(tour|spa|day)(-N)?    a gift, priced from GIFTS
  *
  * Pure: safe in client components.
@@ -44,8 +46,8 @@ export function bookingTrackingFromUrl(href: string): BookingTrackingExtras {
     const row = TOUR_PARTY_SIZES.find((p) => p.guests === guests);
     return row ? { value: row.total, currency: "USD", party_size: guests } : {};
   }
-  // The sticky bar and the Highland Day "pick your tour time" step open the tour for two.
-  if (/^farm-tours-sticky-mobile$|-day-tour$/.test(c)) {
+  // The sticky bar, the Highland Day "pick your tour time" step and the stay add-ons open the tour for two.
+  if (/^farm-tours-sticky-mobile$|-day-tour$|^stay-add-tour$|^stay-[a-z0-9-]+-tour$/.test(c)) {
     const two = TOUR_PARTY_SIZES[0];
     return { value: two.total, currency: "USD", party_size: two.guests };
   }
@@ -55,6 +57,16 @@ export function bookingTrackingFromUrl(href: string): BookingTrackingExtras {
     if (spa[1] === "3to5") return { party_size: "3-5" };
     const n = Number(spa[1]);
     return { value: SPA_PRICE_PER_PERSON * n, currency: "USD", party_size: n };
+  }
+
+  // Highland Day step II is priced for two ("for two of you"): the two-guest party.
+  if (/-day-spa$/.test(c)) {
+    return { value: SPA_PRICE_PER_PERSON * 2, currency: "USD", party_size: 2 };
+  }
+  // Other generic spa entries (hero, sticky bar, stay add-ons) open the spa calendar
+  // with no count chosen yet: report the smallest booking, one guest.
+  if (/^(?:nordic-spa|sauna-near-portland)-(?:hero|sticky-mobile)$|^stay-add-spa$|^stay-[a-z0-9-]+-spa$/.test(c)) {
+    return { value: SPA_PRICE_PER_PERSON, currency: "USD", party_size: 1 };
   }
 
   const gift = c.match(/^gifts-(?:hero-)?(tour|spa|day)(?:-(\d))?$/);

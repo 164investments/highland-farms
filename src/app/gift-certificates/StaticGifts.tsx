@@ -14,7 +14,7 @@ import {
   Plate,
   type FieldDrawingName,
 } from "@/components/ui/FieldGuide";
-import { GIFTS, giftCatalogUrl, giftFAQ, giftPrice, type GiftFamily } from "@/data/gift-certificates";
+import { GIFTS, giftAcuityId, giftCatalogUrl, giftFAQ, giftPrice, type GiftFamily } from "@/data/gift-certificates";
 import { GIFTS_HERO_QUOTE, GIFTS_STEWART_QUOTE, GIFTS_VALERIE_QUOTE } from "./quotes";
 
 /*
@@ -49,7 +49,7 @@ function heroRows(): FieldPriceRowData[] {
     srAction,
     labelClassName: "font-semibold",
     booking: {
-      href: giftCatalogUrl(`gifts-hero-${family}`),
+      href: giftCatalogUrl(`gifts-hero-${family}`, giftAcuityId(family, family === "spa" ? 1 : 2)),
       label: plain,
       title: `Choose a ${plain} gift certificate`,
     },
@@ -80,7 +80,7 @@ function ledgerRows(family: GiftFamily): FieldPriceRowData[] {
       labelClassName: "lg:text-[24px]",
       srAction,
       booking: {
-        href: giftCatalogUrl(`gifts-${family}-${s.guests}`),
+        href: giftCatalogUrl(`gifts-${family}-${s.guests}`, s.acuityId),
         label,
         title: `Choose a ${family === "tour" ? "farm tour" : family === "spa" ? "Nordic spa" : "Highland Day"} gift certificate for ${label}`,
       },
@@ -211,7 +211,7 @@ export function StaticGifts() {
 
       <div className="surface-paper bg-paper font-sans text-ink">
         {/* S2 The three gifts (#choose is the masthead action's target) */}
-        <FieldSection id="choose" rule="double" eyebrow="Three gifts, every group size" title="Choose a gift">
+        <FieldSection id="choose" rule="double" eyebrow="Three gifts, every group size" title="Pick their group size">
           <GiftEntry
             first
             n={1}
