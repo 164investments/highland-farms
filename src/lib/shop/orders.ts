@@ -82,7 +82,7 @@ export async function claimStock(lines: PricedLine[]): Promise<ClaimResult> {
       ok: false,
       reason: "out_of_stock",
       message:
-        "Someone just bought the last of one of those. Your card has not been charged — please refresh and try again.",
+        "Someone just bought the last of one of those. Your card has not been charged. Please refresh and try again.",
     };
   }
 

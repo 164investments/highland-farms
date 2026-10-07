@@ -68,7 +68,7 @@ export function deliveryProblem(
 ): string | null {
   if (fulfillment !== "delivery") return null;
   if (!isDeliverable(zip)) {
-    return "We don't deliver to that ZIP code yet — choose farm pickup, or call us and we'll work something out.";
+    return "We don't deliver to that ZIP code yet. Choose farm pickup, or call us and we'll work something out.";
   }
   if (subtotalCents < DELIVERY_MINIMUM_CENTS) {
     return `Local delivery starts at $${(DELIVERY_MINIMUM_CENTS / 100).toFixed(0)}. Add a little more, or switch to farm pickup.`;
