@@ -171,6 +171,16 @@ export function InquiryForm({
   const eventType = useWatch({ control, name: "event_type" });
   const guestCount = useWatch({ control, name: "guest_count" });
   const turnstileToken = useWatch({ control, name: "turnstile_token" });
+  // SMS consent only means something with a phone number, so the two boxes
+  // appear once one is typed (fewer fields for everyone who skips phone).
+  const phoneValue = useWatch({ control, name: "phone" });
+  const hasPhone = (phoneValue ?? "").replace(/\D/g, "").length > 0;
+  useEffect(() => {
+    if (!hasPhone) {
+      setValue("consent_appointment_sms", false);
+      setValue("consent_marketing_sms", false);
+    }
+  }, [hasPhone, setValue]);
   const wedding = isWeddingForm(eventType);
   const bands = guestBandsFor(eventType);
   const presetType = !!defaultEventType;
@@ -282,61 +292,6 @@ export function InquiryForm({
         aria-busy={submitting || undefined}
         className="flex flex-col gap-5"
       >
-        <div>
-          <FieldLabel htmlFor={id("name")} required>
-            {wedding ? "Your names" : "Your name"}
-          </FieldLabel>
-          <TextInput
-            id={id("name")}
-            type="text"
-            autoComplete="name"
-            aria-required="true"
-            aria-describedby={describedBy(errors.name && errId("name"))}
-            invalid={!!errors.name}
-            placeholder={wedding ? "Jane and Sam Smith" : "First and last name"}
-            {...register("name")}
-          />
-          <FieldError id={errId("name")} message={errors.name?.message} />
-        </div>
-
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div>
-            <FieldLabel htmlFor={id("email")} required>
-              Email
-            </FieldLabel>
-            <TextInput
-              id={id("email")}
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              autoCapitalize="none"
-              spellCheck={false}
-              aria-required="true"
-              aria-describedby={describedBy(errors.email && errId("email"))}
-              invalid={!!errors.email}
-              placeholder="you@example.com"
-              {...register("email")}
-            />
-            <FieldError id={errId("email")} message={errors.email?.message} />
-          </div>
-          <div>
-            <FieldLabel htmlFor={id("phone")} optional>
-              Phone
-            </FieldLabel>
-            <TextInput
-              id={id("phone")}
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              aria-describedby={describedBy(errors.phone && errId("phone"))}
-              invalid={!!errors.phone}
-              placeholder="(555) 123-4567"
-              {...register("phone")}
-            />
-            <FieldError id={errId("phone")} message={errors.phone?.message} />
-          </div>
-        </div>
-
         {presetType ? (
           <input type="hidden" {...register("event_type")} />
         ) : (
@@ -410,6 +365,61 @@ export function InquiryForm({
         </div>
 
         <div>
+          <FieldLabel htmlFor={id("name")} required>
+            {wedding ? "Your names" : "Your name"}
+          </FieldLabel>
+          <TextInput
+            id={id("name")}
+            type="text"
+            autoComplete="name"
+            aria-required="true"
+            aria-describedby={describedBy(errors.name && errId("name"))}
+            invalid={!!errors.name}
+            placeholder={wedding ? "Jane and Sam Smith" : "First and last name"}
+            {...register("name")}
+          />
+          <FieldError id={errId("name")} message={errors.name?.message} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>
+            <FieldLabel htmlFor={id("email")} required>
+              Email
+            </FieldLabel>
+            <TextInput
+              id={id("email")}
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              aria-required="true"
+              aria-describedby={describedBy(errors.email && errId("email"))}
+              invalid={!!errors.email}
+              placeholder="you@example.com"
+              {...register("email")}
+            />
+            <FieldError id={errId("email")} message={errors.email?.message} />
+          </div>
+          <div>
+            <FieldLabel htmlFor={id("phone")} optional>
+              Phone
+            </FieldLabel>
+            <TextInput
+              id={id("phone")}
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              aria-describedby={describedBy(errors.phone && errId("phone"))}
+              invalid={!!errors.phone}
+              placeholder="(555) 123-4567"
+              {...register("phone")}
+            />
+            <FieldError id={errId("phone")} message={errors.phone?.message} />
+          </div>
+        </div>
+
+        <div>
           <FieldLabel htmlFor={id("message")} optional>
             {wedding ? "Tell us about your day" : "Tell us about your event"}
           </FieldLabel>
@@ -454,16 +464,20 @@ export function InquiryForm({
 
         {/* SMS consent: two separate, unticked, optional boxes (A2P). */}
         <div className="border-t border-rule pt-3">
-          <CheckboxRow id={id("consent-appointment-sms")} fine {...register("consent_appointment_sms")}>
-            I consent to receive non-marketing text messages from Highland Farms Oregon LLC about
-            appointment information - confirmation &amp; reminder messages. Message and data rates may
-            apply.
-          </CheckboxRow>
-          <CheckboxRow id={id("consent-marketing-sms")} fine {...register("consent_marketing_sms")}>
-            I consent to receive marketing text messages from Highland Farms Oregon LLC at the phone
-            number provided. Frequency may vary. Message and data rates may apply. Text HELP for
-            assistance. Reply STOP to opt out. Consent is not a condition of purchase.
-          </CheckboxRow>
+          {hasPhone && (
+            <>
+              <CheckboxRow id={id("consent-appointment-sms")} fine {...register("consent_appointment_sms")}>
+                I consent to receive non-marketing text messages from Highland Farms Oregon LLC about
+                appointment information - confirmation &amp; reminder messages. Message and data rates may
+                apply.
+              </CheckboxRow>
+              <CheckboxRow id={id("consent-marketing-sms")} fine {...register("consent_marketing_sms")}>
+                I consent to receive marketing text messages from Highland Farms Oregon LLC at the phone
+                number provided. Frequency may vary. Message and data rates may apply. Text HELP for
+                assistance. Reply STOP to opt out. Consent is not a condition of purchase.
+              </CheckboxRow>
+            </>
+          )}
           <p className="mt-1 font-sans text-[13px] leading-relaxed text-ink-note">
             By sending this form, you agree to our{" "}
             <a href="/privacy" className="text-pine underline underline-offset-2">
