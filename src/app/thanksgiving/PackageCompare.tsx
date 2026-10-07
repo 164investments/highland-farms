@@ -9,7 +9,8 @@ const SLEEPS_WORD: Record<number, string> = { 8: "eight", 20: "twenty" };
 const labelRow =
   "pt-3 pb-1 font-sans text-[11px] uppercase tracking-[0.14em] text-ink-meta lg:text-[12px]";
 const col2 = "border-l border-rule pl-3 lg:pl-5";
-/** One real photo per package (Lodge exterior; the Whole Farm from above). Filename trap: properties/cottage.jpg is the Lodge. */
+/** One real photo per package, from the package's own photo set in thanksgiving.ts (the Lodge; the Cottage for the
+ *  Whole Farm, whose three stays the page lists). Filename trap: properties/cottage.jpg is the Lodge. */
 const PKG_PHOTO: Record<string, { src: string; alt: string; caption: string; className: string }> = {
   lodge: {
     src: "/images/properties/cottage.jpg",
@@ -18,10 +19,10 @@ const PKG_PHOTO: Record<string, { src: string; alt: string; caption: string; cla
     className: "object-[45%_55%]",
   },
   "whole-farm": {
-    src: "/images/properties/whole-farm.jpg",
-    alt: "The Highland Farms buildings in a clearing among forested hills, seen from above",
-    caption: "The farm, from above",
-    className: "object-[50%_78%]",
+    src: "/images/properties/lodge.jpg",
+    alt: "Bonnie Lass Cottage with its cedar exterior, metal roof and outdoor patio",
+    caption: "Bonnie Lass Cottage, one of the three stays",
+    className: "object-[50%_60%]",
   },
 };
 
