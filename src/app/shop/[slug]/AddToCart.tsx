@@ -148,7 +148,7 @@ export function AddToCart({
   const addLabel = allOut || selectedOut
     ? "Sold out"
     : !selected
-      ? `Choose a ${(optionName ?? "size").toLowerCase()}`
+      ? `Choose a ${(optionName ?? "size").toLowerCase()} · ${total}`
       : `Add to cart · ${total}`;
   const disabled = allOut || selectedOut;
   const cartHasItems = ready && count > 0;

@@ -201,7 +201,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                 <ul role="list" className="m-0 list-none border-t border-rule p-0 text-[13px] lg:mt-2 lg:text-[14px]">
                   <li>
                     <a href={TEL} className={`${CONTACT_ROW} border-b border-rule`}>
-                      <span>{CONTACT.phone}</span>
+                      <span className="font-medium text-pine">{CONTACT.phone}</span>
                       <span className={CONTACT_LABEL}>Call us</span>
                     </a>
                   </li>

@@ -240,7 +240,7 @@ export default function StayPage() {
                 </th>
                 {stays.map(({ property: p }) => (
                   <td key={p.slug} className="px-4 py-4">
-                    {p.baths}
+                    {p.slug === "whole-farm" ? `${p.baths}, plus the Camp` : p.baths}
                   </td>
                 ))}
               </tr>

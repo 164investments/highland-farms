@@ -10,9 +10,11 @@ import { chatLiftFor, translateYOf } from "@/components/field/chatLift";
 /*
  * The bottom sticky action on phones (CONSISTENCY #13, shared board 4 r2).
  *
- * - Appears whenever no first-screen CTA ([data-hero-cta]) is fully on screen
- *   (threshold 1.0): after the visitor scrolls past it, and also before, when
- *   a short in-app browser cuts the button off at the bottom. With no
+ * - Appears once no first-screen CTA ([data-hero-cta]) is fully on screen
+ *   because the visitor scrolled past it (threshold 1.0), and also before,
+ *   when a short in-app browser shows less than half of it at the bottom (a
+ *   cut-off button). A picker list that is mostly on screen keeps its rows
+ *   uncovered. With no
  *   visible hero CTA on the page, it appears after 400px of scroll. With
  *   `showOnLoad` (pages with no first-screen CTA: the wedding portfolio and
  *   the couple pages) it shows from the first screen.
@@ -84,6 +86,7 @@ export function useStickyVisibility({
           if (r.width === 0 && r.height === 0) s = "absent";
           else if (e.intersectionRatio >= 0.99) s = "in";
           else if (r.top < (e.rootBounds?.top ?? 0)) s = "above";
+          else if (e.intersectionRatio >= 0.5) s = "in";
           else s = "below";
           state.set(e.target, s);
         }
@@ -91,7 +94,7 @@ export function useStickyVisibility({
         if (values.every((v) => v === "absent")) setHeroes("none");
         else setHeroes(!values.includes("in") && values.some((v) => v === "above" || v === "below") ? "past" : "not-past");
       },
-      { threshold: [0, 1] },
+      { threshold: [0, 0.5, 1] },
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();

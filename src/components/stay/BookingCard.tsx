@@ -3,9 +3,9 @@ import { HospitableWidget } from "./HospitableWidget";
 import { StayCancellationLine } from "./StayLines";
 import {
   STAY_CALENDAR_NOTE,
-  STAY_MINIMUM,
   STAY_PRICE_CARD,
   STAY_PRICE_CARD_LEAD,
+  stayMinimumFor,
 } from "./stay-facts";
 
 interface BookingCardProps {
@@ -60,7 +60,7 @@ export function BookingCard({ widgetUrl, propertyName, propertySlug }: BookingCa
           <p className="m-0">
             <strong className="font-semibold text-ink">{STAY_PRICE_CARD_LEAD}</strong> {STAY_PRICE_CARD}
           </p>
-          <p className="m-0 mt-2">{STAY_MINIMUM}</p>
+          {stayMinimumFor(propertySlug) && <p className="m-0 mt-2">{stayMinimumFor(propertySlug)}</p>}
           <p className="m-0 mt-2">
             <StayCancellationLine />
           </p>

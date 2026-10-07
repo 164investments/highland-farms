@@ -328,7 +328,7 @@ const COTTAGE: StayContent = {
         note: (p) => `${bedroomsLabel(p.bedrooms)}, sleeps ${p.guests}`,
         items: [
           PHOTO("cottage-master-bedroom-pro", "Cottage master bedroom with cedar-plank walls, king bed, and feather wall hanging", "Master", "King bed in a cedar-plank room"),
-          PHOTO("cottage-bedroom-cedar", "Cedar-walled bedroom with antique dresser and sliding-door forest view", "Cedar room", "Cedar walls and a forest view"),
+          PHOTO("cottage-bedroom-cedar", "The cottage master bedroom from the bed: cedar walls, an antique dresser and the sliding door to the forest", "Master, other side", "Cedar walls and a forest view"),
           PHOTO("cottage-loft-bedroom-pro", "Loft bedroom with sloped white ceiling and green-curtained dormer window", "Loft bedroom", "Sloped ceiling and a dormer window"),
           PHOTO("cottage-loft-twins", "Loft sleeping platform with twin beds tucked under the eaves", "Loft twins", "Twin beds under the eaves"),
         ],
@@ -429,7 +429,8 @@ const WHOLE_FARM: StayContent = {
   slug: "whole-farm",
   drawings: ["lodge", "cottage", "airstream-camp"],
   compareName: "Whole farm",
-  compareBedrooms: (p) => String(p.bedrooms),
+  // The farm counts the Lodge and the Cottage (4 + 3, 2.5 + 1 baths); the Camp is extra.
+  compareBedrooms: (p) => `${p.bedrooms}, plus the Camp`,
   compareHotTub: "Two cedar",
   picker: (p) => `${bedroomsLabel(p.bedrooms)} · ${bathsLabel(p.baths)} · two cedar hot tubs`,
   otherLine: (p) => `Sleeps ${p.guests} · ${bedroomsLabel(p.bedrooms)} · ${bathsLabel(p.baths)}`,

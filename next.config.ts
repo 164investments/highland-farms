@@ -56,8 +56,10 @@ const nextConfig: NextConfig = {
       { source: "/wedding-inquiry-submission-confirmation", destination: "/contact", permanent: true },
       { source: "/event-inquiry-submission-confirmation", destination: "/contact", permanent: true },
       { source: "/calendar-backend/:path*", destination: "/", permanent: true },
-      // Old Squarespace product pages → shop subdomain
-      { source: "/shop/p/:slug*", destination: "https://shop.highlandfarmsoregon.com/shop/p/:slug*", permanent: true },
+      // Old Squarespace product pages → the native store. The catalog kept the Squarespace
+      // slugs, so most land on their product; an unknown slug gets the 404 with the shop door.
+      // (The shop subdomain this used to point to has expired.)
+      { source: "/shop/p/:slug", destination: "/shop/:slug", permanent: true },
     ];
   },
 

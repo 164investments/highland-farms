@@ -171,6 +171,8 @@ h1, h2, h3 {
   font-family: var(--font-display), Georgia, serif;
   letter-spacing: 0.01em;
   font-weight: 400;
+  /* No one-word last line in a headline (r5). */
+  text-wrap: balance;
 }
 
 /*

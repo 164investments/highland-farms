@@ -171,11 +171,11 @@ export function StaticGifts() {
             className="lg:col-start-2 lg:row-start-1 lg:row-end-10"
             frameClassName="h-[160px] max-[359px]:h-[110px] lg:h-auto lg:min-h-0 lg:flex-1"
             captionClassName="mt-px max-[359px]:hidden lg:mt-0.5"
-            caption="Feeding the calves in the hay."
+            caption="Feeding a calf in the hay."
           >
             <Image
               src="/images/farm/agritourism-stay.jpg"
-              alt="Two people feeding a pair of shaggy Highland calves in the hay"
+              alt="Two people feeding a shaggy Highland calf in the hay, the herd behind them"
               fill
               priority
               fetchPriority="high"

@@ -12,7 +12,16 @@ import { thanksgiving } from "@/data/thanksgiving";
  * nightly rate here: rates change with the season (ops #26, D17) and the
  * Hospitable calendar shows the total, cleaning included, before Reserve.
  */
-export const STAY_MINIMUM = "Friday to Sunday stays have a two-night minimum.";
+export const STAY_MINIMUM =
+  "The Lodge, the Cottage and the Whole Farm have a two-night minimum on Friday to Sunday stays.";
+
+/**
+ * The same rule in one stay's booking card. The Camp's live calendar takes
+ * one-night stays on any day (r5 truth check), so the Camp shows no minimum.
+ */
+export function stayMinimumFor(slug: string): string | null {
+  return slug === "camp" ? null : "Friday to Sunday stays have a two-night minimum.";
+}
 
 export const STAY_PRICE_PLAIN =
   "Rates change with the season, so we don't list a nightly price. Pick your dates on any stay and the calendar shows one total before taxes: the nightly rate for your nights, the cleaning fee and the service fee.";
@@ -38,10 +47,11 @@ export const STAY_CANCELLATION = "Cancellation terms are provided at the time of
 export const STAY_QUESTIONS_LEAD = "Questions before you book? Call";
 
 /**
- * Under every booking calendar. Lodging opens 9 to 12 months out (ops fact #1),
- * true of all four stays; the arrow is the Hospitable widget's month control.
+ * Under every booking calendar; the arrow is the Hospitable widget's month
+ * control. No booking-window promise: the live calendars open later months in
+ * their own time (r5: nothing open after April 2027, the Camp after November 2026).
  */
-export const STAY_CALENDAR_NOTE = "Tap the arrow for later months; stays open about 9 to 12 months ahead.";
+export const STAY_CALENDAR_NOTE = "Tap the arrow for later months. If your date isn't open yet, call and ask.";
 
 export const STAY_DRIVE = "About an hour from Portland and about 25 minutes from Government Camp";
 /** "Getting here", identical on /stay and every /stay/[slug] (CONSISTENCY #2). */

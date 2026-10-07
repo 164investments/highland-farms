@@ -859,7 +859,7 @@ function attributionParts(parts: { name: string; role?: string; when?: string })
 export function FieldAttributionText(parts: { name: string; role?: string; when?: string }) {
   return attributionParts(parts).map((part, i) => (
     <Fragment key={part}>
-      {i > 0 && " · "}
+      {i > 0 && "\u00a0· "}
       <span className="whitespace-nowrap">{part}</span>
     </Fragment>
   ));

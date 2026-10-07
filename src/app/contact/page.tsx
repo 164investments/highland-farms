@@ -130,7 +130,7 @@ const steps = [
 const rowLink =
   "grid min-h-[60px] grid-cols-[1fr_auto] items-center gap-x-3 border-b border-rule py-2.5";
 /* Address over its label on phones (both rows alike), side by side from lg. Labels match the footer's. */
-const emailLink = "flex min-h-11 flex-col justify-center py-1 text-[13.5px] lg:flex-row lg:items-center lg:gap-x-2";
+const emailLink = "flex min-h-11 flex-col justify-center py-1 text-[13.5px] lg:flex-row lg:items-center lg:justify-start lg:gap-x-2";
 const mapLink = "inline-flex min-h-11 items-center text-[14px] font-medium text-pine";
 
 export default function ContactPage() {

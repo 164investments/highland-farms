@@ -250,15 +250,18 @@ function GridPlates({ plates, numbered }: { plates: WeddingPhoto[]; numbered?: b
   );
 }
 
-/** One name for the journal page everywhere (menu, footer, every back link): "Real weddings". */
-function BackLink() {
+/**
+ * One name for the journal page everywhere (menu, footer, every back link): "Real weddings".
+ * A styled set says "The wedding portfolio", so it never reads as a real wedding.
+ */
+function BackLink({ styled = false }: { styled?: boolean }) {
   return (
     <Link
       href="/wedding-portfolio"
       className="order-1 inline-flex min-h-11 items-center gap-2 self-start font-sans text-[14px] font-medium text-pine lg:col-span-12"
     >
       <FieldArrow size={16} className="rotate-180" />
-      All real weddings
+      {styled ? "The wedding portfolio" : "All real weddings"}
     </Link>
   );
 }
@@ -303,7 +306,7 @@ function PhotographerCredit({ couple, className }: { couple: WeddingCouple; clas
 function StyledHeader({ couple }: { couple: WeddingCouple }) {
   return (
     <header className="mx-auto flex max-w-[1440px] flex-col px-5 pt-[calc(var(--header-h,104px)+0.5rem)] lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:pt-[calc(var(--header-h,128px)+2rem)]">
-      <BackLink />
+      <BackLink styled />
       <div className="order-2 mt-1 lg:col-span-7 lg:mt-6">
         <p className="font-display text-[17px] italic text-fern lg:text-[22px]">Made at the farm</p>
         <h1
@@ -387,6 +390,8 @@ export default async function WeddingDetailPage({
                 </p>
               )}
               <PhotographerCredit couple={couple} className="mt-1 lg:mt-2" />
+              {/* Phones: proof on the 660 first screen (desktop has the photographer's quote beside the title). */}
+              <FieldReviewTier tier="hero" className="mt-1.5 text-[13px] lg:hidden" starSize={13} />
             </div>
             <div className="order-4 mt-4 lg:order-3 lg:col-span-5 lg:mt-0">
               <p className="font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]">

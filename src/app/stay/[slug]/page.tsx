@@ -181,8 +181,17 @@ export default async function PropertyPage({
 
   const facts: { label: string; value: string; big: boolean }[] = [
     { label: property.guests === 1 ? "Guest" : "Guests", value: String(property.guests), big: true },
-    { label: property.bedrooms === 1 ? "Bedroom" : "Bedrooms", value: String(property.bedrooms), big: true },
-    { label: property.baths === 1 ? "Bath" : "Baths", value: String(property.baths), big: true },
+    // The whole farm's counts are the two houses' (the farm's own 7 and 3.5); the Camp is extra.
+    {
+      label: property.slug === "whole-farm" ? "Bedrooms, plus the Camp" : property.bedrooms === 1 ? "Bedroom" : "Bedrooms",
+      value: String(property.bedrooms),
+      big: true,
+    },
+    {
+      label: property.slug === "whole-farm" ? "Baths, plus the Camp" : property.baths === 1 ? "Bath" : "Baths",
+      value: String(property.baths),
+      big: true,
+    },
     { label: page.fourth.label, value: page.fourth.value, big: factNumeric },
   ];
 
