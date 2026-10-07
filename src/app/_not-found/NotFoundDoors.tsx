@@ -34,8 +34,8 @@ export function NotFoundDoors({ weddingsHref, tourHint, spaHint }: NotFoundDoors
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: "page_not_found",
-      page_path: pathname,
-      page_referrer: document.referrer,
+      missing_path: pathname,
+      missing_referrer: document.referrer,
     });
   }, [pathname]);
 

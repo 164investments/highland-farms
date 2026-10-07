@@ -513,8 +513,9 @@ export default function StayPage() {
         primary={{
           label: "Check dates and price",
           sublabel: `${capitalize(numberWord(properties.length))} stays, sleeping ${Math.min(...properties.map((p) => p.guests))} to ${Math.max(...properties.map((p) => p.guests))}`,
-          href: "#pick",
+          href: "#stays",
         }}
+        hideWhenVisible="#stays"
       />
       <BookingModalRoot />
     </div>

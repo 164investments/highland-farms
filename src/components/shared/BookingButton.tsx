@@ -3,7 +3,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { StickyMobileCTA } from "@/components/shared/StickyMobileCTA";
 import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
 import { bookingTrackingFromUrl } from "@/lib/booking/tracking";
 
@@ -142,28 +141,6 @@ export function BookingTextLink({ href, label, title, className, children }: Boo
     >
       {children ?? label}
     </button>
-  );
-}
-
-interface BookingStickyCTAProps {
-  href: string;
-  label: string;
-  title?: string;
-}
-
-export function BookingStickyCTA({ href, label, title }: BookingStickyCTAProps) {
-  const handleClick = () => {
-    const src = prepareBookingUrl(href);
-    trackBookingStart(src, title ?? label, href);
-    openBookingModal({ src, title });
-  };
-
-  return (
-    <StickyMobileCTA
-      label={label}
-      href={href}
-      onClick={handleClick}
-    />
   );
 }
 

@@ -280,8 +280,8 @@ export default function ThanksgivingPage() {
       </section>
 
       <FieldStickyBar
-        primary={{ label: "Inquire about Thanksgiving", href: "#inquire" }}
-        hideWhenVisible="#inquire"
+        primary={{ label: "See the packages", href: "#packages" }}
+        hideWhenVisible="#packages"
       />
     </div>
   );
