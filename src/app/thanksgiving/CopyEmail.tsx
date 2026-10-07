@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
  * phones without a mail account can swallow a mailto tap. The address stays
  * visible and selectable; this button copies it.
  */
-export function CopyEmail({ email, className }: { email: string; className?: string }) {
+export function CopyEmail({ email, className, inline = false }: { email: string; className?: string; inline?: boolean }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -26,13 +26,14 @@ export function CopyEmail({ email, className }: { email: string; className?: str
       type="button"
       onClick={copy}
       data-cta="tg-copy-email"
-      className={cn("group inline-flex min-h-11 items-center", className)}
+      aria-label="Copy email address"
+      className={cn("group inline-flex items-center", inline ? "py-3" : "min-h-11", className)}
     >
       <span
         aria-live="polite"
         className="border-b border-pine-line pb-0.5 font-sans text-[13px] font-medium text-pine transition-colors group-hover:border-pine"
       >
-        {copied ? "Copied" : "Copy email address"}
+        {copied ? "Copied" : inline ? "copy" : "Copy email address"}
       </span>
     </button>
   );

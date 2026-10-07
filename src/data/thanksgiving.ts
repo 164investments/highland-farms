@@ -147,16 +147,16 @@ export const thanksgiving = {
     {
       question: "How do we book?",
       answer:
-        "Tap any \"Check\" button to open a ready-to-send email, write to info@highlandfarms-oregon.com, or call (971) 236-2551. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes, payment and the stay's cancellation terms before you commit. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
+        "Tap any \"Check Thanksgiving dates\" button to open a ready-to-send email, write to info@highlandfarms-oregon.com, or call (971) 236-2551. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes, payment and the stay's cancellation terms before you commit. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
     },
   ],
 } as const;
 
 export type ThanksgivingPackage = (typeof thanksgiving.packages)[number];
 
-/** Button label that carries the choice and the price: "Check the Lodge, $5,000". Price comes from the data. */
+/** Button label in the one "Check Thanksgiving dates" family, naming the choice: "Check Thanksgiving dates for the Lodge". */
 export function packageCtaLabel(pkg: ThanksgivingPackage) {
-  return `Check ${pkg.name.replace(/^The /, "the ")}, $${pkg.price.toLocaleString("en-US")}`;
+  return `Check Thanksgiving dates for ${pkg.name.replace(/^The /, "the ")}`;
 }
 
 /** Price per guest when every bed is filled, rounded to the dollar. */

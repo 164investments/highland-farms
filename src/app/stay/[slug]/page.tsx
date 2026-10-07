@@ -94,27 +94,12 @@ function StayRow({ property, content, grid }: { property: Property; content: Sta
             <span className={cn("font-sans text-[12px] text-ink-note", grid && "lg:text-[14px]")}>
               {content.otherLine(property)}
             </span>
+            {content.thumbCaption && (
+              <span className="font-sans text-[11px] italic text-ink-meta">{content.thumbCaption}</span>
+            )}
           </span>
           <FieldArrow className="text-pine" />
         </span>
-      </Link>
-    </li>
-  );
-}
-
-/** One of the whole farm's three stays: one plate, its name, what it sleeps and a link to that stay. */
-function IncludedStay({ property, content }: { property: Property; content: StayContent }) {
-  return (
-    <li className="m-0 border-t border-rule pt-5 lg:pt-6">
-      <Link href={property.bookingUrl} className="group block">
-        <Plate frameClassName="h-[168px] min-[380px]:h-[190px] lg:h-[260px]">
-          <StayPhoto photo={content.thumb} sizes="(min-width: 1024px) 28vw, calc(100vw - 56px)" />
-        </Plate>
-        <span className="mt-2 flex min-h-11 items-center gap-2 font-display text-[24px] font-semibold leading-[1.05] text-ink group-hover:text-pine lg:text-[28px]">
-          {property.name}
-          <FieldArrow className="text-pine" />
-        </span>
-        <span className="block font-sans text-[12px] text-ink-note lg:text-[14px]">Sleeps {property.guests}</span>
       </Link>
     </li>
   );
@@ -157,6 +142,38 @@ export default async function PropertyPage({
     },
     { label: page.fourth.label, value: page.fourth.value, big: factNumeric },
   ];
+
+  // A guest's own words, straight after the paragraph and before the photographs; the Whole Farm's wedding review
+  // moves below "Know before you book" so the booking path is not interrupted.
+  const quoteSection = quote && (
+              <section
+                id="reviews"
+                aria-label="What a guest said"
+                className="mt-10 scroll-mt-[var(--header-h,104px)] bg-paper-shade px-5 py-7 max-lg:-mx-5 lg:mt-12 lg:px-10 lg:py-10"
+              >
+                <p className={cn("m-0 text-[17px] lg:text-[20px]", fieldEyebrowClass)}>{page.quoteEyebrow}</p>
+                <div className="mt-3 border-t border-rule pt-4">
+                  <FieldQuoteView {...quote} size="md" />
+                </div>
+                <FieldLink
+                  href={GOOGLE_REVIEW_LINK}
+                  external
+                  className="mt-2 flex min-h-11 w-fit items-center gap-2 font-sans text-[13px] text-ink-body transition-colors hover:text-ink lg:text-[14px]"
+                >
+                  <FieldStars size={13} />
+                  <span>Read all {REVIEW_COUNT} reviews on Google</span>
+                </FieldLink>
+                {page.quoteLink && (
+                  <Link
+                    href={page.quoteLink.href}
+                    className={cn("flex min-h-11 w-fit items-center gap-1.5 text-[14px]", fieldTextLinkClass)}
+                  >
+                    {page.quoteLink.label}
+                    <FieldArrow size={16} />
+                  </Link>
+                )}
+              </section>
+  );
 
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
@@ -275,36 +292,7 @@ export default async function PropertyPage({
               </p>
             </section>
 
-            {/* A guest's own words, straight after that paragraph and before the photographs. */}
-            {quote && (
-              <section
-                id="reviews"
-                aria-label="What a guest said"
-                className="mt-10 scroll-mt-[var(--header-h,104px)] bg-paper-shade px-5 py-7 max-lg:-mx-5 lg:mt-12 lg:px-10 lg:py-10"
-              >
-                <p className={cn("m-0 text-[17px] lg:text-[20px]", fieldEyebrowClass)}>{page.quoteEyebrow}</p>
-                <div className="mt-3 border-t border-rule pt-4">
-                  <FieldQuoteView {...quote} size="md" />
-                </div>
-                <FieldLink
-                  href={GOOGLE_REVIEW_LINK}
-                  external
-                  className="mt-2 flex min-h-11 w-fit items-center gap-2 font-sans text-[13px] text-ink-body transition-colors hover:text-ink lg:text-[14px]"
-                >
-                  <FieldStars size={13} />
-                  <span>Read all {REVIEW_COUNT} reviews on Google</span>
-                </FieldLink>
-                {page.quoteLink && (
-                  <Link
-                    href={page.quoteLink.href}
-                    className={cn("flex min-h-11 w-fit items-center gap-1.5 text-[14px]", fieldTextLinkClass)}
-                  >
-                    {page.quoteLink.label}
-                    <FieldArrow size={16} />
-                  </Link>
-                )}
-              </section>
-            )}
+            {!page.quoteLink && quoteSection}
 
             {/* Room by room: the gallery as numbered plates (or, for the whole farm, its three stays with their photos). */}
             {page.rooms === "rooms" ? (
@@ -337,9 +325,9 @@ export default async function PropertyPage({
                 >
                   {capitalize(numberWord(included.length))} stays
                 </h2>
-                <ul className="m-0 mt-5 grid list-none gap-6 p-0 lg:mt-8 lg:grid-cols-3 lg:gap-8">
+                <ul className="m-0 mt-5 flex list-none flex-col border-t border-rule p-0 lg:mt-8 lg:grid lg:grid-cols-3 lg:gap-10 lg:border-t-0">
                   {included.map((h) => (
-                    <IncludedStay key={h.slug} property={h} content={STAY_CONTENT[h.slug]} />
+                    <StayRow key={h.slug} property={h} content={STAY_CONTENT[h.slug]} grid />
                   ))}
                 </ul>
               </section>
@@ -358,6 +346,7 @@ export default async function PropertyPage({
                 pendingNote={`PENDING JALENE: ${property.name}'s exact cancellation terms, to state here and in the booking card`}
               />
             </section>
+            {page.quoteLink && quoteSection}
             {/* While you're here: one quiet line of links, below the terms (Thanksgiving until 2026-11-28, tour, spa). */}
             <section aria-labelledby="here-title" className={SPLIT_SECTION_CLASS}>
               <h2 id="here-title" className={GROUP_HEAD_CLASS}>

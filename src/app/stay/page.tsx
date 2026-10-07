@@ -26,6 +26,7 @@ import {
   SPA_PER_PERSON,
   STAY_DIRECT_LINE,
   THANKSGIVING_DATES,
+  THANKSGIVING_NIGHTS,
   TOUR_FOR_TWO,
   thanksgivingPackage,
 } from "@/components/stay/stay-facts";
@@ -153,6 +154,9 @@ export default function StayPage() {
                         <span className="font-sans text-[12px] leading-[1.3] text-ink-note min-[380px]:text-[13px]">
                           Sleeps {p.guests} &middot; {ROW_LINE[p.slug]}
                         </span>
+                        {c.thumbCaption && (
+                          <span className="font-sans text-[11px] italic leading-[1.3] text-ink-meta">{c.thumbCaption}</span>
+                        )}
                       </span>
                       <span className="shrink-0 text-pine">
                         <FieldArrow />
@@ -325,10 +329,33 @@ export default function StayPage() {
           <h2 id="here-title" className={cn("m-0", SECTION_LABEL_CLASS)}>
             While you&apos;re here
           </h2>
-          <div className="mt-2 flex flex-wrap gap-x-5">
-            <Link href="/thanksgiving" data-season-only="thanksgiving-links" className={HERE_LINK_CLASS}>
-              Thanksgiving, {THANKSGIVING_SHORT}: from {THANKSGIVING_FROM}
-            </Link>
+          {/* Thanksgiving leads (season-gated as one block); tours and spa are one muted line. */}
+          <Link
+            href="/thanksgiving"
+            data-season-only="thanksgiving-links"
+            className="mt-2 flex min-h-[64px] items-center gap-3 border-y border-rule py-2 lg:max-w-[760px]"
+          >
+            <span className="block h-[58px] w-[76px] shrink-0 border border-frame bg-paper-light p-[3px]">
+              <span className="relative block h-full w-full overflow-hidden">
+                <StayPhoto
+                  photo={{ src: "/images/properties/cottage.jpg", alt: "", position: "50% 45%" }}
+                  sizes="76px"
+                />
+              </span>
+            </span>
+            <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+              <span className="font-display text-[19px] font-semibold leading-[1.1] text-ink">
+                Thanksgiving, {THANKSGIVING_SHORT}
+              </span>
+              <span className="font-sans text-[13px] leading-[1.35] text-ink-note">
+                {THANKSGIVING_NIGHTS.cap}, dinner cooked for you. From {THANKSGIVING_FROM}.
+              </span>
+            </span>
+            <span className="shrink-0 text-pine">
+              <FieldArrow />
+            </span>
+          </Link>
+          <div className="mt-1 flex flex-wrap gap-x-5">
             <BookingTextLink
               href={bookingUrl(BOOKING_LINKS.farmTourForTwo, "stay-add-tour")}
               label="See tour dates"
@@ -354,7 +381,7 @@ export default function StayPage() {
 
       <FieldStickyBar
         primary={{
-          label: "Check dates and price",
+          label: "Choose your stay",
           sublabel: `${capitalize(numberWord(properties.length))} stays, sleeping ${Math.min(...properties.map((p) => p.guests))} to ${Math.max(...properties.map((p) => p.guests))}`,
           href: "#pick",
         }}

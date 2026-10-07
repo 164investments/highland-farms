@@ -1,5 +1,6 @@
 import { HospitableWidget } from "./HospitableWidget";
 import {
+  stayMinimumFor,
   STAY_CALENDAR_NOTE,
   STAY_PRICE_CARD,
   STAY_PRICE_CARD_LEAD,
@@ -20,6 +21,7 @@ interface BookingCardProps {
  * and the phone bar.
  */
 export function BookingCard({ widgetUrl, propertyName, propertySlug }: BookingCardProps) {
+  const minimum = stayMinimumFor(propertySlug);
   return (
     <section
       id="book"
@@ -50,7 +52,12 @@ export function BookingCard({ widgetUrl, propertyName, propertySlug }: BookingCa
           </li>
         </ol>
         <div className="px-3 pt-4 pb-3 lg:px-4">
-          <HospitableWidget widgetUrl={widgetUrl} propertyName={propertyName} propertySlug={propertySlug} />
+          {/* The embed documents no theme or colour options and is Hospitable's own page, so it sits in a paper mat
+              with a hairline, under the one rule that shapes the dates. */}
+          {minimum && <p className="m-0 mb-2 text-center font-sans text-[13px] font-medium leading-snug text-ink">{minimum}</p>}
+          <div className="border border-rule bg-paper p-2">
+            <HospitableWidget widgetUrl={widgetUrl} propertyName={propertyName} propertySlug={propertySlug} />
+          </div>
           <p className="m-0 mt-3 text-center font-sans text-[13px] leading-[1.5] text-ink-note">{STAY_CALENDAR_NOTE}</p>
         </div>
         <div className="border-t border-rule px-4 py-3.5 font-sans text-[13px] leading-[1.5] text-ink-body lg:px-5">

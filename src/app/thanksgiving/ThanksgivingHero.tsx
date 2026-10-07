@@ -62,7 +62,7 @@ export function ThanksgivingHero() {
           className="mt-4 lg:col-start-1 lg:row-start-8 lg:mt-7 lg:flex lg:flex-wrap lg:items-center lg:gap-x-7 lg:gap-y-2"
         >
           <a href={thanksgivingInquiryHref()} data-cta="tg-hero" className={cn(fieldCtaClass, "w-full lg:w-auto")}>
-            Check availability
+            Check Thanksgiving dates
             <FieldArrow />
           </a>
           <a href="#included" className="hidden min-h-11 items-center lg:inline-flex">

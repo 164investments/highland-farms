@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
   FieldArrow,
@@ -8,7 +7,6 @@ import {
   Plate,
   fieldCtaClass,
   fieldEyebrowClass,
-  fieldTextLinkClass,
 } from "@/components/ui/FieldGuide";
 import { FieldFaq } from "@/components/field/Faq";
 import { FieldReview } from "@/components/field/Reviews";
@@ -177,11 +175,12 @@ export default function ThanksgivingPage() {
               </p>
               <div data-hero-cta className="mt-3">
                 <a href={inquiry} data-cta="tg-final" className={cn(fieldCtaClass, "w-full max-w-[420px] lg:w-auto")}>
-                  Check availability
+                  Check Thanksgiving dates
                   <FieldArrow />
                 </a>
                 <p className="m-0 mt-3 font-sans text-[13px] leading-[1.6] text-ink-note">
-                  Or email <span className="select-all break-all text-ink-body">{thanksgiving.email}</span>, or call{" "}
+                  Or email <span className="select-all break-all text-ink-body">{thanksgiving.email}</span> (
+                  <CopyEmail email={thanksgiving.email} inline />), or call{" "}
                   <a
                     href={`tel:${thanksgiving.phone.replace(/\D/g, "")}`}
                     data-cta="tg-final-call"
@@ -191,11 +190,7 @@ export default function ThanksgivingPage() {
                   </a>
                   . An inquiry doesn&apos;t reserve the stay.
                 </p>
-                <CopyEmail email={thanksgiving.email} className="mt-1" />
               </div>
-              <Link href="/stay" className="mt-4 inline-flex min-h-11 items-center">
-                <span className={fieldTextLinkClass}>See the Lodge, Cottage and Camp</span>
-              </Link>
             </div>
           </div>
         </div>
