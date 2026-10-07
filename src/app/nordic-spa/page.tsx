@@ -13,7 +13,6 @@ import { SpaPicker } from "@/components/shared/VisitPickers";
 import { VisitFaq } from "@/components/shared/VisitFaq";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 import {
-  FieldDrawing,
   FieldSection,
   FieldSectionHeader,
   FieldSequence,
@@ -176,12 +175,6 @@ export default function NordicSpaPage() {
             <p className="m-0 mt-3 font-sans text-[14px] leading-[1.55] text-ink-note lg:text-[15px]">
               Sessions start at {SPA_SESSION_TIMES}. Open days change week to week, so check the calendar.
             </p>
-            <div className="mt-7 grid grid-cols-[64px_1fr] items-center gap-4 border-t border-rule pt-6 lg:grid-cols-[96px_1fr]">
-              <FieldDrawing name="vine-maple-leaf" className="h-16 w-16 lg:h-24 lg:w-24" sizes="96px" />
-              <p className="m-0 font-display text-[21px] italic leading-[1.3] text-ink lg:text-[26px]">
-                Rain changes nothing here: sessions run as booked, all year.
-              </p>
-            </div>
           </div>
         </FieldSection>
 
@@ -213,6 +206,14 @@ export default function NordicSpaPage() {
                     </Suspense>
                     {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
                   </p>
+                </>
+              )}
+            </div>
+            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-12">
+              <KnowBeforeYouBook framed={false} rows={knowRows} />
+            </div>
+            {!native && (
+              <div className="lg:col-span-6 lg:col-start-7 lg:row-start-2">
                   <BookingPolicyNote text={policy} />
                   <PendingSlot className="mt-4" note="DECIDE D4: visit packs line (3 for $199, 5 for $299, 10 for $549, six months). Show only after Hayden decides and the Acuity pack copy says 90 minutes">
                     <p className="m-0 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
@@ -226,12 +227,8 @@ export default function NordicSpaPage() {
                       />
                     </p>
                   </PendingSlot>
-                </>
-              )}
-            </div>
-            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:mt-12">
-              <KnowBeforeYouBook framed={false} rows={knowRows} />
-            </div>
+              </div>
+            )}
           </div>
         </FieldSection>
 

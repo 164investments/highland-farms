@@ -44,7 +44,7 @@ export default function GiftCertificatesPage() {
             <h1 className="mt-3 text-4xl text-forest">Give Highland Farms.</h1>
             <p className="mt-3 font-sans text-stone-600">
               A farm tour, a spa session, or a 3-visit spa pack. Pick one, and we&apos;ll
-              email the code right away.
+              email the code, usually within minutes.
             </p>
             <div id="choose" className="mt-8 scroll-mt-[var(--header-h,128px)]">
               <GiftBody />

@@ -5,7 +5,7 @@ import { JsonLd, faqPageJsonLd } from "@/components/field/Faq";
 import { type FieldPriceRowData } from "@/components/field/PriceRows";
 import { BookingModalRoot } from "@/components/shared/BookingButton";
 import { VisitFaq } from "@/components/shared/VisitFaq";
-import { FieldDrawing, FieldSection, FieldSectionHeader, FieldSequence, Plate } from "@/components/ui/FieldGuide";
+import { FieldSection, FieldSectionHeader, FieldSequence, Plate } from "@/components/ui/FieldGuide";
 import { GIFTS, giftCatalogUrl, giftFAQ, giftPrice, type GiftFamily } from "@/data/gift-certificates";
 import { GiftChooser, type GiftTileData } from "./GiftChooser";
 import { GIFTS_KSCHROE_QUOTE, GIFTS_STEWART_QUOTE, GIFTS_VALERIE_QUOTE } from "./quotes";
@@ -53,7 +53,7 @@ const TILES: GiftTileData[] = [
     unit: "for two",
     drawings: ["highland-cow"],
     line: "For the one who stops the car for every cow.",
-    body: "A private 60-minute tour for their group: into the pen to feed, brush and pet the Highland cows, then the fern-forest trail to the Icelandic sheep. Kids 4 and under come free.",
+    body: "A private 60-minute tour: feed and pet the Highland cows, then walk the fern-forest trail to the sheep.",
     rows: ledgerRows("tour"),
   },
   {
@@ -63,7 +63,7 @@ const TILES: GiftTileData[] = [
     unit: "per person",
     drawings: ["sauna-cabin"],
     line: "For the friend who needs ninety quiet minutes.",
-    body: "One 90-minute session per person: the wood-burning cedar sauna, the wet sauna and the cold plunge, robes and towels included. Spa guests must be 16 or older. Give six, and the group can book a whole session to themselves.",
+    body: "One 90-minute session per person, robes and towels included. Ages 16 and up.",
     rows: ledgerRows("spa"),
   },
   {
@@ -74,7 +74,7 @@ const TILES: GiftTileData[] = [
     drawings: ["highland-cow", "sauna-cabin"],
     panelTag: "Tour and spa",
     line: "Meet the herd, then the sauna.",
-    body: "For anyone who wants both: a private farm tour plus a spa spot for each guest, the same price as booking both. They book them as two appointments; on the same day, the tour comes first.",
+    body: "A private farm tour plus a spa spot for each guest, booked as two appointments; the tour comes first.",
     rows: ledgerRows("day"),
   },
 ];
@@ -92,7 +92,7 @@ export function StaticGifts() {
         <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-[18px] lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(7,auto)_1fr] lg:gap-x-16 lg:px-10 lg:pb-10 lg:pt-11 xl:px-10 min-[90rem]:px-16">
           <Plate
             className="lg:col-start-2 lg:row-start-1 lg:row-end-10"
-            frameClassName="h-[100px] max-[399px]:h-[84px] lg:h-auto lg:min-h-0 lg:flex-1"
+            frameClassName="h-[112px] max-[399px]:h-[96px] lg:h-auto lg:min-h-0 lg:flex-1"
             captionClassName="mt-px max-sm:hidden lg:mt-0.5"
             caption="A guide with one of the herd."
           >
@@ -103,8 +103,8 @@ export function StaticGifts() {
               priority
               fetchPriority="high"
               sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
-              // Phone: a short 3.3:1 band of the 3:2 photo (so the three tiles clear the fold); 48% keeps the guide's face and the cow's head in frame (desktop is portrait, so only x matters).
-              className="object-cover object-[40%_48%]"
+              // Phone: a short band of the 3:2 photo (so the three tiles clear the fold); 32% keeps the guide's face and the cow's head in frame (desktop is portrait, so only x matters).
+              className="object-cover object-[40%_32%]"
             />
           </Plate>
 
@@ -140,7 +140,6 @@ export function StaticGifts() {
         >
           <div className="lg:col-span-5">
             <FieldSectionHeader eyebrow="From checkout to their day on the farm" title="How it works" />
-            <FieldDrawing name="gift-card" className="mt-5 h-auto w-[132px] lg:mt-8 lg:w-[220px]" sizes="(min-width: 1024px) 220px, 132px" />
           </div>
           <FieldSequence
             className="mt-7 lg:col-span-7 lg:mt-0"

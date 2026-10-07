@@ -17,6 +17,7 @@ import {
   FieldCatalogue,
   FieldDrawing,
   FieldLink,
+  FieldNo,
   FieldSection,
   FieldSectionHeader,
   FieldSequence,
@@ -83,12 +84,9 @@ const knowRows: KnowRow[] = [
     ),
   },
   {
-    term: "Wear",
-    detail: "Closed-toe shoes are required. Dress in layers; October to March, bring rain boots and a rain jacket.",
-  },
-  {
-    term: "Access",
-    detail: "Not ADA accessible. The paths can't take a wheelchair, walker or stroller, and there is no seated version.",
+    term: "Wear and access",
+    detail:
+      "Closed-toe shoes are required. Dress in layers; October to March, bring rain boots and a rain jacket. Not ADA accessible: the paths can't take a wheelchair, walker or stroller, and there is no seated version.",
   },
   {
     term: "Arrival",
@@ -98,7 +96,7 @@ const knowRows: KnowRow[] = [
   { term: "Timing", detail: "Book at least a day ahead. Dates open about three to four months out." },
 ];
 
-const meet = [
+const sheep = [
   {
     id: "icelandic-sheep",
     drawing: "icelandic-sheep" as const,
@@ -106,24 +104,28 @@ const meet = [
     subtitle: "Ovis aries, Icelandic breed",
     body: "At the end of the fern-forest trail. A northern breed with a thick double fleece.",
   },
+];
+
+/** Peacocks, dogs and hens: one compact three-up row (round 3 ruling); cows and sheep stay full. */
+const meet = [
   {
     id: "white-peacock",
     drawing: "white-peacock" as const,
     title: "White peacocks",
     subtitle: "Pavo cristatus, white form",
-    body: "White from crest to tail. Look up when you walk into the barn: they like a high perch.",
+    body: "Look up in the barn: they like a high perch.",
   },
   {
     id: "guardian-dog",
     drawing: "guardian-dog" as const,
     title: "Guardian dogs",
     subtitle: "Canis familiaris, on duty",
-    body: "They work for a living, watching over the herd and the flock. Please leave your own at home: no pets or outside animals on the farm.",
+    body: "On duty with the herd and flock. Please leave pets at home.",
   },
   {
     id: "hen",
     drawing: "hen" as const,
-    title: "Hens and guinea fowl",
+    title: "Hens, guinea fowl",
     subtitle: "Gallus gallus · Numida meleagris",
     body: "You'll hear the guinea fowl before you see them.",
   },
@@ -238,10 +240,10 @@ export default function FarmToursPage() {
           <FieldCatalogue
             className="mt-6 lg:mt-12"
             start={2}
-            columns={4}
+            columns={1}
             mediaLayout="side"
             ruled
-            items={meet.map((m) => ({
+            items={sheep.map((m) => ({
               id: m.id,
               title: m.title,
               subtitle: m.subtitle,
@@ -249,12 +251,29 @@ export default function FarmToursPage() {
               media: (
                 <FieldDrawing
                   name={m.drawing}
-                  className="h-[64px] w-[64px] lg:h-[200px] lg:w-full"
+                  className="h-[64px] w-[64px] lg:h-[200px] lg:w-[300px]"
                   sizes="(min-width: 1024px) 300px, 64px"
                 />
               ),
             }))}
           />
+
+          <ul role="list" className="m-0 grid list-none grid-cols-3 gap-x-3 border-y border-rule p-0 py-5 lg:gap-x-10 lg:py-8">
+            {meet.map((m, i) => (
+              <li key={m.id} className="flex flex-col">
+                <FieldDrawing
+                  name={m.drawing}
+                  className="h-[56px] w-[56px] lg:h-[160px] lg:w-full"
+                  sizes="(min-width: 1024px) 300px, 56px"
+                />
+                <FieldNo n={3 + i} className="mt-2" />
+                <h3 className="field-heading m-0 mt-0.5 font-display text-[18px] leading-tight text-ink lg:text-[26px]">
+                  {m.title}
+                </h3>
+                <p className="m-0 mt-1 font-sans text-[13px] leading-[1.45] text-ink-body lg:text-[15px]">{m.body}</p>
+              </li>
+            ))}
+          </ul>
         </FieldSection>
 
         {/* S4 The hour, in order */}
@@ -413,13 +432,17 @@ export default function FarmToursPage() {
                     Tours at {TOUR_TIMES}.
                     {TOUR_LEAD_TIME && ` The typical tour is booked ${TOUR_LEAD_TIME} ahead.`}
                   </p>
-                  <BookingPolicyNote text={policy} />
                 </>
               )}
             </div>
-            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:mt-12">
+            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-12">
               <KnowBeforeYouBook framed={false} rows={knowRows} />
             </div>
+            {!native && (
+              <div className="lg:col-span-6 lg:col-start-7 lg:row-start-2">
+                <BookingPolicyNote text={policy} />
+              </div>
+            )}
           </div>
         </FieldSection>
 

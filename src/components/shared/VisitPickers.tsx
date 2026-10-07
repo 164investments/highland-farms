@@ -104,7 +104,7 @@ export function SpaPicker({ where, prefix, label, labelId, native = false }: Spa
         label: spot.label,
         title:
           spot.key === "3to5"
-            ? "Book a Nordic spa session for 3 to 5 people"
+            ? "Nordic spa, 3 to 5 people"
             : six
               ? "Book all six spots for a private Nordic spa session"
               : `Book a Nordic spa session for ${spot.label.split(" ")[0]}`,

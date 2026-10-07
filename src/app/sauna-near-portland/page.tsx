@@ -72,7 +72,7 @@ const faqItems: FAQItem[] = [
   {
     question: "Can I book the sauna for today?",
     answer:
-      "Online booking closes a day ahead. If you’re already at the farm, ask us: a same-day spot is sometimes open.",
+      "Online booking closes a day ahead.",
   },
   {
     question: "Can I give a sauna session as a gift?",
@@ -116,7 +116,7 @@ const DRIVE = [{ place: "Downtown Portland", time: "About an hour", strong: true
 
 const BUYS: { term: string; detail: string }[] = [
   { term: "The setting", detail: "A private forest farm of five acres" },
-  { term: "The season", detail: "October to March is sauna season. Sessions run as booked, rain or shine." },
+  { term: "The season", detail: "Sessions run all year, rain or shine. Fall and winter are sauna season." },
   { term: "The neighbors", detail: "A herd of Highland cows (tours are booked separately)" },
 ];
 
@@ -177,7 +177,7 @@ export default function SaunaNearPortlandPage() {
             A forest sauna, about an hour from Portland
           </h1>
           <p className="m-0 mt-2.5 font-sans text-[14px] leading-[1.5] text-ink-body lg:col-start-1 lg:row-start-4 lg:mt-5 lg:max-w-[560px] lg:text-[17px] lg:leading-[1.6]">
-            A wood-fired cedar sauna, a wet sauna and a cold plunge on a deck in the trees.
+            A wood-burning cedar sauna, a wet sauna and a cold plunge on a deck in the trees.
           </p>
           <p className="m-0 mt-3 font-sans text-[12px] uppercase tracking-[0.08em] text-ink lg:col-start-1 lg:row-start-5 lg:mt-6 lg:text-[13px]">
             ${SPA_PRICE_PER_PERSON} per person &middot; {SPA_MINUTES} minutes &middot; Up to {SPA_MAX_PARTY} &middot; Ages 16+
@@ -293,6 +293,11 @@ export default function SaunaNearPortlandPage() {
                 </Suspense>
                 {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
               </p>
+            </div>
+            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-12">
+              <KnowBeforeYouBook framed={false} rows={knowRows} />
+            </div>
+            <div className="lg:col-span-6 lg:col-start-7 lg:row-start-2">
               <BookingPolicyNote text={policy} />
               <PendingSlot
                 className="mt-4"
@@ -308,9 +313,6 @@ export default function SaunaNearPortlandPage() {
                   />
                 </p>
               </PendingSlot>
-            </div>
-            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:mt-12">
-              <KnowBeforeYouBook framed={false} rows={knowRows} />
             </div>
           </div>
         </FieldSection>

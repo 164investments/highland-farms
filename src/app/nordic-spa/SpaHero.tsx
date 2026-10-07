@@ -68,8 +68,7 @@ export function SpaHero() {
         <p className="m-0 mt-2.5 font-sans text-[12px] leading-[1.5] text-ink-note lg:col-start-1 lg:row-start-6 lg:mt-4 lg:text-[14px]">
           <Suspense fallback={null}>
             <NextAvailability product="spa" variant="text" label="Next open:" />
-          </Suspense>{" "}
-          Bring a swimsuit.
+          </Suspense>
         </p>
       </div>
     </section>
