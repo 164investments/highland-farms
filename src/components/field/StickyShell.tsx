@@ -10,8 +10,9 @@ import { chatLiftFor, translateYOf } from "@/components/field/chatLift";
 /*
  * The bottom sticky action on phones (CONSISTENCY #13, shared board 4 r2).
  *
- * - Appears once a first-screen CTA ([data-hero-cta]) is no longer fully on
- *   screen because the visitor scrolled past it (threshold 1.0). With no
+ * - Appears whenever no first-screen CTA ([data-hero-cta]) is fully on screen
+ *   (threshold 1.0): after the visitor scrolls past it, and also before, when
+ *   a short in-app browser cuts the button off at the bottom. With no
  *   visible hero CTA on the page, it appears after 400px of scroll. With
  *   `showOnLoad` (pages with no first-screen CTA: the wedding portfolio and
  *   the couple pages) it shows from the first screen.
@@ -88,7 +89,7 @@ export function useStickyVisibility({
         }
         const values = Array.from(state.values());
         if (values.every((v) => v === "absent")) setHeroes("none");
-        else setHeroes(!values.includes("in") && values.includes("above") ? "past" : "not-past");
+        else setHeroes(!values.includes("in") && values.some((v) => v === "above" || v === "below") ? "past" : "not-past");
       },
       { threshold: [0, 1] },
     );

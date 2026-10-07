@@ -137,7 +137,7 @@ export function BookingFlow({
           Booking <strong>{done.bookingNumber}</strong>. A confirmation is on its way to {email}.
         </p>
         <p className="mt-2 font-sans text-sm text-stone-700">
-          We&apos;re in Brightwood at the base of Mt. Hood, about an hour from Portland.
+          We&apos;re in Brightwood, near Mt. Hood, about an hour from Portland.
         </p>
       </div>
     );

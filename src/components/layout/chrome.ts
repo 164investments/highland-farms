@@ -223,7 +223,7 @@ export function weddingDoors(): ChromeDoor[] {
     },
     {
       title: "Real weddings",
-      note: "Couples’ photos",
+      note: "Four couples, 2025",
       href: "/wedding-portfolio",
       current: (p) => under(p, "/wedding-portfolio"),
     },
@@ -288,12 +288,12 @@ export interface ChromeLink {
   season?: SeasonId;
 }
 
-/** The short text links under the doors. */
+/** The short text links under the doors, in the footer's two-by-two order (no orphan on a line). */
 export const MORE_LINKS: ChromeLink[] = [
   { label: "Celebrations", href: "/celebrations" },
+  { label: "Thanksgiving 2026", href: "/thanksgiving", season: "thanksgiving-links" },
   { label: "About the farm", href: "/about" },
   { label: "Contact", href: "/contact" },
-  { label: "Thanksgiving 2026", href: "/thanksgiving", season: "thanksgiving-links" },
 ];
 
 /** Listings the footer links to (the same profiles as the Organization sameAs in StructuredData.tsx). */

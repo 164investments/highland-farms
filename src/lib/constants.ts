@@ -2,7 +2,7 @@ export const SITE = {
   name: "Highland Farms",
   tagline: "Whimsical forest weddings with the Highland coos as honorary guests",
   description:
-    "Private forest farm weddings at the base of Mt. Hood. Scottish Highland Cow farm tours, Nordic spa, and farm stays in Brightwood, Oregon.",
+    "Private forest farm weddings in Brightwood, Oregon, about an hour from Portland. Scottish Highland Cow farm tours, Nordic spa, and farm stays.",
   url: "https://highlandfarmsoregon.com",
 } as const;
 

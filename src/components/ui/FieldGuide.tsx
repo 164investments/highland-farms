@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -775,10 +775,16 @@ export function FieldDoorList({ rows, size = "lg", label, className, listClassNa
  */
 export type ReviewTier = "hero" | "nearCta" | "compact";
 
-export function reviewTierText(tier: ReviewTier, count: number): string {
-  if (tier === "hero") return `Loved by ${count} guests on Google`;
-  if (tier === "nearCta") return `${count} five-star reviews on Google`;
-  return `${count} reviews on Google`;
+/**
+ * `subject` names whose reviews they are, for a line that sits under one part
+ * of the farm (a single stay), so the farm-wide count never reads as that
+ * part's own: "Loved by N Highland Farms guests on Google".
+ */
+export function reviewTierText(tier: ReviewTier, count: number, subject?: string): string {
+  const of = subject ? `${subject} ` : "";
+  if (tier === "hero") return `Loved by ${count} ${of}guests on Google`;
+  if (tier === "nearCta") return `${count} five-star ${of}reviews on Google`;
+  return `${count} ${of}reviews on Google`;
 }
 
 interface FieldReviewLineProps {
@@ -787,16 +793,18 @@ interface FieldReviewLineProps {
   count: number;
   /** Link the line to Google (opens a new tab). */
   href?: string;
+  /** Whose reviews, for a line under one stay: "Highland Farms". */
+  subject?: string;
   starSize?: number;
   className?: string;
 }
 
 /** Five stars and a tier sentence. For server pages, prefer FieldReviewTier (binds the count). */
-export function FieldReviewLine({ tier, count, href, starSize = 13, className }: FieldReviewLineProps) {
+export function FieldReviewLine({ tier, count, href, subject, starSize = 13, className }: FieldReviewLineProps) {
   const inner = (
     <>
       <FieldStars size={starSize} />
-      <span>{reviewTierText(tier, count)}</span>
+      <span>{reviewTierText(tier, count, subject)}</span>
     </>
   );
   const base = "flex items-center gap-2 font-sans text-[13px] text-ink-note lg:text-[14px]";
@@ -840,7 +848,21 @@ export function fieldMonthYear(isoDate: string): string {
 
 /** "Olivia B. · July 2025 · Google review" (CONSISTENCY #2). Empty parts are skipped. */
 export function fieldAttribution(parts: { name: string; role?: string; when?: string }): string {
-  return [parts.name, parts.role, parts.when, "Google review"].filter(Boolean).join(" · ");
+  return attributionParts(parts).join(" · ");
+}
+
+function attributionParts(parts: { name: string; role?: string; when?: string }): string[] {
+  return [parts.name, parts.role, parts.when, "Google review"].filter((p): p is string => Boolean(p));
+}
+
+/** The attribution with each part kept whole, so a line breaks only at a dot. */
+export function FieldAttributionText(parts: { name: string; role?: string; when?: string }) {
+  return attributionParts(parts).map((part, i) => (
+    <Fragment key={part}>
+      {i > 0 && " · "}
+      <span className="whitespace-nowrap">{part}</span>
+    </Fragment>
+  ));
 }
 
 export type FieldQuoteSize = "sm" | "md" | "lg";
@@ -902,7 +924,7 @@ export function FieldQuoteView({
       <figcaption
         className={cn(fieldAttributionClass, "mt-1.5", size !== "sm" && "mt-2 lg:text-[12px]", metaClassName)}
       >
-        {fieldAttribution({ name, role, when })}
+        <FieldAttributionText name={name} role={role} when={when} />
       </figcaption>
     </figure>
   );

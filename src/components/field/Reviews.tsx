@@ -88,17 +88,20 @@ interface FieldReviewTierProps {
   tier: ReviewTier;
   /** Link the line to the Google profile. */
   link?: boolean;
+  /** Whose reviews, for a line under one stay: "Highland Farms". */
+  subject?: string;
   starSize?: number;
   className?: string;
 }
 
 /** Stars plus the tier sentence, with the count read from the snapshot. */
-export function FieldReviewTier({ tier, link = false, starSize, className }: FieldReviewTierProps) {
+export function FieldReviewTier({ tier, link = false, subject, starSize, className }: FieldReviewTierProps) {
   return (
     <FieldReviewLine
       tier={tier}
       count={REVIEW_TIER_COUNTS[tier]}
       href={link ? GOOGLE_REVIEW_LINK : undefined}
+      subject={subject}
       starSize={starSize}
       className={className}
     />

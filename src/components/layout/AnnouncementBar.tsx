@@ -58,9 +58,14 @@ function BarCopy({ id }: { id: BarId }) {
     case "call":
       return (
         <p className="m-0 whitespace-nowrap">
+          {/* Phones keep the season and use the bar's short form of the call (CONSISTENCY #5). */}
+          <span className="lg:hidden">Now booking 2027. </span>
           <span className="hidden lg:inline">Now booking 2027 weddings. </span>
           <WeddingCallLink content="announcement-bar-call" title="Announcement bar: wedding call" className={LINK}>
-            Book a free {BOOKING_PRODUCTS["wedding-call"].durationMin}-minute call with Connor
+            <span className="lg:hidden">Free call with Connor</span>
+            <span className="hidden lg:inline">
+              Book a free {BOOKING_PRODUCTS["wedding-call"].durationMin}-minute call with Connor
+            </span>
           </WeddingCallLink>
         </p>
       );

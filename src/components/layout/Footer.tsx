@@ -71,6 +71,19 @@ function FooterDoor({ door }: { door: ChromeDoor }) {
   );
 }
 
+/** Facebook gets its own row (desktop), so "Find us on" holds the three directories on one line. */
+const FACEBOOK = ELSEWHERE.find((site) => site.label === "Facebook");
+const DIRECTORIES = ELSEWHERE.filter((site) => site.label !== "Facebook");
+
+function FacebookGlyph() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true" focusable="false">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <path d="M13.5 20v-7h2.4l.4-2.8h-2.8V8.6c0-.8.3-1.4 1.4-1.4h1.5V4.8a19 19 0 0 0-2.2-.1c-2.2 0-3.6 1.3-3.6 3.7v1.8H8.2V13h2.4v7" />
+    </svg>
+  );
+}
+
 function InstagramGlyph() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true" focusable="false">
@@ -141,7 +154,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                     </li>
                   ))}
                 </ul>
-                <ul role="list" className="m-0 mt-0.5 flex list-none flex-wrap gap-x-5 p-0 text-[14px] text-ink-body lg:mt-3 lg:gap-x-6">
+                <ul role="list" className="m-0 mt-0.5 grid w-fit list-none grid-cols-2 gap-x-6 p-0 text-[14px] text-ink-body lg:mt-3 lg:gap-x-8">
                   {MORE_LINKS.map((link) => (
                     <li key={link.href} data-season-only={link.season}>
                       <Link href={link.href} className={TEXT_LINK}>
@@ -225,16 +238,17 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                     </span>
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>
+                  {FACEBOOK && (
+                    <a href={FACEBOOK.href} target="_blank" rel="noopener noreferrer" className="hidden min-h-11 items-center gap-2 lg:flex">
+                      <FacebookGlyph />
+                      <span className="text-ink">Highland Farms on Facebook</span>
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  )}
                   <p className="m-0 flex flex-wrap items-center gap-x-3 text-[13px] lg:gap-x-3.5 lg:text-[14px]">
                     <span className="text-ink-note">Find us on</span>
-                    {ELSEWHERE.map((site) => (
-                      <a
-                        key={site.href}
-                        href={site.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={"desktopOnly" in site ? `hidden lg:inline-flex ${UNDERLINED}` : UNDERLINED}
-                      >
+                    {DIRECTORIES.map((site) => (
+                      <a key={site.href} href={site.href} target="_blank" rel="noopener noreferrer" className={UNDERLINED}>
                         {site.label}
                       </a>
                     ))}

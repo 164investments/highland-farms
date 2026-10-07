@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     template: "%s | Highland Farms Oregon",
   },
   description:
-    "A private forest farm at the base of Mt. Hood, about an hour from Portland: whimsical forest weddings with the Highland coos as honorary guests, private Highland Cow farm tours, a wood-fired Nordic spa with cold plunge, and farm stays.",
+    "A private forest farm in Brightwood, Oregon, about an hour from Portland: whimsical forest weddings with the Highland coos as honorary guests, private Highland Cow farm tours, a wood-fired Nordic spa with cold plunge, and farm stays.",
   keywords: [
     "Oregon wedding venue",
     "farm wedding venue Oregon",
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
         url: "/images/hero/farm-aerial.jpg",
         width: 1200,
         height: 630,
-        alt: "Aerial view of Highland Farms at the base of Mt. Hood",
+        alt: "Aerial view of Highland Farms in Brightwood, Oregon",
       },
     ],
   },
