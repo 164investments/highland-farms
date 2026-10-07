@@ -1,9 +1,10 @@
 import Image from "next/image";
-import { Plate } from "@/components/ui/FieldGuide";
+import Link from "next/link";
+import { FieldArrow, Plate, fieldTextLinkClass } from "@/components/ui/FieldGuide";
 
 /**
- * Closing: the real carved Highland cow sign and one line. No second button: the
- * form is the screen above. The footer carries the address, drive times and
+ * Closing: the real carved Highland cow sign, one line and one quiet link to the tours (a heading
+ * with no way forward read as a dead end, mobile review r2). No second button: the form is the screen above. The footer carries the address, drive times and
  * directions, so none of that repeats here.
  */
 export function HomeClosing() {
@@ -33,6 +34,10 @@ export function HomeClosing() {
           >
             Bring your people to meet the herd.
           </h2>
+          <Link href="/farm-tours" className={`${fieldTextLinkClass} mt-4 inline-flex items-center gap-2`}>
+            See farm tours
+            <FieldArrow size={16} />
+          </Link>
         </div>
       </div>
     </section>

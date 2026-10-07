@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StructuredData } from "@/components/layout/StructuredData";
-import { FieldReview, FieldReviewTier, GOOGLE_REVIEW_LINK, resolveFieldQuote } from "@/components/field/Reviews";
+import { FieldReview, GOOGLE_REVIEW_LINK, resolveFieldQuote } from "@/components/field/Reviews";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import {
@@ -302,7 +302,7 @@ function StyledHeader({ couple }: { couple: WeddingCouple }) {
     <header className="mx-auto flex max-w-[1440px] flex-col px-5 pt-[calc(var(--header-h,104px)+0.5rem)] lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:pt-[calc(var(--header-h,128px)+2rem)]">
       <BackLink styled />
       <div className="order-2 mt-1 lg:col-span-7 lg:mt-6">
-        <p className="font-display text-[17px] italic text-fern lg:text-[22px]">Made at the farm</p>
+        <p className="font-display text-[17px] italic text-fern lg:text-[22px]">Made at Highland Farms</p>
         <h1
           id="couple-title"
           className="field-heading mt-0.5 text-balance font-display text-[32px] leading-[1.02] text-ink lg:mt-2 lg:text-[64px] lg:leading-[1.0]"
@@ -435,7 +435,7 @@ export default async function WeddingDetailPage({
           )}
 
           {/* The day, as plates */}
-          <section aria-labelledby="plates-title" className="mx-auto max-w-[1440px] px-5 pb-10 pt-12 lg:px-16 lg:pb-14 lg:pt-20">
+          <section aria-labelledby="plates-title" className="mx-auto max-w-[1440px] px-5 pb-6 pt-12 lg:px-16 lg:pb-8 lg:pt-20">
             <h2 id="plates-title" className="field-heading font-display text-[30px] leading-tight text-ink lg:text-[44px]">
               {plateHeading}
             </h2>
@@ -561,11 +561,6 @@ export default async function WeddingDetailPage({
               >
                 Or book a free 45-minute call with Connor
               </WeddingCallLink>
-              <FieldReviewTier
-                tier="nearCta"
-                className="mt-2 justify-center text-[13px] lg:justify-start"
-                starSize={13}
-              />
               </div>
             </div>
           </div>

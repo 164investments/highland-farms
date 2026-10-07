@@ -214,6 +214,7 @@ export default function CelebrationsPage() {
                   alt: "Styled aerial view at dusk: guests on the patio outside the Lodge, the lawn path and the stone patio with its dance floor",
                   position: "70% 60%",
                 }}
+                caption="A styled aerial view of the farm."
               />
               <div className="mt-3 lg:order-2 lg:mt-0">
                 <LadderTitle>A gathering on the farm</LadderTitle>
@@ -241,7 +242,22 @@ export default function CelebrationsPage() {
         <section id="words" aria-labelledby="words-title" className="scroll-mt-[var(--header-h,104px)] bg-paper-shade px-5 py-10 lg:px-16 lg:py-20">
           <div className="mx-auto max-w-[1312px]">
             <FieldSectionHeader id="words-title" size="md" eyebrow="In their words" title="What people came to celebrate" />
-            <ol className="m-0 mt-6 grid list-none grid-cols-1 border-t border-rule p-0 lg:mt-10 lg:grid-cols-3 lg:gap-12 lg:border-t-0">
+            {/* One real gathering photo so the band is not text only (the caption says what the frame shows). */}
+            <Plate
+              className="mt-6 lg:mt-10"
+              frameClassName="aspect-[4/3] p-[7px] lg:aspect-[21/9] lg:p-2.5"
+              caption="A group resting on blankets on the flagstone patio under tall firs."
+            >
+              <StayPhoto
+                photo={{
+                  src: "/images/events/forest-yoga.jpg",
+                  alt: "A group resting on blankets on the flagstone patio under tall firs at Highland Farms",
+                  position: "50% 50%",
+                }}
+                sizes="(min-width: 1024px) 1312px, calc(100vw - 40px)"
+              />
+            </Plate>
+            <ol className="m-0 mt-5 grid list-none grid-cols-1 border-t border-rule p-0 lg:mt-10 lg:grid-cols-3 lg:gap-12 lg:border-t-0">
               {occasions.map(({ occasion, q }, i) => (
                 <li key={occasion} className="border-b border-rule py-5 lg:border-b-0 lg:border-t lg:py-6">
                   <FieldNo n={i + 1} />
@@ -414,9 +430,9 @@ export default function CelebrationsPage() {
                   </summary>
                   {visitPolicy.map((p) => (
                     <div key={p.label} className="pb-5 lg:max-w-[720px]">
-                      <p className="m-0 font-sans text-[13px] font-semibold uppercase tracking-[0.1em] text-fern">{p.label}</p>
+                      <p className="m-0 font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-fern">{p.label}</p>
                       <p className="m-0 mt-1 font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[16px]">
-                        <LeadBold text={p.text} />
+                        {p.text}
                       </p>
                     </div>
                   ))}
@@ -463,24 +479,12 @@ function LadderTitle({ children }: { children: ReactNode }) {
   return <h3 className="field-heading m-0 font-display text-[23px] leading-[1.1] text-ink lg:text-[30px]">{children}</h3>;
 }
 
-function LadderPhoto({ photo }: { photo: { src: string; alt: string; position: string } }) {
+function LadderPhoto({ photo, caption }: { photo: { src: string; alt: string; position: string }; caption?: string }) {
   return (
     <div className="mt-3 lg:order-3 lg:mt-0">
-      <Plate frameClassName="h-[104px] p-[5px] lg:h-[220px] lg:p-2">
+      <Plate caption={caption} captionClassName="text-[13px] leading-snug lg:text-[15px]" frameClassName="h-[104px] p-[5px] lg:h-[220px] lg:p-2">
         <StayPhoto photo={photo} sizes="(min-width: 1024px) 40vw, 40vw" />
       </Plate>
     </div>
-  );
-}
-
-/** Bolds the first sentence of a canonical answer; every word is kept as it is in the data file. */
-function LeadBold({ text }: { text: string }) {
-  const lead = text.match(/^.+?[.!?](?=\s|$)/)?.[0];
-  if (!lead || lead.length === text.length) return <strong className="font-semibold text-ink">{text}</strong>;
-  return (
-    <>
-      <strong className="font-semibold text-ink">{lead}</strong>
-      {text.slice(lead.length)}
-    </>
   );
 }

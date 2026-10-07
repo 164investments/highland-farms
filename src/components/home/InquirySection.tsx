@@ -29,6 +29,10 @@ export function InquirySection() {
             titleClassName="lg:mt-2 lg:text-[60px]"
             introClassName="lg:mt-5 lg:max-w-[460px] lg:text-[18px]"
           />
+          {/* The one true scarcity line, as on /weddings (verified against the 2026 calendar). */}
+          <p className="m-0 mt-3 font-sans text-[14px] font-medium leading-snug text-ink-body lg:text-[16px]">
+            Every September 2026 Saturday sold out.
+          </p>
           <Plate
             className="mt-9 hidden lg:flex"
             frameClassName="h-[420px]"

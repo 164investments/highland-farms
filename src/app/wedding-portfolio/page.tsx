@@ -24,6 +24,7 @@ import {
   type WeddingCouple,
 } from "@/data/wedding-portfolio";
 import { CASEY_CARD_QUOTE, MAYA_CARD_QUOTE, PORTFOLIO_PLAN_QUOTE } from "./quotes";
+import { LookbookLink } from "@/app/weddings/LookbookLink";
 import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
 
 export const metadata: Metadata = {
@@ -239,6 +240,14 @@ export default function WeddingPortfolioPage() {
                   />
                 </li>
               )}
+              {i === 1 && (
+                <li aria-label="The 2027 look book" className="border-t border-rule px-5 py-3 text-center lg:px-16 lg:text-left">
+                  <LookbookLink
+                    placement="portfolio-couples"
+                    className="inline-flex min-h-11 items-center font-sans text-[15px] font-medium text-pine"
+                  />
+                </li>
+              )}
             </Fragment>
           ))}
         </ol>
@@ -273,11 +282,6 @@ export default function WeddingPortfolioPage() {
               >
                 Or book a free 45-minute call with Connor
               </WeddingCallLink>
-              <FieldReviewTier
-                tier="nearCta"
-                className="mt-2 justify-center text-[13px] lg:justify-start"
-                starSize={13}
-              />
             </div>
           </div>
         </section>

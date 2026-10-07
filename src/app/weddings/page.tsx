@@ -18,13 +18,13 @@ import { cn } from "@/lib/utils";
 import { formatWeddingDate, weddingPortfolio } from "@/data/wedding-portfolio";
 import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
 import { WeddingsHero } from "./WeddingsHero";
+import { LookbookLink } from "./LookbookLink";
 import {
   COST_ANSWER,
   GETTING_HERE_ANSWER,
   RAIN_CLOSE,
   RAIN_LEAD,
   RESTROOMS_ANSWER,
-  VENDORS_ANSWER,
   weddingFAQ,
 } from "./faq";
 import {
@@ -229,7 +229,7 @@ export default function WeddingsPage() {
               Your wedding is a weekend, not a day.
             </h2>
             <p className={cn(bodyLarge, "mt-4 lg:mt-6")}>
-              Make a weekend of it, with your closest people staying on the farm.
+              One way to plan it.
             </p>
           </div>
           <ol className="m-0 mt-8 grid list-none gap-8 p-0 lg:mt-14 lg:grid-cols-3 lg:gap-12">
@@ -410,7 +410,7 @@ export default function WeddingsPage() {
             </h2>
             <p className={cn(bodyLarge, "mt-4 lg:mt-6")}>
               Connor McWilliams owns the farm. He turned an overgrown forest property in Brightwood into
-              Highland Farms. The call is free and runs 45 minutes, on video or walking the farm, and covers
+              Highland Farms. The call is free and runs 45 minutes, on Google Meet or in person at the farm, and covers
               your date, your people and how a weekend here works.
             </p>
             <PendingSlot
@@ -457,58 +457,65 @@ export default function WeddingsPage() {
             </Link>
           </div>
           <div className="mt-7 grid grid-cols-2 gap-x-3 gap-y-6 lg:mt-12 lg:grid-cols-3 lg:gap-x-8">
-            <Link href="/wedding-portfolio/maya-justin" className="group col-span-2 block lg:col-span-1">
-              <Plate frameClassName="aspect-[4/3] p-[7px] lg:aspect-[4/5] lg:p-2.5">
-                <Image
-                  src="/images/weddings/maya-justin/02.jpg"
-                  alt="Maya and Justin's wedding invitation, topped with a painted Highland cow in a flower crown, among pearl shoes and a bolo tie"
-                  fill
-                  sizes="(min-width: 1024px) 30vw, calc(100vw - 40px)"
-                  className="object-cover object-[50%_35%]"
-                />
-              </Plate>
-              <p className="mt-1">
-                <span className="flex items-center gap-1.5 font-display text-[22px] font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]">
-                  Maya &amp; Justin
-                  <FieldArrow size={15} strokeWidth={1.8} className="shrink-0 text-pine" />
-                </span>
-                <span className="mt-0.5 block font-sans text-[13px] text-ink-note">
-                  {formatWeddingDate(teaser.maya.date!)} &middot; a coo on the invitation
-                </span>
-              </p>
-            </Link>
             {[
               {
                 couple: teaser.olivia,
                 src: "/images/weddings/olivia-connor/06.jpg",
                 alt: "Olivia and Connor kiss on the flagstone after their ceremony",
                 position: "50% 40%",
+                lead: true,
+                note: undefined as string | undefined,
+              },
+              {
+                couple: teaser.maya,
+                src: "/images/weddings/maya-justin/02.jpg",
+                alt: "Maya and Justin's wedding invitation, topped with a painted Highland cow in a flower crown, among pearl shoes and a bolo tie",
+                position: "50% 35%",
+                lead: false,
+                note: "a coo on the invitation",
               },
               {
                 couple: teaser.sydney,
                 src: "/images/weddings/sydney-casey/03.jpg",
                 alt: "Sydney and Casey with their whole wedding party, arms raised, in front of a dark-timbered building",
                 position: "52% 55%",
+                lead: false,
+                note: undefined as string | undefined,
               },
-            ].map(({ couple, src, alt, position }) => (
-              <Link key={couple.slug} href={`/wedding-portfolio/${couple.slug}`} className="group block">
-                <Plate frameClassName="aspect-[4/5] p-[7px] lg:p-2.5">
+            ].map(({ couple, src, alt, position, lead, note }) => (
+              <Link
+                key={couple.slug}
+                href={`/wedding-portfolio/${couple.slug}`}
+                className={cn("group block", lead && "col-span-2 lg:col-span-1")}
+              >
+                <Plate
+                  frameClassName={cn(
+                    lead ? "aspect-[4/3] lg:aspect-[4/5]" : "aspect-[4/5]",
+                    "p-[7px] lg:p-2.5",
+                  )}
+                >
                   <Image
                     src={src}
                     alt={alt}
                     fill
-                    sizes="(min-width: 1024px) 30vw, 46vw"
+                    sizes={lead ? "(min-width: 1024px) 30vw, calc(100vw - 40px)" : "(min-width: 1024px) 30vw, 46vw"}
                     className="object-cover"
                     style={{ objectPosition: position }}
                   />
                 </Plate>
                 <p className="mt-1">
-                  <span className="flex items-center gap-1.5 font-display text-[20px] font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]">
+                  <span
+                    className={cn(
+                      "flex items-center gap-1.5 font-display font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]",
+                      lead ? "text-[22px]" : "text-[20px]",
+                    )}
+                  >
                     {couple.names}
                     <FieldArrow size={15} strokeWidth={1.8} className="shrink-0 text-pine" />
                   </span>
                   <span className="mt-0.5 block font-sans text-[13px] text-ink-note">
                     {formatWeddingDate(couple.date!)}
+                    {note && <> &middot; {note}</>}
                   </span>
                 </p>
               </Link>
@@ -522,6 +529,12 @@ export default function WeddingsPage() {
               <span className="border-b border-pine-line pb-0.5">See every real wedding</span>
               <FieldArrow size={16} />
             </Link>
+          </div>
+          <div className="mt-1 lg:mt-8">
+            <LookbookLink
+              placement="weddings-couples"
+              className="inline-flex min-h-11 items-center font-sans text-[15px] font-medium text-pine hover:text-pine-dark"
+            />
           </div>
         </div>
       </section>
@@ -550,10 +563,12 @@ export default function WeddingsPage() {
               />
               <p className="mt-4">{RAIN_CLOSE}</p>
             </FaqRow>
+            <PendingSlot note="PENDING CONNOR C5: outside caterers and photographers? Hides the whole vendors row ('Couples here bring their own caterer and photographer.') and its FAQ JSON-LD entry.">
+              <FaqRow question="Can we bring our own vendors?">
+                <p>Yes. Couples here bring their own caterer and photographer.</p>
+              </FaqRow>
+            </PendingSlot>
             <FaqRow question={weddingFAQ[2].question}>
-              <p>{VENDORS_ANSWER}</p>
-            </FaqRow>
-            <FaqRow question={weddingFAQ[3].question}>
               <p>{RESTROOMS_ANSWER}</p>
               <PendingSlot
                 className="mt-3"
@@ -562,17 +577,9 @@ export default function WeddingsPage() {
                 <p>For the wedding itself there is a three-stall restroom trailer.</p>
               </PendingSlot>
             </FaqRow>
-            <FaqRow question={weddingFAQ[4].question}>
+            <FaqRow question={weddingFAQ[3].question}>
               <p>{GETTING_HERE_ANSWER}</p>
             </FaqRow>
-            {/* The one in-flow "Check your date" after the last answer. */}
-            <a
-              href="#contact"
-              className="mt-5 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine hover:text-pine-dark"
-            >
-              <span className="border-b border-pine-line pb-0.5">Check your date</span>
-              <FieldArrow size={16} />
-            </a>
           </div>
         </div>
       </section>
