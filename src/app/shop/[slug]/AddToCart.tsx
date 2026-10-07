@@ -19,7 +19,7 @@ export interface VariantView {
   stock: number | null;
 }
 
-/** The same item in another colour: a link to its own page. */
+/** The same item in another color: a link to its own page. */
 export interface ColorOption {
   slug: string;
   /** "Coyote brown", "Olive". */
@@ -48,10 +48,10 @@ function sizeChip(label: string): { text: string; name: string } {
 }
 
 /**
- * The buy box: price, pack, live stock, colour (items that come in more than
+ * The buy box: price, pack, live stock, color (items that come in more than
  * one), size chips (apparel), quantity and Add to cart, the pickup line, and
- * the one bottom bar on phones. Colour comes before size, so the choices run
- * colour, size, then the button (r4).
+ * the one bottom bar on phones. Color comes before size, so the choices run
+ * color, size, then the button (r4).
  *
  * Apparel (`optionName === "Size"`) has no default size: the button reads
  * "Choose a size" until one is picked. A sold-out size stays selectable so the
@@ -75,10 +75,10 @@ export function AddToCart({
   variants: VariantView[];
   /** "1 lb pack": shown beside the price. */
   pack?: string;
-  /** Every colour of this item, this page's included; shown when there are two or more. */
+  /** Every color of this item, this page's included; shown when there are two or more. */
   colors?: ColorOption[];
 }) {
-  const { add, count, subtotalCents, ready } = useCart();
+  const { add, count, ready } = useCart();
   const needsPick = optionName === "Size" && variants.length > 1;
   const firstAvailable = variants.find((v) => v.stock !== 0) ?? variants[0];
   const [selectedId, setSelectedId] = useState<string | null>(needsPick ? null : firstAvailable.id);
@@ -154,22 +154,20 @@ export function AddToCart({
       : `Add to cart · ${total}`;
   const disabled = allOut || selectedOut;
   const cartHasItems = ready && count > 0;
-  // At 320 the stepper leaves ~145px for the button: the narrow label drops "to cart" /
-  // "a" so it never wraps. The accessible name is the visible text at each width.
+  // At 320 the stepper leaves ~145px for the button: it tightens (14px, 8px padding) and the
+  // "Choose a size" label drops "a", so nothing wraps. "Add to cart" is the same words at every width. The accessible name is the visible text at each width.
   const buttonText = allOut || selectedOut ? (
     "Sold out"
   ) : !selected ? (
-    <>
+    <span>
       Choose <span className="max-[379px]:hidden">a </span>
       {(optionName ?? "size").toLowerCase()} · {total}
-    </>
+    </span>
   ) : (
-    <>
-      Add<span className="max-[379px]:hidden"> to cart</span> · {total}
-    </>
+    `Add to cart · ${total}`
   );
   const buttonClass = cn(
-    "inline-flex h-[52px] min-w-0 flex-1 items-center justify-center gap-2.5 whitespace-nowrap px-3 text-[15px] min-[380px]:px-5 font-semibold tracking-[0.02em] transition-colors",
+    "inline-flex h-[52px] min-w-0 flex-1 items-center justify-center gap-2.5 whitespace-nowrap px-3 text-[15px] max-[379px]:px-2 max-[379px]:text-[14px] min-[380px]:px-5 font-semibold tracking-[0.02em] transition-colors",
     disabled ? "cursor-not-allowed bg-paper-shade text-ink-note" : "bg-pine text-paper-light hover:bg-pine-dark",
   );
 
@@ -195,7 +193,7 @@ export function AddToCart({
 
       {colors.length > 1 && (
         <div className="mt-4 lg:mt-6">
-          <p className="m-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">Colour</p>
+          <p className="m-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">Color</p>
           <ul className="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
             {colors.map((c) => (
               <li key={c.slug}>
@@ -265,7 +263,9 @@ export function AddToCart({
               className={buttonClass}
               aria-live="polite"
             >
-              <span className="max-[379px]:hidden">Added · </span>View cart ({count})
+              <span>
+                <span className="max-[379px]:hidden">Added · </span>View cart ({count})
+              </span>
             </Link>
           ) : (
             <button
@@ -297,9 +297,9 @@ export function AddToCart({
       <FieldStickyBar
         enabled={!allOut}
         primary={
-          cartHasItems
+          cartHasItems || added
             ? {
-                label: `View cart · ${count} ${count === 1 ? "item" : "items"} · ${formatCents(subtotalCents)}`,
+                label: `View cart (${count})`,
                 href: "/shop/cart",
               }
             : !selected || disabled

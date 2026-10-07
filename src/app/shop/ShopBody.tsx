@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Link from "next/link";
 import {
-  FieldArrow,
-  FieldLeader,
   FieldNo,
   FieldQuoteView,
   type ResolvedFieldQuote,
 } from "@/components/ui/FieldGuide";
+import { ChevronDownIcon } from "@/components/shop/icons";
 import { PHOTO_CROPS } from "@/components/shop/Favorites";
 import { LedgerRow, ShelfSoldOut } from "@/components/shop/LedgerRow";
 import { pushEvent, toGA4Item, type StockRecord } from "@/components/shop/track";
@@ -23,14 +21,14 @@ function metaLine(cat: Category, total: number, open: number): string {
   return `${total} ${noun} · ${open} in stock now`;
 }
 
+/** Mangalitsa shows this many rows, then "See all N cuts" (every row stays reachable). */
+const LEAD_ROWS = 4;
+
 export function ShopBody({
   stock,
   quote,
-  tourForTwo,
 }: {
   stock: StockRecord;
-  /** Farm tour for two, in dollars (TOUR_PARTY_SIZES). */
-  tourForTwo: number;
   /** The Mangalitsa shelf quote (SHOP_SHELF_QUOTE), resolved on the server. */
   quote: ResolvedFieldQuote | null;
 }) {
@@ -54,6 +52,17 @@ export function ShopBody({
         if (total === 0) return null;
         // "Ordered most" on one row per shelf: the first featured item in stock.
         const topSellerSlug = open.find((p) => p.featured)?.slug;
+        const fold = cat.key === "mangalitsa" && open.length > LEAD_ROWS + 1;
+        const row = (p: (typeof open)[number], n: number) => (
+          <LedgerRow
+            key={p.slug}
+            product={p}
+            stock={stock}
+            index={n}
+            objectPosition={PHOTO_CROPS[p.slug]}
+            showOrderedMost={p.slug === topSellerSlug}
+          />
+        );
         return (
           <section key={cat.key} id={cat.key} className={`scroll-mt-32 px-5 lg:scroll-mt-40 lg:px-16 lg:pt-24 ${i === 0 ? "pt-3" : "pt-10"}`}>
             <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
@@ -71,31 +80,26 @@ export function ShopBody({
               </header>
               <div className="mt-4 lg:mt-0">
                 <ul className="m-0 list-none border-t border-ink p-0">
-                  {open.map((p, n) => (
-                    <LedgerRow
-                      key={p.slug}
-                      product={p}
-                      stock={stock}
-                      index={n}
-                      objectPosition={PHOTO_CROPS[p.slug]}
-                      showOrderedMost={p.slug === topSellerSlug}
-                    />
-                  ))}
+                  {(fold ? open.slice(0, LEAD_ROWS) : open).map((p, n) => row(p, n))}
+                  {fold && (
+                    <li>
+                      <details className="group border-b border-rule">
+                        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-2 py-1.5 [&::-webkit-details-marker]:hidden">
+                          <span className="font-display text-[19px] leading-tight text-ink lg:text-[21px]">
+                            See all {total} {cat.unit.many}
+                          </span>
+                          <ChevronDownIcon size={14} className="shrink-0 text-pine transition-transform group-open:rotate-180" />
+                        </summary>
+                        <ul className="m-0 list-none border-t border-rule p-0">
+                          {open.slice(LEAD_ROWS).map((p, n) => row(p, n + LEAD_ROWS))}
+                        </ul>
+                      </details>
+                    </li>
+                  )}
                   <ShelfSoldOut products={out} />
                 </ul>
                 {cat.key === "mangalitsa" && quote && (
                   <FieldQuoteView {...quote} rule size="sm" className="mt-7" />
-                )}
-                {cat.key === "plush" && (
-                  <Link
-                    href="/farm-tours"
-                    className="mt-1 flex min-h-12 items-baseline gap-2.5 py-2"
-                  >
-                    <span className="font-display text-[19px] font-medium text-ink lg:text-[21px]">Meet the herd on a tour</span>
-                    <FieldLeader />
-                    <span className="shrink-0 text-[13px] text-ink-note">${tourForTwo} for two</span>
-                    <FieldArrow size={15} className="self-center text-pine" />
-                  </Link>
                 )}
               </div>
             </div>

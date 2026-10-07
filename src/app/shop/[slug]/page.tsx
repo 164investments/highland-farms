@@ -98,6 +98,10 @@ export default async function ProductPage({
         current: c.slug === product.slug,
       }))
     : [];
+  // The other colorway's real photo, shown as a captioned plate on an apparel page.
+  const otherColor = product.colorGroup
+    ? PRODUCTS.find((p) => p.colorGroup === product.colorGroup && p.slug !== product.slug)
+    : undefined;
   // An item that comes in colours is named once ("Dream hoodie"), with its
   // colour in the eyebrow and the picker; the H1 keeps the colour for screen
   // readers and search ("Dream hoodie, coyote brown").
@@ -148,12 +152,13 @@ export default async function ProductPage({
           </nav>
           <div className="mt-1 lg:mt-4 lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16">
             <div className="border border-frame bg-paper-light p-[7px] lg:self-start lg:p-2.5">
-              {/* Apparel on phones: the whole photo, uncropped, so the face and the full
-                  HIGHLAND FARMS print both show (r1); desktop keeps the square crop. */}
+              {/* Apparel on phones: the photo fills the frame (no pillarbox), cropped from the eyes down
+                  so the smile and the HIGHLAND FARMS print both show. The frame is short enough that the
+                  color and size chips and the Add button sit on a 393x660 first screen; desktop keeps the square crop. */}
               <div
                 className={cn(
                   "relative overflow-hidden lg:aspect-square lg:h-auto",
-                  isApparel ? "h-[184px] max-[359px]:h-[132px]" : "h-[176px] max-[359px]:h-[128px]",
+                  isApparel ? "h-[208px] max-[359px]:h-[140px]" : "h-[176px] max-[359px]:h-[128px]",
                 )}
               >
                 <Image
@@ -165,7 +170,7 @@ export default async function ProductPage({
                   className={cn(
                     "object-cover",
                     isApparel
-                      ? "object-contain object-center lg:object-cover lg:object-[50%_68%]"
+                      ? "object-cover object-[50%_58%] lg:object-[50%_68%]"
                       : "object-[50%_48%]",
                     soldOut && "opacity-60",
                   )}
@@ -211,9 +216,9 @@ export default async function ProductPage({
                       const price = formatCentsShort(toCents(fromPrice(p)));
                       if (here) {
                         return (
-                          <li key={p.slug} className="flex min-h-12 items-center gap-2 border-b border-l-2 border-rule border-l-pine pl-3">
+                          <li key={p.slug} aria-current="page" className="flex min-h-12 items-center gap-2 border-b border-l-2 border-rule border-l-pine pl-3">
                             <span className="font-display text-[19px] font-semibold lg:text-[21px]">{p.title}</span>
-                            <span className="text-[11px] uppercase tracking-[0.12em] text-pine">This one</span>
+                            <span className="sr-only">This one</span>
                             <FieldLeader />
                             <span className="text-[15px] font-semibold">{price}</span>
                           </li>
@@ -271,6 +276,27 @@ export default async function ProductPage({
                   and no band repeats the H1 (r4). */}
               {!isBeef && product.description && (
                 <p className="m-0 mt-5 max-w-prose text-[15px] leading-[1.6] text-ink-body">{product.description}</p>
+              )}
+              {/* One more true detail from data.ts (sizes and the one price), then the other colorway's real photo. */}
+              {isApparel && product.detail && (
+                <p className="m-0 mt-2 max-w-prose text-[15px] leading-[1.6] text-ink-body">
+                  {product.detail}, {formatCentsShort(toCents(fromPrice(product)))} in every size.
+                </p>
+              )}
+              {isApparel && otherColor && (
+                <Plate
+                  className="mt-5"
+                  frameClassName="aspect-[4/3]"
+                  caption={`The Dream hoodie in ${otherColor.subtitle?.toLowerCase()}.`}
+                >
+                  <Image
+                    src={otherColor.image}
+                    alt={`Wearing the Dream hoodie in ${otherColor.subtitle?.toLowerCase()}, outdoors among trees`}
+                    fill
+                    sizes="(min-width: 1024px) 520px, calc(100vw - 54px)"
+                    className="object-cover object-[50%_55%]"
+                  />
+                </Plate>
               )}
             </div>
           </div>

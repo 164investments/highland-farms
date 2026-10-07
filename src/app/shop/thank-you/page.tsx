@@ -8,7 +8,7 @@ import {
   PendingSlot,
   Plate,
   fieldCtaClass,
-  fieldCtaOutlineClass,
+  fieldTextLinkClass,
 } from "@/components/ui/FieldGuide";
 import { resolveFieldQuote } from "@/components/field/Reviews";
 import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
@@ -92,7 +92,6 @@ export default async function ThankYouPage({
                 <FieldNumeral n={2} className="text-[26px] lg:text-[32px]" />
                 <div>
                   <p className={STEP_TITLE}>We pack it and call you</p>
-                  <p className={STEP_BODY}>We call you when it&apos;s packed.</p>
                   <PendingSlot className="mt-1.5" note="PENDING CONNOR: time to ready. Never 'usually the same day' until he confirms." />
                 </div>
               </li>
@@ -180,8 +179,8 @@ export default async function ThankYouPage({
               </BookingTextLink>
             </div>
             <div className="mt-6 border-t border-rule pt-5">
-              <Link href="/shop" className={`${fieldCtaOutlineClass} w-full lg:w-auto`}>
-                Keep shopping
+              <Link href="/shop" className="inline-flex min-h-11 items-center">
+                <span className={fieldTextLinkClass}>Keep shopping</span>
               </Link>
             </div>
           </div>

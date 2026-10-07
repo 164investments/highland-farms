@@ -9,8 +9,10 @@ export interface Shelf {
   /** Section id: "plush", "mangalitsa", "gifts". */
   key: string;
   label: string;
-  /** Items in stock now; omitted for the gifts door. */
+  /** Items in stock now (the gifts door counts its gift options). */
   count?: number;
+  /** Screen-reader words after the count; defaults to "in stock now". */
+  countNote?: string;
   /** The door's photo: an in-stock item (or, for gifts, the herd). */
   image?: { src: string; position?: string };
 }
@@ -110,7 +112,7 @@ export function ShelfNav({ shelves, tabs }: { shelves: Shelf[]; tabs: Shelf[] })
                   {s.count !== undefined ? (
                     <span className={cn("text-[17px] leading-none text-fern max-[374px]:text-[15px]", numberClass)}>
                       {s.count}
-                      <span className="sr-only"> in stock now</span>
+                      <span className="sr-only"> {s.countNote ?? "in stock now"}</span>
                     </span>
                   ) : (
                     <span aria-hidden="true" className="text-[15px] leading-none text-fern">

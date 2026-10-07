@@ -294,7 +294,11 @@ export function CheckoutBody({
   function focusField(id: string) {
     const el = document.getElementById(id);
     if (!el) return;
-    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    // Land the field's label (its wrapper) just under the pinned header, not centered under it.
+    const target = el.closest("div") ?? el;
+    const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 104;
+    const top = target.getBoundingClientRect().top + window.scrollY - header - 16;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     el.focus({ preventScroll: true });
   }
 
@@ -441,7 +445,8 @@ export function CheckoutBody({
   const addressBad = showGaps && !form.address.trim();
   const cityBad = showGaps && !form.city.trim();
   const zipBad = showGaps && form.zip.trim().length < 5;
-  const errorRing = "border-[#8c3b2a] focus:border-[#8c3b2a]";
+  // Red only: the global green focus outline is switched off while the field is in error.
+  const errorRing = "border-[#8c3b2a] focus:border-[#8c3b2a] focus-visible:outline-none!";
   const errorText = "m-0 mt-1 text-[12px] font-medium text-[#8c3b2a]";
   const shortBy = Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
   const payDisabled = busy || Boolean(blocking);

@@ -73,6 +73,8 @@ const STEP =
   "grid grid-cols-[40px_1fr] gap-x-2 border-b border-rule py-3.5 lg:grid-cols-[56px_1fr] lg:py-4";
 const STEP_TITLE = "m-0 font-display text-[21px] font-semibold leading-tight text-ink lg:text-[24px]";
 const STEP_BODY = "m-0 mt-1 text-[14px] leading-[1.5] text-ink-body lg:text-[15px]";
+/** Farm tour, Highland Day and Nordic spa: the three rows of the Gift the farm card. */
+const GIFT_OPTIONS = 3;
 const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
 
 export default async function ShopPage() {
@@ -87,11 +89,18 @@ export default async function ShopPage() {
     return image ? [{ key: c.key, label: c.shortLabel, count: shelfProducts(c, record).open.length, image }] : [];
   });
   // Gifts: the herd photo already used in the gift section below, so no new crop of a new file.
-  const giftsDoor: Shelf = { key: "gifts", label: "Gifts", image: { src: "/images/farm/cows.jpg", position: "30% 62%" } };
+  // The count is the three gift options listed in the Gift the farm card below.
+  const giftsDoor: Shelf = {
+    key: "gifts",
+    label: "Gifts",
+    count: GIFT_OPTIONS,
+    countNote: "gift options",
+    image: { src: "/images/farm/cows.jpg", position: "30% 62%" },
+  };
   const doors: Shelf[] = [...shelves, giftsDoor];
   const tabs: Shelf[] = [
     ...ordered.map((c) => ({ key: c.key, label: c.shortLabel, count: shelfProducts(c, record).open.length })),
-    { key: "gifts", label: "Gifts" },
+    { key: "gifts", label: "Gifts", count: GIFT_OPTIONS },
   ];
 
   const tourForTwo = TOUR_PARTY_SIZES[0].total;
@@ -126,7 +135,7 @@ export default async function ShopPage() {
         </div>
       </section>
 
-      <ShopBody stock={record} quote={quote} tourForTwo={tourForTwo} />
+      <ShopBody stock={record} quote={quote} />
 
       {/* 6. How it reaches you, and the store questions */}
       <section className="mt-10 bg-paper-light px-5 pb-10 pt-10 lg:mt-24 lg:px-16 lg:py-24">
