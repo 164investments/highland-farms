@@ -76,13 +76,13 @@ function residents(): Resident[] {
       drawing: "highland-calf",
       kind: "Highland calves",
       title: "The newest arrivals",
-      line: "Calves are born in the front pastures, and tours often get time with the youngest.",
+      line: "Highland calves are born on the farm.",
     },
     {
       drawing: "icelandic-sheep",
       kind: "Icelandic sheep",
       title: "The flock at the end of the fern trail",
-      line: "Curly fleece, small curled horns, and they come running when the feed comes out.",
+      line: "Curly fleece and small curled horns.",
     },
     {
       drawing: "white-peacock",
@@ -142,7 +142,7 @@ export default function AboutPage() {
             <Plate
               className="mt-2.5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
               frameClassName="aspect-[353/217] lg:aspect-auto lg:h-[640px]"
-              caption="Connor and one of the calves, on the forest path."
+              caption="Connor and a calf."
             >
               <Image
                 src="/images/farm/farm-life.jpg"

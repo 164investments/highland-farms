@@ -26,7 +26,7 @@ const summary = (
     <h2 id="privacy-summary-title" className="font-display text-[20px] font-semibold leading-tight text-ink lg:text-[23px]">
       The short version
     </h2>
-    <ul className="m-0 mt-2 list-none p-0 text-[15px] leading-[1.65] text-ink-body lg:text-[16px]">
+    <ul className="m-0 mt-2 list-none border-t border-rule p-0 text-[15px] leading-[1.55] text-ink-body lg:text-[16px] [&>li]:border-b [&>li]:border-rule [&>li]:py-2.5">
       <li>
         <LegalStrong>What we collect:</LegalStrong> your name, email and phone number, and the details you send us
         about your event or visit.

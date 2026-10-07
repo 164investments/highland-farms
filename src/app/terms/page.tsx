@@ -40,7 +40,7 @@ const bookLink = "inline-flex min-h-11 items-center gap-1.5 font-medium text-pin
 function ReadyToBook({ placement, className }: { placement: string; className?: string }) {
   return (
     <div className={cn("flex flex-wrap items-center gap-x-6 text-[14px] text-ink-body", className)}>
-      <p className="m-0 w-full leading-snug lg:w-auto">Ready to book?</p>
+      <p className="m-0 hidden leading-snug lg:block">Ready to book?</p>
       <BookingTextLink
         href={bookingUrl(BOOKING_LINKS.farmTourForTwo, `${placement}-tour`)}
         label="See tour dates"
@@ -366,7 +366,7 @@ const shortVersion = (
     <ReadyToBook placement="terms-short" className="mt-1.5" />
     <a
       href="#cancellation"
-      className="mt-1 inline-flex min-h-11 items-center gap-2 text-[14px] font-medium text-pine"
+      className="mt-1 hidden min-h-11 items-center gap-2 text-[14px] font-medium text-pine lg:inline-flex"
     >
       <span className="border-b border-pine-line pb-0.5">Read the full cancellation policy</span>
     </a>
@@ -396,13 +396,15 @@ export default function TermsOfServicePage() {
         closing="Still have a question about a booking?"
         headerExtra={
           <>
-            <LegalJump
-              items={[
-                { href: "#cancellation", label: "Cancellations" },
-                { href: "#rules", label: "Rules" },
-                { href: "#photo", label: "Photography" },
-              ]}
-            />
+            <div className="hidden lg:block">
+              <LegalJump
+                items={[
+                  { href: "#cancellation", label: "Cancellations" },
+                  { href: "#rules", label: "Rules" },
+                  { href: "#photo", label: "Photography" },
+                ]}
+              />
+            </div>
             {shortVersion}
           </>
         }

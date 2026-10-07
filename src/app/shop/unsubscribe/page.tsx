@@ -46,7 +46,7 @@ async function unsubscribe(token: string): Promise<boolean> {
 
 const TEL = `tel:+1${CONTACT.phone.replace(/\D/g, "")}`;
 const quietLinkClass =
-  "text-ink-note underline decoration-leader decoration-1 underline-offset-4 transition-colors hover:text-ink-body";
+  "whitespace-nowrap text-ink-note underline decoration-leader decoration-1 underline-offset-4 transition-colors hover:text-ink-body";
 
 export default async function UnsubscribePage({
   searchParams,
@@ -108,10 +108,25 @@ export default async function UnsubscribePage({
                 Nothing changed on our end, so a cart reminder may still arrive. Open the link in the email once
                 more, or call and we&apos;ll take care of it.
               </p>
-              <a href={TEL} className={`${fieldCtaClass} mt-4 w-full whitespace-nowrap lg:mt-5`}>
-                Call {CONTACT.phone}
-              </a>
-              <p className="m-0 mt-1 flex min-h-11 items-center font-sans text-[14px] leading-none">
+              {token ? (
+                <a
+                  href={`/shop/unsubscribe?token=${encodeURIComponent(token)}`}
+                  className={`${fieldCtaClass} mt-4 w-full whitespace-nowrap lg:mt-5`}
+                >
+                  Try again
+                  <FieldArrow />
+                </a>
+              ) : (
+                <a href={TEL} className={`${fieldCtaClass} mt-4 w-full whitespace-nowrap lg:mt-5`}>
+                  Call {CONTACT.phone}
+                </a>
+              )}
+              <p className="m-0 mt-1 flex min-h-11 items-center gap-4 font-sans text-[14px] leading-none">
+                {token ? (
+                  <a href={TEL} className={quietLinkClass}>
+                    Or call {CONTACT.phone}
+                  </a>
+                ) : null}
                 <Link href="/" className={quietLinkClass}>
                   Back to Highland Farms
                 </Link>

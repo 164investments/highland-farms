@@ -35,6 +35,14 @@ const sections: LegalSection[] = [
         <p>
           Please contact us in advance so we can help plan your visit and ensure the best possible experience.
         </p>
+        <p className="flex flex-wrap items-center gap-x-5 gap-y-1 whitespace-nowrap">
+          <LegalLink href={`tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`}>
+            {CONTACT.phone}
+          </LegalLink>
+          <LegalLink href={`mailto:${CONTACT.email}`}>
+            {CONTACT.email}
+          </LegalLink>
+        </p>
       </>
     ),
   },
