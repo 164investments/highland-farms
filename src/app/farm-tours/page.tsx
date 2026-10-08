@@ -163,11 +163,11 @@ export default function FarmToursPage() {
                 <Plate
                   className="mt-5 lg:hidden"
                   frameClassName="h-[250px]"
-                  caption="A guide, two guests and a calf, in the barn."
+                  caption="Daunte, two guests and a calf, in the barn."
                 >
                   <Image
                     src="/images/farm/cow-2.jpg"
-                    alt="A guide and two guests petting a shaggy Highland calf in the barn"
+                    alt="Daunte and two guests petting a shaggy Highland calf in the barn"
                     fill
                     sizes="calc(100vw - 54px)"
                     className="object-cover object-[50%_62%]"
@@ -190,11 +190,11 @@ export default function FarmToursPage() {
           <Plate
             className="hidden lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:flex"
             frameClassName="lg:h-[640px]"
-            caption="A guide, two guests and a calf, in the barn."
+            caption="Daunte, two guests and a calf, in the barn."
           >
             <Image
               src="/images/farm/cow-2.jpg"
-              alt="A guide and two guests petting a shaggy Highland calf in the barn"
+              alt="Daunte and two guests petting a shaggy Highland calf in the barn"
               fill
               sizes="(min-width: 1440px) 520px, 40vw"
               className="object-cover object-[50%_62%] lg:object-[50%_50%]"

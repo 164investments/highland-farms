@@ -391,11 +391,11 @@ export default function AboutPage() {
             <div className="mt-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-2">
               <Plate
                 frameClassName="h-[300px] lg:h-[600px]"
-                caption="Guests and a calf, in the barn."
+                caption="Daunte, two guests and a calf, in the barn."
               >
                 <Image
                   src="/images/farm/cow-2.jpg"
-                  alt="A farm guide in a cap and two guests petting a pale, shaggy Highland calf inside the barn"
+                  alt="Daunte, in a cap, and two guests petting a pale, shaggy Highland calf inside the barn"
                   fill
                   loading="lazy"
                   sizes="(min-width: 1024px) 520px, 100vw"
