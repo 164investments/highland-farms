@@ -19,6 +19,11 @@ npm run build    # verify before pushing
 npm run lint     # eslint
 npm run indexnow # only when live indexing is authorized
 ```
+Mobile recovery checks live in `scripts/mobile-recovery/`; instructions and
+fixture limits are in `scripts/mobile-recovery.md`. Run against an already
+started preview. They intercept submissions locally and must never send real
+inquiries, payments or reservations. On this Mac, launch their browsers outside
+the Codex sandbox; retain the required storage guard for the preceding build.
 
 ## Key Paths
 - Pages: `src/app/` (about, celebrations, contact, farm-tours, nordic-spa, shop, stay, thanksgiving, weddings, wedding-portfolio, sauna-near-portland)

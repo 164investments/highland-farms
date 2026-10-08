@@ -27,6 +27,11 @@ npm run build
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the project map, integration boundaries,
 and the rules that keep the farm store and reporting flows correct.
 
+For browser checks against an already running preview, see the
+[mobile recovery guide](scripts/mobile-recovery.md). It covers forms, checkout,
+stay calendars, the phone menu and booking dialogs with locally intercepted
+submissions and synthetic provider responses.
+
 ## Thanksgiving 2026
 
 The seasonal stay offer is at `/thanksgiving`, with details in

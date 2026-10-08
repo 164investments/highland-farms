@@ -109,6 +109,7 @@ export function CheckoutBody({
   });
 
   const cardRef = useRef<SquareCard | null>(null);
+  const cardAttemptRef = useRef(false);
   const [payments, setPayments] = useState<SquarePayments | null>(null);
   const attachedRef = useRef(false);
   // Stable per checkout attempt — this is what prevents a double-charge on a
@@ -376,27 +377,32 @@ export function CheckoutBody({
         // the outcome was unknown (lost response, timeout) — the server tells us
         // via reuseIdempotencyKey. Rotate it only when Square definitively
         // declined, because a spent key would then be rejected as reused.
-        if (!body.reuseIdempotencyKey) {
+        if (body.reuseIdempotencyKey === false) {
           idempotencyKeyRef.current = crypto.randomUUID();
         }
         return;
       }
 
-      pushEvent("purchase", {
-        ecommerce: {
-          transaction_id: body.orderNumber,
-          currency: "USD",
-          value: totalCents / 100,
-          shipping: feeCents / 100,
-          items: detailed.map((l) => ({
-            item_id: l.slug,
-            item_name: l.name,
-            item_variant: l.label,
-            price: l.unitPriceCents / 100,
-            quantity: l.quantity,
-          })),
-        },
-      });
+      try {
+        pushEvent("purchase", {
+          ecommerce: {
+            transaction_id: body.orderNumber,
+            currency: "USD",
+            value: totalCents / 100,
+            shipping: feeCents / 100,
+            items: detailed.map((l) => ({
+              item_id: l.slug,
+              item_name: l.name,
+              item_variant: l.label,
+              price: l.unitPriceCents / 100,
+              quantity: l.quantity,
+            })),
+          },
+        });
+      } catch (err) {
+        // A saved order stays successful even if browser analytics fails.
+        console.error("[shop] purchase tracking failed:", err);
+      }
 
       clear();
       router.push(
@@ -411,7 +417,7 @@ export function CheckoutBody({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (status === "submitting") return;
+    if (cardAttemptRef.current || status === "submitting") return;
     // Gaps first: empty required fields are marked and focused even while the card
     // form is still loading, and this never reaches Square.
     if (!readyToPay()) return;
@@ -426,18 +432,31 @@ export function CheckoutBody({
       return;
     }
 
+    // React status updates do not lock two native submits in the same turn.
+    cardAttemptRef.current = true;
     setPaidWith("card");
     setStatus("submitting");
-    const result = await cardRef.current.tokenize();
-    if (result.status !== "OK" || !result.token) {
+    try {
+      const result = await cardRef.current.tokenize();
+      if (result.status !== "OK" || !result.token) {
+        setFailure({
+          at: "card",
+          message: result.errors?.[0]?.message ?? "Please check your card details and try again.",
+        });
+        setStatus("ready");
+        return;
+      }
+      await submitWithToken(result.token, "card");
+    } catch (err) {
+      console.error("[shop] card tokenization failed:", err);
       setFailure({
         at: "card",
-        message: result.errors?.[0]?.message ?? "Please check your card details and try again.",
+        message: "The secure card form couldn't finish. Please try again.",
       });
       setStatus("ready");
-      return;
+    } finally {
+      cardAttemptRef.current = false;
     }
-    await submitWithToken(result.token, "card");
   }
 
   const busy = status === "submitting";

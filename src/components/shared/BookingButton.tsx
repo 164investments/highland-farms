@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { appendAttributionToUrl, getClientAttribution } from "@/lib/attribution";
@@ -13,6 +13,7 @@ const OPEN_EVENT = "hf:open-booking";
 interface OpenDetail {
   src: string;
   title?: string;
+  opener?: HTMLElement;
 }
 
 declare global {
@@ -147,10 +148,10 @@ export function BookingButton({
   title,
   children,
 }: BookingButtonProps) {
-  const handleClick = () => {
+  const handleClick = (event?: MouseEvent<HTMLButtonElement>) => {
     const src = prepareBookingUrl(href);
     trackBookingStart(src, title ?? label, href);
-    openBookingModal({ src, title });
+    openBookingModal({ src, title, opener: event?.currentTarget });
   };
 
   return (
@@ -180,10 +181,10 @@ export function BookingTextLink({ href, label, title, className, children }: Boo
     <button
       type="button"
       className={className}
-      onClick={() => {
+      onClick={(event) => {
         const src = prepareBookingUrl(href);
         trackBookingStart(src, title ?? label, href);
-        openBookingModal({ src, title });
+        openBookingModal({ src, title, opener: event.currentTarget });
       }}
     >
       {children ?? label}
@@ -198,12 +199,16 @@ export function BookingTextLink({ href, label, title, className, children }: Boo
  */
 export function BookingModalRoot() {
   const [state, setState] = useState<OpenDetail | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<OpenDetail>).detail;
       if (detail?.src) {
         e.preventDefault();
+        openerRef.current = detail.opener ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
         setState(detail);
       }
     };
@@ -214,14 +219,46 @@ export function BookingModalRoot() {
   useEffect(() => {
     if (!state) return;
     const prev = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousScroll = { left: window.scrollX, top: window.scrollY };
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    closeRef.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setState(null);
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setState(null);
+      }
+      if (e.key !== "Tab") return;
+      const controls = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])',
+      );
+      const first = controls?.[0];
+      const last = controls?.[controls.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last?.focus({ preventScroll: true });
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first?.focus({ preventScroll: true });
+      }
+    };
+    const containFocus = (e: FocusEvent) => {
+      if (e.target instanceof Node && !dialogRef.current?.contains(e.target)) {
+        // A Tab leaving the cross-origin frame resumes at our first control.
+        const first = dialogRef.current?.querySelector<HTMLElement>("a[href], button:not([disabled])");
+        first?.focus({ preventScroll: true });
+      }
     };
     window.addEventListener("keydown", onKey);
+    document.addEventListener("focusin", containFocus);
     return () => {
       document.body.style.overflow = prev;
+      document.documentElement.style.overflow = previousHtmlOverflow;
       window.removeEventListener("keydown", onKey);
+      document.removeEventListener("focusin", containFocus);
+      if (openerRef.current?.isConnected) openerRef.current.focus({ preventScroll: true });
+      window.scrollTo({ ...previousScroll, behavior: "instant" });
     };
   }, [state]);
 
@@ -232,6 +269,7 @@ export function BookingModalRoot() {
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 flex items-stretch justify-center bg-charcoal/70 backdrop-blur-sm sm:items-start sm:p-4 md:p-6"
       onClick={() => setState(null)}
       role="dialog"
@@ -259,6 +297,7 @@ export function BookingModalRoot() {
                 <span className="sr-only"> (opens the booking page in a new tab)</span>
               </a>
               <button
+                ref={closeRef}
                 type="button"
                 onClick={() => setState(null)}
                 className="-mr-2 inline-flex h-11 w-11 items-center justify-center text-ink transition-colors hover:text-pine focus-visible:outline-2 focus-visible:outline-pine"

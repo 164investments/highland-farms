@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface HospitableWidgetProps {
   widgetUrl: string;
@@ -9,11 +9,12 @@ interface HospitableWidgetProps {
   propertySlug?: string;
 }
 
-/** The widget reports 520 high with no dates, 558 with a month shown and about 777 with a quote. */
-const WIDGET_MIN_HEIGHT = 520;
+/** Reserve space until the provider reports its current document height. */
+const WIDGET_INITIAL_HEIGHT = 520;
 
 export function HospitableWidget({ widgetUrl, propertyName }: HospitableWidgetProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [height, setHeight] = useState(WIDGET_INITIAL_HEIGHT);
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
@@ -25,10 +26,12 @@ export function HospitableWidget({ widgetUrl, propertyName }: HospitableWidgetPr
         return;
       }
       if (host !== "hospitable.com" && !host.endsWith(".hospitable.com")) return;
-
-      if (event.data?.iframeHeight && iframeRef.current) {
-        iframeRef.current.style.height = event.data.iframeHeight + "px";
-      }
+      if (!iframeRef.current || event.source !== iframeRef.current.contentWindow) return;
+      const reported = event.data?.iframeHeight;
+      if (typeof reported !== "number" && typeof reported !== "string") return;
+      const nextHeight = Number(reported);
+      if (!Number.isFinite(nextHeight) || nextHeight <= 0) return;
+      setHeight(nextHeight);
     }
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
@@ -46,14 +49,14 @@ export function HospitableWidget({ widgetUrl, propertyName }: HospitableWidgetPr
   }
 
   return (
-    <div className="mx-auto w-[315px] max-w-full overflow-hidden rounded-lg" style={{ minHeight: WIDGET_MIN_HEIGHT }}>
+    <div className="mx-auto w-[315px] max-w-full overflow-hidden rounded-lg" style={{ minHeight: height }}>
       <iframe
         ref={iframeRef}
         sandbox="allow-top-navigation allow-scripts allow-same-origin"
         src={widgetUrl}
         title={`Book ${propertyName}`}
         className="block mx-auto border-0 max-w-full"
-        style={{ width: 315, height: WIDGET_MIN_HEIGHT }}
+        style={{ width: 315, height }}
         allow="payment"
       />
     </div>
