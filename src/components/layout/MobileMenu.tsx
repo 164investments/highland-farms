@@ -298,14 +298,18 @@ export function MobileMenu({ isOpen, onClose, type, pathname, facts }: MobileMen
     if (!isOpen) return;
     const html = document.documentElement;
     const previous = document.activeElement as HTMLElement | null;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = html.style.overflow;
     document.body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
     html.setAttribute("data-sheet-open", "");
-    const t = window.setTimeout(() => closeButton.current?.focus(), 30);
+    const t = window.setTimeout(() => closeButton.current?.focus({ preventScroll: true }), 30);
     return () => {
       window.clearTimeout(t);
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousBodyOverflow;
+      html.style.overflow = previousHtmlOverflow;
       html.removeAttribute("data-sheet-open");
-      previous?.focus?.();
+      if (previous?.isConnected) previous.focus({ preventScroll: true });
     };
   }, [isOpen]);
 

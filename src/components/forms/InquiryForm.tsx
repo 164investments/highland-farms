@@ -172,6 +172,7 @@ export function InquiryForm({
   const [turnstileReset, setTurnstileReset] = useState(0);
   const serverErrorRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const submitStartedRef = useRef(false);
   const years = useEventYears(yearOptions);
 
   const {
@@ -249,7 +250,7 @@ export function InquiryForm({
     [setValue],
   );
 
-  /** After a failed submit, focus the first invalid field in page order (the names field first). */
+  /** After a failed submit, focus the first invalid field in page order. */
   function focusFirstInvalid() {
     requestAnimationFrame(() => {
       const first = formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
@@ -259,6 +260,9 @@ export function InquiryForm({
   }
 
   async function onSubmit(data: InquiryFormData) {
+    if (submitStartedRef.current) return;
+    submitStartedRef.current = true;
+    let completed = false;
     setStatus("submitting");
 
     // GTM tag 146 sends the browser's generate_lead from the dataLayer push
@@ -290,18 +294,26 @@ export function InquiryForm({
           ? callLink(`wedding-form-success-${placementTag(placement)}`, data)
           : undefined,
       });
+      completed = true;
       setStatus("success");
 
       // Conversion push for GTM: Ads "Book Your Wedding", enhanced conversions,
       // Meta Pixel Lead and GA4 generate_lead all key off this event.
       if (typeof window !== "undefined" && window.dataLayer) {
-        window.dataLayer.push(buildFormSubmissionPush(data));
+        try {
+          window.dataLayer.push(buildFormSubmissionPush(data));
+        } catch (err) {
+          // An accepted inquiry must not become a retry because tracking failed.
+          console.error("[inquiry] submission tracking failed:", err);
+        }
       }
     } catch {
       // Keep every answer on screen; only the Turnstile token is spent.
       setStatus("error");
       setTurnstileReset((n) => n + 1);
       requestAnimationFrame(() => serverErrorRef.current?.focus());
+    } finally {
+      if (!completed) submitStartedRef.current = false;
     }
   }
 
@@ -397,7 +409,7 @@ export function InquiryForm({
                   invalid={!!errors.event_month}
                   placeholder="Month"
                   options={MONTH_OPTIONS}
-                  {...register("event_month")}
+                  {...register("event_month", { deps: ["event_year"] })}
                 />
               </div>
               <div>
@@ -410,7 +422,7 @@ export function InquiryForm({
                   invalid={!!errors.event_year}
                   placeholder="Year"
                   options={years.map((y) => ({ value: y, label: y }))}
-                  {...register("event_year")}
+                  {...register("event_year", { deps: ["event_month"] })}
                 />
               </div>
             </div>
