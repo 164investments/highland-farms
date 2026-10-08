@@ -2,6 +2,19 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.5.4] - 2026-10-08
+
+### Fixed
+
+- Inquiry forms prevent concurrent submissions, refresh related month/year errors, and keep an accepted inquiry successful when browser analytics fails. Failed requests retain answers and permit retry.
+- Checkout prevents concurrent card attempts, recovers from a rejected card SDK promise, and retains payment retry protection when a response is malformed or its outcome is uncertain. Accepted orders still clear the cart and reach the thank-you page if analytics fails.
+- The mobile menu locks the actual document scroller. Booking dialogs contain parent-page focus and return it to the booking button when dismissed.
+- Stay calendars resize their wrapper with their own trusted provider frame, removing the unused initial height beneath shorter calendars.
+
+### Added
+
+- Repeatable mobile recovery checks with synthetic data, neutral provider frames and blocked live submissions.
+
 ## [0.3.5.3] - 2026-10-08
 
 ### Changed

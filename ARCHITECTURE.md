@@ -213,6 +213,11 @@ paper header over the Acuity iframe: the title wraps instead of crowding the
 links, a quiet "New tab" escape, a 44px plain close, and one line under the
 title (`wrapperNote`: the spa's quantity help, or "Private tour, rain or shine"
 on the tour calendar). Acuity's own page inside the frame is not ours.
+The wrapper focuses its close button on opening, contains parent-page keyboard
+focus, and restores the actual booking trigger on dismissal without scrolling.
+Both it and the mobile menu lock the document scroller as well as the body,
+restoring the previous overflow values when they close. Keyboard events inside
+the cross-origin scheduler remain the provider's responsibility.
 
 **The forms** (`components/forms/`) draw their own framed card with the cow
 seal: date and guests first, phone last with both text consents beside it in
@@ -221,6 +226,17 @@ one server-error line with the phone, and the success inside the same card;
 the call with Daunte is its own door below. Pages render the form without a
 wrapper frame. Event guest bands are 2 to 8 / 9 to 20 / 21 to 50 / 51 to 125
 (one house, the whole farm), with older band values still labelled.
+Month and year revalidate each other. A synchronous submission ref prevents
+concurrent valid submits while React updates; failures release it for a retry,
+and accepted inquiries keep it locked. A failed browser analytics push cannot
+turn an accepted inquiry into a retry error. Answers and independent SMS
+consents survive request failures; only the verification token resets.
+
+**Stay calendars** (`stay/HospitableWidget.tsx`) reserve 520px until their own
+Hospitable iframe reports a positive finite height. Only messages from that
+frame and a Hospitable origin resize it. The iframe and its wrapper use the same
+height, including shorter provider documents, so the initial reservation does
+not leave an empty band beneath the calendar.
 
 **The bottom sticky bar** (`field/StickyShell.tsx`, used by `FieldStickyBar`)
 is the page's one phone action (52px button; 48px with tighter padding under 375px,
@@ -347,6 +363,11 @@ src/lib/shop/admin-auth.ts           shared-token gate (+ admin-cookie.ts for th
    `release_shop_stock`. A customer must never be charged for a cut that just sold
    out. Everything after a successful charge (order insert, emails) is best-effort
    and must never surface as a failed purchase.
+   The card form locks synchronously before tokenization, releases on failure,
+   and recovers from rejected SDK promises. An uncertain or malformed checkout
+   reply keeps the idempotency key; only an explicit
+   `reuseIdempotencyKey: false` permits rotation. After acceptance, purchase
+   tracking is isolated from cart clearing and thank-you navigation.
 
 5. **Fulfillment is pickup or local delivery. The farm does not ship.** The rule
    lives once in `fulfillment.ts` and is enforced on both the form and the server,
