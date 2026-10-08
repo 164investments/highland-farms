@@ -252,10 +252,10 @@ export function weddingDoors(): ChromeDoor[] {
       current: (p) => under(p, "/wedding-portfolio"),
     },
     {
-      title: "Call with Connor",
+      title: "Call with Daunte",
       note: `Free, ${call.durationMin} minutes`,
-      menuTitle: `Free ${call.durationMin}-minute call with Connor`,
-      menuTitleShort: `Free ${call.durationMin}-min call with Connor`,
+      menuTitle: `Free ${call.durationMin}-minute call with Daunte`,
+      menuTitleShort: `Free ${call.durationMin}-min call with Daunte`,
       href: nativeCalendarEnabled() ? "/wedding-call" : BOOKING_LINKS.weddingCall,
       weddingCall: true,
       current: (p) => under(p, "/wedding-call"),

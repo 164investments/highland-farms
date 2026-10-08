@@ -25,11 +25,11 @@ export function ToursHero() {
           className="lg:col-start-2 lg:row-start-1 lg:row-end-8"
           frameClassName="h-[150px] max-[399px]:h-[140px] max-[359px]:h-[110px] lg:h-auto lg:min-h-0 lg:flex-1"
           captionClassName="mt-px max-[399px]:hidden lg:mt-0.5"
-          caption="A guide with one of the herd."
+          caption="Connor, who owns the farm, with one of the herd."
         >
           <Image
             src="/images/farm/farmer-with-highland-cow.jpg"
-            alt="A farm guide kneeling beside a resting Highland cow"
+            alt="Connor, who owns Highland Farms, kneeling beside a resting Highland cow"
             fill
             priority
             fetchPriority="high"

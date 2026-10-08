@@ -132,7 +132,7 @@ export function HomeReasons() {
 
       <FieldCatalogue items={items} columns={3} className="mt-7 lg:mt-12" />
 
-      {/* No. 4: Connor. No call link here: the free call sits beside the form (CONSISTENCY #8). */}
+      {/* No. 4: Connor (Hayden 2026-10-08: Daunte takes the first call; Connor helps plan every wedding and is there on the day). No call link here: the free call sits beside the form (CONSISTENCY #8). */}
       <div className="mt-9 grid grid-cols-[76px_minmax(0,1fr)] gap-x-4 border-t border-rule pt-6 lg:mt-12 lg:grid-cols-[104px_minmax(0,1fr)] lg:items-center lg:gap-x-8 lg:pt-8">
         <div className="self-start border border-frame bg-paper-light p-[5px] lg:p-[7px]">
           <Image
@@ -150,7 +150,7 @@ export function HomeReasons() {
             Connor
           </h3>
           <p className="m-0 mt-1.5 font-sans text-[15px] leading-[1.6] text-ink-body lg:max-w-[640px] lg:text-[16px]">
-            Connor owns the farm, and your first call is with him. Guests name Connor in{" "}
+            Connor owns the farm. He helps plan every wedding and is there on the day. Guests name Connor in{" "}
             {connorReviewCount()} Google reviews.
           </p>
         </div>

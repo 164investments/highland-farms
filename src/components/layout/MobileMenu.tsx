@@ -67,7 +67,7 @@ const VISIT_PHOTOS: Record<string, string> = {
 const STEP_ICONS: Record<string, LucideIcon> = {
   "Real weddings": Images,
   "2027 look book": BookOpen,
-  "Call with Connor": CalendarDays,
+  "Call with Daunte": CalendarDays,
 };
 
 const NUMBER_WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];

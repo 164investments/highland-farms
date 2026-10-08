@@ -11,9 +11,9 @@ import type { FAQItem } from "@/lib/types";
 export const RAIN_LEAD =
   "When it rained on one couple's wedding day, the reception ended up in the barn. A guest wrote:";
 export const RAIN_CLOSE =
-  "Your rain plan depends on your guest count, so Connor walks through it with you on your call.";
+  "Your rain plan depends on your guest count, so Daunte walks through it with you on your call.";
 export const COST_ANSWER =
-  "Two-night weddings from $13,000. 12-hour weekday weddings from $6,500. The total depends on your date, your guest count and how many nights you stay. Connor goes through it on your free call.";
+  "Two-night weddings from $13,000. 12-hour weekday weddings from $6,500. The total depends on your date, your guest count and how many nights you stay. Daunte goes through it on your free call.";
 /**
  * Alcohol and insurance rules apply to any gathering over 20 guests (Jalene, 2026-10-07). Bringing your own
  * caterer and photographer is not in the team's answers yet (PENDING CONNOR C5): the page holds that sentence
@@ -24,9 +24,9 @@ export const ALCOHOL_INSURANCE_ANSWER =
 export const VENDORS_PENDING =
   "Couples here bring their own caterer and photographer, and your caterer gets the full kitchen.";
 export const RESTROOMS_ANSWER =
-  "Your overnight guests have the bathrooms in the Lodge, the Cottage and the Camp. For day guests, ask Connor on your call.";
+  "Your overnight guests have the bathrooms in the Lodge, the Cottage and the Camp. For day guests, ask Daunte on your call.";
 export const GETTING_HERE_ANSWER =
-  "Highland Farms is in Brightwood, Oregon, about 25 minutes from Government Camp. Parking is on gravel, the farm is forest with some uneven ground, and there is a fair bit of walking. If someone in your group has trouble walking, ask Connor about it on your call before you book.";
+  "Highland Farms is in Brightwood, Oregon, about 25 minutes from Government Camp. Parking is on gravel, the farm is forest with some uneven ground, and there is a fair bit of walking. If someone in your group has trouble walking, ask Daunte about it on your call before you book.";
 
 export const weddingFAQ: FAQItem[] = [
   { question: "What does a wedding cost?", answer: COST_ANSWER },

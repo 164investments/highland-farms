@@ -475,7 +475,7 @@ export default function AboutPage() {
                 title="About: wedding call"
                 className="mt-1 flex min-h-11 items-center justify-center text-[14px] font-medium text-pine lg:justify-start lg:text-[15px]"
               >
-                <span className="border-b border-pine-line pb-0.5">Book a free 45-minute call with Connor</span>
+                <span className="border-b border-pine-line pb-0.5">Book a free 45-minute call with Daunte</span>
               </WeddingCallLink>
             </div>
           </div>

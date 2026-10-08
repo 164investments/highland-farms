@@ -33,7 +33,7 @@ export const EVENT_TYPES = [
 
 export const EVENT_TYPE_VALUES: readonly string[] = EVENT_TYPES.map((t) => t.value);
 
-/** The form switches to wedding fields, bands and the call with Connor. */
+/** The form switches to wedding fields, bands and the call with Daunte. */
 export const WEDDING_FORM_TYPES: readonly string[] = ["wedding", "elopement"];
 
 /**

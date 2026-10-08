@@ -20,7 +20,6 @@ const NAV_LEFT = [
   { label: "Real weddings", href: "/wedding-portfolio" },
   { label: "Farm tours", href: "/farm-tours" },
   { label: "Nordic spa", href: "/nordic-spa" },
-  { label: "Stays", href: "/stay" },
 ];
 
 const NAV_LINK =
@@ -31,8 +30,9 @@ const NAV_LINK =
  *
  * Lockup B in the centre: the name in words on every page and screen size.
  * Left: the menu (below xl) or Weddings · Real weddings · Farm tours ·
- * Nordic spa · Stays (xl). Right: Shop · Gifts (xl) and the page's own
- * action (chrome.ts). Weddings come first; About, Celebrations and Contact
+ * Nordic spa (xl). Right: Stays · Shop · Gifts (xl) and the page's own
+ * action (chrome.ts). Four and four, so the name sits between two groups of
+ * about the same width (Hayden 2026-10-08: five on the left crowded the name). Weddings come first; About, Celebrations and Contact
  * live in the menu and footer.
  *
  * Heights are fixed: the bar (when the page has one; --bar-h, 40px or 44px
@@ -131,8 +131,7 @@ export function Header({ menuFacts }: { menuFacts: MenuFacts }) {
               >
                 <MenuIcon />
               </button>
-              {/* 26px gaps from ~1350px; narrower from 1280 so the five links fit their half and the name stays centred. */}
-              <nav aria-label="Main" className="hidden items-center gap-[clamp(16px,calc((100vw_-_1152px)/8),26px)] xl:flex">
+              <nav aria-label="Main" className="hidden items-center gap-[26px] xl:flex">
                 {NAV_LEFT.map((item) => (
                   <Link
                     key={item.href}
@@ -149,6 +148,13 @@ export function Header({ menuFacts }: { menuFacts: MenuFacts }) {
             <MastheadName />
 
             <div className="flex items-center justify-self-end xl:gap-[26px]">
+              <Link
+                href="/stay"
+                aria-current={isCurrent(pathname, "/stay") ? "page" : undefined}
+                className={`hidden xl:flex ${NAV_LINK}`}
+              >
+                Stays
+              </Link>
               <Link
                 href="/shop"
                 aria-current={isCurrent(pathname, "/shop") ? "page" : undefined}

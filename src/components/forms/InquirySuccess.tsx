@@ -20,7 +20,7 @@ export interface InquirySuccessProps {
 
 /**
  * Honest next steps after an inquiry: no response-time promise and the free
- * call with Connor prefilled for wedding types. It draws no frame of its own:
+ * call with Daunte prefilled for wedding types. It draws no frame of its own:
  * the form card (InquiryForm) is the one object, so it never nests a card in a card.
  */
 export function InquirySuccess({
@@ -50,7 +50,7 @@ export function InquirySuccess({
     ? [
         { key: "check", body: checkStep },
         { key: "write", body: `They write back to ${email} with what's open.` },
-        { key: "call", body: "If the farm feels right, you set a time to talk it through with Connor." },
+        { key: "call", body: "If the farm feels right, you set a time to talk it through with Daunte." },
       ]
     : [
         {
@@ -110,7 +110,7 @@ export function InquirySuccess({
             // Narrow panels wrap the label to two lines; let the button grow instead of clipping.
             className={cn(fieldCtaClass, "mt-3 h-auto min-h-[52px] w-full px-5 py-2.5 text-center")}
           >
-            Book your free call with Connor
+            Book your free call with Daunte
             <FieldArrow />
             <span className="sr-only"> (opens in a new tab)</span>
           </a>

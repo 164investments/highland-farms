@@ -16,7 +16,7 @@ interface WeddingCallLinkProps {
 }
 
 /**
- * "Book a free 45-minute call with Connor": the same booking_start push the
+ * "Book a free 45-minute call with Daunte": the same booking_start push the
  * inquiry form uses (booking_type "wedding_call"), with the visitor's stored
  * attribution appended. Acuity until the native calendar flag flips, then
  * /wedding-call.

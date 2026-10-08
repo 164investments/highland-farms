@@ -63,9 +63,9 @@ function BarCopy({ id }: { id: BarId }) {
           <span className="lg:hidden">Now booking 2027. </span>
           <span className="hidden lg:inline">Now booking 2027 weddings. </span>
           <WeddingCallLink content="announcement-bar-call" title="Announcement bar: wedding call" className={LINK}>
-            <span className="lg:hidden">Free call with Connor</span>
+            <span className="lg:hidden">Free call with Daunte</span>
             <span className="hidden lg:inline">
-              Book a free {BOOKING_PRODUCTS["wedding-call"].durationMin}-minute call with Connor
+              Book a free {BOOKING_PRODUCTS["wedding-call"].durationMin}-minute call with Daunte
             </span>
           </WeddingCallLink>
         </p>

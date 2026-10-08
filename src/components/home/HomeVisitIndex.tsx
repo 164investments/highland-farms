@@ -34,9 +34,20 @@ interface VisitDoor {
   cta: string;
 }
 
+/** The short price or size line for each day visit, from the booking and property data (hero strip + index). */
+export function visitFacts() {
+  const [two] = TOUR_PARTY_SIZES;
+  const spa = BOOKING_PRODUCTS["nordic-spa"];
+  return {
+    tour: `$${two.total} for two`,
+    spa: `$${spa.pricePerPersonCents / 100} per person`,
+    stays: `Sleeps ${guests("camp")} to ${guests("whole-farm")}`,
+  };
+}
+
 function buildDoors(): VisitDoor[] {
+  const facts = visitFacts();
   const [two, three] = TOUR_PARTY_SIZES;
-  const tourFirst = two.total;
   const tourEach = three.total - two.total;
   const spa = BOOKING_PRODUCTS["nordic-spa"];
   const spaPrice = spa.pricePerPersonCents / 100;
@@ -47,12 +58,14 @@ function buildDoors(): VisitDoor[] {
     {
       id: "tour",
       name: "Farm tour",
-      price: `$${tourFirst} for two`,
+      price: facts.tour,
       href: "/farm-tours",
       image: {
-        src: "/images/farm/cow-2.jpg",
-        alt: "A guide and two guests pet a Highland calf in the barn",
-        position: "object-[50%_62%]",
+        // Landscape, so the wide desktop frame keeps the cow's face and the child's hands. The portrait barn
+        // photo (cow-2) lost every face in it at 2:1 (Hayden 2026-10-08). Same photo as the menu's tour row.
+        src: "/images/farm/cow-calf.jpg",
+        alt: "A child in a pink cowboy hat holds out hay to a shaggy Highland cow",
+        position: "object-[72%_50%] lg:object-[50%_45%]",
       },
       blurb: "A private hour with our Scottish Highland cows. Feed them, brush them, pet them, rain or shine.",
       note: `${tour.durationMin} minutes · ${tour.minParty} to ${tour.maxParty} guests · $${tourEach} each after two`,
@@ -61,7 +74,7 @@ function buildDoors(): VisitDoor[] {
     {
       id: "spa",
       name: "Nordic spa",
-      price: `$${spaPrice} per person`,
+      price: facts.spa,
       href: "/nordic-spa",
       image: {
         src: "/images/spa/spa-2.jpg",
@@ -75,7 +88,7 @@ function buildDoors(): VisitDoor[] {
     {
       id: "stays",
       name: "Farm stays",
-      price: `Sleeps ${guests("camp")} to ${whole}`,
+      price: facts.stays,
       href: "/stay",
       image: {
         // properties/cottage.jpg is the William Wallace Lodge (filename trap).

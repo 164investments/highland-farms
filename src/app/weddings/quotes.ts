@@ -50,10 +50,14 @@ export const WEDDINGS_RAIN_QUOTE: QuoteSpec = {
   topic: "Wedding",
 };
 
-/** Beside the form: the fear of the call, answered. */
+/**
+ * Beside the form: the fear of planning, answered. Was Tatum Paullus's "Connor approached our call
+ * softly"; Daunte takes the first call now (Hayden 2026-10-08), so a quote naming Connor on the call
+ * would sit beside "call with Daunte" and mislead.
+ */
 export const WEDDINGS_CALL_QUOTE: QuoteSpec = {
-  author: "Tatum Paullus",
-  date: "2026-06-30",
-  sentenceStartsWith: "Connor approached our call softly",
+  author: "Sydney Brown",
+  date: "2025-04-30",
+  sentenceStartsWith: "The property is absolutely stunning",
   topic: "Wedding",
 };

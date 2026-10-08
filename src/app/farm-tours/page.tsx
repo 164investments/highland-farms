@@ -366,42 +366,42 @@ export default function FarmToursPage() {
           title="Field notes from guests"
           aside={<FieldReviewTier tier="compact" />}
         >
-          <Plate
-            className="mt-7 lg:mt-10"
-            frameClassName="h-[260px] lg:h-[420px]"
-            caption="A guide leads a Highland calf down the forest trail."
-          >
-            <Image
-              src="/images/farm/farm-life.jpg"
-              alt="A smiling guide in a Highland Farms vest leading a shaggy Highland calf on a rope down a gravel trail through the forest"
-              fill
-              sizes="(min-width: 1024px) 1200px, calc(100vw - 54px)"
-              className="object-cover object-[50%_60%]"
-            />
-          </Plate>
-          <ul
-            role="list"
-            className="m-0 mt-7 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-2 lg:gap-x-16 lg:border-t-0"
-          >
-            {TOURS_NOTES.map((spec) => (
-              <li
-                key={spec.author}
-                className="border-b border-rule py-6 lg:border-b-0 lg:border-t lg:py-8"
+          {/* Desktop: the portrait photo in a square beside the notes. The full-width 420px letterbox showed
+              about a fifth of this 2:3 photo and cut off Connor's head and the calf's (Hayden 2026-10-08). */}
+          <div className="lg:mt-10 lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16">
+            <Plate
+              className="mt-7 lg:col-span-5 lg:mt-0"
+              frameClassName="h-[260px] lg:aspect-square lg:h-auto"
+              caption="Connor, who owns the farm, with a Highland calf on the forest trail."
+            >
+              <Image
+                src="/images/farm/farm-life.jpg"
+                alt="Connor, smiling in a Highland Farms vest, leading a shaggy Highland calf on a rope down a gravel trail through the forest"
+                fill
+                sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 54px)"
+                className="object-cover object-[50%_50%] lg:object-[50%_46%]"
+              />
+            </Plate>
+            <div className="lg:col-span-7">
+              <ul role="list" className="m-0 mt-7 list-none border-t border-rule p-0 lg:mt-0">
+                {TOURS_NOTES.map((spec) => (
+                  <li key={spec.author} className="border-b border-rule py-6 lg:py-8">
+                    <FieldReview spec={spec} role="Farm tour" size="lg" />
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={GOOGLE_REVIEW_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine"
               >
-                <FieldReview spec={spec} role="Farm tour" size="lg" />
-              </li>
-            ))}
-          </ul>
-          <a
-            href={GOOGLE_REVIEW_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-5 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine"
-          >
-            <span className="border-b border-pine-line pb-0.5">Read every review on Google</span>
-            <FieldArrow />
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
+                <span className="border-b border-pine-line pb-0.5">Read every review on Google</span>
+                <FieldArrow />
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </div>
+          </div>
         </FieldSection>
 
         {/* S6 Book: the picker, the strict line at the point of sale, Know before you book */}

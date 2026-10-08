@@ -370,7 +370,7 @@ test("dataLayer push keeps the exact shape GTM tags 114/122/128/146/152 read", (
   assert.equal("phone" in buildFormSubmissionPush({ ...wedding, phone: "" }), false);
 });
 
-test("call with Connor link is prefilled for Acuity", () => {
+test("wedding call link is prefilled for Acuity", () => {
   const href = weddingCallHref(
     "https://highlandfarms.as.me/schedule/e759f21b/appointment/78277096/calendar/12109481?utm_content=x",
     wedding,
