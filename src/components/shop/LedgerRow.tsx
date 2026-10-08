@@ -4,7 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { fieldLeaderClass } from "@/components/ui/FieldGuide";
+import { FieldLeader } from "@/components/ui/FieldGuide";
+import { ChevronDownIcon, PlusIcon } from "./icons";
 import { useCart } from "@/lib/shop/cart";
 import { fromPrice, hasChoices, toPrice, type Product } from "@/app/shop/data";
 import { formatCentsShort, toCents } from "@/lib/shop/money";
@@ -22,19 +23,24 @@ export function priceText(p: Product): string {
 
 /**
  * One in-stock product as a price-list line: thumbnail, name, detail and stock
- * word, price, then the action: add (single variant), choose (has choices).
+ * word, then the one buy button with the price inside it. A single-variant
+ * product adds in place; a product with choices opens its page. Products
+ * flagged `featured` carry the "Ordered most" tag.
  */
 export function LedgerRow({
   product,
   stock,
   index,
   objectPosition,
+  showOrderedMost = true,
 }: {
   product: Product;
   stock: StockRecord;
   index: number;
   /** Photo crop, e.g. "50% 30%". */
   objectPosition?: string;
+  /** The "Ordered most" tag; the shelf passes it for one row only. */
+  showOrderedMost?: boolean;
 }) {
   const { lines } = useCart();
   const choices = hasChoices(product);
@@ -42,15 +48,16 @@ export function LedgerRow({
   const inCart = choices ? 0 : (lines.find((l) => l.variantId === variant.id)?.quantity ?? 0);
   const word = stockWord(stock, product);
   const note = inCart > 0 ? `${inCart} in your cart` : word;
+  const price = priceText(product);
 
   return (
-    <li className="flex items-center gap-3 border-b border-rule py-2 lg:gap-4 lg:py-3">
+    <li className="flex items-center gap-3 border-b border-rule py-2 max-[374px]:gap-2.5 lg:gap-4 lg:py-3">
       <Link
         href={`/shop/${product.slug}`}
         onClick={() => pushEvent("select_item", { ecommerce: { items: [toGA4Item(product, index)] } })}
-        className="flex min-w-0 flex-1 items-center gap-3 lg:gap-5"
+        className="flex min-w-0 flex-1 items-center gap-3 max-[374px]:gap-2.5 lg:gap-5"
       >
-        <span className="relative h-16 w-16 shrink-0 border border-frame bg-paper-light p-[3px] lg:h-24 lg:w-24">
+        <span className="relative h-16 w-16 shrink-0 border border-frame bg-paper-light p-[3px] max-[374px]:h-[58px] max-[374px]:w-[58px] lg:h-24 lg:w-24">
           <span className="relative block h-full w-full overflow-hidden">
             <Image
               src={product.image}
@@ -63,10 +70,15 @@ export function LedgerRow({
           </span>
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block font-display text-[19px] font-medium leading-[1.15] text-ink lg:text-[23px]">
+          {product.featured && showOrderedMost && (
+            <span className="mb-1 block text-[9.5px] font-semibold uppercase leading-none tracking-[0.14em] text-fern">
+              Ordered most
+            </span>
+          )}
+          <span className="block font-display text-[19px] font-medium leading-[1.12] text-ink max-[374px]:text-[17.5px] lg:text-[23px]">
             {product.title}
           </span>
-          <span className="mt-0.5 block text-[12px] leading-[1.4] text-ink-note lg:text-[13px]">
+          <span className="mt-0.5 block text-[12px] leading-[1.35] text-ink-note max-[374px]:text-[11.5px] lg:text-[13px]">
             {product.detail}
             {product.detail && note ? " · " : ""}
             {note && (
@@ -74,57 +86,102 @@ export function LedgerRow({
             )}
           </span>
         </span>
-        <span className="text-[15px] font-semibold text-ink lg:text-[17px]">{priceText(product)}</span>
       </Link>
       {choices ? (
         <Link
           href={`/shop/${product.slug}`}
-          aria-label={`Choose ${product.optionName === "Weight" ? "a size" : `a ${(product.optionName ?? "size").toLowerCase()}`} of ${product.title}`}
-          className="flex h-11 shrink-0 items-center border border-pine px-3 text-[13px] font-semibold text-pine hover:bg-paper-shade"
+          aria-label={`Choose ${product.optionName === "Weight" ? "a size" : `a ${(product.optionName ?? "size").toLowerCase()}`} of ${product.title}, ${price}`}
+          className={BUY_BUTTON}
         >
-          Choose
+          <PlusIcon size={13} />
+          <span className="whitespace-nowrap">{price.replace(/^from (.*)$/, "$1+")}</span>
         </Link>
       ) : (
-        <QuickAdd product={product} stock={stock} display="icon" />
+        <QuickAdd product={product} stock={stock} display="price" />
       )}
     </li>
   );
 }
 
+/** Same box as QuickAdd's "price" button, so every product has one buy style. */
+const BUY_BUTTON =
+  "flex h-11 w-[92px] shrink-0 items-center justify-center gap-1.5 border border-pine px-2 text-[13px] font-semibold text-pine hover:bg-paper-shade";
+
 /**
- * The one sold-out style: dimmed name, leader, "Sold out, $20", and an
- * "Email me" that opens the email field in place.
+ * The one sold-out line for a shelf: "N sold out ... Email me when back".
+ * Opened, every sold-out item is a ticked choice above one shared email
+ * field; the email is saved for each ticked item through the waitlist API.
  */
-export function SoldOutRow({ product }: { product: Product }) {
-  const [open, setOpen] = useState(false);
-  const formId = `soldout-${product.slug}`;
+export function ShelfSoldOut({ products }: { products: Product[] }) {
+  const [off, setOff] = useState<Set<string>>(() => new Set());
+  if (products.length === 0) return null;
+  const chosen = products.filter((p) => !off.has(p.slug));
+  const toggle = (slug: string) =>
+    setOff((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
+      return next;
+    });
+
   return (
-    <li className="border-b border-rule">
-      <div className="flex min-h-12 items-center gap-2 py-1.5">
-        <Link
-          href={`/shop/${product.slug}`}
-          className="font-display text-[19px] leading-tight text-ink-note lg:text-[21px]"
-        >
-          {product.title}
-        </Link>
-        <span aria-hidden="true" className={fieldLeaderClass} />
-        <span className="shrink-0 text-[13px] text-ink-note">Sold out, {priceText(product)}</span>
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls={formId}
-          onClick={() => setOpen((o) => !o)}
-          className="ml-1 inline-flex min-h-11 shrink-0 items-center"
-        >
-          <span className="border-b border-pine-line text-[13px] font-medium text-pine">Email me</span>
-          <span className="sr-only"> when {product.title} is back</span>
-        </button>
-      </div>
-      {open && (
-        <div id={formId}>
-          <WaitlistForm variantIds={product.variants.map((v) => v.id)} name={product.title} />
+    <li>
+      <details className="group border-b border-rule">
+        <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 py-1.5 [&::-webkit-details-marker]:hidden">
+          <span className="whitespace-nowrap font-display text-[19px] leading-tight text-ink-note lg:text-[21px]">
+            {products.length} sold out
+          </span>
+          <FieldLeader />
+          <span className="shrink-0 border-b border-pine-line text-[13px] font-medium text-pine">
+            Email me when back
+          </span>
+          <ChevronDownIcon size={14} className="shrink-0 text-pine transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="pb-3.5">
+          <p className="m-0 text-[13px] leading-[1.55] text-ink-note">Untick any you don&apos;t want.</p>
+          <ul className="m-0 mt-2 flex list-none flex-wrap gap-1.5 p-0">
+            {products.map((p) => {
+              const on = !off.has(p.slug);
+              return (
+                <li key={p.slug}>
+                  <label
+                    className={cn(
+                      "flex min-h-11 cursor-pointer items-center gap-[7px] border border-frame bg-paper-light py-0 pl-2 pr-[11px] text-[13px] leading-tight max-[374px]:text-[12px]",
+                      on ? "text-ink-body" : "text-ink-meta",
+                    )}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={on}
+                      onChange={() => toggle(p.slug)}
+                      className="peer sr-only"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "flex h-4 w-4 shrink-0 items-center justify-center text-[11px] leading-none peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-pine",
+                        on ? "bg-pine text-paper-light" : "border border-frame text-transparent",
+                      )}
+                    >
+                      ✓
+                    </span>
+                    {p.title}
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+          {chosen.length > 0 ? (
+            <WaitlistForm
+              variantIds={chosen.flatMap((p) => p.variants.map((v) => v.id))}
+              name=""
+              label="Your email"
+            />
+          ) : (
+            <p className="m-0 mt-3 text-[13px] text-ink-note">Tick at least one to get an email.</p>
+          )}
         </div>
-      )}
+      </details>
     </li>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import { StructuredData } from "@/components/layout/StructuredData";
-import { FieldReview, FieldReviewTier } from "@/components/field/Reviews";
+import { FieldReview } from "@/components/field/Reviews";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import { JsonLd, cancellationAnswer, faqPageJsonLd } from "@/components/field/Faq";
 import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
@@ -13,7 +13,6 @@ import { SpaPicker } from "@/components/shared/VisitPickers";
 import { VisitFaq } from "@/components/shared/VisitFaq";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 import {
-  FieldDrawing,
   FieldSection,
   FieldSectionHeader,
   FieldSequence,
@@ -32,7 +31,7 @@ import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { nativeCalendarEnabled } from "@/lib/booking/flag";
 import { BOOKING_LINKS, bookingUrl } from "@/lib/constants";
 import { SpaHero } from "./SpaHero";
-import { SPA_BEST_HOUR_QUOTE, SPA_CLEAN_QUOTE } from "./quotes";
+import { SPA_BEST_HOUR_QUOTE } from "./quotes";
 
 const DESCRIPTION = `Wood-burning cedar sauna, wet sauna and cold plunge in the forest in Brightwood, Oregon. ${BOOKING_PRODUCTS["nordic-spa"].durationMin}-minute sessions, up to ${SPA_MAX_PARTY} guests, $${SPA_PRICE_PER_PERSON} per person.`;
 
@@ -61,11 +60,10 @@ const isProduction = process.env.NODE_ENV === "production";
 
 /**
  * "Know before you book" rows (round 3 board). The Check-in row is a whole pending row: absent in production.
- * Round 4: the age rule holds in every session (ops fact 9); the Session row is gone, since "One spot, or
- * all six" and the meta line above the picker already say it.
+ * Round 5: the Ages row is gone too (the hero and the strip above the picker say "Ages 16+"); the Session row
+ * went earlier ("One spot, or all six" says it).
  */
 const knowRows: KnowRow[] = [
-  { term: "Ages", detail: "16 and up, in every session, private ones included." },
   { term: "Bring", detail: "A swimsuit and walking shoes. Robes, towels and a changing area are here." },
   {
     term: "Arrival",
@@ -132,14 +130,8 @@ export default function NordicSpaPage() {
             />
           </div>
           <div className="mt-9 lg:col-span-6 lg:mt-0">
-            <FieldReview
-              spec={SPA_CLEAN_QUOTE}
-              role="Nordic spa"
-              size="sm"
-              quoteClassName="text-[20px] lg:text-[24px]"
-            />
             <Plate
-              className="mt-6"
+              className="lg:mt-0"
               frameClassName="h-[240px] lg:h-[520px]"
               caption="Robes on, out on the deck."
             >
@@ -183,12 +175,6 @@ export default function NordicSpaPage() {
             <p className="m-0 mt-3 font-sans text-[14px] leading-[1.55] text-ink-note lg:text-[15px]">
               Sessions start at {SPA_SESSION_TIMES}. Open days change week to week, so check the calendar.
             </p>
-            <div className="mt-7 grid grid-cols-[64px_1fr] items-center gap-4 border-t border-rule pt-6 lg:grid-cols-[96px_1fr]">
-              <FieldDrawing name="vine-maple-leaf" className="h-16 w-16 lg:h-24 lg:w-24" sizes="96px" />
-              <p className="m-0 font-display text-[21px] italic leading-[1.3] text-ink lg:text-[26px]">
-                October to March is sauna season. Rain changes nothing here: sessions run as booked, all year.
-              </p>
-            </div>
           </div>
         </FieldSection>
 
@@ -220,11 +206,15 @@ export default function NordicSpaPage() {
                     </Suspense>
                     {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
                   </p>
-                  <FieldReviewTier tier="nearCta" className="mt-2" />
-                  <BookingPolicyNote
-                    text={policy}
-                    className="mt-5 border-t border-rule pt-4 text-[12px] text-ink-body lg:text-[13px]"
-                  />
+                </>
+              )}
+            </div>
+            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-12">
+              <KnowBeforeYouBook framed={false} rows={knowRows} />
+            </div>
+            {!native && (
+              <div className="lg:col-span-6 lg:col-start-7 lg:row-start-2">
+                  <BookingPolicyNote text={policy} />
                   <PendingSlot className="mt-4" note="DECIDE D4: visit packs line (3 for $199, 5 for $299, 10 for $549, six months). Show only after Hayden decides and the Acuity pack copy says 90 minutes">
                     <p className="m-0 font-sans text-[13px] leading-[1.55] text-ink-note lg:text-[14px]">
                       Coming back this winter? Visit packs: 3 for $199, 5 for $299, 10 for $549, each good for six
@@ -237,16 +227,12 @@ export default function NordicSpaPage() {
                       />
                     </p>
                   </PendingSlot>
-                </>
-              )}
-            </div>
-            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:mt-12">
-              <KnowBeforeYouBook framed={false} rows={knowRows} />
-            </div>
+              </div>
+            )}
           </div>
         </FieldSection>
 
-        <HighlandDayBlock utmPrefix="nordic-spa-day" />
+        <HighlandDayBlock utmPrefix="nordic-spa-day" line="add-tour" />
 
         <VisitFaq items={nordicSpaFAQ} />
       </div>
@@ -262,7 +248,7 @@ export default function NordicSpaPage() {
                 href: bookingUrl(BOOKING_LINKS.nordicSpa, "nordic-spa-sticky-mobile"),
               }
         }
-        hideWhenVisible="#availability"
+        hideWhenVisible={["[data-hero-cta]", "#availability"]}
       />
 
       {/* Modal mount: listens for openBookingModal() calls from every CTA */}

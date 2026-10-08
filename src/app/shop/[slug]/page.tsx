@@ -19,8 +19,6 @@ import {
   DELIVERY_FEE_CENTS,
   DELIVERY_MINIMUM_CENTS,
   MEAT_FROZEN_NOTE,
-  PICKUP_HOURS,
-  PICKUP_LOCATION,
 } from "@/lib/shop/fulfillment";
 import { buildProductNode } from "@/lib/shop/product-schema";
 import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
@@ -106,6 +104,10 @@ export default async function ProductPage({
         current: c.slug === product.slug,
       }))
     : [];
+  // The other colorway's real photo, shown as a captioned plate on an apparel page.
+  const otherColor = product.colorGroup
+    ? PRODUCTS.find((p) => p.colorGroup === product.colorGroup && p.slug !== product.slug)
+    : undefined;
   // An item that comes in colours is named once ("Dream hoodie"), with its
   // colour in the eyebrow and the picker; the H1 keeps the colour for screen
   // readers and search ("Dream hoodie, coyote brown").
@@ -145,9 +147,9 @@ export default async function ProductPage({
       />
 
       {/* 1. The buy box */}
-      <section className="px-5 pb-10 pt-2 lg:px-16 lg:pb-20 lg:pt-8">
+      <section className={cn("px-5 pt-2 lg:px-16 lg:pb-20 lg:pt-8", isBeef ? "pb-10" : "pb-4")}>
         <div className="mx-auto max-w-[1312px]">
-          <nav aria-label="Breadcrumb" className="text-[13px] text-ink-note">
+          <nav aria-label="Breadcrumb" className={cn("text-[13px] text-ink-note", isApparel && "max-lg:hidden")}>
             <Link href="/shop" className="inline-flex min-h-11 items-center hover:text-pine">Farm shop</Link>
             <span className="mx-2" aria-hidden="true">/</span>
             <Link href={`/shop#${product.category}`} className="inline-flex min-h-11 items-center hover:text-pine">
@@ -156,12 +158,17 @@ export default async function ProductPage({
           </nav>
           <div className="mt-1 lg:mt-4 lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-16">
             <div className="border border-frame bg-paper-light p-[7px] lg:self-start lg:p-2.5">
-              {/* Apparel: a taller phone frame set low on the photo, so the
-                  HIGHLAND FARMS chest print is on the first screen (r4). */}
+              {/* Apparel on phones: the photo fills the frame (no pillarbox), cropped from the eyes down
+                  so the smile and the HIGHLAND FARMS print both show. The frame is short enough that the
+                  color and size chips and the Add button sit on a 393x660 first screen; desktop keeps the square crop. */}
               <div
                 className={cn(
                   "relative overflow-hidden lg:aspect-square lg:h-auto",
-                  isApparel ? "aspect-[5/4]" : "h-[176px] max-[359px]:h-[128px]",
+                  // In-app browsers (about 660px tall) get a shorter apparel frame so the size chips and Add button
+                  // both land on the first screen (mobile review r4).
+                  isApparel
+                    ? "h-[216px] max-[359px]:h-[176px] min-[360px]:max-lg:[@media(max-height:700px)]:h-[158px]"
+                    : "h-[176px] max-[359px]:h-[128px]",
                 )}
               >
                 <Image
@@ -172,7 +179,9 @@ export default async function ProductPage({
                   sizes="(min-width: 1024px) 640px, calc(100vw - 54px)"
                   className={cn(
                     "object-cover",
-                    isApparel ? "object-[50%_70%]" : "object-[50%_48%]",
+                    isApparel
+                      ? "object-cover object-[50%_24%] lg:object-[50%_68%]"
+                      : "object-[50%_48%]",
                     soldOut && "opacity-60",
                   )}
                 />
@@ -215,16 +224,7 @@ export default async function ProductPage({
                       const out = allSoldOut(stock, p.variants.map((v) => v.id));
                       const here = p.slug === product.slug;
                       const price = formatCentsShort(toCents(fromPrice(p)));
-                      if (here) {
-                        return (
-                          <li key={p.slug} className="flex min-h-12 items-center gap-2 border-b border-l-2 border-rule border-l-pine pl-3">
-                            <span className="font-display text-[19px] font-semibold lg:text-[21px]">{p.title}</span>
-                            <span className="text-[11px] uppercase tracking-[0.12em] text-pine">This one</span>
-                            <FieldLeader />
-                            <span className="text-[15px] font-semibold">{price}</span>
-                          </li>
-                        );
-                      }
+                      if (here) return null;
                       return (
                         <li key={p.slug}>
                           <Link href={`/shop/${p.slug}`} className="flex min-h-12 items-center gap-2 border-b border-rule">
@@ -252,18 +252,12 @@ export default async function ProductPage({
               {/* How you'll get it: true fees from fulfillment.ts */}
               <dl className="m-0 mt-7 border-t border-ink lg:mt-10">
                 <div className="grid grid-cols-[84px_1fr] gap-x-3 border-b border-rule py-3 lg:grid-cols-[104px_1fr]">
-                  <dt className={DT}>Pickup</dt>
-                  <dd className={DD}>
-                    {PICKUP_LOCATION.address.replace(", OR 97011", "")}. {PICKUP_HOURS}, ready the day after you order.
-                  </dd>
-                </div>
-                <div className="grid grid-cols-[84px_1fr] gap-x-3 border-b border-rule py-3 lg:grid-cols-[104px_1fr]">
                   <dt className={DT}>Delivery</dt>
                   <dd className={DD}>{deliveryNote}</dd>
                 </div>
                 <div className="grid grid-cols-[84px_1fr] gap-x-3 border-b border-rule py-3 lg:grid-cols-[104px_1fr]">
                   <dt className={DT}>Shipping</dt>
-                  <dd className={DD}>We don&apos;t ship{isApparel ? ", apparel included" : ""}.</dd>
+                  <dd className={DD}>We don&apos;t ship.{isApparel ? " Pickup or local delivery." : ""}</dd>
                 </div>
                 {isMeat && (
                   <div className="grid grid-cols-[84px_1fr] gap-x-3 border-b border-rule py-3 lg:grid-cols-[104px_1fr]">
@@ -278,6 +272,27 @@ export default async function ProductPage({
                   and no band repeats the H1 (r4). */}
               {!isBeef && product.description && (
                 <p className="m-0 mt-5 max-w-prose text-[15px] leading-[1.6] text-ink-body">{product.description}</p>
+              )}
+              {/* One more true detail from data.ts (sizes and the one price), then the other colorway's real photo. */}
+              {isApparel && product.detail && (
+                <p className="m-0 mt-2 max-w-prose text-[15px] leading-[1.6] text-ink-body">
+                  {product.detail}.
+                </p>
+              )}
+              {isApparel && otherColor && (
+                <Plate
+                  className="mt-5"
+                  frameClassName="aspect-[4/3]"
+                  caption={`Also in ${otherColor.subtitle?.toLowerCase()}.`}
+                >
+                  <Image
+                    src={otherColor.image}
+                    alt={`Wearing the Dream hoodie in ${otherColor.subtitle?.toLowerCase()}, outdoors among trees`}
+                    fill
+                    sizes="(min-width: 1024px) 520px, calc(100vw - 54px)"
+                    className="object-cover object-[50%_55%]"
+                  />
+                </Plate>
               )}
             </div>
           </div>
@@ -337,7 +352,7 @@ export default async function ProductPage({
 
       {/* 3. Add to the same order */}
       {extra.length > 0 && (
-        <section className="px-5 py-12 lg:px-16 lg:py-20">
+        <section className={cn("px-5 pb-12 lg:px-16 lg:py-20", isBeef ? "pt-12" : "pt-6")}>
           <div className="mx-auto max-w-[1312px]">
             <h2 className="field-heading m-0 border-b border-ink pb-2 font-display text-[26px] leading-none lg:text-[36px]">
               Add to the same order
@@ -352,7 +367,7 @@ export default async function ProductPage({
                         <Image src={p.image} alt="" fill sizes="(min-width: 1024px) 380px, 30vw" className="object-cover" />
                       </div>
                     </div>
-                    <p className="m-0 mt-2 font-display text-[16px] font-medium leading-[1.15] lg:text-[22px]">{p.title}</p>
+                    <p className="m-0 mt-2 min-h-[2.3em] font-display text-[16px] font-medium leading-[1.15] lg:min-h-0 lg:text-[22px]">{p.title}</p>
                   </Link>
                   <QuickAdd product={p} stock={record} display="price" className="mt-1.5 w-full justify-center lg:w-auto" />
                 </li>

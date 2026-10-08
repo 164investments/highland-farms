@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents } from "@/lib/shop/money";
+import { PICKUP_HOURS, PICKUP_READY } from "@/lib/shop/fulfillment";
 import { QtyStepper } from "@/components/shop/QtyStepper";
 import { WaitlistForm } from "@/components/shop/WaitlistForm";
 import { pushEvent, scarcityLabel } from "@/components/shop/track";
@@ -19,7 +20,7 @@ export interface VariantView {
   stock: number | null;
 }
 
-/** The same item in another colour: a link to its own page. */
+/** The same item in another color: a link to its own page. */
 export interface ColorOption {
   slug: string;
   /** "Coyote brown", "Olive". */
@@ -48,10 +49,10 @@ function sizeChip(label: string): { text: string; name: string } {
 }
 
 /**
- * The buy box: price, pack, live stock, colour (items that come in more than
+ * The buy box: price, pack, live stock, color (items that come in more than
  * one), size chips (apparel), quantity and Add to cart, the pickup line, and
- * the one bottom bar on phones. Colour comes before size, so the choices run
- * colour, size, then the button (r4).
+ * the one bottom bar on phones. Color comes before size, so the choices run
+ * color, size, then the button (r4).
  *
  * Apparel (`optionName === "Size"`) has no default size: the button reads
  * "Choose a size" until one is picked. A sold-out size stays selectable so the
@@ -75,10 +76,10 @@ export function AddToCart({
   variants: VariantView[];
   /** "1 lb pack": shown beside the price. */
   pack?: string;
-  /** Every colour of this item, this page's included; shown when there are two or more. */
+  /** Every color of this item, this page's included; shown when there are two or more. */
   colors?: ColorOption[];
 }) {
-  const { add, count, subtotalCents, ready } = useCart();
+  const { add, count, ready } = useCart();
   const needsPick = optionName === "Size" && variants.length > 1;
   const firstAvailable = variants.find((v) => v.stock !== 0) ?? variants[0];
   const [selectedId, setSelectedId] = useState<string | null>(needsPick ? null : firstAvailable.id);
@@ -93,6 +94,8 @@ export function AddToCart({
   const max = selected?.stock && selected.stock > 0 ? Math.min(99, selected.stock) : 99;
   const scarcity = selected ? scarcityLabel(selected.stock) : null;
   const multi = variants.length > 1;
+  // Six sizes: two even rows of three at 320, one row of six from 380.
+  const evenGrid = optionName === "Size" && variants.length === 6;
   // "from" only when the options differ in price (sized apparel doesn't).
   const priceVaries = new Set(variants.map((v) => v.priceCents)).size > 1;
 
@@ -152,8 +155,20 @@ export function AddToCart({
       : `Add to cart · ${total}`;
   const disabled = allOut || selectedOut;
   const cartHasItems = ready && count > 0;
+  // At 320 the stepper leaves ~145px for the button: it tightens (14px, 8px padding) and the
+  // "Choose a size" label drops "a", so nothing wraps. "Add to cart" is the same words at every width. The accessible name is the visible text at each width.
+  const buttonText = allOut || selectedOut ? (
+    "Sold out"
+  ) : !selected ? (
+    <span>
+      Choose <span className="max-[379px]:hidden">a </span>
+      {(optionName ?? "size").toLowerCase()} · {total}
+    </span>
+  ) : (
+    `Add to cart · ${total}`
+  );
   const buttonClass = cn(
-    "inline-flex h-[52px] flex-1 items-center justify-center gap-2.5 px-5 text-[15px] font-semibold tracking-[0.02em] transition-colors",
+    "inline-flex h-[52px] min-w-0 flex-1 items-center justify-center gap-2.5 whitespace-nowrap px-3 text-[15px] max-[379px]:px-2 max-[379px]:text-[14px] min-[380px]:px-5 font-semibold tracking-[0.02em] transition-colors",
     disabled ? "cursor-not-allowed bg-paper-shade text-ink-note" : "bg-pine text-paper-light hover:bg-pine-dark",
   );
 
@@ -179,7 +194,7 @@ export function AddToCart({
 
       {colors.length > 1 && (
         <div className="mt-4 lg:mt-6">
-          <p className="m-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">Colour</p>
+          <p className="m-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">Color</p>
           <ul className="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
             {colors.map((c) => (
               <li key={c.slug}>
@@ -202,12 +217,13 @@ export function AddToCart({
         </div>
       )}
 
+      <div id="choose-and-add">
       {multi && (
         <fieldset className="m-0 mt-4 border-0 p-0 lg:mt-6">
           <legend className="p-0 text-[11px] font-medium uppercase tracking-[0.16em] text-ink-meta">
             {optionName ?? "Choose"}
           </legend>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className={cn("mt-2 gap-2", evenGrid ? "grid grid-cols-3 min-[380px]:grid-cols-6" : "flex flex-wrap")}>
             {variants.map((v) => {
               const out = v.stock === 0;
               const on = v.id === selectedId;
@@ -225,6 +241,7 @@ export function AddToCart({
                   }}
                   className={cn(
                     "flex h-12 min-w-12 items-center justify-center border px-3 text-[15px] font-medium",
+                    evenGrid && "min-w-0 px-1",
                     on ? "border-pine bg-pine text-paper-light" : "border-frame bg-paper-light text-ink hover:border-pine",
                     out && !on && "text-ink-note line-through",
                     out && on && "line-through",
@@ -248,7 +265,9 @@ export function AddToCart({
               className={buttonClass}
               aria-live="polite"
             >
-              Added · View cart ({count})
+              <span>
+                <span className="max-[379px]:hidden">Added · </span>View cart ({count})
+              </span>
             </Link>
           ) : (
             <button
@@ -259,11 +278,12 @@ export function AddToCart({
               disabled={disabled}
               className={buttonClass}
             >
-              {addLabel}
+              {buttonText}
             </button>
           )}
         </div>
       )}
+      </div>
 
       {selectedOut && !allOut && selected && (
         <WaitlistForm key={selected.id} variantIds={[selected.id]} name={selected.label ?? productTitle} className="mt-3" />
@@ -273,16 +293,17 @@ export function AddToCart({
       )}
 
       <p className="m-0 mt-2.5 text-[13px] leading-[1.45] text-ink-note">
-        Free pickup at the farm in Brightwood. We call you when it&apos;s packed.
+        Free pickup at the farm in Brightwood, {PICKUP_HOURS} {PICKUP_READY}. We call you when it&apos;s packed.
       </p>
 
       {/* The one bottom action on phones: add once the buy button scrolls away, view cart once the cart has items. */}
       <FieldStickyBar
         enabled={!allOut}
+        hideWhenVisible="#choose-and-add"
         primary={
-          cartHasItems
+          cartHasItems || added
             ? {
-                label: `View cart · ${count} ${count === 1 ? "item" : "items"} · ${formatCents(subtotalCents)}`,
+                label: `View cart (${count})`,
                 href: "/shop/cart",
               }
             : !selected || disabled

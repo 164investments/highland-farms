@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { StructuredData } from "@/components/layout/StructuredData";
@@ -7,7 +8,9 @@ import { FieldStickyBar } from "@/components/field/StickyBar";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import {
   FieldArrow,
+  FieldDrawing,
   PendingSlot,
+  Plate,
   fieldCtaClass,
 } from "@/components/ui/FieldGuide";
 import { cn } from "@/lib/utils";
@@ -20,7 +23,8 @@ import {
   weddingPortfolio,
   type WeddingCouple,
 } from "@/data/wedding-portfolio";
-import { CASEY_CARD_QUOTE, MAYA_CARD_QUOTE, PORTFOLIO_KATE_QUOTE, PORTFOLIO_PLAN_QUOTE } from "./quotes";
+import { CASEY_CARD_QUOTE, MAYA_CARD_QUOTE, PORTFOLIO_PLAN_QUOTE } from "./quotes";
+import { LookbookCard } from "@/app/weddings/LookbookLink";
 import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
 
 export const metadata: Metadata = {
@@ -50,7 +54,6 @@ const storyLinkClass = "font-sans text-[15px] font-medium text-pine";
 /** Pending one-line couple quotes (PF-01): shown only in development until Connor confirms who wrote them. */
 const CARD_QUOTES: Record<string, { id: string; spec: typeof MAYA_CARD_QUOTE }> = {
   "maya-justin": { id: "PF-01-maya", spec: MAYA_CARD_QUOTE },
-  "olivia-connor": { id: "PF-01-olivia", spec: WEDDING_QUOTE },
   "sydney-casey": { id: "PF-01-casey", spec: CASEY_CARD_QUOTE },
 };
 
@@ -140,8 +143,8 @@ function JournalEntry({ couple, index }: { couple: WeddingCouple; index: number 
             flip ? "lg:order-1" : "lg:order-2",
           )}
         >
-          <div className="col-span-2">
-            {/* The first couple's lead is 2:1 on phones so the herd stays above the 660 fold and the sticky bar. */}
+          <div className={cn("col-span-2", index === 0 && "max-lg:hidden")}>
+            {/* The first couple's lead is the title page's plate on phones (header), so it shows here from lg only. */}
             {photo(
               lead,
               index === 0 ? "aspect-[2/1] lg:aspect-[3/2]" : "aspect-[16/9] lg:aspect-[3/2]",
@@ -159,38 +162,90 @@ function JournalEntry({ couple, index }: { couple: WeddingCouple; index: number 
 }
 
 export default function WeddingPortfolioPage() {
+  const opening = confirmedCouples[0];
+  // The opening plate is the couple's own lead frame; its caption and alt come from the couple's page data.
+  const openingFrame = opening?.plates.find((p) => p.src === opening.journal[0].src);
+  const openingCaption = openingFrame?.caption;
+  const openingAlt = opening?.images.find((p) => p.src === opening.journal[0].src)?.alt ?? "";
   const styled = weddingPortfolio.filter((c) => !isConfirmed(c));
   return (
     <>
       <StructuredData pathname="/wedding-portfolio" />
       <div className="surface-paper bg-paper font-sans text-ink">
-        {/* Title: promise, count and the compact review tier, then straight into the first couple's photo */}
-        <header className="mx-auto max-w-[1440px] px-5 pb-4 pt-[calc(var(--header-h,104px)+0.75rem)] lg:grid lg:grid-cols-12 lg:items-end lg:gap-x-16 lg:px-16 lg:pb-12 lg:pt-[calc(var(--header-h,128px)+3.5rem)]">
+        {/* Title (board B8, journal B): on phones a centred title page, the drawn coo, the count as the eyebrow,
+            the H1 and the whole Riley & Jordan plate; the sticky bar (two-night line) is the one button and the one price.
+            Stars and the Olivia Brown quote land after the first couple. Desktop keeps the two-column title. */}
+        <header className="mx-auto max-w-[1440px] px-5 pb-4 pt-[calc(var(--header-h,104px)+0.75rem)] max-lg:text-center lg:grid lg:grid-cols-12 lg:items-end lg:gap-x-16 lg:px-16 lg:pb-12 lg:pt-[calc(var(--header-h,128px)+3.5rem)]">
           <div className="lg:col-span-7">
-            <p className={cn(eyebrowClass, "text-[17px] lg:text-[22px]")}>A journal of real weddings</p>
+            <FieldDrawing
+              name="highland-cow-head"
+              eager
+              className="mx-auto h-9 w-9 min-[380px]:h-[46px] min-[380px]:w-[46px] lg:hidden"
+              sizes="46px"
+            />
+            <p className={cn(eyebrowClass, "mt-1 text-[16px] min-[380px]:text-[17px] lg:hidden")}>Four of our 2025 couples</p>
+            <p className={cn(eyebrowClass, "hidden text-[22px] lg:block")}>A journal of real weddings</p>
             <h1 className="field-heading mt-0.5 font-display text-[32px] leading-[1.0] text-ink max-[380px]:text-[29px] lg:mt-2 lg:text-[68px]">
               Married at Highland Farms
             </h1>
-            <p className="mt-2 max-w-[36rem] font-sans text-[15px] leading-[1.5] text-ink-body lg:mt-5 lg:text-[18px]">
+            <p className="mt-5 hidden max-w-[36rem] font-sans text-[18px] leading-[1.5] text-ink-body lg:block">
               Four of our 2025 couples, in photographs from their own wedding days.
             </p>
-            <FieldReviewTier tier="hero" className="mt-2 text-[13px] lg:mt-4 lg:text-[15px]" starSize={13} />
+            <FieldReviewTier tier="hero" className="mt-4 hidden text-[15px] lg:flex" starSize={13} />
           </div>
-          {/* The phone's proof line (r4): one short sentence from the photographer of Maya & Justin. */}
+          {opening && (
+            <Link href={`/wedding-portfolio/${opening.slug}`} className="mt-3 block lg:hidden">
+              <Plate
+                frameClassName="aspect-[3/2] min-[380px]:aspect-[4/3] p-[6px]"
+                caption={openingCaption}
+                captionClassName="text-[14px] min-[380px]:text-[15px]"
+              >
+                <Image
+                  src={opening.journal[0].src}
+                  alt={openingAlt}
+                  fill
+                  priority
+                  sizes="calc(100vw - 54px)"
+                  className="object-cover"
+                  style={{ objectPosition: "50% 75%" }}
+                />
+              </Plate>
+            </Link>
+          )}
           <FieldReview
-            spec={PORTFOLIO_KATE_QUOTE}
+            spec={WEDDING_QUOTE}
             fullName
             role="Wedding"
-            className="mt-2 lg:col-span-5 lg:mt-0 lg:border-l lg:border-rule lg:pl-10"
-            quoteClassName="text-[19px] leading-[1.25] lg:text-[30px] lg:leading-[1.2]"
-            metaClassName="mt-1 tracking-[0.06em] lg:mt-2 lg:tracking-[0.08em]"
+            className="hidden lg:col-span-5 lg:block lg:border-l lg:border-rule lg:pl-10"
+            quoteClassName="lg:text-[30px] lg:leading-[1.2]"
+            metaClassName="lg:mt-2 lg:tracking-[0.08em]"
           />
         </header>
 
         {/* Entries: one template, newest first after the opening couple */}
         <ol className="m-0 list-none p-0">
           {confirmedCouples.map((couple, i) => (
-            <JournalEntry key={couple.slug} couple={couple} index={i} />
+            <Fragment key={couple.slug}>
+              <JournalEntry couple={couple} index={i} />
+              {i === 0 && (
+                <li aria-label="What guests say" className="border-t border-rule px-5 py-6 lg:hidden">
+                  <FieldReviewTier tier="hero" className="justify-center text-[13px]" starSize={13} />
+                  <FieldReview
+                    spec={WEDDING_QUOTE}
+                    fullName
+                    role="Wedding"
+                    className="mt-3"
+                    quoteClassName="text-[19px] leading-[1.25]"
+                    metaClassName="mt-1 tracking-[0.06em]"
+                  />
+                </li>
+              )}
+              {i === 1 && (
+                <li aria-label="The 2027 look book" className="border-t border-rule px-5 py-4 lg:px-16">
+                  <LookbookCard placement="portfolio-couples" className="mx-auto max-w-[460px] lg:mx-0" />
+                </li>
+              )}
+            </Fragment>
           ))}
         </ol>
 
@@ -224,11 +279,6 @@ export default function WeddingPortfolioPage() {
               >
                 Or book a free 45-minute call with Connor
               </WeddingCallLink>
-              <FieldReviewTier
-                tier="nearCta"
-                className="mt-2 justify-center text-[13px] lg:justify-start"
-                starSize={13}
-              />
             </div>
           </div>
         </section>
@@ -290,7 +340,7 @@ export default function WeddingPortfolioPage() {
       </div>
 
       {/* No first-screen button on this page, so the bar shows from load. */}
-      <FieldStickyBar primary={{ label: "Check your date", href: "/weddings#contact" }} hideWhenVisible="#plan" showOnLoad />
+      <FieldStickyBar primary={{ label: "Check your date", sublabel: "Two-night weddings from $13,000", href: "/weddings#contact" }} hideWhenVisible="#plan" showOnLoad />
     </>
   );
 }

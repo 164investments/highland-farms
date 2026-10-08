@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { FieldReview } from "@/components/field/Reviews";
+import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import { JsonLd, faqPageJsonLd } from "@/components/field/Faq";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import {
@@ -12,26 +13,25 @@ import {
   PendingSlot,
   Plate,
   fieldLabelClass,
-  FieldStars,
 } from "@/components/ui/FieldGuide";
-import { REVIEWS } from "@/lib/reviews";
 import { cn } from "@/lib/utils";
 import { formatWeddingDate, weddingPortfolio } from "@/data/wedding-portfolio";
 import { WEDDING_FORM_INTRO } from "@/components/home/home-data";
 import { WeddingsHero } from "./WeddingsHero";
+import { LookbookCard } from "./LookbookLink";
 import {
+  ALCOHOL_INSURANCE_ANSWER,
   COST_ANSWER,
   GETTING_HERE_ANSWER,
   RAIN_CLOSE,
   RAIN_LEAD,
   RESTROOMS_ANSWER,
-  VENDORS_ANSWER,
+  VENDORS_PENDING,
   weddingFAQ,
 } from "./faq";
 import {
   WEDDINGS_CALL_QUOTE,
   WEDDINGS_CONNOR_QUOTE,
-  WEDDINGS_COOS_QUOTE,
   WEDDINGS_FOREST_QUOTE,
   WEDDINGS_RAIN_QUOTE,
   WEDDINGS_SPA_QUOTE,
@@ -59,9 +59,6 @@ export const metadata: Metadata = {
     ],
   },
 };
-
-/** Reviews that name Connor (also spelled Conner or Conor), read from the snapshot. */
-const CONNOR_REVIEW_COUNT = REVIEWS.filter((r) => /conner|connor|conor/i.test(r.text)).length;
 
 const sectionLabel = fieldLabelClass;
 const h2Class = "field-heading font-display text-[36px] leading-[1.02] text-ink lg:text-[56px]";
@@ -145,7 +142,7 @@ export default function WeddingsPage() {
             </h2>
             <p className={cn(bodyLarge, "mt-4 max-w-[34rem] lg:mt-6")}>
               Our Scottish Highland coos are your honorary wedding guests. They stand for portraits at the
-              pasture fence, and your guests get to meet them too.
+              pasture fence.
             </p>
           </div>
           <div className="mt-7 lg:col-span-7 lg:mt-0">
@@ -234,7 +231,7 @@ export default function WeddingsPage() {
               Your wedding is a weekend, not a day.
             </h2>
             <p className={cn(bodyLarge, "mt-4 lg:mt-6")}>
-              Make a weekend of it, with your closest people staying on the farm.
+              One way to plan it.
             </p>
           </div>
           <ol className="m-0 mt-8 grid list-none gap-8 p-0 lg:mt-14 lg:grid-cols-3 lg:gap-12">
@@ -390,7 +387,7 @@ export default function WeddingsPage() {
         </div>
       </section>
 
-      {/* No. 4 Connor (the call is offered twice on this page: hero and form) */}
+      {/* No. 4 Connor */}
       <section aria-labelledby="connor-title" className="surface-paper border-t border-rule bg-paper text-ink">
         <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:py-24">
           <Plate
@@ -413,10 +410,9 @@ export default function WeddingsPage() {
               Your first call is with Connor.
             </h2>
             <p className={cn(bodyLarge, "mt-4 lg:mt-6")}>
-              Connor McWilliams owns the farm. He grew up on a ranch in Salinas, California, worked as a
-              general contractor, and turned an overgrown forest property in Brightwood into Highland Farms.
-              The call is free and runs 45 minutes, on video or walking the farm, and covers your date, your
-              people and how a weekend here works.
+              Connor McWilliams owns the farm. He turned an overgrown forest property in Brightwood into
+              Highland Farms. The call is free and runs 45 minutes, on Google Meet or in person at the farm, and covers
+              your date, your people and how a weekend here works.
             </p>
             <PendingSlot
               className="mt-3"
@@ -424,10 +420,6 @@ export default function WeddingsPage() {
             >
               <p className={bodyLarge}>He is on the farm for every wedding.</p>
             </PendingSlot>
-            <p className="mt-4 flex items-center gap-2.5 font-sans text-[14px] text-ink-note lg:text-[15px]">
-              <FieldStars size={14} />
-              <span>Guests name Connor in {CONNOR_REVIEW_COUNT} Google reviews.</span>
-            </p>
             <div className="mt-6 border-t border-rule pt-6">
               <FieldReview
                 spec={WEDDINGS_CONNOR_QUOTE}
@@ -435,13 +427,14 @@ export default function WeddingsPage() {
                 quoteClassName="text-[20px] leading-[1.28] lg:text-[22px]"
               />
             </div>
-            <div className="mt-6 border-t border-rule pt-6">
-              <FieldReview
-                spec={WEDDINGS_COOS_QUOTE}
-                role="Wedding"
-                quoteClassName="text-[20px] leading-[1.28] lg:text-[22px]"
-              />
-            </div>
+            <WeddingCallLink
+              content="weddings-connor"
+              title="Weddings Connor block: wedding call"
+              className="mt-5 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine hover:text-pine-dark"
+            >
+              Book a free 45-minute call with Connor
+              <FieldArrow size={16} />
+            </WeddingCallLink>
           </div>
         </div>
       </section>
@@ -465,76 +458,84 @@ export default function WeddingsPage() {
             </Link>
           </div>
           <div className="mt-7 grid grid-cols-2 gap-x-3 gap-y-6 lg:mt-12 lg:grid-cols-3 lg:gap-x-8">
-            <Link href="/wedding-portfolio/maya-justin" className="group col-span-2 block lg:col-span-1">
-              <Plate frameClassName="aspect-[4/3] p-[7px] lg:aspect-[4/5] lg:p-2.5">
-                <Image
-                  src="/images/weddings/maya-justin/02.jpg"
-                  alt="Maya and Justin's wedding invitation, topped with a painted Highland cow in a flower crown, among pearl shoes and a bolo tie"
-                  fill
-                  sizes="(min-width: 1024px) 30vw, calc(100vw - 40px)"
-                  className="object-cover object-[50%_35%]"
-                />
-              </Plate>
-              <p className="mt-1">
-                <span className="flex items-center gap-1.5 font-display text-[22px] font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]">
-                  Maya &amp; Justin
-                  <FieldArrow size={15} strokeWidth={1.8} className="shrink-0 text-pine" />
-                </span>
-                <span className="mt-0.5 block font-sans text-[13px] text-ink-note">
-                  {formatWeddingDate(teaser.maya.date!)} &middot; a coo on the invitation
-                </span>
-              </p>
-            </Link>
             {[
               {
                 couple: teaser.olivia,
                 src: "/images/weddings/olivia-connor/06.jpg",
                 alt: "Olivia and Connor kiss on the flagstone after their ceremony",
                 position: "50% 40%",
+                lead: true,
+                note: undefined as string | undefined,
+              },
+              {
+                couple: teaser.maya,
+                src: "/images/weddings/maya-justin/02.jpg",
+                alt: "Maya and Justin's wedding invitation, topped with a painted Highland cow in a flower crown, among pearl shoes and a bolo tie",
+                position: "50% 35%",
+                lead: false,
+                note: "a coo on the invitation",
               },
               {
                 couple: teaser.sydney,
                 src: "/images/weddings/sydney-casey/03.jpg",
                 alt: "Sydney and Casey with their whole wedding party, arms raised, in front of a dark-timbered building",
                 position: "52% 55%",
+                lead: false,
+                note: undefined as string | undefined,
               },
-            ].map(({ couple, src, alt, position }) => (
-              <Link key={couple.slug} href={`/wedding-portfolio/${couple.slug}`} className="group block">
-                <Plate frameClassName="aspect-[4/5] p-[7px] lg:p-2.5">
+            ].map(({ couple, src, alt, position, lead, note }) => (
+              <Link
+                key={couple.slug}
+                href={`/wedding-portfolio/${couple.slug}`}
+                className={cn("group block", lead && "col-span-2 lg:col-span-1")}
+              >
+                <Plate
+                  frameClassName={cn(
+                    lead ? "aspect-[4/3] lg:aspect-[4/5]" : "aspect-[4/5]",
+                    "p-[7px] lg:p-2.5",
+                  )}
+                >
                   <Image
                     src={src}
                     alt={alt}
                     fill
-                    sizes="(min-width: 1024px) 30vw, 46vw"
+                    sizes={lead ? "(min-width: 1024px) 30vw, calc(100vw - 40px)" : "(min-width: 1024px) 30vw, 46vw"}
                     className="object-cover"
                     style={{ objectPosition: position }}
                   />
                 </Plate>
                 <p className="mt-1">
-                  <span className="flex items-center gap-1.5 font-display text-[20px] font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]">
+                  <span
+                    className={cn(
+                      "flex items-center gap-1.5 font-display font-semibold leading-tight text-ink group-hover:text-pine lg:text-[26px]",
+                      lead ? "text-[22px]" : "text-[20px]",
+                    )}
+                  >
                     {couple.names}
                     <FieldArrow size={15} strokeWidth={1.8} className="shrink-0 text-pine" />
                   </span>
                   <span className="mt-0.5 block font-sans text-[13px] text-ink-note">
                     {formatWeddingDate(couple.date!)}
+                    {note && <> &middot; {note}</>}
                   </span>
                 </p>
               </Link>
             ))}
           </div>
-          <div className="mt-7 border-t border-rule pt-3 lg:hidden">
+          <div className="mt-7 border-t border-rule pt-3 lg:mt-8 lg:border-t-0 lg:pt-0">
             <Link
               href="/wedding-portfolio"
-              className="inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine"
+              className="inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine lg:hidden"
             >
               <span className="border-b border-pine-line pb-0.5">See every real wedding</span>
               <FieldArrow size={16} />
             </Link>
+            <LookbookCard placement="weddings-couples" className="mt-2 lg:mt-0 lg:max-w-[460px]" />
           </div>
         </div>
       </section>
 
-      {/* FAQ: the real anxieties; only rain starts open (CONSISTENCY #10: at most one) */}
+      {/* FAQ: the real anxieties; only the cost answer starts open (CONSISTENCY #10: at most one) */}
       <section aria-labelledby="faq-title" className="surface-paper border-t border-rule bg-paper text-ink">
         <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:px-16 lg:py-24">
           <div className="lg:col-span-4">
@@ -545,6 +546,9 @@ export default function WeddingsPage() {
           </div>
           <div className="mt-6 border-t border-rule lg:col-span-8 lg:mt-0">
             <FaqRow question={weddingFAQ[0].question} open>
+              <p>{COST_ANSWER}</p>
+            </FaqRow>
+            <FaqRow question={weddingFAQ[1].question}>
               <p>{RAIN_LEAD}</p>
               <FieldReview
                 spec={WEDDINGS_RAIN_QUOTE}
@@ -555,11 +559,13 @@ export default function WeddingsPage() {
               />
               <p className="mt-4">{RAIN_CLOSE}</p>
             </FaqRow>
-            <FaqRow question={weddingFAQ[1].question}>
-              <p>{COST_ANSWER}</p>
-            </FaqRow>
+            <PendingSlot note="PENDING CONNOR C5: outside caterers and photographers? Hides the vendors row; the confirmed alcohol and insurance rules show in their own row.">
+              <FaqRow question="Can we bring our own vendors?">
+                <p>{VENDORS_PENDING}</p>
+              </FaqRow>
+            </PendingSlot>
             <FaqRow question={weddingFAQ[2].question}>
-              <p>{VENDORS_ANSWER}</p>
+              <p>{ALCOHOL_INSURANCE_ANSWER}</p>
             </FaqRow>
             <FaqRow question={weddingFAQ[3].question}>
               <p>{RESTROOMS_ANSWER}</p>
@@ -590,6 +596,9 @@ export default function WeddingsPage() {
               Check your date
             </h2>
             <p className={cn(bodyLarge, "mt-3 lg:mt-6")}>{WEDDING_FORM_INTRO}</p>
+            <p className="m-0 mt-3 font-sans text-[14px] font-medium leading-snug text-ink-body lg:text-[16px]">
+              Every September 2026 Saturday sold out.
+            </p>
             {/* Desktop: the proof for the call link (Connor himself is introduced at No. 4), then the table. */}
             <div className="mt-10 hidden border-t border-rule pt-8 lg:block">
               <FieldReview
@@ -614,9 +623,8 @@ export default function WeddingsPage() {
           </div>
 
           <div className="mt-7 lg:col-span-7 lg:mt-0">
-            <div className="lg:border lg:border-frame lg:bg-paper lg:p-10">
-              <ContactForm defaultEventType="wedding" heading="" subtitle="" placement="weddings" />
-            </div>
+            {/* The form draws its own framed card (forms board C). */}
+            <ContactForm defaultEventType="wedding" heading="" subtitle="" placement="weddings" />
             {/* Phones: the fear of the call, answered right under the form's call link. */}
             <FieldReview
               spec={WEDDINGS_CALL_QUOTE}
@@ -628,7 +636,7 @@ export default function WeddingsPage() {
         </div>
       </section>
 
-      <FieldStickyBar primary={{ label: "Check your date", href: "#contact" }} hideWhenVisible="#contact" />
+      <FieldStickyBar primary={{ label: "Check your date", sublabel: "Two-night weddings from $13,000", href: "#contact" }} hideWhenVisible="#contact" />
     </>
   );
 }

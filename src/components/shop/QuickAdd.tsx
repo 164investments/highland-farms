@@ -68,7 +68,7 @@ export function QuickAdd({
         type="button"
         onClick={handle}
         aria-label={`Add to cart: ${product.title}, ${price}`}
-        className={cn("flex h-11 shrink-0 items-center gap-1.5 border border-pine px-3 text-[13px] font-semibold text-pine hover:bg-paper-shade lg:px-4", className)}
+        className={cn("flex h-11 w-[92px] shrink-0 items-center justify-center gap-1.5 border border-pine px-2 text-[13px] font-semibold text-pine hover:bg-paper-shade", className)}
       >
         <PlusIcon size={13} />
         {price}

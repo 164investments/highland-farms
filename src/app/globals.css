@@ -106,12 +106,38 @@ body:has([data-masthead="contact"]) [data-footer-part="talk"] {
   display: none;
 }
 
-/* Checkout: the slim footer instead of the full one. */
-body:has([data-masthead="checkout"]) [data-site-footer] {
+/* Checkout, the cart, order pages and FooterQuiet pages: the slim footer instead of the full one. */
+body:has([data-masthead="checkout"], [data-masthead="cart"], [data-masthead="order"], [data-footer-quiet]) [data-site-footer] {
   display: none;
 }
-body:has([data-masthead="checkout"]) [data-footer-slim] {
+body:has([data-masthead="checkout"], [data-masthead="cart"], [data-masthead="order"], [data-footer-quiet]) [data-footer-slim] {
   display: block;
+}
+body:has([data-footer-quiet="bare"]) [data-footer-slim-help] {
+  display: none;
+}
+
+/* The footer by page type (mobile review r1, r2): the wedding pages (weddings, the journal and couple
+   pages, about), celebrations and contact, which carry their own wedding band or card, drop the footer's plate and Weddings
+   group; home and the shop keep the plate and Weddings group but drop the visit rows (home's visit index and
+   the shop's gift card sit just above); visit, stay, celebration, gift and Thanksgiving pages lead with Visit
+   the farm on phones. */
+body:has([data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead="about"], [data-masthead="celebrations"], [data-masthead="contact"]) [data-footer-weddings] {
+  display: none;
+}
+body:has([data-masthead="home"], [data-masthead="shop"]) [data-footer-visit-rows] {
+  display: none;
+}
+/* Home already sells weddings above, so its footer drops the plate and the Weddings group too (r4: four critics read
+   it as the offer a third time) and ends on the short links, contact and legal. */
+body:has([data-masthead="home"]) [data-footer-weddings] {
+  display: none;
+}
+@media (max-width: 1023px) {
+  body:has([data-masthead="tours"], [data-masthead="spa"], [data-masthead="sauna"], [data-masthead="stays"], [data-masthead="stay"], [data-masthead="thanksgiving"], [data-masthead="gifts"], [data-masthead="celebrations"]) [data-footer-visit] {
+    order: -1;
+    margin-top: 0;
+  }
 }
 
 /* Seasonal chrome (chrome.ts SEASON_SCRIPT sets html[data-season]). */
@@ -298,12 +324,20 @@ html {
   action fades (CONSISTENCY #9) and the chat launcher rises above the bar.
   Bar height: --sticky-bar-h (:root).
 */
+/* Under 375px the bar is compact (8px + 48px button + max(10px, inset)), still two lines (mobile review r2). */
+@media (max-width: 374.98px) {
+  :root {
+    --sticky-bar-h: calc(57px + max(10px, env(safe-area-inset-bottom)));
+  }
+}
+
 @media (max-width: 1023.98px) {
   html[data-sticky] {
     scroll-padding-bottom: calc(var(--sticky-bar-h) + 8px);
   }
 
-  html[data-sticky] [data-site-footer]::after {
+  html[data-sticky] [data-site-footer]::after,
+  html[data-sticky] [data-footer-slim]::after {
     content: "";
     display: block;
     height: var(--sticky-bar-h);

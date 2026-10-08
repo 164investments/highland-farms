@@ -37,8 +37,7 @@ export function ThanksgivingHero() {
 
         <p className="m-0 mt-2.5 font-sans text-[14px] leading-[1.5] text-ink-body lg:col-start-1 lg:row-start-4 lg:mt-5 lg:max-w-[600px] lg:text-[17px] lg:leading-[1.6]">
           This year, the host is a guest too. Our in-house chef cooks your family&apos;s Thanksgiving
-          dinner, nobody is stuck with the dishes, and you get four nights together on a private forest
-          farm with Scottish Highland cows.
+          dinner, and nobody is stuck with the dishes.
         </p>
 
         <p className="m-0 mt-3 font-sans text-[12px] text-ink-note lg:col-start-1 lg:row-start-5 lg:mt-3 lg:text-[13px] lg:uppercase lg:tracking-[0.1em] max-lg:order-last">
@@ -46,11 +45,7 @@ export function ThanksgivingHero() {
         </p>
 
         <p className="m-0 mt-3.5 font-sans text-[15px] leading-[1.45] lg:col-start-1 lg:row-start-6 lg:mt-6 lg:text-[17px]">
-          <span className="font-semibold text-ink">From ${fromPrice} for four nights, plus taxes.</span>{" "}
-          <span className="text-ink-body">
-            Includes a chef-cooked Thanksgiving dinner, a farm tour, spa time, 35 family photos and your
-            itinerary.
-          </span>
+          <span className="font-semibold text-ink">From ${fromPrice} for four nights, plus taxes.</span>
         </p>
 
         <p className="m-0 mt-2 flex items-center gap-2 font-sans text-[13px] text-ink-body lg:col-start-1 lg:row-start-7 lg:mt-3 lg:text-[14px]">
@@ -63,18 +58,22 @@ export function ThanksgivingHero() {
           className="mt-4 lg:col-start-1 lg:row-start-8 lg:mt-7 lg:flex lg:flex-wrap lg:items-center lg:gap-x-7 lg:gap-y-2"
         >
           <a href={thanksgivingInquiryHref()} data-cta="tg-hero" className={cn(fieldCtaClass, "w-full lg:w-auto")}>
-            Check availability
+            <span className="min-[380px]:hidden">Check dates</span>
+            <span className="hidden min-[380px]:inline">Check Thanksgiving dates</span>
             <FieldArrow />
           </a>
           <a href="#included" className="hidden min-h-11 items-center lg:inline-flex">
             <span className={fieldTextLinkClass}>See what&apos;s included</span>
           </a>
           <p className="m-0 mt-2 font-sans text-[12px] leading-[1.5] text-ink-note lg:mt-0 lg:basis-full lg:text-[13px]">
-            Opens an email to our team. It doesn&apos;t reserve anything. Or call{" "}
-            <a href={`tel:${thanksgiving.phone.replace(/\D/g, "")}`} data-cta="tg-hero-call" className="whitespace-nowrap py-3 text-ink-body underline underline-offset-2">
-              {thanksgiving.phone}
+            Opens an email to our team. It doesn&apos;t reserve anything.
+            <a
+              href={`tel:${thanksgiving.phone.replace(/\D/g, "")}`}
+              data-cta="tg-hero-call"
+              className="flex min-h-11 items-center whitespace-nowrap text-[13px] text-ink-body underline underline-offset-2 lg:inline-flex lg:ml-2"
+            >
+              Or call {thanksgiving.phone}
             </a>
-            .
           </p>
         </div>
 
@@ -82,11 +81,11 @@ export function ThanksgivingHero() {
           className="mt-5 lg:col-start-2 lg:row-start-1 lg:row-end-10 lg:mt-0 lg:self-center"
           frameClassName="h-[140px] max-[359px]:h-[112px] sm:h-[260px] lg:aspect-[4/3] lg:h-auto"
           captionClassName="mt-px text-[14px] lg:mt-0.5 lg:text-[17px]"
-          caption="The Lodge dining room, styled for Thanksgiving."
+          caption="The Lodge dining room, with Thanksgiving styling added digitally."
         >
           <Image
             src="/images/thanksgiving/highland-farms-lodge-thanksgiving-dining.jpg"
-            alt="William Wallace Lodge dining room styled with a Thanksgiving feast, autumn flowers and candlelight"
+            alt="William Wallace Lodge dining room with a Thanksgiving feast, autumn flowers and candlelight added digitally"
             fill
             priority
             fetchPriority="high"

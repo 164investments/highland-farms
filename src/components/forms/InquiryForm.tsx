@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -25,12 +26,14 @@ import {
 } from "@/lib/inquiry-mapping";
 import {
   FieldArrow,
+  FieldDrawing,
   FieldStars,
   fieldCtaClass,
   fieldTextLinkClass,
 } from "@/components/ui/FieldGuide";
 import {
   CheckboxRow,
+  ConsentRow,
   FieldError,
   FieldLabel,
   SelectInput,
@@ -77,6 +80,8 @@ export interface InquiryFormProps {
   placement?: string;
   /** From the server wrapper (FIVE_STAR_COUNT), so the review JSON stays off the client. */
   fiveStarCount?: number;
+  /** From the server wrapper (REVIEW_COUNT): the line reads "244 of 254 reviews on Google are five stars". */
+  reviewTotal?: number;
   /**
    * Year options as the server rendered them (the server wrapper computes them
    * at build time). Hydration uses this list, so prerendered HTML and the client
@@ -155,6 +160,7 @@ export function InquiryForm({
   softPathsForAll = false,
   placement,
   fiveStarCount,
+  reviewTotal,
   yearOptions,
 }: InquiryFormProps) {
   const uid = useId();
@@ -162,10 +168,11 @@ export function InquiryForm({
   const errId = (name: string) => `${uid}-${name}-error`;
 
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const [serverError, setServerError] = useState("");
+  const [noteOpen, setNoteOpen] = useState(false);
   const [submitted, setSubmitted] = useState<Submitted | null>(null);
   const [turnstileReset, setTurnstileReset] = useState(0);
   const serverErrorRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const years = useEventYears(yearOptions);
 
   const {
@@ -173,13 +180,15 @@ export function InquiryForm({
     handleSubmit,
     setValue,
     getValues,
+    setFocus,
     control,
     formState: { errors },
   } = useForm<InquiryFormData>({
+    // Focus is ours: the built-in focus skips fields without a ref and landed on a later select.
+    shouldFocusError: false,
     resolver: zodResolver(inquirySchema),
     // Validate a field when the visitor leaves it, then live as they fix it.
     mode: "onTouched",
-    shouldFocusError: true,
     defaultValues: {
       name: "",
       email: "",
@@ -214,6 +223,11 @@ export function InquiryForm({
       setValue("consent_marketing_sms", false);
     }
   }, [hasPhone, setValue]);
+  // A note that fails validation must never stay folded away.
+  const messageInvalid = !!errors.message;
+  useEffect(() => {
+    if (messageInvalid) setNoteOpen(true);
+  }, [messageInvalid]);
   const wedding = isWeddingForm(eventType);
   const bands = guestBandsFor(eventType);
   // Preset hides the select unless the page asks to keep it (it then arrives preselected).
@@ -236,9 +250,17 @@ export function InquiryForm({
     [setValue],
   );
 
+  /** After a failed submit, focus the first invalid field in page order (the names field first). */
+  function focusFirstInvalid() {
+    requestAnimationFrame(() => {
+      const first = formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+      first?.focus();
+      first?.scrollIntoView({ block: "center" });
+    });
+  }
+
   async function onSubmit(data: InquiryFormData) {
     setStatus("submitting");
-    setServerError("");
 
     // GTM tag 146 sends the browser's generate_lead from the dataLayer push
     // below; tell the server so it doesn't send a second one.
@@ -276,27 +298,12 @@ export function InquiryForm({
       if (typeof window !== "undefined" && window.dataLayer) {
         window.dataLayer.push(buildFormSubmissionPush(data));
       }
-    } catch (err) {
+    } catch {
       // Keep every answer on screen; only the Turnstile token is spent.
       setStatus("error");
-      setServerError(err instanceof Error ? err.message : "");
       setTurnstileReset((n) => n + 1);
       requestAnimationFrame(() => serverErrorRef.current?.focus());
     }
-  }
-
-  if (status === "success" && submitted) {
-    return (
-      <InquirySuccess
-        className={className}
-        {...submitted}
-        onCallClick={
-          submitted.callHref
-            ? () => trackCallStart(submitted.callHref!, "Wedding call (inquiry success)")
-            : undefined
-        }
-      />
-    );
   }
 
   const intro =
@@ -307,116 +314,141 @@ export function InquiryForm({
 
   const submitting = status === "submitting";
   const Heading = headingLevel;
+  const telHref = `tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`;
+  const showDoor = (wedding || softPathsForAll) && showSoftPaths;
+
+  const headingBlock = heading ? (
+    <div className="mb-4">
+      <Heading className="field-heading font-display text-[32px] leading-[1.05] text-ink sm:text-[38px]">
+        {heading}
+      </Heading>
+      {intro && <p className="mt-2 font-sans text-[15px] leading-relaxed text-ink-body">{intro}</p>}
+    </div>
+  ) : null;
+
+  if (status === "success" && submitted) {
+    return (
+      <div className={className}>
+        {headingBlock}
+        <FormCard>
+          <InquirySuccess
+            {...submitted}
+            onCallClick={
+              submitted.callHref
+                ? () => trackCallStart(submitted.callHref!, "Wedding call (inquiry success)")
+                : undefined
+            }
+          />
+        </FormCard>
+      </div>
+    );
+  }
 
   return (
     <div className={className}>
-      {heading && (
-        <div className="mb-7">
-          <Heading className="field-heading font-display text-[32px] leading-[1.05] text-ink sm:text-[38px]">
-            {heading}
-          </Heading>
-          {intro && (
-            <p className="mt-2 font-sans text-[15px] leading-relaxed text-ink-body">{intro}</p>
+      {headingBlock}
+
+      <FormCard>
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit(onSubmit, focusFirstInvalid)}
+          noValidate
+          aria-busy={submitting || undefined}
+          className="flex flex-col gap-5"
+        >
+          {presetType ? (
+            <input type="hidden" {...register("event_type")} />
+          ) : (
+            <div>
+              <FieldLabel htmlFor={id("event-type")} required>
+                Event type
+              </FieldLabel>
+              <SelectInput
+                id={id("event-type")}
+                aria-required="true"
+                aria-describedby={describedBy(errors.event_type && errId("event-type"))}
+                invalid={!!errors.event_type}
+                placeholder="Choose an event type"
+                options={EVENT_TYPES}
+                {...register("event_type")}
+              />
+              <FieldError id={errId("event-type")} message={errors.event_type?.message} />
+            </div>
           )}
-        </div>
-      )}
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-        aria-busy={submitting || undefined}
-        className="flex flex-col gap-5"
-      >
-        {presetType ? (
-          <input type="hidden" {...register("event_type")} />
-        ) : (
+          <fieldset className="m-0 min-w-0 border-0 p-0">
+            <legend className="sr-only">{wedding ? "Wedding date" : "Event date"}</legend>
+            {/* The label and the flexible box share one 44px line. */}
+            <div className="-mt-2.5 -mb-1 flex min-h-[44px] items-center justify-between gap-3">
+              <span aria-hidden="true" className="font-sans text-[14px] font-medium leading-snug text-ink">
+                {wedding ? "Wedding date" : "Event date"}
+              </span>
+              <CheckboxRow id={id("flexible")} centered className="min-h-[44px] py-0" {...register("date_flexible")}>
+                We&apos;re flexible
+              </CheckboxRow>
+            </div>
+            <div className="grid grid-cols-[1fr_100px] gap-3 min-[360px]:grid-cols-[1fr_112px]">
+              <div>
+                <label htmlFor={id("month")} className="sr-only">
+                  Month
+                </label>
+                <SelectInput
+                  id={id("month")}
+                  aria-describedby={describedBy(errors.event_month && errId("month"))}
+                  invalid={!!errors.event_month}
+                  placeholder="Month"
+                  options={MONTH_OPTIONS}
+                  {...register("event_month")}
+                />
+              </div>
+              <div>
+                <label htmlFor={id("year")} className="sr-only">
+                  Year
+                </label>
+                <SelectInput
+                  id={id("year")}
+                  aria-describedby={describedBy(errors.event_year && errId("year"))}
+                  invalid={!!errors.event_year}
+                  placeholder="Year"
+                  options={years.map((y) => ({ value: y, label: y }))}
+                  {...register("event_year")}
+                />
+              </div>
+            </div>
+            <FieldError id={errId("month")} message={errors.event_month?.message} />
+            <FieldError id={errId("year")} message={errors.event_year?.message} />
+          </fieldset>
+
           <div>
-            <FieldLabel htmlFor={id("event-type")} required>
-              Event type
-            </FieldLabel>
+            <FieldLabel htmlFor={id("guests")}>Guest count</FieldLabel>
             <SelectInput
-              id={id("event-type")}
-              aria-required="true"
-              aria-describedby={describedBy(errors.event_type && errId("event-type"))}
-              invalid={!!errors.event_type}
-              placeholder="Choose an event type"
-              options={EVENT_TYPES}
-              {...register("event_type")}
+              id={id("guests")}
+              aria-describedby={describedBy(errors.guest_count && errId("guests"))}
+              invalid={!!errors.guest_count}
+              placeholder="Choose a range"
+              options={bands}
+              {...register("guest_count")}
             />
-            <FieldError id={errId("event-type")} message={errors.event_type?.message} />
+            <FieldError id={errId("guests")} message={errors.guest_count?.message} />
           </div>
-        )}
 
-        <fieldset className="m-0 min-w-0 border-0 p-0">
-          <legend className="mb-1.5 block p-0 font-sans text-[14px] font-medium leading-snug text-ink">
-            {wedding ? "Wedding date" : "Event date"}
-          </legend>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor={id("month")} className="sr-only">
-                Month
-              </label>
-              <SelectInput
-                id={id("month")}
-                aria-describedby={describedBy(errors.event_month && errId("month"))}
-                invalid={!!errors.event_month}
-                placeholder="Month"
-                options={MONTH_OPTIONS}
-                {...register("event_month")}
-              />
-            </div>
-            <div>
-              <label htmlFor={id("year")} className="sr-only">
-                Year
-              </label>
-              <SelectInput
-                id={id("year")}
-                aria-describedby={describedBy(errors.event_year && errId("year"))}
-                invalid={!!errors.event_year}
-                placeholder="Year"
-                options={years.map((y) => ({ value: y, label: y }))}
-                {...register("event_year")}
-              />
-            </div>
+          <div>
+            <FieldLabel htmlFor={id("name")} required>
+              {wedding ? "Your names" : "Your name"}
+            </FieldLabel>
+            <TextInput
+              id={id("name")}
+              type="text"
+              autoComplete="name"
+              aria-required="true"
+              aria-describedby={describedBy(errors.name && errId("name"))}
+              invalid={!!errors.name}
+              placeholder={wedding ? "Jane and Sam Smith" : "First and last name"}
+              {...register("name")}
+            />
+            <FieldError id={errId("name")} message={errors.name?.message} />
           </div>
-          <FieldError id={errId("month")} message={errors.event_month?.message} />
-          <FieldError id={errId("year")} message={errors.event_year?.message} />
-          <CheckboxRow id={id("flexible")} className="mt-1" {...register("date_flexible")}>
-            We&apos;re flexible
-          </CheckboxRow>
-        </fieldset>
 
-        <div>
-          <FieldLabel htmlFor={id("guests")}>Guest count</FieldLabel>
-          <SelectInput
-            id={id("guests")}
-            aria-describedby={describedBy(errors.guest_count && errId("guests"))}
-            invalid={!!errors.guest_count}
-            placeholder="Choose a range"
-            options={bands}
-            {...register("guest_count")}
-          />
-          <FieldError id={errId("guests")} message={errors.guest_count?.message} />
-        </div>
-
-        <div>
-          <FieldLabel htmlFor={id("name")} required>
-            {wedding ? "Your names" : "Your name"}
-          </FieldLabel>
-          <TextInput
-            id={id("name")}
-            type="text"
-            autoComplete="name"
-            aria-required="true"
-            aria-describedby={describedBy(errors.name && errId("name"))}
-            invalid={!!errors.name}
-            placeholder={wedding ? "Jane and Sam Smith" : "First and last name"}
-            {...register("name")}
-          />
-          <FieldError id={errId("name")} message={errors.name?.message} />
-        </div>
-
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
             <FieldLabel htmlFor={id("email")} required>
               Email
@@ -436,6 +468,61 @@ export function InquiryForm({
             />
             <FieldError id={errId("email")} message={errors.email?.message} />
           </div>
+
+          <div>
+            <FieldLabel htmlFor={id("referral")} optional>
+              How did you hear about us?
+            </FieldLabel>
+            <SelectInput
+              id={id("referral")}
+              aria-describedby={describedBy(errors.referral_source && errId("referral"))}
+              invalid={!!errors.referral_source}
+              placeholder="Choose one"
+              options={REFERRAL_SOURCES}
+              {...register("referral_source")}
+            />
+            <FieldError id={errId("referral")} message={errors.referral_source?.message} />
+          </div>
+
+          {/* The free-text note folds behind one line. The textarea stays mounted, so the value and the payload never change. */}
+          {!noteOpen && (
+            <button
+              type="button"
+              aria-expanded={false}
+              aria-controls={id("note")}
+              onClick={() => {
+                setNoteOpen(true);
+                requestAnimationFrame(() => setFocus("message"));
+              }}
+              className="-my-1 flex min-h-[44px] items-center gap-2.5 text-left font-sans text-[15px] text-ink-body"
+            >
+              <span aria-hidden="true" className="w-3.5 text-center font-display text-[22px] font-medium leading-none text-fern">
+                +
+              </span>
+              <span>
+                Add a note <span className="text-ink-meta">(optional)</span>
+              </span>
+            </button>
+          )}
+          <div id={id("note")} hidden={!noteOpen}>
+            <FieldLabel htmlFor={id("message")} optional>
+              {wedding ? "Tell us about your day" : "Tell us about your event"}
+            </FieldLabel>
+            <TextArea
+              id={id("message")}
+              rows={4}
+              aria-describedby={describedBy(errors.message && errId("message"))}
+              invalid={!!errors.message}
+              placeholder={
+                wedding
+                  ? "The feel you want, the season, anything you're wondering about."
+                  : "What you're planning, and anything you're wondering about."
+              }
+              {...register("message")}
+            />
+            <FieldError id={errId("message")} message={errors.message?.message} />
+          </div>
+
           <div>
             <FieldLabel htmlFor={id("phone")} optional>
               Phone
@@ -452,68 +539,40 @@ export function InquiryForm({
             />
             <FieldError id={errId("phone")} message={errors.phone?.message} />
           </div>
-        </div>
 
-        <div>
-          <FieldLabel htmlFor={id("message")} optional>
-            {wedding ? "Tell us about your day" : "Tell us about your event"}
-          </FieldLabel>
-          <TextArea
-            id={id("message")}
-            rows={4}
-            aria-describedby={describedBy(errors.message && errId("message"))}
-            invalid={!!errors.message}
-            placeholder={
-              wedding
-                ? "The feel you want, the season, anything you're wondering about."
-                : "What you're planning, and anything you're wondering about."
-            }
-            {...register("message")}
-          />
-          <FieldError id={errId("message")} message={errors.message?.message} />
-        </div>
+          {/* Honeypot: hidden from people, filled by bots. */}
+          <div className="absolute -left-[9999px]" aria-hidden="true">
+            <label htmlFor={id("website")}>Website</label>
+            <input type="text" id={id("website")} autoComplete="off" tabIndex={-1} {...register("website")} />
+          </div>
+          <input type="hidden" {...register("_t", { valueAsNumber: true })} />
+          <input type="hidden" {...register("_sid")} />
+          <input type="hidden" {...register("turnstile_token")} />
 
-        <div>
-          <FieldLabel htmlFor={id("referral")} optional>
-            How did you hear about us?
-          </FieldLabel>
-          <SelectInput
-            id={id("referral")}
-            aria-describedby={describedBy(errors.referral_source && errId("referral"))}
-            invalid={!!errors.referral_source}
-            placeholder="Choose one"
-            options={REFERRAL_SOURCES}
-            {...register("referral_source")}
-          />
-          <FieldError id={errId("referral")} message={errors.referral_source?.message} />
-        </div>
-
-        {/* Honeypot: hidden from people, filled by bots. */}
-        <div className="absolute -left-[9999px]" aria-hidden="true">
-          <label htmlFor={id("website")}>Website</label>
-          <input type="text" id={id("website")} autoComplete="off" tabIndex={-1} {...register("website")} />
-        </div>
-        <input type="hidden" {...register("_t", { valueAsNumber: true })} />
-        <input type="hidden" {...register("_sid")} />
-        <input type="hidden" {...register("turnstile_token")} />
-
-        {/* SMS consent: two separate, unticked, optional boxes (A2P). */}
-        <div className="border-t border-rule pt-3">
+          {/* SMS consent: two separate, unticked, optional boxes (A2P). A ruled group: a one-line label, the full wording beside the box. */}
           {hasPhone && (
-            <>
-              <CheckboxRow id={id("consent-appointment-sms")} fine {...register("consent_appointment_sms")}>
+            <div className="-mb-1 divide-y divide-rule border-y border-rule">
+              <ConsentRow
+                id={id("consent-appointment-sms")}
+                label="Appointment texts"
+                {...register("consent_appointment_sms")}
+              >
                 I consent to receive non-marketing text messages from Highland Farms Oregon LLC about
                 appointment information: confirmation &amp; reminder messages. Message and data rates may
                 apply.
-              </CheckboxRow>
-              <CheckboxRow id={id("consent-marketing-sms")} fine {...register("consent_marketing_sms")}>
+              </ConsentRow>
+              <ConsentRow
+                id={id("consent-marketing-sms")}
+                label="Marketing texts"
+                {...register("consent_marketing_sms")}
+              >
                 I consent to receive marketing text messages from Highland Farms Oregon LLC at the phone
                 number provided. Frequency may vary. Message and data rates may apply. Text HELP for
                 assistance. Reply STOP to opt out. Consent is not a condition of purchase.
-              </CheckboxRow>
-            </>
+              </ConsentRow>
+            </div>
           )}
-          <p className="mt-1 font-sans text-[13px] leading-relaxed text-ink-note">
+          <p className="m-0 -mt-1 font-sans text-[12.5px] leading-[1.45] text-ink-note">
             By sending this form, you agree to our{" "}
             <a href="/privacy" className="text-pine underline underline-offset-2">
               Privacy Policy
@@ -524,100 +583,125 @@ export function InquiryForm({
             </a>
             .
           </p>
-        </div>
 
-        {TURNSTILE_SITE_KEY && (
-          <TurnstileWidget
-            siteKey={TURNSTILE_SITE_KEY}
-            onVerify={handleVerify}
-            onExpire={handleExpire}
-            action="contact-form"
-            resetSignal={turnstileReset}
-          />
-        )}
-
-        {status === "error" && (
-          <div
-            ref={serverErrorRef}
-            tabIndex={-1}
-            role="alert"
-            className={cn(
-              "border border-l-[3px] border-[#8A2A1C] bg-paper-light px-4 py-3 font-sans text-[14px] leading-relaxed outline-none",
-              fieldErrorText,
-            )}
-          >
-            {serverError || "That didn't go through."} Your answers are still here, so you can try
-            again, or call us at{" "}
-            <a
-              href={`tel:${CONTACT.phone.replace(/[^\d+]/g, "")}`}
-              className="font-medium underline underline-offset-2"
-            >
-              {CONTACT.phone}
-            </a>
-            .
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={submitting || !turnstileReady}
-          className={cn(fieldCtaClass, "w-full disabled:cursor-not-allowed disabled:opacity-60")}
-        >
-          {submitting ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              Sending
-            </>
-          ) : !turnstileReady ? (
-            "One moment"
-          ) : (
-            <>
-              {ctaText}
-              <FieldArrow />
-            </>
+          {TURNSTILE_SITE_KEY && (
+            <TurnstileWidget
+              siteKey={TURNSTILE_SITE_KEY}
+              onVerify={handleVerify}
+              onExpire={handleExpire}
+              action="contact-form"
+              resetSignal={turnstileReset}
+            />
           )}
-        </button>
 
-        {(wedding || softPathsForAll) && showSoftPaths && (
-          <div className="-mt-1 flex flex-col gap-x-7 sm:flex-row sm:flex-wrap">
-            <a
-              // Render-time href must not read window (hydration); onClick refines it.
-              href={callLink(`wedding-form-${placement ?? "inquiry"}`, {})}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-[44px] items-center"
-              onClick={(e) => {
-                // Prefill whatever they've typed so far; the form stays as it is in this tab.
-                const v = getValues();
-                const href = callLink(`wedding-form-${placementTag(placement)}`, {
-                  name: v.name,
-                  email: v.email,
-                  phone: v.phone,
-                });
-                e.currentTarget.href = href;
-                trackCallStart(href, "Wedding call (inquiry form)");
-              }}
+          {status === "error" && (
+            <div
+              ref={serverErrorRef}
+              tabIndex={-1}
+              role="alert"
+              className={cn(
+                "border border-l-[3px] border-[#8A2A1C] bg-paper-light px-3.5 py-3 font-sans text-[14px] leading-relaxed outline-none",
+                fieldErrorText,
+              )}
             >
-              <span className={fieldTextLinkClass}>Or book a free 45-minute call with Connor</span>
-            </a>
-            <a
-              href="/lookbook.pdf"
-              target="_blank"
-              rel="noopener"
-              className="inline-flex min-h-[44px] items-center"
-            >
-              <span className={fieldTextLinkClass}>See the 2027 look book</span>
-            </a>
-          </div>
-        )}
+              Something went wrong on our end. Try again, or call{" "}
+              <a href={telHref} className="whitespace-nowrap font-medium underline underline-offset-2">
+                {CONTACT.phone}
+              </a>
+              .
+            </div>
+          )}
 
-        {showTrustSignals && typeof fiveStarCount === "number" && fiveStarCount > 0 && (
-          <p className="flex items-center gap-2 font-sans text-[13px] text-ink-note">
-            <FieldStars size={13} />
-            {fiveStarCount} five-star reviews on Google
-          </p>
-        )}
-      </form>
+          <button
+            type="submit"
+            disabled={submitting || !turnstileReady}
+            className={cn(fieldCtaClass, "w-full disabled:cursor-not-allowed disabled:opacity-60")}
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                Sending
+              </>
+            ) : !turnstileReady ? (
+              "One moment"
+            ) : (
+              <>
+                {ctaText}
+                <FieldArrow />
+              </>
+            )}
+          </button>
+
+          {showTrustSignals && typeof fiveStarCount === "number" && fiveStarCount > 0 && (
+            <p className="-mt-1 flex items-center gap-2 font-sans text-[13px] text-ink-note">
+              <FieldStars size={13} />
+              {typeof reviewTotal === "number" && reviewTotal >= fiveStarCount
+                ? `${fiveStarCount} of ${reviewTotal} reviews on Google are five stars`
+                : `${fiveStarCount} five-star reviews on Google`}
+            </p>
+          )}
+        </form>
+      </FormCard>
+
+      {/* The call with Connor is its own door below the card, one 44px target. */}
+      {showDoor && (
+        <a
+          // Render-time href must not read window (hydration); onClick refines it.
+          href={callLink(`wedding-form-${placement ?? "inquiry"}`, {})}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 flex min-h-[54px] items-center gap-3.5"
+          onClick={(e) => {
+            // Prefill whatever they've typed so far; the form stays as it is in this tab.
+            const v = getValues();
+            const href = callLink(`wedding-form-${placementTag(placement)}`, {
+              name: v.name,
+              email: v.email,
+              phone: v.phone,
+            });
+            e.currentTarget.href = href;
+            trackCallStart(href, "Wedding call (inquiry form)");
+          }}
+        >
+          <span className="shrink-0 border border-frame bg-paper-light p-[3px]">
+            <Image
+              src="/images/team/connor-mcwilliams.jpg"
+              alt=""
+              width={192}
+              height={192}
+              sizes="54px"
+              className="block h-[54px] w-[54px] object-cover"
+            />
+          </span>
+          <span className="min-w-0">
+            <span className="mb-0.5 block font-display text-[18px] font-medium italic leading-tight text-fern">
+              Rather talk first?
+            </span>
+            <span className={fieldTextLinkClass}>Book a free 45-minute call with Connor</span>
+            <span className="sr-only"> (opens in a new tab)</span>
+          </span>
+        </a>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The framed paper card. The cow head sits on its top edge as a seal; the edge
+ * is drawn as two rules around it (not a patch of page colour), so it works on
+ * any ground.
+ */
+function FormCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-1">
+      <div aria-hidden="true" className="relative z-10 flex h-[72px] items-start">
+        <span className="mt-9 h-px flex-1 bg-frame" />
+        <FieldDrawing name="highland-cow-head" className="mx-2 h-[72px] w-[72px] shrink-0" sizes="72px" />
+        <span className="mt-9 h-px flex-1 bg-frame" />
+      </div>
+      <div className="-mt-9 border-x border-b border-frame bg-paper px-4 pb-[22px] pt-[50px] lg:px-10 lg:pb-10">
+        {children}
+      </div>
     </div>
   );
 }

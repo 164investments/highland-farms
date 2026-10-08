@@ -78,11 +78,13 @@ export function CheckoutBody({
   applicationId,
   locationId,
   reviewCount,
+  reviewTotal,
 }: {
   applicationId: string;
   locationId: string;
   /** FIVE_STAR_COUNT: the near-CTA tier, directly under Pay. */
   reviewCount: number;
+  reviewTotal: number;
 }) {
   const router = useRouter();
   const { detailed, subtotalCents, count, clear, ready: cartReady } = useCart();
@@ -92,6 +94,9 @@ export function CheckoutBody({
   const [paidWith, setPaidWith] = useState<Failure["at"]>("card");
   const [chosen, setFulfillment] = useState<Fulfillment>("pickup");
   const [touched, setTouched] = useState({ email: false, phone: false });
+  // Set when Pay (or a held wallet) is tapped with gaps: every empty required
+  // field is then marked inline. Client-side UI only; the server rules are unchanged.
+  const [showGaps, setShowGaps] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -267,9 +272,8 @@ export function CheckoutBody({
   const walletBlock: WalletBlock = !contactOk ? "contact" : !addressOk ? "address" : blocking ? "zip" : null;
 
   /** A tap on a held wallet: take the shopper to the first field still missing. */
-  function showFirstGap() {
-    setTouched({ email: true, phone: true });
-    const id = !nameOk
+  function firstGapId(): string {
+    return !nameOk
       ? "co-name"
       : !emailOk
         ? "co-email"
@@ -280,7 +284,24 @@ export function CheckoutBody({
             : !form.city.trim()
               ? "co-city"
               : "co-zip";
-    document.getElementById(id)?.focus();
+  }
+
+  function showFirstGap() {
+    setTouched({ email: true, phone: true });
+    setShowGaps(true);
+    focusField(firstGapId());
+  }
+
+  /** Scroll the field into view (below the sticky header) and focus it. */
+  function focusField(id: string) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    // Land the field's label (its wrapper) just under the pinned header, not centered under it.
+    const target = el.closest("div") ?? el;
+    const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 104;
+    const top = target.getBoundingClientRect().top + window.scrollY - header - 40;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    el.focus({ preventScroll: true });
   }
 
   // Put the focus on a payment error where it was raised, so a phone user
@@ -297,13 +318,15 @@ export function CheckoutBody({
       setFailure({ at: "card", message });
       return false;
     };
-    if (blocking) return fail(blocking);
-    if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
-      return fail("Add your name, email and phone first, then pay.");
+    if (!contactOk || !addressOk) {
+      // Mark every empty required field and take the shopper to the first one.
+      setTouched({ email: true, phone: true });
+      setShowGaps(true);
+      focusField(firstGapId());
+      // The marks sit on the fields themselves; no far-away box to read.
+      return false;
     }
-    if (!emailOk) return fail("Check your email address, then pay.");
-    if (!phoneOk) return fail("Check your phone number, then pay.");
-    if (!addressOk) return fail("Add your delivery address first, then pay.");
+    if (blocking) return fail(blocking);
     return true;
   }
 
@@ -388,8 +411,20 @@ export function CheckoutBody({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!cardRef.current || status !== "ready") return;
+    if (status === "submitting") return;
+    // Gaps first: empty required fields are marked and focused even while the card
+    // form is still loading, and this never reaches Square.
     if (!readyToPay()) return;
+    if (!cardRef.current || status !== "ready") {
+      setFailure({
+        at: "card",
+        message:
+          status === "unavailable"
+            ? "Card payment isn't loading right now. Please call us and we'll take the order."
+            : "The secure card form is still loading. Give it a moment and tap Pay again.",
+      });
+      return;
+    }
 
     setPaidWith("card");
     setStatus("submitting");
@@ -406,10 +441,26 @@ export function CheckoutBody({
   }
 
   const busy = status === "submitting";
-  const emailBad = touched.email && !emailOk;
-  const phoneBad = touched.phone && !phoneOk;
+  const emailBad = (touched.email || showGaps) && !emailOk;
+  const phoneBad = (touched.phone || showGaps) && !phoneOk;
+  const nameBad = showGaps && !nameOk;
+  const addressBad = showGaps && !form.address.trim();
+  const cityBad = showGaps && !form.city.trim();
+  const zipBad = showGaps && form.zip.trim().length < 5;
+  // Red only: the global green focus outline is switched off while the field is in error.
+  const errorRing = "border-[#8c3b2a] focus:border-[#8c3b2a] focus-visible:outline-none!";
+  const errorText = "m-0 mt-1 text-[12px] font-medium text-[#8c3b2a]";
+  const gapIds = [
+    nameBad && "co-name",
+    emailBad && "co-email",
+    phoneBad && "co-phone",
+    fulfillment === "delivery" && addressBad && "co-address",
+    fulfillment === "delivery" && cityBad && "co-city",
+    fulfillment === "delivery" && zipBad && "co-zip",
+  ].filter((id): id is string => Boolean(id));
+  const gapWords = ["No", "One", "Two", "Three", "Four", "Five", "Six"];
   const shortBy = Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
-  const payDisabled = busy || status !== "ready" || Boolean(blocking);
+  const payDisabled = busy || Boolean(blocking);
 
   // The shop has one empty state, the cart's (r4): an empty checkout goes there.
   // Never while an order is being placed: a paid order clears the cart just
@@ -570,7 +621,7 @@ export function CheckoutBody({
               </div>
               {fulfillment === "pickup" && (
                 <p className="m-0 mt-2.5 text-[13px] leading-[1.45] text-ink-body">
-                  {PICKUP_READY}. Pickup {PICKUP_HOURS} Need it today? Call{" "}
+                  {PICKUP_READY}. Pickup {PICKUP_HOURS} Same-day pickup? Call{" "}
                   <a
                     href={`tel:+1${CONTACT.ordersPhone.replace(/\D/g, "")}`}
                     className="whitespace-nowrap font-medium text-pine underline decoration-pine-line underline-offset-4"
@@ -590,7 +641,8 @@ export function CheckoutBody({
               <div className="clear-left grid gap-4 pt-3 lg:grid-cols-2 lg:gap-x-5">
                 <div className="lg:col-span-2">
                   <label htmlFor="co-name" className="block text-[13px] font-medium text-ink">Name</label>
-                  <input id="co-name" type="text" autoComplete="name" required maxLength={120} value={form.name} onChange={set("name")} className={input} />
+                  <input id="co-name" type="text" autoComplete="name" required maxLength={120} value={form.name} onChange={set("name")} aria-invalid={nameBad || undefined} aria-describedby={nameBad ? "co-name-err" : undefined} className={cn(input, nameBad && errorRing)} />
+                  {nameBad && <p id="co-name-err" className={errorText}>Add your name so we know who to look for.</p>}
                 </div>
                 <div>
                   <label htmlFor="co-email" className="block text-[13px] font-medium text-ink">Email</label>
@@ -605,10 +657,14 @@ export function CheckoutBody({
                     onBlur={() => setTouched((t) => ({ ...t, email: true }))}
                     aria-describedby="co-email-help"
                     aria-invalid={emailBad || undefined}
-                    className={input}
+                    className={cn(input, emailBad && errorRing)}
                   />
-                  <p id="co-email-help" className={cn("m-0 mt-1 text-[12px]", emailBad ? "text-ink" : "text-ink-note")}>
-                    {emailBad ? "Check the email so your receipt reaches you." : "Your receipt goes here."}
+                  <p id="co-email-help" className={cn("m-0 mt-1 text-[12px]", emailBad ? "font-medium text-[#8c3b2a]" : "text-ink-note")}>
+                    {emailBad
+                      ? form.email.trim()
+                        ? "Check the email so your receipt reaches you."
+                        : "Add your email so we can send the receipt."
+                      : "Your receipt goes here."}
                   </p>
                 </div>
                 <div>
@@ -624,9 +680,9 @@ export function CheckoutBody({
                     onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
                     aria-describedby="co-phone-help"
                     aria-invalid={phoneBad || undefined}
-                    className={input}
+                    className={cn(input, phoneBad && errorRing)}
                   />
-                  <p id="co-phone-help" className={cn("m-0 mt-1 text-[12px]", phoneBad ? "text-ink" : "text-ink-note")}>
+                  <p id="co-phone-help" className={cn("m-0 mt-1 text-[12px]", phoneBad ? "font-medium text-[#8c3b2a]" : "text-ink-note")}>
                     {phoneBad
                       ? "Add a phone number so we can call you when it's packed."
                       : "So we can call you when it's packed."}
@@ -636,15 +692,18 @@ export function CheckoutBody({
                   <>
                     <div className="lg:col-span-2">
                       <label htmlFor="co-address" className="block text-[13px] font-medium text-ink">Street address</label>
-                      <input id="co-address" type="text" autoComplete="address-line1" required maxLength={240} value={form.address} onChange={set("address")} className={input} />
+                      <input id="co-address" type="text" autoComplete="address-line1" required maxLength={240} value={form.address} onChange={set("address")} aria-invalid={addressBad || undefined} aria-describedby={addressBad ? "co-address-err" : undefined} className={cn(input, addressBad && errorRing)} />
+                      {addressBad && <p id="co-address-err" className={errorText}>Add the street address for delivery.</p>}
                     </div>
                     <div>
                       <label htmlFor="co-city" className="block text-[13px] font-medium text-ink">City</label>
-                      <input id="co-city" type="text" autoComplete="address-level2" required maxLength={120} value={form.city} onChange={set("city")} className={input} />
+                      <input id="co-city" type="text" autoComplete="address-level2" required maxLength={120} value={form.city} onChange={set("city")} aria-invalid={cityBad || undefined} aria-describedby={cityBad ? "co-city-err" : undefined} className={cn(input, cityBad && errorRing)} />
+                      {cityBad && <p id="co-city-err" className={errorText}>Add the city.</p>}
                     </div>
                     <div>
                       <label htmlFor="co-zip" className="block text-[13px] font-medium text-ink">ZIP</label>
-                      <input id="co-zip" type="text" inputMode="numeric" autoComplete="postal-code" required maxLength={10} value={form.zip} onChange={set("zip")} className={input} />
+                      <input id="co-zip" type="text" inputMode="numeric" autoComplete="postal-code" required maxLength={10} value={form.zip} onChange={set("zip")} aria-invalid={zipBad || undefined} aria-describedby={zipBad ? "co-zip-err" : undefined} className={cn(input, zipBad && errorRing)} />
+                      {zipBad && <p id="co-zip-err" className={errorText}>Add the 5-digit ZIP.</p>}
                     </div>
                   </>
                 )}
@@ -713,6 +772,22 @@ export function CheckoutBody({
                   </p>
                 )}
 
+                {gapIds.length > 0 && (
+                  <p role="status" className="m-0 mt-4 text-[14px] font-medium text-[#8c3b2a]">
+                    {gapWords[gapIds.length]} {gapIds.length === 1 ? "field needs" : "fields need"} a fix above.{" "}
+                    <a
+                      href={`#${gapIds[0]}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        focusField(gapIds[0]);
+                      }}
+                      className="underline decoration-[#8c3b2a] underline-offset-4"
+                    >
+                      Go to the first
+                    </a>
+                  </p>
+                )}
+
                 <button
                   type="submit"
                   disabled={payDisabled}
@@ -725,9 +800,9 @@ export function CheckoutBody({
                   {busy ? "Paying…" : `Pay ${formatCents(totalCents)}`}
                 </button>
                 <p className="m-0 mt-2.5 text-[13px] text-ink-note lg:hidden">
-                  That&apos;s everything. No tax or added fees.
+                  That&apos;s everything. No sales tax.
                 </p>
-                <FieldReviewLine tier="nearCta" count={reviewCount} starSize={12} className="mt-3 text-[13px] text-ink-body lg:text-[13px]" />
+                <FieldReviewLine tier="nearCta" count={reviewCount} total={reviewTotal} starSize={12} className="mt-3 text-[13px] text-ink-body lg:text-[13px]" />
               </div>
             </fieldset>
           </div>
@@ -758,7 +833,7 @@ export function CheckoutBody({
                 <dd className="m-0 text-[20px] font-semibold">{formatCents(totalCents)}</dd>
               </div>
             </dl>
-            <p className="m-0 mt-1 text-[12px] text-ink-note">That&apos;s everything. No tax or added fees.</p>
+            <p className="m-0 mt-1 text-[12px] text-ink-note">That&apos;s everything. No sales tax.</p>
           </aside>
         </div>
       </form>

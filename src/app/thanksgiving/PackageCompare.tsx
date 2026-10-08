@@ -3,12 +3,41 @@ import { cn } from "@/lib/utils";
 import { FieldArrow, Plate, fieldCtaClass } from "@/components/ui/FieldGuide";
 import { FieldReview } from "@/components/field/Reviews";
 import { THANKSGIVING_QUOTE } from "@/lib/review-quotes";
-import { perGuest, thanksgiving, thanksgivingInquiryHref } from "@/data/thanksgiving";
+import { packageCtaLabel, perGuest, thanksgiving, thanksgivingInquiryHref } from "@/data/thanksgiving";
 
 const SLEEPS_WORD: Record<number, string> = { 8: "eight", 20: "twenty" };
 const labelRow =
   "pt-3 pb-1 font-sans text-[11px] uppercase tracking-[0.14em] text-ink-meta lg:text-[12px]";
 const col2 = "border-l border-rule pl-3 lg:pl-5";
+/** One real photo per package, from the package's own photo set in thanksgiving.ts (the Lodge; the Cottage for the
+ *  Whole Farm, whose three stays the page lists). Filename trap: properties/cottage.jpg is the Lodge. */
+const PKG_PHOTO: Record<string, { src: string; alt: string; caption: string; className: string }> = {
+  lodge: {
+    src: "/images/properties/cottage.jpg",
+    alt: "Cedar-sided William Wallace Lodge with its wrap-around deck",
+    caption: "William Wallace Lodge",
+    className: "object-[45%_55%]",
+  },
+  "whole-farm": {
+    src: "/images/properties/lodge.jpg",
+    alt: "Bonnie Lass Cottage with its cedar exterior, metal roof and outdoor patio",
+    caption: "Bonnie Lass Cottage, one of the three stays",
+    className: "object-[50%_60%]",
+  },
+};
+
+function PkgPlate({ id }: { id: string }) {
+  const ph = PKG_PHOTO[id];
+  if (!ph) return null;
+  return (
+    <Plate caption={ph.caption} captionClassName="text-[14px] lg:text-[15px]">
+      <div className="relative aspect-[16/9] lg:aspect-[4/3]">
+        <Image src={ph.src} alt={ph.alt} fill sizes="(min-width: 1024px) 420px, calc(100vw - 56px)" className={cn("object-cover", ph.className)} />
+      </div>
+    </Plate>
+  );
+}
+
 const col1 = "pr-3 lg:pr-5";
 
 /**
@@ -37,26 +66,50 @@ export function PackageCompare() {
               things change: where you sleep and how much spa time you get.
             </p>
 
-            <div className="mt-6 grid grid-cols-3 gap-2 lg:max-w-[880px] lg:gap-4">
-              {thanksgiving.stays.map((stay) => (
-                <Plate key={stay.src} caption={stay.label} captionClassName="text-[14px] lg:text-[16px]">
-                  {/* The wrapper carries the ratio: an aspect-ratio frame inside a grid cell gives a fill image no height. */}
-                  <div className="relative aspect-square lg:aspect-[4/3]">
-                    <Image
-                      src={stay.src}
-                      alt={stay.alt}
-                      fill
-                      sizes="(min-width: 1024px) 290px, 33vw"
-                      className={cn("object-cover", stay.position)}
-                    />
-                  </div>
-                </Plate>
+            {/* Phones: the two packages stack full width, same labels in the same order. */}
+            <div className="mt-6 flex flex-col gap-8 sm:hidden">
+              {pkgs.map((pkg) => (
+                <article key={pkg.id} aria-label={pkg.name} className="border-t border-rule pt-4">
+                  <PkgPlate id={pkg.id} />
+                  <div className="mt-3" />
+                  <span className="block font-sans text-[11px] uppercase tracking-[0.14em] text-pine">Sleeps {pkg.sleeps}</span>
+                  <h3 className="field-heading m-0 mt-1 text-[26px] leading-[1.05] text-ink">{pkg.name}</h3>
+                  <p className="m-0 mt-2 font-display text-[17px] italic leading-[1.3] text-ink-body">{pkg.forWho}</p>
+                  <p className="m-0 mt-3 font-display text-[32px] font-semibold leading-none text-ink">
+                    ${pkg.price.toLocaleString("en-US")}
+                  </p>
+                  <p className="m-0 mt-1.5 font-sans text-[12px] leading-[1.4] text-ink-note">
+                    for four nights, plus applicable taxes
+                  </p>
+                  <p className="m-0 mt-1 font-sans text-[12px] leading-[1.4] text-ink-body">
+                    About ${perGuest(pkg).toLocaleString("en-US")} a person with all {SLEEPS_WORD[pkg.sleeps] ?? pkg.sleeps}
+                  </p>
+                  <p className={cn(labelRow, "m-0")}>Where you sleep</p>
+                  <p className="m-0 font-sans text-[14px] leading-[1.5] text-ink">{pkg.description}</p>
+                  <p className={cn(labelRow, "m-0")}>Nordic spa</p>
+                  <p className="m-0 font-sans text-[15px] font-semibold text-ink">{pkg.spa}</p>
+                  <a
+                    href={thanksgivingInquiryHref(pkg)}
+                    data-cta={`tg-${pkg.id}`}
+                    aria-label={packageCtaLabel(pkg)}
+                    className={cn(fieldCtaClass, "mt-4 w-full whitespace-nowrap px-4 text-center")}
+                  >
+                    Check dates for {pkg.name.replace(/^The /, "the ")}
+                  </a>
+                </article>
               ))}
             </div>
 
-            <table className="mt-6 w-full table-fixed border-collapse text-left lg:mt-8 lg:max-w-[880px]">
+            <table className="mt-6 hidden w-full table-fixed sm:table border-collapse text-left lg:mt-8 lg:max-w-[880px]">
               <caption className="sr-only">Compare the two Thanksgiving packages</caption>
               <thead>
+                <tr aria-hidden="true">
+                  {pkgs.map((pkg, i) => (
+                    <td key={pkg.id} className={cn("pb-3 align-top", cell(i))}>
+                      <PkgPlate id={pkg.id} />
+                    </td>
+                  ))}
+                </tr>
                 <tr>
                   {pkgs.map((pkg, i) => (
                     <th key={pkg.id} scope="col" className={cn("pb-3 align-bottom font-normal", cell(i))}>
@@ -148,7 +201,7 @@ export function PackageCompare() {
                           "h-auto min-h-[52px] w-full px-3 py-2.5 text-center text-[14px] leading-tight lg:px-5 lg:text-[15px]",
                         )}
                       >
-                        {pkg.cta}
+                        {packageCtaLabel(pkg)}
                         <FieldArrow className="hidden lg:block" />
                       </a>
                     </td>

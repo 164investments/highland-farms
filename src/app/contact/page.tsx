@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { StructuredData } from "@/components/layout/StructuredData";
-import type { ReactNode } from "react";
-import { WeddingCallLink } from "@/components/field/WeddingCallLink";
-import { FieldReview, FieldReviewTier } from "@/components/field/Reviews";
+import { FieldReview } from "@/components/field/Reviews";
 import { ContactForm } from "@/components/forms/ContactForm";
-import {
-  FieldArrow,
-  FieldLink,
-  FieldNumeral,
-  fieldCtaClass,
-  fieldEyebrowClass,
-} from "@/components/ui/FieldGuide";
-import { giftCertificatesHref } from "@/lib/booking/flag";
-import { BOOKING_PRODUCTS } from "@/lib/booking/products";
-import { TOUR_PARTY_SIZES } from "@/data/farm-tours";
-import { SPA_MAX_PARTY, SPA_PRICE_PER_PERSON } from "@/data/nordic-spa";
+import { FieldLink, FieldNumeral, fieldEyebrowClass } from "@/components/ui/FieldGuide";
 import { CONTACT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { CONTACT_FORM_QUOTE } from "./quotes";
@@ -53,67 +42,6 @@ const phoneThenStop = (
 );
 
 const mapsQuery = encodeURIComponent(CONTACT.fullAddress);
-const TOUR_FOR_TWO = TOUR_PARTY_SIZES.find((p) => p.guests === 2)?.total ?? 150;
-const SPA_MINUTES = BOOKING_PRODUCTS["nordic-spa"].durationMin;
-
-/** A price or capacity that must not wrap mid-phrase ("$75 per / person"). */
-const keep = (text: string) => <span className="whitespace-nowrap">{text}</span>;
-
-interface Door {
-  title: string;
-  note: ReactNode;
-  action: string;
-  href: string;
-  external?: boolean;
-}
-
-function doors(): Door[] {
-  const gift = giftCertificatesHref();
-  return [
-    {
-      title: "Farm tours",
-      note: <>Private, 2 to 6 guests, {keep(`$${TOUR_FOR_TWO} for two`)}</>,
-      action: "See tour dates",
-      href: "/farm-tours",
-    },
-    {
-      title: "Nordic spa",
-      note: (
-        <>
-          {keep(`$${SPA_PRICE_PER_PERSON} per person`)}, {SPA_MINUTES} min, up to {SPA_MAX_PARTY}
-        </>
-      ),
-      action: "See open sessions",
-      href: "/nordic-spa",
-    },
-    {
-      title: "Stays",
-      note: <>Lodge, Cottage and Camp, {keep("sleeps 4 to 20")}</>,
-      action: "Check dates and price",
-      href: "/stay",
-    },
-    {
-      title: "Parties and retreats",
-      note: "Birthdays, reunions, photo sessions, up to 125",
-      action: "Check your date",
-      href: "/celebrations",
-    },
-    {
-      title: "Gift certificates",
-      note: "For a tour, the spa or both",
-      action: "Choose a gift",
-      href: gift,
-      external: gift.startsWith("http"),
-    },
-    {
-      title: "Farm shop",
-      note: "Free pickup at the farm, or local delivery",
-      action: "Shop",
-      href: "/shop",
-    },
-  ];
-}
-
 const steps = [
   { title: "The drive.", body: "About an hour from Portland, or about 25 minutes from Government Camp." },
   {
@@ -126,8 +54,6 @@ const steps = [
   },
 ] as const;
 
-const rowLink =
-  "grid min-h-[60px] grid-cols-[1fr_auto] items-center gap-x-3 border-b border-rule py-2.5";
 /* Address over its label on phones (both rows alike), side by side from lg. Labels match the footer's. */
 const emailLink = "flex min-h-11 flex-col justify-center py-1 text-[13.5px] lg:flex-row lg:items-center lg:justify-start lg:gap-x-2";
 const mapLink = "inline-flex min-h-11 items-center text-[14px] font-medium text-pine";
@@ -138,7 +64,9 @@ export default function ContactPage() {
       <StructuredData pathname="/contact" />
       <div className="surface-paper bg-paper pt-[var(--header-h)] font-sans text-ink">
         <section aria-labelledby="contact-title" className="px-5 pb-10 pt-4 lg:px-16 lg:pb-20 lg:pt-12">
-          <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-16">
+          {/* Phones: header, then the form (the page's one ask) on the first screen, then the wedding card and email.
+              Desktop: header, card and email down the left; the form spans the right. */}
+          <div className="mx-auto flex max-w-[1312px] flex-col lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:grid-rows-[auto_auto_1fr] lg:items-start lg:gap-x-16">
             {/* First screen: promise, proof, a couple with a calf, one primary.
                 The photo is from a styled session (wedding-portfolio.ts: status "styled"):
                 its caption and alt name no couple and claim no real wedding (CONSISTENCY #3). */}
@@ -151,22 +79,12 @@ export default function ContactPage() {
                 Reach the right person at Highland Farms.
               </h1>
               <p className="m-0 mt-2.5 text-[14.5px] leading-[1.55] text-ink-body lg:mt-4 lg:text-[17px]">
-                <FieldLink href="/farm-tours" className={inlineLink}>
-                  Tours
-                </FieldLink>
-                ,{" "}
-                <FieldLink href="/nordic-spa" className={inlineLink}>
-                  the spa
-                </FieldLink>{" "}
-                and{" "}
-                <FieldLink href="/stay" className={inlineLink}>
-                  stays
-                </FieldLink>{" "}
-                book online any time. Already booked or running late? Call {phoneThenStop}
+                <Link href="/farm-tours" className={inlineLink}>Tours</Link>, <Link href="/nordic-spa" className={inlineLink}>the spa</Link> and{" "}
+                <Link href="/stay" className={inlineLink}>stays</Link> book online any time. Already booked or running late? Call {phoneThenStop}
               </p>
-              <FieldReviewTier tier="compact" className="mt-2 text-[13px] lg:text-[14px]" />
+            </div>
 
-              <div className="mt-4 border-t border-rule pt-4 lg:mt-7 lg:pt-6">
+            <div className="order-3 mt-8 border-t border-rule pt-4 lg:order-none lg:col-start-1 lg:row-start-2 lg:mt-7 lg:pt-6">
                 <figure className="m-0 grid grid-cols-[118px_1fr] items-center gap-x-4 lg:grid-cols-[180px_1fr] lg:gap-x-6">
                   <div className="h-[150px] border border-frame bg-paper-light p-[5px] lg:h-[230px] lg:p-2">
                     <div className="relative h-full w-full overflow-hidden">
@@ -192,34 +110,6 @@ export default function ContactPage() {
                     </span>
                   </figcaption>
                 </figure>
-                <FieldLink
-                  href="#inquiry"
-                  data-hero-cta=""
-                  className={cn(fieldCtaClass, "mt-3.5 w-full lg:hidden")}
-                >
-                  Check your date
-                  <FieldArrow />
-                </FieldLink>
-                <WeddingCallLink
-                  content="contact-hero"
-                  title="Contact: wedding call"
-                  className="mt-2 flex min-h-11 items-center gap-3 lg:mt-5"
-                >
-                  <span className="shrink-0 border border-frame bg-paper-light p-[2px]">
-                    <Image
-                      src="/images/team/connor-mcwilliams.jpg"
-                      alt=""
-                      width={192}
-                      height={192}
-                      sizes="36px"
-                      className="block h-9 w-9 object-cover"
-                    />
-                  </span>
-                  <span className="border-b border-pine-line pb-0.5 text-[14.5px] font-medium text-pine lg:text-[15px]">
-                    Book a free 45-minute call with Connor
-                  </span>
-                </WeddingCallLink>
-              </div>
             </div>
 
             {/* The built inquiry form, general mode: no event type is preset, so a tour or stay question is never
@@ -227,17 +117,16 @@ export default function ContactPage() {
                 so the router sends them there. */}
             <div
               id="inquiry"
-              className="mt-8 scroll-mt-[var(--header-h)] lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
+              className="order-2 mt-6 scroll-mt-[var(--header-h)] lg:order-none lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:mt-0"
             >
-              <div className="border border-frame bg-paper px-4 py-7 lg:p-10">
-                <ContactForm
-                  heading="Check your date"
-                  headingLevel="h2"
-                  subtitle="Now booking 2027 weddings. Tell us your month and guest count, and we'll check the farm calendar for you. No commitment."
-                  placement="contact"
-                  softPathsForAll
-                />
-              </div>
+              {/* The form draws its own framed card (cow seal); success replaces it inside that card, never a card in a card. */}
+              <ContactForm
+                heading="Tell us about your day"
+                headingLevel="h2"
+                subtitle="Now booking 2027 weddings. Tell us your month and guest count, and we'll check the farm calendar for you. No commitment."
+                placement="contact"
+                softPathsForAll
+              />
               <FieldReview
                 spec={CONTACT_FORM_QUOTE}
                 role="Wedding"
@@ -247,42 +136,23 @@ export default function ContactPage() {
               />
             </div>
 
-            {/* Everything else: one row per reason. */}
-            <nav aria-label="Other ways to reach the farm" className="mt-10 lg:col-start-1 lg:row-start-2 lg:mt-12">
-              <p className={cn(fieldEyebrowClass, "m-0 text-[17px] lg:text-[20px]")}>Everything else</p>
-              <ul role="list" className="m-0 mt-2 list-none border-t border-rule p-0">
-                {doors().map((door) => (
-                  <li key={door.title}>
-                    <FieldLink href={door.href} external={door.external} className={rowLink}>
-                      <span>
-                        <span className="block font-display text-[21px] font-semibold leading-tight">
-                          {door.title}
-                        </span>
-                        <span className="block text-[12.5px] text-ink-note">{door.note}</span>
-                      </span>
-                      <span className="flex items-center gap-1.5 whitespace-nowrap text-[13px] font-semibold text-pine">
-                        {door.action}
-                        <FieldArrow size={14} />
-                      </span>
-                    </FieldLink>
-                  </li>
-                ))}
-                <li className="border-b border-rule py-2.5">
-                  <span className="block font-display text-[21px] font-semibold leading-tight">Email</span>
-                  <a href={`mailto:${CONTACT.email}`} className={emailLink}>
-                    <span className="font-medium text-ink underline decoration-rule underline-offset-4">
-                      {CONTACT.email}
-                    </span>
-                    <span className="text-ink-note">Weddings</span>
-                  </a>
-                  <a href={`mailto:${CONTACT.emailAlt}`} className={emailLink}>
-                    <span className="font-medium text-ink underline decoration-rule underline-offset-4">
-                      {CONTACT.emailAlt}
-                    </span>
-                    <span className="text-ink-note">Everything else</span>
-                  </a>
-                </li>
-              </ul>
+            {/* Email: the footer carries the doors; the two addresses stay here, labelled. */}
+            <nav aria-label="Email the farm" className="order-4 mt-10 lg:order-none lg:col-start-1 lg:row-start-3 lg:mt-12">
+              <p className={cn(fieldEyebrowClass, "m-0 text-[17px] lg:text-[20px]")}>Email</p>
+              <div className="mt-2 border-y border-rule py-2.5">
+                <a href={`mailto:${CONTACT.email}`} className={emailLink}>
+                  <span className="font-medium text-ink underline decoration-rule underline-offset-4">
+                    {CONTACT.email}
+                  </span>
+                  <span className="text-ink-note">Weddings</span>
+                </a>
+                <a href={`mailto:${CONTACT.emailAlt}`} className={emailLink}>
+                  <span className="font-medium text-ink underline decoration-rule underline-offset-4">
+                    {CONTACT.emailAlt}
+                  </span>
+                  <span className="text-ink-note">Everything else</span>
+                </a>
+              </div>
             </nav>
           </div>
         </section>

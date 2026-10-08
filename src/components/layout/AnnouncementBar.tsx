@@ -17,7 +17,8 @@ import {
 } from "./chrome";
 
 /*
- * The one-line pine bar above the name row (CONSISTENCY #8). No dismiss
+ * The one-line paper bar above the name row (CONSISTENCY #8; a quiet paper-shade band with a pine
+ * link since the mobile review, 2026-10-07: the solid pine slab outranked the page's own action). No dismiss
  * button: it scrolls away with the page while the name row stays pinned
  * (Header translates the masthead up by the bar's height). Height is
  * --bar-h: 40px, 44px on touch screens so the link is a 44px tap target.
@@ -32,7 +33,7 @@ import {
  */
 
 const LINK =
-  "ml-1 inline-flex min-h-[var(--bar-h)] items-center font-medium underline decoration-paper-light/60 underline-offset-4 transition-colors hover:decoration-paper-light";
+  "ml-1 inline-flex min-h-[var(--bar-h)] items-center font-medium text-pine underline decoration-pine-line underline-offset-4 transition-colors hover:decoration-pine";
 
 const dollars = (cents: number) => `$${cents % 100 === 0 ? cents / 100 : (cents / 100).toFixed(2)}`;
 
@@ -131,7 +132,7 @@ export function AnnouncementBar({ type }: { type: PageType }) {
       {bar && (
         <div
           data-announcement-bar=""
-          className="flex h-[var(--bar-h)] items-center justify-center overflow-hidden bg-pine px-4 text-center font-sans text-[12.5px] leading-none text-paper-light lg:text-[13px]"
+          className="flex h-[var(--bar-h)] items-center justify-center overflow-hidden border-b border-rule bg-paper-shade px-4 text-center font-sans text-[12.5px] leading-none text-ink-body lg:text-[13px]"
         >
           <BarCopy id={bar.id} />
         </div>

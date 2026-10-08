@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
   FieldArrow,
@@ -8,7 +7,6 @@ import {
   Plate,
   fieldCtaClass,
   fieldEyebrowClass,
-  fieldTextLinkClass,
 } from "@/components/ui/FieldGuide";
 import { FieldFaq } from "@/components/field/Faq";
 import { FieldReview } from "@/components/field/Reviews";
@@ -34,7 +32,7 @@ export const metadata: Metadata = {
       "This year, the host is a guest too. Four nights on a private forest farm near Mt. Hood, with Thanksgiving dinner cooked for you. Lodge for 8, $5,000. Whole farm for 20, $11,000.",
     url: "https://highlandfarmsoregon.com/thanksgiving",
     type: "website",
-    images: [{ url: OG_IMAGE, width: 1536, height: 1024, alt: "William Wallace Lodge dining room styled for Thanksgiving" }],
+    images: [{ url: OG_IMAGE, width: 1536, height: 1024, alt: "William Wallace Lodge dining room with Thanksgiving styling added digitally" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -177,25 +175,30 @@ export default function ThanksgivingPage() {
               </p>
               <div data-hero-cta className="mt-3">
                 <a href={inquiry} data-cta="tg-final" className={cn(fieldCtaClass, "w-full max-w-[420px] lg:w-auto")}>
-                  Check availability
+                  Check Thanksgiving dates
                   <FieldArrow />
                 </a>
-                <p className="m-0 mt-3 font-sans text-[13px] leading-[1.6] text-ink-note">
-                  Or email <span className="select-all break-all text-ink-body">{thanksgiving.email}</span>, or call{" "}
+                <div className="mt-2 flex flex-col items-center font-sans text-[13px] text-ink-note">
+                  <div className="flex flex-wrap items-center justify-center gap-x-3">
+                    <a
+                      href={`mailto:${thanksgiving.email}`}
+                      data-cta="tg-final-email"
+                      className="flex min-h-11 items-center break-all text-ink-body underline underline-offset-2"
+                    >
+                      {thanksgiving.email}
+                    </a>
+                    <CopyEmail email={thanksgiving.email} inline />
+                  </div>
                   <a
                     href={`tel:${thanksgiving.phone.replace(/\D/g, "")}`}
                     data-cta="tg-final-call"
-                    className="whitespace-nowrap py-3 text-ink-body underline underline-offset-2"
+                    className="flex min-h-11 items-center whitespace-nowrap text-ink-body underline underline-offset-2"
                   >
-                    {thanksgiving.phone}
+                    Or call {thanksgiving.phone}
                   </a>
-                  . An inquiry doesn&apos;t reserve the stay.
-                </p>
-                <CopyEmail email={thanksgiving.email} className="mt-1" />
+                  <p className="m-0 mt-1 leading-[1.5]">An inquiry doesn&apos;t reserve the stay.</p>
+                </div>
               </div>
-              <Link href="/stay" className="mt-4 inline-flex min-h-11 items-center">
-                <span className={fieldTextLinkClass}>See the Lodge, Cottage and Camp</span>
-              </Link>
             </div>
           </div>
         </div>
@@ -203,7 +206,7 @@ export default function ThanksgivingPage() {
 
       <section id="faq" aria-labelledby="tg-faq-title">
         <div className={wrap}>
-          <div className={cn(sectionInner, "lg:max-w-[760px]")}>
+          <div className={cn(sectionInner, "max-lg:pb-4 lg:max-w-[760px]")}>
             <h2 id="tg-faq-title" className="field-heading m-0 mb-5 text-[30px] leading-[1.05] text-ink lg:mb-8 lg:text-[44px]">
               Before you gather
             </h2>
@@ -213,8 +216,11 @@ export default function ThanksgivingPage() {
       </section>
 
       {/* The shared sticky bar: hides over the inquiry block, lifts the chat bubble above itself. */}
-      <FieldStickyBar primary={{ label: "Check availability", href: inquiry, cta: "tg-sticky" }} hideWhenVisible="#inquire" />
-      <div aria-hidden="true" className="h-20 lg:hidden" />
+      <FieldStickyBar
+        primary={{ label: "Check Thanksgiving dates", sublabel: "Nov 24 to 28", href: inquiry, cta: "tg-sticky" }}
+        hideWhenVisible={["#inquire", '[data-cta="tg-lodge"]', '[data-cta="tg-whole-farm"]']}
+      />
+      <div aria-hidden="true" className="h-14 lg:hidden" />
     </div>
   );
 }

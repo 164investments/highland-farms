@@ -5,14 +5,6 @@
  */
 import type { QuoteSpec } from "../../lib/review-quotes";
 
-/** Portfolio header, phone and desktop: one line, so the herd stays above the phone's sticky bar. */
-export const PORTFOLIO_KATE_QUOTE: QuoteSpec = {
-  author: "Kate Holt Photography",
-  date: "2026-03-01",
-  sentenceStartsWith: "Really, it’s a dream spot",
-  topic: "Wedding",
-};
-
 /**
  * Portfolio "Planning yours?": a couple's own words above the button. A 2026
  * wedding, so it never reads as one of the four 2025 couples above it; used

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StructuredData } from "@/components/layout/StructuredData";
-import { FieldReview, FieldReviewTier, GOOGLE_REVIEW_LINK, resolveFieldQuote } from "@/components/field/Reviews";
+import { FieldReview, GOOGLE_REVIEW_LINK, resolveFieldQuote } from "@/components/field/Reviews";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import {
@@ -274,7 +274,7 @@ function BackLink({ styled = false }: { styled?: boolean }) {
   );
 }
 
-/** "Photographed by …", linked (new tab, tagged) when the image metadata carries the studio's URL. */
+/** "Photographed by …": a credit in plain text (an exit link above the hero pulled people off the page). */
 function PhotographerCredit({ couple, className }: { couple: WeddingCouple; className?: string }) {
   const photographer = couple.photographer;
   if (!photographer) {
@@ -287,21 +287,7 @@ function PhotographerCredit({ couple, className }: { couple: WeddingCouple; clas
   }
   return (
     <p className={cn("font-sans text-[13px] text-ink-note lg:text-[14px]", className)}>
-      Photographed by{" "}
-      {photographer.url ? (
-        <a
-          href={photographer.url}
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-          data-outbound="photographer"
-          className="inline-flex min-h-11 items-center text-pine underline decoration-pine-line underline-offset-4 lg:min-h-0"
-        >
-          {photographer.name}
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>
-      ) : (
-        photographer.name
-      )}
+      Photographed by {photographer.name}
     </p>
   );
 }
@@ -316,7 +302,7 @@ function StyledHeader({ couple }: { couple: WeddingCouple }) {
     <header className="mx-auto flex max-w-[1440px] flex-col px-5 pt-[calc(var(--header-h,104px)+0.5rem)] lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:pt-[calc(var(--header-h,128px)+2rem)]">
       <BackLink styled />
       <div className="order-2 mt-1 lg:col-span-7 lg:mt-6">
-        <p className="font-display text-[17px] italic text-fern lg:text-[22px]">Made at the farm</p>
+        <p className="font-display text-[17px] italic text-fern lg:text-[22px]">Made at Highland Farms</p>
         <h1
           id="couple-title"
           className="field-heading mt-0.5 text-balance font-display text-[32px] leading-[1.02] text-ink lg:mt-2 lg:text-[64px] lg:leading-[1.0]"
@@ -324,7 +310,6 @@ function StyledHeader({ couple }: { couple: WeddingCouple }) {
           {couple.headline ?? displayName(couple)}
         </h1>
         <PhotographerCredit couple={couple} className="mt-1 lg:mt-4" />
-        <FieldReviewTier tier="hero" className="mt-1.5 text-[13px] lg:mt-6 lg:text-[15px]" starSize={13} />
       </div>
       <Plate
         className="order-3 mt-3 lg:col-span-5 lg:mt-6"
@@ -384,7 +369,9 @@ export default async function WeddingDetailPage({
             <BackLink />
             {/* Phones: back link, eyebrow, names, date, credit, then the couple's plate on the 660 first screen. */}
             <div className="order-2 mt-1 lg:col-span-7 lg:mt-6">
-              <p className="font-display text-[17px] italic text-fern lg:text-[22px]">A real wedding at Highland Farms</p>
+              <p className="font-display text-[17px] italic text-fern lg:text-[22px]">
+                {isMaya ? "A real wedding, with a Highland cow on the invitation" : "A real wedding at Highland Farms"}
+              </p>
               {/* Size before line-height: cn() drops a line-height that comes before a font size. */}
               <h1
                 id="couple-title"
@@ -398,8 +385,6 @@ export default async function WeddingDetailPage({
                 </p>
               )}
               <PhotographerCredit couple={couple} className="mt-1 lg:mt-2" />
-              {/* Phones: proof on the 660 first screen (desktop has the photographer's quote beside the title). */}
-              <FieldReviewTier tier="hero" className="mt-1.5 text-[13px] lg:hidden" starSize={13} />
             </div>
             <div className="order-4 mt-4 lg:order-3 lg:col-span-5 lg:mt-0">
               <p className="font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]">
@@ -452,7 +437,7 @@ export default async function WeddingDetailPage({
           )}
 
           {/* The day, as plates */}
-          <section aria-labelledby="plates-title" className="mx-auto max-w-[1440px] px-5 pt-12 lg:px-16 lg:pt-20">
+          <section aria-labelledby="plates-title" className="mx-auto max-w-[1440px] px-5 pb-6 pt-12 lg:px-16 lg:pb-8 lg:pt-20">
             <h2 id="plates-title" className="field-heading font-display text-[30px] leading-tight text-ink lg:text-[44px]">
               {plateHeading}
             </h2>
@@ -526,19 +511,24 @@ export default async function WeddingDetailPage({
         </article>
 
         {/* Planning yours? The ask, right after their words, with the coos */}
-        <section id="plan" aria-labelledby="plan-title" className="mt-12 border-t border-rule lg:mt-20">
+        <section id="plan" aria-labelledby="plan-title" className="border-t border-rule">
           <div className="mx-auto max-w-[1440px] px-5 py-12 lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-16 lg:px-16 lg:py-20">
             <Plate
               className="lg:col-span-5"
               frameClassName="aspect-[4/3] p-[7px] lg:aspect-[4/5] lg:p-2.5"
-              caption="The coos, our honorary wedding guests."
+              caption={confirmed ? "The coos, our honorary wedding guests." : "A calf and two of the herd, by the barn."}
             >
+              {/* Two pages must not end on the same photo: confirmed couples get the forest herd, a styled set the barn. */}
               <Image
-                src="/images/farm/about-hero.jpg"
-                alt="A Highland cow and two calves among tall mossy trees"
+                src={confirmed ? "/images/farm/about-hero.jpg" : "/images/farm/cows.jpg"}
+                alt={
+                  confirmed
+                    ? "A Highland cow and two calves among tall mossy trees"
+                    : "A Highland calf and two shaggy Highland cows stand on straw beside a wooden barn"
+                }
                 fill
                 sizes="(min-width: 1024px) 40vw, calc(100vw - 40px)"
-                className="object-cover object-[62%_60%]"
+                className={confirmed ? "object-cover object-[62%_60%]" : "object-cover object-[50%_60%]"}
               />
             </Plate>
             <div className="mt-7 lg:col-span-6 lg:col-start-7 lg:mt-0">
@@ -561,7 +551,8 @@ export default async function WeddingDetailPage({
               <p className="mt-3 font-sans text-[16px] leading-[1.6] text-ink-body lg:text-[18px]">
                 {PLANNING_OFFER} {WEDDING_FORM_INTRO}
               </p>
-              <Link href="/weddings#contact" className={cn(fieldCtaClass, "mt-5 w-full lg:w-auto")}>
+              <div id="plan-cta" className="mt-5">
+              <Link href="/weddings#contact" className={cn(fieldCtaClass, "w-full lg:w-auto")}>
                 Check your date
                 <FieldArrow />
               </Link>
@@ -572,11 +563,7 @@ export default async function WeddingDetailPage({
               >
                 Or book a free 45-minute call with Connor
               </WeddingCallLink>
-              <FieldReviewTier
-                tier="nearCta"
-                className="mt-2 justify-center text-[13px] lg:justify-start"
-                starSize={13}
-              />
+              </div>
             </div>
           </div>
         </section>
@@ -626,7 +613,7 @@ export default async function WeddingDetailPage({
       </div>
 
       {/* No first-screen button on this page, so the bar shows from load. */}
-      <FieldStickyBar primary={{ label: "Check your date", href: "/weddings#contact" }} hideWhenVisible="#plan" showOnLoad />
+      <FieldStickyBar primary={{ label: "Check your date", sublabel: "Two-night weddings from $13,000", href: "/weddings#contact" }} hideWhenVisible="#plan-cta" showOnLoad />
     </>
   );
 }

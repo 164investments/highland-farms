@@ -22,19 +22,17 @@ export const thanksgiving = {
         "William Wallace Lodge: four bedrooms, a full kitchen, a wood fireplace, a cedar hot tub and a dining room that seats ten.",
       stay: "William Wallace Lodge",
       spa: "1 session",
-      cta: "Check Lodge availability",
     },
     {
       id: "whole-farm",
       name: "The Whole Farm",
       sleeps: 20,
       price: 11000,
-      forWho: "For the whole family, grandparents to cousins, with every stay on the farm to yourselves.",
+      forWho: "For the whole family, grandparents to cousins, across the Lodge, the Cottage and the Camp.",
       description:
         "The Lodge, Bonnie Lass Cottage and the Camp, with a cedar hot tub at the Lodge and another at the Cottage.",
       stay: "Lodge, Cottage and Camp",
       spa: "2 sessions",
-      cta: "Check whole-farm availability",
     },
   ],
   // The three stays, shown above the package comparison.
@@ -82,7 +80,7 @@ export const thanksgiving = {
   ],
   // The only optional upgrade (wine pairing and the spa charcuterie were dropped October 6).
   upgrade:
-    "Want it cooked for you? Add a chef-cooked country breakfast on Friday morning, with Highland Farms eggs and sausage and signature sides, for $30 per person.",
+    "Want it cooked for you? A chef-cooked country breakfast on Friday morning is $30 per person.",
   steps: [
     {
       title: "Send an inquiry.",
@@ -156,12 +154,17 @@ export const thanksgiving = {
     {
       question: "How do we book?",
       answer:
-        "Tap any \"Check availability\" button to open a ready-to-send email, write to info@highlandfarms-oregon.com, or call (971) 236-2551. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes and fees before you commit. You pay in full to book, and all sales are final, with no refunds. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
+        "Tap any \"Check Thanksgiving dates\" button to open a ready-to-send email, write to info@highlandfarms-oregon.com, or call (971) 236-2551. Include your package, guest count, how many are 16 or older, and any allergies. The team confirms availability, taxes and fees before you commit. You pay in full to book, and all sales are final, with no refunds. An inquiry doesn't reserve the stay, and there is no online checkout for this package.",
     },
   ],
 } as const;
 
 export type ThanksgivingPackage = (typeof thanksgiving.packages)[number];
+
+/** Button label in the one "Check Thanksgiving dates" family, naming the choice: "Check Thanksgiving dates for the Lodge". */
+export function packageCtaLabel(pkg: ThanksgivingPackage) {
+  return `Check Thanksgiving dates for ${pkg.name.replace(/^The /, "the ")}`;
+}
 
 /** Price per guest when every bed is filled, rounded to the dollar. */
 export function perGuest(pkg: ThanksgivingPackage) {

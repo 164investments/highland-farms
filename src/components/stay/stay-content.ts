@@ -54,6 +54,8 @@ export interface StayContent {
   otherLine: (p: Property) => string;
   /** Small real photo for those rows (decorative). */
   thumb: StayPhotoSpec;
+  /** Visible note under a row's name when its thumb is not a photograph (the styled Whole Farm aerial). */
+  thumbCaption?: string;
   sheet: {
     photo: StayCaptionedPhoto;
     who: string;
@@ -139,14 +141,23 @@ const q = (
  */
 export const STAY_SHEET_QUOTES: Record<string, StayQuote> = {
   "whole-farm": q("Leanna Little", "2026-01-01", "As soon as you arrive", "Wedding"),
-  lodge: q("Kamakila Waiwaiole", "2025-06-23", "Truly one of the most serene", "Stay"),
+  lodge: q("Emily Hirsh", "2025-08-16", "We stayed in the lodge", "Stay"),
   cottage: q("Lauren Case", "2025-11-25", "Our 2 yr old", "Stay"),
   camp: q("Amy Bains", "2025-08-16", "We stayed at The Camp", "Stay"),
 };
 
 export const STAY_PAGE_QUOTES: Record<string, StayQuote> = {
   "whole-farm": q("Mellani Calvin", "2025-09-08", "We rented the whole darn farm", "Wedding"),
-  lodge: q("Emily Hirsh", "2025-08-16", "We stayed in the lodge", "Stay"),
+  lodge: {
+    spec: {
+      author: "Kamakila Waiwaiole",
+      date: "2025-06-23",
+      sentenceStartsWith: "My family and I spent a few nights in the lodge",
+      sentenceCount: 2,
+      topic: "Farm stay",
+    },
+    role: "Stay",
+  },
   cottage: q("Lindsay Hodge", "2026-07-09", "We stayed in The Cottage", "Stay"),
   camp: q("Debbie Brunhoff", "2025-09-19", "Slept in the airstream", "Stay"),
 };
@@ -435,12 +446,13 @@ const WHOLE_FARM: StayContent = {
   picker: (p) => `${bedroomsLabel(p.bedrooms)} · ${bathsLabel(p.baths)}, plus the Camp · two cedar hot tubs`,
   otherLine: (p) => `Sleeps ${p.guests} · ${bedroomsLabel(p.bedrooms)} · ${bathsLabel(p.baths)}, plus the Camp`,
   thumb: { src: "/images/farm/farm-aerial-patio-lawn-lodge-dusk.jpg", alt: "", position: "70% 50%" },
+  thumbCaption: "A styled aerial view of the farm.",
   sheet: {
     photo: {
       src: "/images/farm/farm-aerial-patio-lawn-lodge-dusk.jpg",
       alt: "Styled aerial view of Highland Farms at dusk: the Lodge and its deck, the patio, the lawn path and the gravel drive",
       position: "70% 50%",
-      caption: "The Lodge, the patio and the lawn, from above.",
+      caption: "A styled aerial view of the farm.",
     },
     who: "All three stays, reserved together for your group.",
     rows: (p) => [
@@ -459,7 +471,7 @@ const WHOLE_FARM: StayContent = {
       src: "/images/farm/farm-aerial-patio-lawn-lodge-dusk.jpg",
       alt: "Styled aerial view of Highland Farms at dusk: the Lodge and its deck, the patio, the lawn path and the gravel drive",
       position: "70% 50%",
-      caption: "The Lodge, the patio and the lawn, from above.",
+      caption: "A styled aerial view of the farm.",
     },
     fourth: { label: "Hot tubs", value: "2" },
     aboutTitle: "The farm",

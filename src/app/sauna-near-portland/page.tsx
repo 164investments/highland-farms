@@ -23,7 +23,6 @@ import {
 import {
   SPA_MAX_PARTY,
   SPA_PRICE_PER_PERSON,
-  SPA_PRIVATE_PRICE,
   SPA_SESSION_TIMES,
   SPA_WEEKEND,
 } from "@/data/nordic-spa";
@@ -73,7 +72,7 @@ const faqItems: FAQItem[] = [
   {
     question: "Can I book the sauna for today?",
     answer:
-      "Online booking closes a day ahead. If you’re already at the farm, ask us: a same-day spot is sometimes open.",
+      "Online booking closes a day ahead.",
   },
   {
     question: "Can I give a sauna session as a gift?",
@@ -112,25 +111,13 @@ function serviceSchema() {
   };
 }
 
-/** Drive times to the farm gate, without traffic (OSRM free-flow, 2026-10-06). */
-const DRIVE = [
-  { place: "Downtown Portland", time: "65 min", strong: true },
-  { place: "Gresham", time: "40 min" },
-  { place: "Sandy", time: "20 min" },
-] as const;
+/** Only the drive time a data file states: "about an hour from Portland" (src/data/properties.ts, weddings.ts). */
+const DRIVE = [{ place: "Downtown Portland", time: "About an hour", strong: true }] as const;
 
 const BUYS: { term: string; detail: string }[] = [
-  { term: "The heat", detail: "A cedar sauna with a wood-burning stove" },
-  { term: "The steam", detail: "A wet sauna, for a softer heat" },
-  { term: "The cold", detail: "A plunge outside on the cedar deck, under the trees" },
-  {
-    term: "The crowd",
-    detail: `Six guests at most, or just your group if you book all six spots ($${SPA_PRIVATE_PRICE})`,
-  },
   { term: "The setting", detail: "A private forest farm of five acres" },
-  { term: "The season", detail: "October to March is sauna season. Sessions run as booked, rain or shine." },
+  { term: "The season", detail: "Sessions run all year, rain or shine. Fall and winter are sauna season." },
   { term: "The neighbors", detail: "A herd of Highland cows (tours are booked separately)" },
-  { term: "The price", detail: `$${SPA_PRICE_PER_PERSON} per person for ${SPA_MINUTES} minutes, robes and towels included` },
 ];
 
 const knowRows: KnowRow[] = [
@@ -185,12 +172,12 @@ export default function SaunaNearPortlandPage() {
           </p>
           <h1
             id="sauna-hero-title"
-            className="field-heading mt-0.5 text-[34px] leading-[1.02] text-ink max-[359px]:text-[29px] lg:col-start-1 lg:row-start-3 lg:mt-1 lg:text-[48px] xl:text-[56px]"
+            className="field-heading mt-0.5 text-[34px] leading-[1.02] text-ink max-[359px]:text-[26px] lg:col-start-1 lg:row-start-3 lg:mt-1 lg:text-[48px] xl:text-[56px]"
           >
             A forest sauna, about an hour from Portland
           </h1>
           <p className="m-0 mt-2.5 font-sans text-[14px] leading-[1.5] text-ink-body lg:col-start-1 lg:row-start-4 lg:mt-5 lg:max-w-[560px] lg:text-[17px] lg:leading-[1.6]">
-            A wood-fired cedar sauna, a wet sauna and a cold plunge on a deck in the trees.
+            A wood-burning cedar sauna, a wet sauna and a cold plunge on a deck in the trees.
           </p>
           <p className="m-0 mt-3 font-sans text-[12px] uppercase tracking-[0.08em] text-ink lg:col-start-1 lg:row-start-5 lg:mt-6 lg:text-[13px]">
             ${SPA_PRICE_PER_PERSON} per person &middot; {SPA_MINUTES} minutes &middot; Up to {SPA_MAX_PARTY} &middot; Ages 16+
@@ -228,17 +215,17 @@ export default function SaunaNearPortlandPage() {
       </section>
 
       <div className="surface-paper bg-paper font-sans text-ink">
-        {/* S2 The drive: times to the gate, without traffic */}
+        {/* S2 The drive: no minute counts (none is in a data file) */}
         <FieldSection id="drive" rule="double" aria-label="The drive" innerClassName="lg:grid lg:grid-cols-12 lg:gap-x-16">
           <div className="lg:col-span-6">
             <FieldSectionHeader
               id="drive-title"
               eyebrow="East on US-26"
               title="The drive is part of it"
-              intro="Out of town on US-26, through Gresham and Sandy, into the trees. Times are to the farm gate, without traffic."
+              intro="Out of town on US-26, through Gresham and Sandy, into the trees."
               introClassName="max-w-[560px] lg:text-[17px]"
             />
-            <ol className="m-0 mt-7 list-none p-0" aria-label="Drive times to Highland Farms">
+            <ol className="m-0 mt-7 list-none p-0" aria-label="The drive to Highland Farms">
               {DRIVE.map((d) => (
                 <li
                   key={d.place}
@@ -266,10 +253,6 @@ export default function SaunaNearPortlandPage() {
                 </span>
               </li>
             </ol>
-            <p className="m-0 mt-4 font-sans text-[13px] leading-[1.6] text-ink-note lg:text-[14px]">
-              From Beaverton, about 1 hour 20 minutes; from Hillsboro, about 1.5 hours. Coming down from the
-              mountain? Government Camp is about 25 minutes away.
-            </p>
           </div>
           <Plate
             className="mt-9 lg:col-span-6 lg:mt-0"
@@ -284,41 +267,6 @@ export default function SaunaNearPortlandPage() {
               className="object-cover object-[55%_60%]"
             />
           </Plate>
-        </FieldSection>
-
-        {/* S3 What the drive buys you: our own facts only */}
-        <FieldSection
-          id="buys"
-          eyebrow="A city sauna, or this one"
-          title="What the drive buys you"
-        >
-          <FieldRows
-            size="list"
-            rows={BUYS}
-            className="mt-8 lg:mt-12 lg:grid lg:grid-cols-2 lg:gap-x-16"
-            rowClassName="py-3.5 lg:gap-3 lg:py-4"
-            termClassName="w-[116px] text-[20px] lg:w-[170px] lg:text-[24px]"
-            detailClassName="lg:text-[16px]"
-          />
-        </FieldSection>
-
-        {/* S4 People who made the drive (the five-star count sits only at the booking action) */}
-        <FieldSection
-          id="drive-proof"
-          eyebrow="In their words"
-          title="People who made the drive"
-          aside={<FieldReviewTier tier="compact" />}
-        >
-          <ul
-            role="list"
-            className="m-0 mt-7 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-2 lg:gap-x-16 lg:border-t-0"
-          >
-            {SAUNA_DRIVE_QUOTES.map((spec) => (
-              <li key={spec.author} className="border-b border-rule py-6 lg:border-b-0 lg:border-t lg:py-8">
-                <FieldReview spec={spec} role="Nordic spa" size="lg" />
-              </li>
-            ))}
-          </ul>
         </FieldSection>
 
         {/* S5 Book (#book is the masthead action's target) */}
@@ -345,11 +293,12 @@ export default function SaunaNearPortlandPage() {
                 </Suspense>
                 {SPA_WEEKEND && ` ${SPA_WEEKEND}`}
               </p>
-              <FieldReviewTier tier="nearCta" className="mt-2" />
-              <BookingPolicyNote
-                text={policy}
-                className="mt-5 border-t border-rule pt-4 text-[12px] text-ink-body lg:text-[13px]"
-              />
+            </div>
+            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-12">
+              <KnowBeforeYouBook framed={false} rows={knowRows} />
+            </div>
+            <div className="lg:col-span-6 lg:col-start-7 lg:row-start-2">
+              <BookingPolicyNote text={policy} />
               <PendingSlot
                 className="mt-4"
                 note="DECIDE D4: visit packs line (3 for $199, 5 for $299, 10 for $549, six months). Show only after Hayden decides and the Acuity pack copy says 90 minutes"
@@ -365,10 +314,55 @@ export default function SaunaNearPortlandPage() {
                 </p>
               </PendingSlot>
             </div>
-            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:mt-12">
-              <KnowBeforeYouBook framed={false} rows={knowRows} />
-            </div>
           </div>
+        </FieldSection>
+
+        {/* S3 What the drive buys you: our own facts only */}
+        <FieldSection
+          id="buys"
+          eyebrow="A city sauna, or this one"
+          title="What the drive buys you"
+        >
+          <FieldRows
+            size="list"
+            rows={BUYS}
+            className="mt-8 lg:mt-12 lg:grid lg:grid-cols-2 lg:gap-x-16"
+            rowClassName="py-3.5 lg:gap-3 lg:py-4"
+            termClassName="w-[116px] text-[20px] lg:w-[170px] lg:text-[24px]"
+            detailClassName="lg:text-[16px]"
+          />
+        </FieldSection>
+
+        {/* S4 People who made the drive (the five-star count sits only at the booking action) */}
+        <FieldSection
+          id="drive-proof"
+          eyebrow="In their words"
+          title="Someone who made the drive"
+          aside={<FieldReviewTier tier="compact" />}
+        >
+          <ul
+            role="list"
+            className="m-0 mt-7 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-2 lg:gap-x-16 lg:border-t-0"
+          >
+            {SAUNA_DRIVE_QUOTES.slice(0, 1).map((spec) => (
+              <li key={spec.author} className="border-b border-rule py-6 lg:border-b-0 lg:border-t lg:py-8">
+                <FieldReview spec={spec} role="Nordic spa" size="lg" />
+              </li>
+            ))}
+          </ul>
+          <Plate
+            className="mt-6 lg:mt-10"
+            frameClassName="h-[220px] lg:h-[460px]"
+            caption="Inside the cedar sauna."
+          >
+            <Image
+              src="/images/spa/spa-sauna-interior.jpg"
+              alt="Inside the cedar sauna: tiered benches and a glowing salt-brick panel"
+              fill
+              sizes="(min-width: 1440px) 1200px, calc(100vw - 54px)"
+              className="object-cover object-[50%_45%]"
+            />
+          </Plate>
         </FieldSection>
 
         <HighlandDayBlock utmPrefix="sauna-near-portland-day" />
@@ -383,7 +377,7 @@ export default function SaunaNearPortlandPage() {
           booking: { title: "Book your sauna session" },
           href: bookingUrl(BOOKING_LINKS.nordicSpa, "sauna-near-portland-sticky-mobile"),
         }}
-        hideWhenVisible="#book"
+        hideWhenVisible={["[data-hero-cta]", "#book"]}
       />
 
       {/* Modal mount: listens for openBookingModal() calls from every CTA */}

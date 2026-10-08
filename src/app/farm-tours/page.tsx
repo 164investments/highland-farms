@@ -17,6 +17,7 @@ import {
   FieldCatalogue,
   FieldDrawing,
   FieldLink,
+  FieldNo,
   FieldSection,
   FieldSectionHeader,
   FieldSequence,
@@ -31,7 +32,6 @@ import {
   TOURS_COWS_QUOTE,
   TOURS_HUG_QUOTE,
   TOURS_NOTES,
-  TOURS_RAIN_QUOTE,
   TOURS_SCOTLAND_QUOTE,
 } from "./quotes";
 
@@ -84,12 +84,9 @@ const knowRows: KnowRow[] = [
     ),
   },
   {
-    term: "Wear",
-    detail: "Closed-toe shoes are required. Dress in layers; October to March, bring rain boots and a rain jacket.",
-  },
-  {
-    term: "Access",
-    detail: "Not ADA accessible. The paths can't take a wheelchair, walker or stroller, and there is no seated version.",
+    term: "Wear and access",
+    detail:
+      "Closed-toe shoes are required. Dress in layers; October to March, bring rain boots and a rain jacket. Not ADA accessible: the paths can't take a wheelchair, walker or stroller, and there is no seated version.",
   },
   {
     term: "Arrival",
@@ -99,7 +96,7 @@ const knowRows: KnowRow[] = [
   { term: "Timing", detail: "Book at least a day ahead. Dates open about three to four months out." },
 ];
 
-const meet = [
+const sheep = [
   {
     id: "icelandic-sheep",
     drawing: "icelandic-sheep" as const,
@@ -107,24 +104,28 @@ const meet = [
     subtitle: "Ovis aries, Icelandic breed",
     body: "At the end of the fern-forest trail. A northern breed with a thick double fleece.",
   },
+];
+
+/** Peacocks, dogs and hens: compact rows on phones (drawing left, one line), three across on desktop; cows and sheep stay full. */
+const meet = [
   {
     id: "white-peacock",
     drawing: "white-peacock" as const,
     title: "White peacocks",
     subtitle: "Pavo cristatus, white form",
-    body: "White from crest to tail. Look up when you walk into the barn: they like a high perch.",
+    body: "Look up in the barn.",
   },
   {
     id: "guardian-dog",
     drawing: "guardian-dog" as const,
     title: "Guardian dogs",
     subtitle: "Canis familiaris, on duty",
-    body: "They work for a living, watching over the herd and the flock. Please leave your own at home: no pets or outside animals on the farm.",
+    body: "On duty with the herd and flock. Please leave pets at home.",
   },
   {
     id: "hen",
     drawing: "hen" as const,
-    title: "Hens and guinea fowl",
+    title: "Hens, guinea fowl",
     subtitle: "Gallus gallus · Numida meleagris",
     body: "You'll hear the guinea fowl before you see them.",
   },
@@ -174,15 +175,14 @@ export default function FarmToursPage() {
                 </Plate>
               </li>
               <li className="border-b border-rule py-6 lg:py-8">
-                <h3 className={hook}>Not a petting zoo.</h3>
+                <p className="m-0 font-display text-[22px] italic leading-[1.2] text-ink lg:text-[28px]">
+                  Not a petting zoo. No passport needed.
+                </p>
                 <p className={body15}>
                   Every tour is private: your group of two to six, your own guide, and sixty minutes on a working
-                  farm in the forest. No crowd at the fence.
+                  farm in the forest. No crowd at the fence. Scottish Highland cows in Brightwood, Oregon, about an
+                  hour from Portland.
                 </p>
-              </li>
-              <li className="border-b border-rule py-6 lg:py-8">
-                <h3 className={hook}>No passport needed.</h3>
-                <p className={body15}>Scottish Highland cows in Brightwood, Oregon, about an hour from Portland.</p>
                 <FieldReview spec={TOURS_SCOTLAND_QUOTE} role="Farm tour" size="sm" className="mt-4" />
               </li>
             </ul>
@@ -240,10 +240,10 @@ export default function FarmToursPage() {
           <FieldCatalogue
             className="mt-6 lg:mt-12"
             start={2}
-            columns={4}
+            columns={1}
             mediaLayout="side"
             ruled
-            items={meet.map((m) => ({
+            items={sheep.map((m) => ({
               id: m.id,
               title: m.title,
               subtitle: m.subtitle,
@@ -251,12 +251,29 @@ export default function FarmToursPage() {
               media: (
                 <FieldDrawing
                   name={m.drawing}
-                  className="h-[92px] w-[92px] lg:h-[200px] lg:w-full"
-                  sizes="(min-width: 1024px) 300px, 92px"
+                  className="h-[64px] w-[64px] lg:h-[200px] lg:w-[300px]"
+                  sizes="(min-width: 1024px) 300px, 64px"
                 />
               ),
             }))}
           />
+
+          <ul role="list" className="m-0 grid list-none divide-y divide-rule border-y border-rule p-0 lg:grid-cols-3 lg:gap-x-10 lg:divide-y-0 lg:py-8">
+            {meet.map((m, i) => (
+              <li key={m.id} className="grid grid-cols-[56px_minmax(0,1fr)] items-center gap-x-4 py-3 lg:flex lg:flex-col lg:items-start lg:py-0">
+                <FieldDrawing
+                  name={m.drawing}
+                  className="row-span-2 h-[56px] w-[56px] lg:h-[160px] lg:w-full"
+                  sizes="(min-width: 1024px) 300px, 56px"
+                />
+                <h3 className="field-heading m-0 flex items-baseline gap-2 font-display text-[19px] leading-tight text-ink lg:mt-2 lg:block lg:text-[26px]">
+                  <FieldNo n={3 + i} className="lg:mb-0.5 lg:block" />
+                  {m.title}
+                </h3>
+                <p className="m-0 font-sans text-[13px] leading-[1.45] text-ink-body lg:mt-1 lg:text-[15px]">{m.body}</p>
+              </li>
+            ))}
+          </ul>
         </FieldSection>
 
         {/* S4 The hour, in order */}
@@ -318,24 +335,6 @@ export default function FarmToursPage() {
                 },
               ]}
             />
-
-            <div className="mt-8 bg-paper-shade px-5 py-6 lg:mt-10 lg:px-8 lg:py-8">
-              <h3 className="m-0 font-display text-[26px] font-semibold leading-tight text-ink lg:text-[30px]">
-                Rain or shine
-              </h3>
-              <p className="m-0 mt-2 font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[16px]">
-                Rain changes nothing: the tour runs as booked and the cows are out on every tour. From October to
-                March, wear rain boots and a rain jacket. Winter is coat season: the herd is at its shaggiest from
-                November to March.
-              </p>
-              <FieldReview
-                spec={TOURS_RAIN_QUOTE}
-                role="Farm tour"
-                size="sm"
-                className="mt-4"
-                quoteClassName="lg:text-[21px]"
-              />
-            </div>
           </div>
 
           <div className="hidden lg:col-span-6 lg:flex lg:flex-col lg:gap-10">
@@ -367,6 +366,19 @@ export default function FarmToursPage() {
           title="Field notes from guests"
           aside={<FieldReviewTier tier="compact" />}
         >
+          <Plate
+            className="mt-7 lg:mt-10"
+            frameClassName="h-[260px] lg:h-[420px]"
+            caption="A guide leads a Highland calf down the forest trail."
+          >
+            <Image
+              src="/images/farm/farm-life.jpg"
+              alt="A smiling guide in a Highland Farms vest leading a shaggy Highland calf on a rope down a gravel trail through the forest"
+              fill
+              sizes="(min-width: 1024px) 1200px, calc(100vw - 54px)"
+              className="object-cover object-[50%_60%]"
+            />
+          </Plate>
           <ul
             role="list"
             className="m-0 mt-7 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-2 lg:gap-x-16 lg:border-t-0"
@@ -413,31 +425,26 @@ export default function FarmToursPage() {
                     label="How many are coming? Pick to see dates"
                     labelId="book-size-label"
                   />
-                  <FieldReviewTier tier="nearCta" className="mt-3" />
-                  <p className="m-0 mt-1 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
+                  <p className="m-0 mt-3 font-sans text-[13px] leading-[1.5] text-ink-note lg:text-[14px]">
                     <Suspense fallback={null}>
                       <NextAvailability variant="text" label="Next open tour:" />
                     </Suspense>{" "}
                     Tours at {TOUR_TIMES}.
                     {TOUR_LEAD_TIME && ` The typical tour is booked ${TOUR_LEAD_TIME} ahead.`}
                   </p>
-                  <p className="m-0 mt-3 font-sans text-[13px] leading-[1.55] text-ink-body lg:text-[14px]">
-                    Booking for two? You can add a dozen eggs for $8 at checkout.
-                  </p>
-                  <BookingPolicyNote
-                    text={policy}
-                    className="mt-5 border-t border-rule pt-4 text-[12px] text-ink-body lg:text-[13px]"
-                  />
                 </>
               )}
             </div>
-            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:mt-12">
+            <div className="mt-9 lg:col-span-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-12">
               <KnowBeforeYouBook framed={false} rows={knowRows} />
             </div>
+            {!native && (
+              <div className="lg:col-span-6 lg:col-start-7 lg:row-start-2">
+                <BookingPolicyNote text={policy} />
+              </div>
+            )}
           </div>
         </FieldSection>
-
-        <HighlandDayBlock utmPrefix="farm-tours-day" />
 
         {/* S7b Give a farm tour */}
         <FieldSection
@@ -459,6 +466,8 @@ export default function FarmToursPage() {
         </FieldSection>
 
         <VisitFaq items={farmTourFAQ} />
+
+        <HighlandDayBlock utmPrefix="farm-tours-day" line="add-spa" />
       </div>
 
       <FieldStickyBar
@@ -472,7 +481,7 @@ export default function FarmToursPage() {
                 href: bookingUrl(BOOKING_LINKS.farmTourForTwo, "farm-tours-sticky-mobile"),
               }
         }
-        hideWhenVisible="#choose"
+        hideWhenVisible={["[data-hero-cta]", "#choose"]}
       />
 
       {/* Modal mount: listens for openBookingModal() calls from every CTA */}

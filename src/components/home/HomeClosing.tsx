@@ -1,10 +1,10 @@
 import Image from "next/image";
-import { FieldArrow, FieldLink, Plate, fieldCtaClass } from "@/components/ui/FieldGuide";
-import { VISIT_LINKS } from "./home-data";
+import Link from "next/link";
+import { FieldArrow, Plate, fieldTextLinkClass } from "@/components/ui/FieldGuide";
 
 /**
- * Closing: the real carved Highland cow sign, the herd, one button to the
- * form on this page. The footer carries the address, drive times and
+ * Closing: the real carved Highland cow sign, one line and one quiet link to the tours (a heading
+ * with no way forward read as a dead end, mobile review r2). No second button: the form is the screen above. The footer carries the address, drive times and
  * directions, so none of that repeats here.
  */
 export function HomeClosing() {
@@ -34,21 +34,10 @@ export function HomeClosing() {
           >
             Bring your people to meet the herd.
           </h2>
-          <a href="#check-your-date" className={`${fieldCtaClass} mt-6 w-full lg:mt-9 lg:w-auto`}>
-            Check your date
-            <FieldArrow />
-          </a>
-          <p className="m-0 mt-2 flex min-h-11 flex-wrap items-center justify-center gap-x-1.5 font-sans text-[14px] text-ink-note lg:justify-start">
-            Or visit:
-            {VISIT_LINKS.map((link, i) => (
-              <span key={link.href} className="inline-flex items-center gap-x-1.5">
-                {i > 0 && <span aria-hidden="true">&middot;</span>}
-                <FieldLink href={link.href} className="inline-flex min-h-11 items-center font-medium text-pine">
-                  {link.phoneName}
-                </FieldLink>
-              </span>
-            ))}
-          </p>
+          <Link href="/farm-tours" className={`${fieldTextLinkClass} mt-4 inline-flex items-center gap-2`}>
+            See farm tours
+            <FieldArrow size={16} />
+          </Link>
         </div>
       </div>
     </section>

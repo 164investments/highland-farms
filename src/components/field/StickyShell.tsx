@@ -259,7 +259,7 @@ export function StickyShell({ children, className, ...visibility }: StickyShellP
         className,
       )}
     >
-      <div className="surface-paper border-t border-rule bg-paper px-4 pb-[max(18px,env(safe-area-inset-bottom))] pt-3">
+      <div className="surface-paper border-t border-rule bg-paper px-5 pb-[max(18px,env(safe-area-inset-bottom))] pt-3 max-[374px]:pb-[max(10px,env(safe-area-inset-bottom))] max-[374px]:pt-2">
         {children}
       </div>
     </div>
@@ -284,10 +284,10 @@ export interface StickyActionSpec {
 }
 
 export const stickyPrimaryClass =
-  "flex h-[52px] w-full items-center justify-center gap-2.5 bg-pine px-3 font-sans text-[15px] font-semibold tracking-[0.02em] text-paper-light transition-colors hover:bg-pine-dark hover:text-paper-light active:bg-pine-dark";
+  "flex h-[52px] w-full items-center justify-center gap-2.5 bg-pine px-3 max-[374px]:h-12 font-sans text-[15px] font-semibold tracking-[0.02em] text-paper-light transition-colors hover:bg-pine-dark hover:text-paper-light active:bg-pine-dark";
 
 export const stickySecondaryClass =
-  "flex h-[52px] w-full items-center justify-center gap-2 border border-pine bg-paper-light px-3 font-sans text-[15px] font-semibold tracking-[0.02em] text-pine transition-colors hover:bg-paper-shade";
+  "flex h-[52px] w-full items-center justify-center gap-2 border border-pine bg-paper-light px-3 max-[374px]:h-12 font-sans text-[15px] font-semibold tracking-[0.02em] text-pine transition-colors hover:bg-paper-shade";
 
 export function stickyActionClass(variant: "primary" | "secondary", sublabel?: string) {
   return cn(variant === "primary" ? stickyPrimaryClass : stickySecondaryClass, sublabel && "flex-col gap-0");

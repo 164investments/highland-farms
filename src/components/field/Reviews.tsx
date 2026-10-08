@@ -100,6 +100,7 @@ export function FieldReviewTier({ tier, link = false, subject, starSize, classNa
     <FieldReviewLine
       tier={tier}
       count={REVIEW_TIER_COUNTS[tier]}
+      total={REVIEW_COUNT}
       href={link ? GOOGLE_REVIEW_LINK : undefined}
       subject={subject}
       starSize={starSize}
@@ -151,7 +152,7 @@ export function FieldReviewList({
       {heading && (
         <Heading className="field-heading m-0 flex flex-wrap items-center gap-x-3 gap-y-1 font-display text-[28px] leading-tight text-ink lg:text-[36px]">
           <FieldStars size={17} />
-          <span>{reviewTierText(heading, REVIEW_TIER_COUNTS[heading])}</span>
+          <span>{reviewTierText(heading, REVIEW_TIER_COUNTS[heading], undefined, REVIEW_COUNT)}</span>
         </Heading>
       )}
       <ul

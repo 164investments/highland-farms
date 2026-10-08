@@ -15,5 +15,6 @@ export default function CheckoutPage() {
       applicationId={applicationId}
       locationId={locationId}
       reviewCount={REVIEW_TIER_COUNTS.nearCta}
+      reviewTotal={REVIEW_TIER_COUNTS.compact}
     />;
 }

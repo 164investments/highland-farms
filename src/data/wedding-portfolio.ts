@@ -422,7 +422,7 @@ export const weddingPortfolio: WeddingCouple[] = [
     // site), so "styled" is confirmed. Same answer for weddings/ceremony-3.jpg.
     photographer: { name: "Hazel Eye Photography" },
     headline: "A calf on a halter, a picnic under the trees.",
-    story: "A calf on a halter, a picnic under the trees, strawberries on the stationery.",
+    story: "A calf on a halter, a picnic under the trees, and a walk among the big trees.",
     journal: [
       { src: "/images/weddings/hannah-max/01.jpg", alt: "A couple kisses in the forest beside a Highland calf on a halter", position: "42% 45%" },
       { src: "/images/weddings/hannah-max/05.jpg", alt: "", position: "50% 50%" },
@@ -450,13 +450,8 @@ export const weddingPortfolio: WeddingCouple[] = [
         position: "35% 50%",
         caption: "A picnic under the trees.",
       },
-      {
-        src: "/images/weddings/hannah-max/03.jpg",
-        alt: "A gilt frame with a strawberry and its leaves resting on a printed card",
-        position: "62% 50%",
-        caption: "Strawberries on the stationery.",
-      },
-      // 04 (the stationery suite) is left out: the invitation names a couple, and a styled set never does (RULINGS r4 #10).
+      // 03 (the strawberry on the stationery card) and 04 (the invitation suite) are left out: faint names on the cards,
+      // and a styled set never names a couple (RULINGS r4 #10, r2).
       {
         src: "/images/weddings/hannah-max/06.jpg",
         alt: "Two people in wedding clothes hold hands among enormous mossy tree trunks",

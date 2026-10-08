@@ -10,11 +10,14 @@ import { cn } from "@/lib/utils";
 export function WaitlistForm({
   variantIds,
   name,
+  label,
   className,
 }: {
   variantIds: string[];
   /** What the email is about, for the field label ("Spare ribs", "Medium"). */
   name: string;
+  /** Overrides the field label ("Your email"); it is read aloud, not drawn, when `name` is empty. */
+  label?: string;
   className?: string;
 }) {
   const [email, setEmail] = useState("");
@@ -52,15 +55,15 @@ export function WaitlistForm({
   if (state === "done") {
     return (
       <p role="status" className={cn("m-0 py-3 text-[14px] text-ink-body", className)}>
-        We&apos;ll email you the day it&apos;s back.
+        You&apos;re on the list.
       </p>
     );
   }
 
   return (
     <form onSubmit={submit} className={cn("py-3", className)}>
-      <label htmlFor={id} className="block text-[13px] font-medium text-ink">
-        Email me when {name} is back
+      <label htmlFor={id} className={cn("block text-[13px] font-medium text-ink", !name && "sr-only")}>
+        {label ?? `Email me when ${name} is back`}
       </label>
       <div className="mt-1.5 flex gap-2">
         <input

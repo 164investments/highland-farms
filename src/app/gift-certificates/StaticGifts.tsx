@@ -2,19 +2,12 @@ import Image from "next/image";
 import { FieldReview, FieldReviewTier } from "@/components/field/Reviews";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import { JsonLd, faqPageJsonLd } from "@/components/field/Faq";
-import { FieldPriceRows, type FieldPriceRowData } from "@/components/field/PriceRows";
+import { type FieldPriceRowData } from "@/components/field/PriceRows";
 import { BookingModalRoot } from "@/components/shared/BookingButton";
 import { VisitFaq } from "@/components/shared/VisitFaq";
-import {
-  FieldDrawing,
-  FieldNo,
-  FieldSection,
-  FieldSectionHeader,
-  FieldSequence,
-  Plate,
-  type FieldDrawingName,
-} from "@/components/ui/FieldGuide";
-import { GIFTS, giftAcuityId, giftCatalogUrl, giftFAQ, giftPrice, type GiftFamily } from "@/data/gift-certificates";
+import { FieldSection, FieldSectionHeader, FieldSequence, Plate } from "@/components/ui/FieldGuide";
+import { GIFTS, giftCatalogUrl, giftFAQ, giftPrice, type GiftFamily } from "@/data/gift-certificates";
+import { GiftChooser, type GiftTileData } from "./GiftChooser";
 import { GIFTS_KSCHROE_QUOTE, GIFTS_STEWART_QUOTE, GIFTS_VALERIE_QUOTE } from "./quotes";
 
 /*
@@ -34,50 +27,13 @@ const LOWEST = Math.min(...Object.values(GIFTS).flatMap((g) => g.sizes.map((s) =
 
 const srAction = ", choose this gift";
 
-function heroRows(): FieldPriceRowData[] {
-  const row = (
-    family: GiftFamily,
-    id: string,
-    label: FieldPriceRowData["label"],
-    plain: string,
-    price: string,
-    extra: Partial<FieldPriceRowData> = {},
-  ): FieldPriceRowData => ({
-    id,
-    label,
-    price,
-    srAction,
-    labelClassName: "font-semibold",
-    booking: {
-      href: giftCatalogUrl(`gifts-hero-${family}`, giftAcuityId(family, family === "spa" ? 1 : 2)),
-      label: plain,
-      title: `Choose a ${plain} gift certificate`,
-    },
-    ...extra,
-  });
-  return [
-    row("tour", "tour", "Farm tour", "Farm tour", `$${TOUR_FOR_TWO} for two`),
-    row("spa", "spa", "Nordic spa", "Nordic spa", `$${SPA_EACH} per person`),
-    row("day", "day", "Highland Day", "Highland Day", `$${DAY_FOR_TWO} for two`, {
-      highlight: true,
-      tag: "Tour and spa",
-      tagBelow: true,
-      priceClassName: "font-semibold",
-    }),
-  ];
-}
-
 function ledgerRows(family: GiftFamily): FieldPriceRowData[] {
   return GIFTS[family].sizes.map((s) => {
     const label = family === "spa" ? (s.guests === 1 ? "1 person" : `${s.guests} people`) : `${s.guests} guests`;
-    const two = family !== "spa" && s.guests === 2;
     return {
       id: String(s.guests),
       label,
       price: `$${s.price}`,
-      highlight: two,
-      priceClassName: cn16(two),
-      labelClassName: "lg:text-[24px]",
       srAction,
       booking: {
         href: giftCatalogUrl(`gifts-${family}-${s.guests}`, s.acuityId),
@@ -88,73 +44,40 @@ function ledgerRows(family: GiftFamily): FieldPriceRowData[] {
   });
 }
 
-/** Phone: two 64px drawings side by side, the second overlapping by 16px (112px in all). */
-function cn64(i: number): string {
-  return i === 0 ? "h-[64px] w-[64px]" : "-ml-4 h-[64px] w-[64px]";
-}
-
-function cn16(bold: boolean): string {
-  return bold ? "font-semibold lg:text-[16px]" : "lg:text-[16px]";
-}
-
-interface EntryProps {
-  n: number;
-  title: string;
-  line: string;
-  body: string;
-  family: GiftFamily;
-  plates: FieldDrawingName[];
-  first?: boolean;
-}
-
-function GiftEntry({ n, title, line, body, family, plates, first }: EntryProps) {
-  const single = plates.length === 1;
-  return (
-    <article
-      className={
-        first
-          ? "mt-8 border-t border-rule pt-6 lg:mt-12 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:pt-10"
-          : "mt-12 lg:mt-20 lg:grid lg:grid-cols-12 lg:gap-x-16 lg:pt-10"
-      }
-    >
-      <div className="hidden lg:col-span-3 lg:flex lg:items-center lg:gap-2">
-        {plates.map((name) => (
-          <FieldDrawing
-            key={name}
-            name={name}
-            className={single ? "lg:h-[260px] lg:w-[260px]" : "lg:h-[128px] lg:w-[128px]"}
-            sizes={single ? "260px" : "128px"}
-          />
-        ))}
-      </div>
-      <div className="lg:col-span-9">
-        <div className={single ? "grid grid-cols-[1fr_88px] items-start gap-3 lg:block" : "grid grid-cols-[1fr_112px] items-start gap-3 lg:block"}>
-          <div>
-            <FieldNo n={n} />
-            <h3 className="field-heading m-0 mt-1 font-display text-[32px] leading-[1.02] text-ink lg:text-[46px]">
-              {title}
-            </h3>
-            <p className="m-0 mt-1 font-display text-[18px] italic text-ink-note lg:text-[21px]">{line}</p>
-          </div>
-          <div className={single ? "lg:hidden" : "flex w-[112px] items-center lg:hidden"}>
-            {plates.map((name, i) => (
-              <FieldDrawing
-                key={name}
-                name={name}
-                className={single ? "h-[88px] w-[88px]" : cn64(i)}
-                sizes={single ? "88px" : "64px"}
-              />
-            ))}
-          </div>
-        </div>
-        <p className="m-0 mt-3 max-w-[640px] font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[16px]">
-          {body}
-        </p>
-        <FieldPriceRows rows={ledgerRows(family)} className="mt-4 max-w-[560px]" />
-      </div>
-    </article>
-  );
-}
+/** The tiles' prices are the ladders' first rows; no number is typed twice. */
+const TILES: GiftTileData[] = [
+  {
+    family: "tour",
+    name: "Farm tour",
+    price: `$${TOUR_FOR_TWO}`,
+    unit: "for two",
+    drawings: ["highland-cow"],
+    line: "For the one who stops the car for every cow.",
+    body: "A private 60-minute tour: feed and pet the Highland cows, then walk the fern-forest trail to the sheep.",
+    rows: ledgerRows("tour"),
+  },
+  {
+    family: "spa",
+    name: "Nordic spa",
+    price: `$${SPA_EACH}`,
+    unit: "per person",
+    drawings: ["sauna-cabin"],
+    line: "For the friend who needs ninety quiet minutes.",
+    body: "One 90-minute session per person, robes and towels included. Ages 16 and up.",
+    rows: ledgerRows("spa"),
+  },
+  {
+    family: "day",
+    name: "Highland Day",
+    price: `$${DAY_FOR_TWO}`,
+    unit: "for two",
+    drawings: ["highland-cow", "sauna-cabin"],
+    panelTag: "Tour and spa",
+    line: "Meet the herd, then the sauna.",
+    body: "A private farm tour plus a spa spot for each guest, booked as two appointments; the tour comes first.",
+    rows: ledgerRows("day"),
+  },
+];
 
 export function StaticGifts() {
   return (
@@ -169,8 +92,8 @@ export function StaticGifts() {
         <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-[18px] lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(7,auto)_1fr] lg:gap-x-16 lg:px-10 lg:pb-10 lg:pt-11 xl:px-10 min-[90rem]:px-16">
           <Plate
             className="lg:col-start-2 lg:row-start-1 lg:row-end-10"
-            frameClassName="h-[160px] max-[359px]:h-[110px] lg:h-auto lg:min-h-0 lg:flex-1"
-            captionClassName="mt-px max-[359px]:hidden lg:mt-0.5"
+            frameClassName="h-[140px] max-[359px]:h-[110px] lg:h-auto lg:min-h-0 lg:flex-1"
+            captionClassName="mt-px max-sm:hidden lg:mt-0.5"
             caption="Feeding a calf in the hay."
           >
             <Image
@@ -180,12 +103,13 @@ export function StaticGifts() {
               priority
               fetchPriority="high"
               sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
-              // Phone: a 2.1:1 band of the square photo; 33% keeps the man's face in frame (desktop is portrait, so only x matters).
-              className="object-cover object-[60%_33%]"
+              // Phone: a band of the square photo (the three tiles still clear the fold); 27% keeps the man's head,
+              // the calf and the woman's face in frame. The gift page's own photo, not the tours hero (Hayden lens, r4).
+              className="object-cover object-[50%_27%]"
             />
           </Plate>
 
-          <p className="m-0 mt-3.5 font-display text-[18px] italic text-fern lg:col-start-1 lg:row-start-2 lg:mt-0 lg:text-[22px]">
+          <p className="m-0 mt-3.5 font-display text-[18px] italic text-fern lg:col-start-1 lg:row-start-2 lg:mt-0 lg:text-[22px] max-sm:mt-2.5">
             Gift certificates<span data-season-only="gift">, for the holidays</span>
           </p>
           <h1
@@ -202,69 +126,29 @@ export function StaticGifts() {
           <FieldReviewTier tier="hero" className="mt-2.5 lg:col-start-1 lg:row-start-5 lg:mt-5" />
 
           <div data-hero-cta className="mt-3.5 lg:col-start-1 lg:row-start-6 lg:mt-7 lg:max-w-[600px]">
-            {/* "No expiration date" rides in the label, so it is on the first screen at no height cost. */}
-            <FieldPriceRows label="Choose a gift · No expiration date" labelId="gift-pick-label" rows={heroRows()} />
-            <p className="m-0 mt-2 font-sans text-[12px] leading-[1.5] text-ink-note lg:text-[14px]">
-              At checkout, the Highland Day is listed as &ldquo;The Highland Experience.&rdquo; The code arrives by
-              email, usually within minutes, to print or forward.
-            </p>
-          </div>
-
-          <div className="mt-4 border-t border-rule pt-3.5 lg:col-start-1 lg:row-start-7 lg:mt-6 lg:max-w-[600px] lg:pt-5">
-            <FieldReview spec={GIFTS_VALERIE_QUOTE} role="Farm tour" size="sm" metaClassName="mt-1 lg:text-[11px]" />
+            <GiftChooser tiles={TILES} proof={<FieldReview spec={GIFTS_VALERIE_QUOTE} role="Farm tour" size="sm" metaClassName="mt-1 lg:text-[11px]" />} />
           </div>
         </div>
       </section>
 
       <div className="surface-paper bg-paper font-sans text-ink">
-        {/* S2 The three gifts (#choose is the masthead action's target) */}
-        <FieldSection id="choose" rule="double" eyebrow="Three gifts, every group size" title="Pick their group size">
-          <GiftEntry
-            first
-            n={1}
-            family="tour"
-            title="The farm tour"
-            line="For the one who stops the car for every cow."
-            body="A private 60-minute tour for their group: into the pen to feed, brush and pet the Highland cows, then the fern-forest trail to the Icelandic sheep. Kids 4 and under come free."
-            plates={["highland-cow"]}
-          />
-          <GiftEntry
-            n={2}
-            family="spa"
-            title="The Nordic spa"
-            line="For the friend who needs ninety quiet minutes."
-            body="One 90-minute session per person: the wood-burning cedar sauna, the wet sauna and the cold plunge, robes and towels included. Spa guests must be 16 or older. Give six, and the group can book a whole session to themselves."
-            plates={["sauna-cabin"]}
-          />
-          <GiftEntry
-            n={3}
-            family="day"
-            title="Highland Day"
-            line="Meet the herd, then the sauna."
-            body="For anyone who wants both: a private farm tour plus a spa spot for each guest, the same price as booking both. They book them as two appointments; on the same day, the tour comes first."
-            plates={["highland-cow", "sauna-cabin"]}
-          />
-        </FieldSection>
-
-        {/* S3 How it works: only what is true */}
+        {/* How it works: only what is true */}
         <FieldSection
           id="how"
           tone="light"
           aria-label="How it works"
           innerClassName="lg:grid lg:grid-cols-12 lg:gap-x-16"
         >
-          <FieldSectionHeader
-            eyebrow="From checkout to their day on the farm"
-            title="How it works"
-            className="lg:col-span-5"
-          />
+          <div className="lg:col-span-5">
+            <FieldSectionHeader eyebrow="From checkout to their day on the farm" title="How it works" />
+          </div>
           <FieldSequence
             className="mt-7 lg:col-span-7 lg:mt-0"
             items={[
               {
                 id: "choose",
                 title: "Choose the gift and pay",
-                body: "Checkout is on our booking site and opens on this page.",
+                body: "In the gift store, choose The Highland Experience for a Highland Day.",
               },
               {
                 id: "email",
@@ -279,13 +163,13 @@ export function StaticGifts() {
               {
                 id: "dates",
                 title: "Dates open about three to four months out",
-                body: "The certificate has no expiration date, so a holiday gift can become a winter or spring visit. Once a date is booked, it's final, like every tour and spa booking.",
+                body: "Once a date is booked, it's final, like every tour and spa booking.",
               },
             ]}
           />
         </FieldSection>
 
-        {/* S4 Booked as a surprise: verbatim, never claimed to be certificates */}
+        {/* Booked as a surprise: verbatim, never claimed to be certificates */}
         <FieldSection id="surprise" eyebrow="In their words" title="Booked as a surprise">
           <ul
             role="list"

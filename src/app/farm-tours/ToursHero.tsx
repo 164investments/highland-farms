@@ -23,8 +23,8 @@ export function ToursHero() {
       <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-[18px] lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(5,auto)_1fr] lg:gap-x-16 lg:px-10 lg:pb-10 lg:pt-11 xl:px-10 min-[90rem]:px-16">
         <Plate
           className="lg:col-start-2 lg:row-start-1 lg:row-end-8"
-          frameClassName="h-[200px] max-[359px]:h-[140px] lg:h-auto lg:min-h-0 lg:flex-1"
-          captionClassName="mt-px max-[359px]:hidden lg:mt-0.5"
+          frameClassName="h-[150px] max-[399px]:h-[140px] max-[359px]:h-[110px] lg:h-auto lg:min-h-0 lg:flex-1"
+          captionClassName="mt-px max-[399px]:hidden lg:mt-0.5"
           caption="A guide with one of the herd."
         >
           <Image
@@ -40,7 +40,7 @@ export function ToursHero() {
 
         <h1
           id="tours-hero-title"
-          className="field-heading mt-3.5 text-[34px] leading-[1.02] text-ink max-[359px]:text-[29px] lg:col-start-1 lg:row-start-2 lg:mt-0 lg:text-[48px] xl:text-[56px] min-[90rem]:text-[60px]"
+          className="field-heading mt-3 text-[34px] leading-[1.02] text-ink max-[359px]:text-[29px] lg:col-start-1 lg:row-start-2 lg:mt-0 lg:text-[48px] xl:text-[56px] min-[90rem]:text-[60px]"
         >
           An hour in the pen with the herd
         </h1>
@@ -52,7 +52,7 @@ export function ToursHero() {
 
         <FieldReviewTier tier="hero" className="mt-2.5 lg:col-start-1 lg:row-start-4 lg:mt-5" />
 
-        <div data-hero-cta className="mt-4 lg:col-start-1 lg:row-start-5 lg:mt-7 lg:max-w-[600px]">
+        <div data-hero-cta className="mt-3 lg:col-start-1 lg:row-start-5 lg:mt-7 lg:max-w-[600px]">
           <TourPicker
             where="hero"
             label="How many are coming? Pick to see dates"

@@ -52,7 +52,7 @@ export default function Home() {
       {/* Phone sticky action: after the hero CTA scrolls away, hidden while the form is on screen.
           The bar reserves its own height; no page spacer. */}
       <FieldStickyBar
-        primary={{ label: "Check your date", href: "#check-your-date" }}
+        primary={{ label: "Check your date", sublabel: "Two-night weddings from $13,000", href: "#check-your-date" }}
         hideWhenVisible="#check-your-date"
       />
     </>

@@ -66,6 +66,10 @@ export function HomeHero() {
         <p className="m-0 mt-2.5 font-sans text-[15px] leading-[1.5] text-ink-body lg:col-start-1 lg:row-start-3 lg:mt-[18px] lg:max-w-[580px] lg:text-[17px] lg:leading-[1.6]">
           Your wedding weekend at Highland Farms, a private forest farm about an hour from Portland.
           <span className="hidden lg:inline"> Up to 125 guests, and up to 20 of your people can stay.</span>
+          {/* Hayden: "If hormozi wants the starting price then add one." The workbook floor, as on /weddings. */}
+          <span className="mt-1.5 block text-[14px] font-medium text-ink lg:mt-3 lg:text-[16px]">
+            Two-night weddings from $13,000
+          </span>
         </p>
 
         <Plate
@@ -128,7 +132,6 @@ export function HomeHero() {
                 <span className="hidden lg:inline">{link.name}</span>
                 <FieldArrow size={14} strokeWidth={1.8} className="shrink-0 text-pine lg:hidden" />
               </span>
-              <span className="font-sans text-[11px] text-ink-note lg:text-[13px]">{link.note}</span>
               <FieldArrow size={15} strokeWidth={1.8} className="hidden shrink-0 self-center text-pine lg:block" />
             </Link>
           ))}

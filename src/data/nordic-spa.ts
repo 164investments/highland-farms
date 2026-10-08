@@ -40,10 +40,12 @@ export const SPA_SPOT_ROWS = [
 ] as const;
 
 /** The spa calendar link with Acuity's Quantity field prefilled (see SPA_SPOT_ROWS). */
-export function withSpaQuantity(href: string, quantity?: number): string {
-  if (!quantity) return href;
+export function withSpaQuantity(href: string, quantity?: number, range?: string): string {
+  if (!quantity && !range) return href;
   const url = new URL(href);
-  url.searchParams.set("quantity", String(quantity));
+  if (quantity) url.searchParams.set("quantity", String(quantity));
+  // A band with no fixed count ("3-5"): Acuity ignores the extra param; the booking wrapper names the band.
+  if (range) url.searchParams.set("hf_range", range);
   return url.toString();
 }
 

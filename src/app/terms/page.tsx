@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { FooterHide } from "@/components/layout/Footer";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { BookingModalRoot, BookingTextLink } from "@/components/shared/BookingButton";
 import { FieldArrow } from "@/components/ui/FieldGuide";
@@ -40,7 +42,7 @@ const bookLink = "inline-flex min-h-11 items-center gap-1.5 font-medium text-pin
 function ReadyToBook({ placement, className }: { placement: string; className?: string }) {
   return (
     <div className={cn("flex flex-wrap items-center gap-x-6 text-[14px] text-ink-body", className)}>
-      <p className="m-0 w-full leading-snug lg:w-auto">Ready to book?</p>
+      <p className="m-0 hidden leading-snug lg:block">Ready to book?</p>
       <BookingTextLink
         href={bookingUrl(BOOKING_LINKS.farmTourForTwo, `${placement}-tour`)}
         label="See tour dates"
@@ -63,67 +65,61 @@ function ReadyToBook({ placement, className }: { placement: string; className?: 
   );
 }
 
+/* A findable clause inside the text column: a pine rule and a tint, same left edge as the sections around it. */
+function Callout({ children }: { children: ReactNode }) {
+  return <div className="border-l-[3px] border-pine bg-paper-shade px-4 py-3.5 lg:px-5">{children}</div>;
+}
+
 const sections: LegalSection[] = [
   {
-    id: "sms",
-    title: "SMS Messaging Terms & Compliance",
+    id: "booking",
+    title: "Booking & Reservations",
     children: (
-      <>
-        <LegalMeta>Highland Farms Oregon LLC · Effective Date: January 1, 2026</LegalMeta>
-        <p>
-          <LegalStrong>Marketing text messages:</LegalStrong> If you check the marketing text message box on our
-          contact form, you consent to receive marketing text messages from Highland Farms Oregon LLC at the phone
-          number you provided. Frequency may vary. Message and data rates may apply. Text HELP for assistance. Reply
-          STOP to opt out. Consent is not a condition of purchase. Appointment messages (confirmations and reminders)
-          are a separate, optional choice on the same form.
-        </p>
-        <LegalSteps>
+      <LegalList>
+        <>
+          <LegalStrong>All bookings are subject to availability</LegalStrong> and confirmation by Highland Farms.
+        </>
+        <>
+          <LegalStrong>Farm tours and spa sessions are paid in full when you book.</LegalStrong> For weddings, events and accommodations, any
+          deposit and payment terms are specified at the time of booking.
+        </>
+        <>
+          <LegalStrong>By booking, you agree to the pricing, dates, and specific terms</LegalStrong> communicated during
+          the reservation process.
+        </>
+        <>
+          <LegalStrong>Farm tour and spa bookings are made through our scheduling partner (Acuity Scheduling)</LegalStrong>{" "}
+          and are subject to their terms of service in addition to ours.
+        </>
+        <>
+          <LegalStrong>Accommodation bookings may be made through our booking partner (Hospitable)</LegalStrong> and are
+          subject to their terms in addition to ours.
+        </>
+      </LegalList>
+    ),
+  },
+  {
+    id: "cancellation",
+    title: "Cancellation & Refund Policy",
+    children: (
+      <Callout>
+        <LegalList>
           <>
-            <LegalStrong>Program Description:</LegalStrong> This messaging program sends appointment confirmation and
-            reminder messages to customers who have booked an appointment with Highland Farms Oregon LLC through our
-            website at https://highlandfarmsoregon.com/, or via our scheduling forms, and have explicitly opted in to
-            receive SMS notifications. Opt-in is collected via web forms with a dedicated checkbox for SMS consent.
-            Messages include scheduling confirmations, appointment reminders, rescheduling updates, and customer
-            support communications.
+            <LegalStrong>Farm tours &amp; spa sessions:</LegalStrong> Strict cancellation policy. All bookings are
+            final. We do not offer refunds, reschedules, credits, or transfers for cancellations, date changes, or
+            no-shows. {CONFIRM_BEFORE_BOOKING} {WEATHER_EXCEPTION}
           </>
           <>
-            <LegalStrong>Cancellation Instructions:</LegalStrong> You can cancel the SMS service at any time. Simply
-            text &ldquo;STOP&rdquo; to the same number that sent you messages. Upon sending &ldquo;STOP,&rdquo; we
-            will confirm your unsubscribe status via SMS. Following this confirmation, you will no longer receive SMS
-            messages from us. To rejoin, sign up as you did initially, and we will resume sending SMS messages to you.
+            <LegalStrong>Accommodations:</LegalStrong> All stay bookings are final. We do not offer refunds for
+            cancelled stays.
           </>
           <>
-            <LegalStrong>Support Information:</LegalStrong> If you experience issues with the messaging program, reply
-            with the keyword &ldquo;HELP&rdquo; for more assistance, or reach out directly to{" "}
-            <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink> or call{" "}
-            <LegalLink href={telHref}>{CONTACT.phone}</LegalLink> during business hours.
+            <LegalStrong>Weddings &amp; events:</LegalStrong> Cancellation and refund terms are outlined in your
+            individual event agreement. Deposits are generally non-refundable. Please discuss your specific terms with
+            our events team.
           </>
-          <>
-            <LegalStrong>Carrier Liability:</LegalStrong> Carriers are not liable for delayed or undelivered messages.
-          </>
-          <>
-            <LegalStrong>Message &amp; Data Rates:</LegalStrong> Message and data rates may apply for messages sent to
-            you from us and to us from you. Message frequency varies based on your service usage and appointment
-            schedule. For questions about your text plan or data plan, contact your wireless provider.
-          </>
-          <>
-            <LegalStrong>Supported Carriers:</LegalStrong> Our SMS program works with all major U.S. wireless
-            carriers, including AT&amp;T, T-Mobile, Verizon, Sprint, and most regional carriers.
-          </>
-          <>
-            <LegalStrong>Age Restriction:</LegalStrong> You must be 18 years or older to participate in our SMS
-            program.
-          </>
-          <>
-            <LegalStrong>Privacy Policy:</LegalStrong> For privacy-related inquiries, please refer to our{" "}
-            <LegalLink href="/privacy">Privacy Policy</LegalLink>.
-          </>
-        </LegalSteps>
-        <p>
-          We comply with all applicable laws and regulations, including the Telephone Consumer Protection Act (TCPA)
-          and CTIA guidelines, regarding the use of SMS communications.
-        </p>
-      </>
+        </LegalList>
+      </Callout>
     ),
   },
   {
@@ -159,60 +155,6 @@ const sections: LegalSection[] = [
         spa sessions, and short-term accommodation rentals at our property in Brightwood, Oregon. Specific terms for
         each service are provided at the time of booking and may include additional agreements.
       </p>
-    ),
-  },
-  {
-    id: "booking",
-    title: "Booking & Reservations",
-    children: (
-      <LegalList>
-        <>All bookings are subject to availability and confirmation by Highland Farms.</>
-        <>
-          Farm tours and spa sessions are paid in full when you book. For weddings, events and accommodations, any
-          deposit and payment terms are specified at the time of booking.
-        </>
-        <>
-          By booking, you agree to the pricing, dates, and specific terms communicated during the reservation process.
-        </>
-        <>
-          Farm tour and spa bookings are made through our scheduling partner (Acuity Scheduling) and are subject to
-          their terms of service in addition to ours.
-        </>
-        <>
-          Accommodation bookings may be made through our booking partner (Hospitable) and are subject to their terms
-          in addition to ours.
-        </>
-      </LegalList>
-    ),
-  },
-  {
-    id: "cancellation",
-    title: "Cancellation & Refund Policy",
-    emphasis: true,
-    children: (
-      <>
-        <LegalList>
-          <>
-            <LegalStrong>Farm tours &amp; spa sessions:</LegalStrong> Strict cancellation policy. All bookings are
-            final. We do not offer refunds, reschedules, credits, or transfers for cancellations, date changes, or
-            no-shows. {CONFIRM_BEFORE_BOOKING} {WEATHER_EXCEPTION}
-          </>
-          <>
-            <LegalStrong>Accommodations:</LegalStrong> All stay bookings are final. We do not offer refunds for
-            cancelled stays.
-          </>
-          <>
-            <LegalStrong>Weddings &amp; events:</LegalStrong> Cancellation and refund terms are outlined in your
-            individual event agreement. Deposits are generally non-refundable. Please discuss your specific terms with
-            our events team.
-          </>
-          <>
-            <LegalStrong>Weather:</LegalStrong> Highland Farms reserves the right to cancel or reschedule outdoor
-            activities due to severe weather. In such cases, a full refund or reschedule will be offered.
-          </>
-        </LegalList>
-        <ReadyToBook placement="terms-section-5" />
-      </>
     ),
   },
   {
@@ -295,7 +237,7 @@ const sections: LegalSection[] = [
     id: "photo",
     title: "Photography & Media",
     children: (
-      <>
+      <Callout>
         <p>
           By visiting Highland Farms, you consent to being photographed or recorded for promotional purposes unless
           you notify us in writing prior to your visit. Highland Farms may use photographs taken on the property for
@@ -305,7 +247,7 @@ const sections: LegalSection[] = [
           If you wish to opt out of promotional photography, please inform our team at check-in or via email at{" "}
           <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink>.
         </p>
-      </>
+      </Callout>
     ),
   },
   {
@@ -353,6 +295,71 @@ const sections: LegalSection[] = [
       </>
     ),
   },
+  {
+    id: "sms",
+    title: "SMS Messaging Terms & Compliance",
+    children: (
+      <>
+        <LegalMeta>Highland Farms Oregon LLC · Effective Date: January 1, 2026</LegalMeta>
+        <p>
+          <LegalStrong>Marketing text messages:</LegalStrong> If you check the marketing text message box on our
+          contact form, you consent to receive marketing text messages from Highland Farms Oregon LLC at the phone
+          number you provided. Frequency may vary. Message and data rates may apply. Text HELP for assistance. Reply
+          STOP to opt out. Consent is not a condition of purchase. Appointment messages (confirmations and reminders)
+          are a separate, optional choice on the same form.
+        </p>
+        <LegalSteps>
+          <>
+            <LegalStrong>Program Description:</LegalStrong> This messaging program sends appointment confirmation and
+            reminder messages to customers who have booked an appointment with Highland Farms Oregon LLC through our
+            website at https://highlandfarmsoregon.com/, or via our scheduling forms, and have explicitly opted in to
+            receive SMS notifications. Opt-in is collected via web forms with a dedicated checkbox for SMS consent.
+            Messages include scheduling confirmations, appointment reminders, rescheduling updates, and customer
+            support communications.
+          </>
+          <>
+            <LegalStrong>Cancellation Instructions:</LegalStrong> You can cancel the SMS service at any time. Simply
+            text &ldquo;STOP&rdquo; to the same number that sent you messages. Upon sending &ldquo;STOP,&rdquo; we
+            will confirm your unsubscribe status via SMS. Following this confirmation, you will no longer receive SMS
+            messages from us. To rejoin, sign up as you did initially, and we will resume sending SMS messages to you.
+          </>
+          <>
+            <LegalStrong>Support Information:</LegalStrong> If you experience issues with the messaging program, reply
+            with the keyword &ldquo;HELP&rdquo; for more assistance, or reach out directly to{" "}
+            <LegalLink href={`mailto:${CONTACT.email}`}>{CONTACT.email}</LegalLink> or call{" "}
+            <span className="whitespace-nowrap">
+              <LegalLink href={telHref}>{CONTACT.phone}</LegalLink>
+            </span>{" "}
+            during business hours.
+          </>
+          <>
+            <LegalStrong>Carrier Liability:</LegalStrong> Carriers are not liable for delayed or undelivered messages.
+          </>
+          <>
+            <LegalStrong>Message &amp; Data Rates:</LegalStrong> Message and data rates may apply for messages sent to
+            you from us and to us from you. Message frequency varies based on your service usage and appointment
+            schedule. For questions about your text plan or data plan, contact your wireless provider.
+          </>
+          <>
+            <LegalStrong>Supported Carriers:</LegalStrong> Our SMS program works with all major U.S. wireless
+            carriers, including AT&amp;T, T-Mobile, Verizon, and most regional carriers.
+          </>
+          <>
+            <LegalStrong>Age Restriction:</LegalStrong> You must be 18 years or older to participate in our SMS
+            program.
+          </>
+          <>
+            <LegalStrong>Privacy Policy:</LegalStrong> For privacy-related inquiries, please refer to our{" "}
+            <LegalLink href="/privacy">Privacy Policy</LegalLink>.
+          </>
+        </LegalSteps>
+        <p>
+          We comply with all applicable laws and regulations, including the Telephone Consumer Protection Act (TCPA)
+          and CTIA guidelines, regarding the use of SMS communications.
+        </p>
+      </>
+    ),
+  },
 ];
 
 const shortVersion = (
@@ -371,16 +378,16 @@ const shortVersion = (
     <ReadyToBook placement="terms-short" className="mt-1.5" />
     <a
       href="#cancellation"
-      className="mt-1 inline-flex min-h-11 items-center gap-2 text-[14px] font-medium text-pine"
+      className="mt-1 hidden min-h-11 items-center gap-2 text-[14px] font-medium text-pine lg:inline-flex"
     >
-      <span className="border-b border-pine-line pb-0.5">Read section 5 in full</span>
+      <span className="border-b border-pine-line pb-0.5">Read the full cancellation policy</span>
     </a>
-    <p className="m-0 text-[14px] text-ink-body">
-      Questions before you book? Call{" "}
-      {/* Link and period in one unbreakable box: the "." used to wrap alone under the number on phones. */}
-      <span className="inline-flex min-h-11 items-center whitespace-nowrap">
+    <p className="m-0 flex min-h-11 flex-wrap items-center gap-x-1.5 text-[14px] text-ink-body">
+      <span>Questions before you book?</span>
+      {/* The number is one unbreakable link with its period: it never wraps alone after the question. */}
+      <span className="whitespace-nowrap">
         <a href={telHref} className="font-medium text-pine underline decoration-pine-line underline-offset-4">
-          {CONTACT.phone}
+          Call {CONTACT.phone}
         </a>
         .
       </span>
@@ -393,6 +400,7 @@ export default function TermsOfServicePage() {
     <>
       <StructuredData pathname="/terms" />
       <BookingModalRoot />
+      <FooterHide parts={["talk"]} />
       <LegalLayout
         policy="terms"
         title="Terms of Service"
@@ -401,13 +409,15 @@ export default function TermsOfServicePage() {
         closing="Still have a question about a booking?"
         headerExtra={
           <>
-            <LegalJump
-              items={[
-                { href: "#cancellation", label: "Cancellations" },
-                { href: "#rules", label: "Rules" },
-                { href: "#photo", label: "Photography" },
-              ]}
-            />
+            <div className="hidden lg:block">
+              <LegalJump
+                items={[
+                  { href: "#cancellation", label: "Cancellations" },
+                  { href: "#rules", label: "Rules" },
+                  { href: "#photo", label: "Photography" },
+                ]}
+              />
+            </div>
             {shortVersion}
           </>
         }

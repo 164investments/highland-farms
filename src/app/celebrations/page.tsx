@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { FieldReview, FieldReviewTier, resolveFieldQuote } from "@/components/field/Reviews";
-import { FieldFaq, cancellationAnswer } from "@/components/field/Faq";
+import { cancellationAnswer } from "@/components/field/Faq";
 import { FieldStickyBar } from "@/components/field/StickyBar";
 import {
   FieldArrow,
@@ -15,6 +15,7 @@ import {
   FieldSectionHeader,
   PendingSlot,
   Plate,
+  fieldCtaClass,
   fieldEyebrowClass,
   fieldLabelClass,
   fieldTextLinkClass,
@@ -22,7 +23,7 @@ import {
 } from "@/components/ui/FieldGuide";
 import { FieldArrowDown, StayPhoto } from "@/components/stay/StayParts";
 import { CELEBRATION_FORM_QUOTE, CELEBRATION_QUOTES } from "@/components/stay/stay-content";
-import { PHONE_TEL, SPA_PRIVATE_SESSION, STAY_MINIMUM, TOUR_EACH_ADDITIONAL, TOUR_FOR_TWO } from "@/components/stay/stay-facts";
+import { PHONE_TEL, STAY_MINIMUM } from "@/components/stay/stay-facts";
 import { properties } from "@/data/properties";
 import { farmTourFAQ } from "@/data/farm-tours";
 import { nordicSpaFAQ } from "@/data/nordic-spa";
@@ -64,39 +65,32 @@ const BANDS = {
 };
 
 /**
- * RULINGS #8: no wedding photo in this hero. A real non-wedding group on the
- * farm, captioned with only what it shows (the event itself is unconfirmed).
- * Not a first screen anywhere else (CONSISTENCY #12).
+ * Board C hero: a real guest photo, no wedding. The caption says only what the
+ * frame shows (a gold 3 balloon, a cowboy hat and a Highland cow).
  */
 const HERO_PHOTO = {
-  src: "/images/events/forest-yoga.jpg",
-  alt: "A group resting on blankets on the flagstone patio under tall firs",
-  position: "50% 85%",
+  src: "/images/farm/events-retreats.jpg",
+  alt: "A child in a white cowboy hat and fringed denim jacket holds a gold 3 balloon beside a Highland cow",
+  position: "50% 21%",
+  caption: "A gold 3 balloon, a cowboy hat and a Highland cow.",
 };
 
 const bring: { drawing: FieldDrawingName; title: string; body: string }[] = [
   {
     drawing: "highland-cow-head",
     title: "The herd",
-    body: `A private hour with the Highland cows: feed, brush and pet them. 2 to 6 guests per tour, $${TOUR_FOR_TWO} for two and $${TOUR_EACH_ADDITIONAL} for each additional guest.`,
+    body: "A private hour with the Highland cows, for 2 to 6 guests per tour.",
   },
   {
     drawing: "sauna-cabin",
     title: "The Nordic spa",
-    body: `A wood-burning dry sauna, a wet sauna and a cold plunge for 90 minutes, ages 16 and up. Book all six spots for a private session, $${SPA_PRIVATE_SESSION}.`,
+    body: "A wood-burning sauna, a wet sauna and a cold plunge for 90 minutes. Book all six spots for a private session.",
   },
   {
     drawing: "douglas-fir-sprig",
     title: "Five acres of forest",
     body: "Tall firs and ferns, a flagstone patio and a pond.",
   },
-];
-
-/** The first-screen headcount picker (phone and desktop): one short line each, so all three rows fit in 660px. */
-const HEADCOUNT_ROWS = [
-  { band: BANDS.house, title: "One house", note: "The Lodge or the Cottage", href: "#one-house" },
-  { band: BANDS.farm, title: "The whole farm", note: `All three stays, sleeps ${wholeFarm.guests}`, href: "/stay/whole-farm#book" },
-  { band: BANDS.gathering, title: "A gathering", note: "Check your date with us", href: "#contact" },
 ];
 
 const ladderLinkClass = cn("mt-1 inline-flex min-h-11 items-center gap-1.5 text-[14px] lg:text-[15px]", fieldTextLinkClass);
@@ -111,85 +105,58 @@ export default function CelebrationsPage() {
   });
   // RULINGS #8: one closed row holds both strict answers, word for word from their data files,
   // beside the visit actions and never above the inquiry form.
-  const visitPolicy = [cancellationAnswer(farmTourFAQ), cancellationAnswer(nordicSpaFAQ)]
-    .filter(Boolean)
-    .join("\n\n");
+  const tourPolicy = cancellationAnswer(farmTourFAQ);
+  const spaPolicy = cancellationAnswer(nordicSpaFAQ);
+  const visitPolicy = [
+    { label: "Farm tours", text: tourPolicy },
+    { label: "Nordic spa", text: spaPolicy },
+  ].filter((p): p is { label: string; text: string } => Boolean(p.text));
 
   return (
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
       <StructuredData pathname="/celebrations" />
 
-      {/* 1. Hero: centred, then the headcount picker as the first step (no form first). */}
+      {/* 1. Hero (board C): the promise, the largest coo photo and one button. The headcount ladder is screen 2. */}
       <section className="px-5 pt-5 pb-9 lg:px-16 lg:pt-14 lg:pb-16">
         <div className="mx-auto max-w-[1312px]">
           <div className="lg:mx-auto lg:max-w-[860px] lg:text-center">
             <p className={cn("m-0 text-[17px] lg:text-[22px]", fieldEyebrowClass)}>Birthdays, reunions and retreats</p>
-            <h1 className="field-heading m-0 mt-1 font-display text-[33px] leading-[1.02] text-ink lg:mt-3 lg:text-[64px]">
+            <h1 className="field-heading m-0 mt-1 font-display text-[33px] leading-[1.02] text-ink max-[359px]:text-[29px] lg:mt-3 lg:text-[64px]">
               Gather your people on a Highland cow farm.
             </h1>
           </div>
-          <div className="mt-4 lg:mt-10">
-            {/* Phone: about 2:1, so the "21 to 125" row clears 660px (measured 646 at 393x660). */}
+          <div className="mt-3 lg:mt-10">
             <Plate
-              caption="A group resting on the flagstone patio under the firs."
+              caption={HERO_PHOTO.caption}
               captionClassName="lg:text-center"
-              frameClassName="h-[160px] min-[380px]:h-[176px] lg:h-[500px]"
+              frameClassName="h-[290px] max-[359px]:h-[218px] lg:h-[560px]"
             >
               <StayPhoto photo={HERO_PHOTO} sizes="(min-width: 1440px) 1312px, 100vw" priority />
             </Plate>
           </div>
           {/* Plain text, as on the other visit pages: no link out to Google on the first screen. */}
-          <FieldReviewTier tier="hero" className="mt-2.5 lg:hidden" />
-          <nav aria-label="Choose by group size" data-hero-cta className="lg:hidden">
-            <p className={cn("m-0 mt-3 font-medium", fieldLabelClass)}>How many are coming?</p>
-            <div className="mt-2 flex flex-col border-t border-ink/70">
-              {HEADCOUNT_ROWS.map((r) => (
-                <ClientLink key={r.title} href={r.href} className="flex min-h-[60px] items-center gap-3 border-b border-rule py-2">
-                  <span className="w-[92px] shrink-0 font-display text-[24px] font-medium leading-none text-ink">{r.band}</span>
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="font-display text-[19px] font-semibold leading-tight text-ink">{r.title}</span>
-                    <span className="font-sans text-[12px] text-ink-note">{r.note}</span>
-                  </span>
-                  <span className="text-pine">
-                    <FieldArrow />
-                  </span>
-                </ClientLink>
-              ))}
-            </div>
-          </nav>
-          <p className="m-0 mt-4 font-sans text-[15px] leading-[1.55] text-ink-body lg:hidden">
-            A private forest farm, about an hour from Portland.
-          </p>
-          <div className="hidden lg:mx-auto lg:mt-10 lg:block lg:max-w-[1100px]">
-            <div className="flex items-baseline justify-between gap-10">
-              <p className={cn("m-0 font-medium", fieldLabelClass)}>How many are coming?</p>
-              <FieldReviewTier tier="hero" />
-            </div>
-            <nav aria-label="Choose by group size" data-hero-cta className="mt-3 grid grid-cols-3 gap-10">
-              {HEADCOUNT_ROWS.map((r) => (
-                <ClientLink key={r.title} href={r.href} className="flex flex-col gap-2 border-t border-ink/70 pt-4">
-                  <span className="font-display text-[44px] font-medium leading-none text-ink">{r.band}</span>
-                  <span className="flex items-center justify-between gap-3">
-                    <span className="font-display text-[22px] font-semibold leading-tight text-ink">{r.title}</span>
-                    <span className="text-pine">
-                      <FieldArrow />
-                    </span>
-                  </span>
-                  <span className="font-sans text-[14px] text-ink-note">{r.note}</span>
-                </ClientLink>
-              ))}
-            </nav>
-            <p className="mx-auto mt-8 max-w-[760px] text-center font-sans text-[17px] leading-[1.6] text-ink-body">
-              A private forest farm, about an hour from Portland.
-            </p>
+          <FieldReviewTier tier="hero" className="mt-2.5 lg:mt-5 lg:justify-center" />
+          <div data-hero-cta className="mt-3.5 flex flex-col items-stretch lg:mt-8 lg:items-center">
+            <a href="#contact" className={cn(fieldCtaClass, "w-full lg:w-auto")}>
+              Check your date
+              <FieldArrow />
+            </a>
+            <a
+              href="#headcount"
+              className="mt-1 inline-flex min-h-11 items-center justify-center gap-1.5 self-center font-sans text-[14px] text-ink-note lg:text-[15px]"
+            >
+              Or choose by headcount
+              <FieldArrowDown size={16} />
+            </a>
           </div>
         </div>
       </section>
 
       {/* 2. Plan it by headcount: true capacities. */}
       <section
+        id="headcount"
         aria-labelledby="plan-title"
-        className="border-t-[3px] border-double border-frame px-5 pt-9 pb-10 lg:px-16 lg:pt-16 lg:pb-20"
+        className="scroll-mt-[var(--header-h,104px)] border-t-[3px] border-double border-frame px-5 pt-9 pb-10 lg:px-16 lg:pt-16 lg:pb-20"
       >
         <div className="mx-auto max-w-[1312px]">
           <FieldSectionHeader id="plan-title" size="md" eyebrow="Three ways to gather" title="Plan it by headcount" />
@@ -204,17 +171,13 @@ export default function CelebrationsPage() {
                 }}
               />
               <div className="mt-3 lg:order-2 lg:mt-0">
-                <LadderTitle>One house for the weekend</LadderTitle>
+                <LadderTitle>One house</LadderTitle>
                 <p className="m-0 mt-1.5 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
-                  The Lodge or the Cottage, each sleeping {ONE_HOUSE_MAX} with a cedar hot tub. Book it online today, then add a private farm tour or the Nordic spa.
+                  The Lodge or the Cottage, each sleeping {ONE_HOUSE_MAX} with a cedar hot tub.
                 </p>
                 <div className="mt-1 flex flex-col items-start">
-                  <Link href="/stay/lodge#book" className={ladderLinkClass}>
-                    Check the Lodge&apos;s dates
-                    <FieldArrow size={16} />
-                  </Link>
-                  <Link href="/stay/cottage#book" className={ladderLinkClass}>
-                    Check the Cottage&apos;s dates
+                  <Link href="/stay" className={ladderLinkClass}>
+                    See the Lodge and Cottage
                     <FieldArrow size={16} />
                   </Link>
                 </div>
@@ -232,11 +195,11 @@ export default function CelebrationsPage() {
               <div className="mt-3 lg:order-2 lg:mt-0">
                 <LadderTitle>The whole farm</LadderTitle>
                 <p className="m-0 mt-1.5 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
-                  The Lodge, the Cottage and the Camp together sleep {wholeFarm.guests}, with two cedar hot tubs and the Lodge&apos;s dining table for ten. Book it online today.
+                  The Lodge, the Cottage and the Camp together sleep {wholeFarm.guests}.
                 </p>
                 <div className="mt-1 flex flex-col items-start">
                   <Link href="/stay/whole-farm#book" className={ladderLinkClass}>
-                    Check whole-farm dates
+                    See the whole farm
                     <FieldArrow size={16} />
                   </Link>
                 </div>
@@ -251,20 +214,24 @@ export default function CelebrationsPage() {
                   alt: "Styled aerial view at dusk: guests on the patio outside the Lodge, the lawn path and the stone patio with its dance floor",
                   position: "70% 60%",
                 }}
+                caption="A styled aerial view of the farm."
               />
               <div className="mt-3 lg:order-2 lg:mt-0">
                 <LadderTitle>A gathering on the farm</LadderTitle>
                 <p className="m-0 mt-1.5 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
                   Tell us what you&apos;re planning.
                 </p>
+                <p className="m-0 mt-1 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
+                  Birthdays, reunions, retreats and company days.
+                </p>
                 {/* Jalene, 2026-10-07: every kind of event is taken; over 20 guests is an event, with these two rules. */}
-                <p className="m-0 mt-2 font-sans text-[14px] leading-[1.55] text-ink-body lg:text-[16px]">
-                  Birthdays, reunions, retreats and company days. Over 20 guests, you&apos;ll need event insurance, and
-                  alcohol is bought through Highland Farms and served by an OLCC-licensed bartender.
+                <p className="m-0 mt-1.5 font-sans text-[12.5px] leading-[1.45] text-ink-note lg:text-[14px]">
+                  Over 20 guests, you&apos;ll need event insurance, and alcohol is bought through Highland Farms and served
+                  by an OLCC-licensed bartender.
                 </p>
                 <div className="mt-1 flex flex-col items-start">
                   <a href="#contact" className={ladderLinkClass}>
-                    Check your date
+                    Tell us your date
                     <FieldArrowDown size={16} />
                   </a>
                 </div>
@@ -279,7 +246,22 @@ export default function CelebrationsPage() {
         <section id="words" aria-labelledby="words-title" className="scroll-mt-[var(--header-h,104px)] bg-paper-shade px-5 py-10 lg:px-16 lg:py-20">
           <div className="mx-auto max-w-[1312px]">
             <FieldSectionHeader id="words-title" size="md" eyebrow="In their words" title="What people came to celebrate" />
-            <ol className="m-0 mt-6 grid list-none grid-cols-1 border-t border-rule p-0 lg:mt-10 lg:grid-cols-3 lg:gap-12 lg:border-t-0">
+            {/* One real gathering photo so the band is not text only (the caption says what the frame shows). */}
+            <Plate
+              className="mt-6 lg:mt-10"
+              frameClassName="aspect-[4/3] p-[7px] lg:aspect-[21/9] lg:p-2.5"
+              caption="A group resting on blankets on the flagstone patio under tall firs."
+            >
+              <StayPhoto
+                photo={{
+                  src: "/images/events/forest-yoga.jpg",
+                  alt: "A group resting on blankets on the flagstone patio under tall firs at Highland Farms",
+                  position: "50% 50%",
+                }}
+                sizes="(min-width: 1024px) 1312px, calc(100vw - 40px)"
+              />
+            </Plate>
+            <ol className="m-0 mt-5 grid list-none grid-cols-1 border-t border-rule p-0 lg:mt-10 lg:grid-cols-3 lg:gap-12 lg:border-t-0">
               {occasions.map(({ occasion, q }, i) => (
                 <li key={occasion} className="border-b border-rule py-5 lg:border-b-0 lg:border-t lg:py-6">
                   <FieldNo n={i + 1} />
@@ -288,7 +270,6 @@ export default function CelebrationsPage() {
                 </li>
               ))}
             </ol>
-            <FieldReviewTier tier="compact" link className="mt-3" />
           </div>
         </section>
       )}
@@ -333,18 +314,38 @@ export default function CelebrationsPage() {
       <section aria-labelledby="plan-know-title" className="border-t border-rule px-5 py-10 lg:px-16 lg:py-16">
         <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
           <FieldSectionHeader id="plan-know-title" size="md" title="Know before you plan" titleClassName="lg:text-[40px]" />
-          <FieldRows
-            size="list"
-            className="mt-5 lg:mt-0"
-            rowClassName="flex-col gap-1 py-3.5 lg:flex-row lg:gap-6 lg:py-5"
-            termClassName="w-auto text-[20px] lg:w-[180px] lg:text-[22px]"
-            detailClassName="text-[15px] leading-[1.55] lg:text-[16px]"
-            rows={[
-              { term: "Stays", detail: `${STAY_MINIMUM} No outside pets.` },
-              { term: "Ages", detail: `The spa is for guests 16 and up. On farm tours, kids 4 and under are free.` },
-              { term: "Access", detail: "Farm tours and the spa aren't wheelchair, walker or stroller accessible." },
-            ]}
-          />
+          <div className="mt-5 lg:mt-0">
+            {/* One real plate for the section (the caption says what the frame shows). */}
+            <Plate
+              className="mt-5 lg:mt-0"
+              frameClassName="aspect-[4/3] p-[7px] lg:aspect-[16/9] lg:p-2.5"
+              caption="A guide and two guests pet a Highland calf in the barn."
+            >
+              <StayPhoto
+                photo={{
+                  src: "/images/farm/cow-2.jpg",
+                  alt: "A guide and two guests pet a Highland calf in the barn",
+                  position: "50% 62%",
+                }}
+                sizes="(min-width: 1024px) 60vw, calc(100vw - 40px)"
+              />
+            </Plate>
+            <FieldRows
+              size="list"
+              className="mt-4 lg:mt-6"
+              rowClassName="flex-col gap-1 py-3.5 lg:flex-row lg:gap-6 lg:py-5"
+              termClassName="w-auto text-[20px] lg:w-[180px] lg:text-[22px]"
+              detailClassName="text-[15px] leading-[1.55] lg:text-[16px]"
+              rows={[
+                { term: "Stays", detail: `${STAY_MINIMUM} No outside pets.` },
+                {
+                  term: "Ages and access",
+                  detail:
+                    "The spa is for guests 16 and up, and kids 4 and under are free on farm tours. Farm tours and the spa aren't wheelchair, walker or stroller accessible.",
+                },
+              ]}
+            />
+          </div>
         </div>
       </section>
 
@@ -413,18 +414,37 @@ export default function CelebrationsPage() {
             introClassName="text-[15px] lg:text-[16px]"
           />
           <div className="mt-4 lg:mt-0">
-            <div className="flex flex-col items-start">
-              <Link href="/farm-tours#choose" className={ladderLinkClass}>
-                See tour dates
-                <FieldArrow size={16} />
+            <p className="m-0 flex min-h-11 flex-wrap items-center gap-x-2 font-sans text-[14px] text-ink-note lg:text-[15px]">
+              <Link href="/farm-tours#choose" className="inline-flex min-h-11 items-center font-medium text-pine">
+                Tour dates
               </Link>
-              <Link href="/nordic-spa#availability" className={ladderLinkClass}>
-                See open sessions
-                <FieldArrow size={16} />
+              <span aria-hidden="true">&middot;</span>
+              <Link href="/nordic-spa#availability" className="inline-flex min-h-11 items-center font-medium text-pine">
+                Open spa sessions
               </Link>
-            </div>
-            {visitPolicy && (
-              <FieldFaq items={[{ question: "Tour and spa cancellation policy", answer: visitPolicy }]} className="mt-4" />
+            </p>
+            {visitPolicy.length > 0 && (
+              <div className="mt-4 border-t border-rule">
+                <details className="group border-b border-rule">
+                  <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-4 py-3 font-display text-[21px] font-semibold leading-tight text-ink lg:text-[24px] [&::-webkit-details-marker]:hidden">
+                    <span>Cancellation policy</span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 font-sans text-[22px] font-normal leading-none text-pine transition-transform duration-200 group-open:rotate-45"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  {visitPolicy.map((p) => (
+                    <div key={p.label} className="pb-5 lg:max-w-[720px]">
+                      <p className="m-0 font-sans text-[12px] font-semibold uppercase tracking-[0.14em] text-fern">{p.label}</p>
+                      <p className="m-0 mt-1 font-sans text-[15px] leading-[1.6] text-ink-body lg:text-[16px]">
+                        {p.text}
+                      </p>
+                    </div>
+                  ))}
+                </details>
+              </div>
             )}
           </div>
         </div>
@@ -447,25 +467,9 @@ export default function CelebrationsPage() {
           sublabel: `Up to ${GATHERING_MAX_GUESTS} gather · up to ${wholeFarm.guests} stay the night`,
           href: "#contact",
         }}
-        hideWhenVisible="#contact"
+        hideWhenVisible={["#contact", "#headcount"]}
       />
     </div>
-  );
-}
-
-/** A row link: a site path through next/link, a hash as a plain anchor. */
-function ClientLink({ href, className, children }: { href: string; className: string; children: ReactNode }) {
-  if (href.startsWith("/")) {
-    return (
-      <Link href={href} className={className}>
-        {children}
-      </Link>
-    );
-  }
-  return (
-    <a href={href} className={className}>
-      {children}
-    </a>
   );
 }
 
@@ -482,10 +486,10 @@ function LadderTitle({ children }: { children: ReactNode }) {
   return <h3 className="field-heading m-0 font-display text-[23px] leading-[1.1] text-ink lg:text-[30px]">{children}</h3>;
 }
 
-function LadderPhoto({ photo }: { photo: { src: string; alt: string; position: string } }) {
+function LadderPhoto({ photo, caption }: { photo: { src: string; alt: string; position: string }; caption?: string }) {
   return (
     <div className="mt-3 lg:order-3 lg:mt-0">
-      <Plate frameClassName="h-[104px] p-[5px] lg:h-[220px] lg:p-2">
+      <Plate caption={caption} captionClassName="text-[13px] leading-snug lg:text-[15px]" frameClassName="h-[104px] p-[5px] lg:h-[220px] lg:p-2">
         <StayPhoto photo={photo} sizes="(min-width: 1024px) 40vw, 40vw" />
       </Plate>
     </div>

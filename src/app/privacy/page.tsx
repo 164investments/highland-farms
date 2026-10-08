@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FooterHide } from "@/components/layout/Footer";
 import { StructuredData } from "@/components/layout/StructuredData";
 import {
   LegalContactAddress,
@@ -21,10 +22,35 @@ export const metadata: Metadata = {
 
 const mailto = `mailto:${CONTACT.email}`;
 
-const lead = (
+const summary = (
+  <aside
+    aria-labelledby="privacy-summary-title"
+    className="mt-5 max-w-[68ch] border border-frame bg-paper-shade px-4 py-4 lg:px-6 lg:py-5"
+  >
+    <h2 id="privacy-summary-title" className="m-0 font-display text-[20px] font-semibold leading-tight text-ink lg:text-[23px]">
+      The short version
+    </h2>
+    <ul className="m-0 mt-2 list-none p-0 text-[15px] leading-[1.55] text-ink-body lg:text-[16px] [&>li+li]:mt-2.5">
+      <li>
+        <LegalStrong>What we collect:</LegalStrong> your name, email and phone number, and the details you send us
+        about your event or visit.
+      </li>
+      <li>
+        <LegalStrong>Why:</LegalStrong> to answer your inquiry, quote and take your booking or order, and to keep the
+        site secure. We do not sell your personal information.
+      </li>
+      <li>
+        <LegalStrong>How to ask:</LegalStrong> to see, correct or delete your information, email{" "}
+        <LegalLink href={mailto}>{CONTACT.email}</LegalLink>. We respond within 45 days.
+      </li>
+    </ul>
+  </aside>
+);
+
+const notice = (
   <aside
     aria-labelledby="privacy-notice-title"
-    className="border border-frame bg-paper-shade px-4 py-4 text-[15px] leading-[1.65] text-ink-body lg:px-6 lg:py-5 lg:text-[16px]"
+    className="border border-rule px-4 py-4 text-[15px] leading-[1.65] text-ink-body lg:px-6 lg:py-5 lg:text-[16px]"
   >
     <h2 id="privacy-notice-title" className="font-display text-[20px] font-semibold leading-tight text-ink lg:text-[23px]">
       Important Notice Regarding Text Messaging Data
@@ -37,6 +63,8 @@ const lead = (
     </p>
   </aside>
 );
+
+const lead = notice;
 
 const sections: LegalSection[] = [
   {
@@ -157,7 +185,7 @@ const sections: LegalSection[] = [
         <LegalList>
           <>Standard message and data rates may apply</>
           <>Carriers are not liable for delayed or undelivered messages</>
-          <>Supported carriers include AT&amp;T, Verizon, T-Mobile, Sprint, and most regional carriers</>
+          <>Supported carriers include AT&amp;T, Verizon, T-Mobile, and most regional carriers</>
         </LegalList>
         <div className="border border-frame bg-paper-light px-4 py-3">
           <h3 className="font-sans text-[15px] font-semibold text-ink">SMS Data Protection Statement</h3>
@@ -165,7 +193,7 @@ const sections: LegalSection[] = [
             No mobile information will be shared with third parties/affiliates for marketing/promotional purposes.
             Information sharing to subcontractors in support services, such as customer service, is permitted. All
             other use case categories exclude text messaging originator opt-in data and consent; this information will
-            not be shared with any third parties.
+            not be shared with any third parties, excluding aggregators and providers of the Text Message services.
           </p>
         </div>
       </>
@@ -213,6 +241,9 @@ const sections: LegalSection[] = [
     children: (
       <>
         <p>We do not sell, rent, or trade personal information. We may share information with:</p>
+        <div className="pt-5">
+          <LegalSub>Analytics and advertising</LegalSub>
+        </div>
         <LegalList>
           <>
             <LegalStrong>Google Tag Manager / Google Analytics:</LegalStrong> website analytics and campaign
@@ -225,6 +256,11 @@ const sections: LegalSection[] = [
           <>
             <LegalStrong>Microsoft Clarity:</LegalStrong> session analytics when enabled
           </>
+        </LegalList>
+        <div className="pt-5">
+          <LegalSub>Booking, hosting and payments</LegalSub>
+        </div>
+        <LegalList>
           <>
             <LegalStrong>Supabase:</LegalStrong> secure form data storage
           </>
@@ -246,6 +282,11 @@ const sections: LegalSection[] = [
           <>
             <LegalStrong>Square:</LegalStrong> farm store payments (card details go directly to Square)
           </>
+        </LegalList>
+        <div className="pt-5">
+          <LegalSub>Links, photos and messaging</LegalSub>
+        </div>
+        <LegalList>
           <>
             <LegalStrong>Instagram (Meta):</LegalStrong> links to our Instagram profile and featured posts; following
             those links is subject to Instagram&rsquo;s own policies
@@ -260,8 +301,7 @@ const sections: LegalSection[] = [
           </>
         </LegalList>
         <p>
-          Each of these services has its own privacy policy governing how they handle data. All service providers are
-          contractually obligated to maintain confidentiality and security.
+          Each of these services has its own privacy policy governing how they handle data.
         </p>
         <p>
           For Google and Meta advertising services, we may share identifiers such as email address, phone number,
@@ -390,10 +430,12 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <StructuredData pathname="/privacy" />
+      <FooterHide parts={["talk"]} />
       <LegalLayout
         policy="privacy"
         title="Privacy Policy"
-        updated="October 6, 2026"
+        updated="October 7, 2026"
+        headerExtra={summary}
         lead={lead}
         sections={sections}
         closing="Still have a question?"

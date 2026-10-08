@@ -5,6 +5,7 @@ import { StructuredData } from "@/components/layout/StructuredData";
 import { CHECK_DATE_HREF } from "@/components/layout/chrome";
 import { WeddingCallLink } from "@/components/field/WeddingCallLink";
 import { FieldReview, FieldReviewTier, GOOGLE_REVIEW_LINK } from "@/components/field/Reviews";
+import { FieldStickyBar } from "@/components/field/StickyBar";
 import {
   FieldArrow,
   FieldDrawing,
@@ -84,13 +85,13 @@ function residents(): Resident[] {
       drawing: "highland-calf",
       kind: "Highland calves",
       title: "The newest arrivals",
-      line: "Calves are born in the front pastures, and tours often get time with the youngest.",
+      line: "Highland calves are born on the farm.",
     },
     {
       drawing: "icelandic-sheep",
       kind: "Icelandic sheep",
       title: "The flock at the end of the fern trail",
-      line: "Curly fleece, small curled horns, and they come running when the feed comes out.",
+      line: "Curly fleece and small curled horns.",
     },
     {
       drawing: "white-peacock",
@@ -102,7 +103,7 @@ function residents(): Resident[] {
       drawing: "guardian-dog",
       kind: "The farm dogs",
       title: "The guardians",
-      line: "They keep an eye on the herd, and on everyone who comes to visit it.",
+      line: "They keep an eye on the herd and the flock.",
     },
     {
       drawing: "hen",
@@ -119,7 +120,10 @@ const landRows = [
   { term: "The pasture", detail: "Home to the herd, between the barn and the Cottage." },
 ];
 
+const HERD_COUNT = 2;
+
 export default function AboutPage() {
+  const all = residents();
   return (
     <>
       <StructuredData pathname="/about" />
@@ -131,7 +135,7 @@ export default function AboutPage() {
               <p className={eyebrow}>About Highland Farms</p>
               <h1
                 id="about-title"
-                className="field-heading m-0 mt-1 font-display text-[35px] leading-[1.02] lg:mt-3 lg:text-[64px]"
+                className="field-heading m-0 mt-1 font-display text-[25px] leading-[1.04] min-[360px]:text-[30px] min-[400px]:text-[35px] min-[400px]:leading-[1.02] lg:mt-3 lg:text-[64px]"
               >
                 A private forest farm, and a working herd.
               </h1>
@@ -142,8 +146,8 @@ export default function AboutPage() {
                 "Check your date" still ends above 660px at 393x660 (rule 15). */}
             <Plate
               className="mt-2.5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mt-0"
-              frameClassName="aspect-[353/217] lg:aspect-auto lg:h-[640px]"
-              caption="Connor and one of the calves, on the forest path."
+              frameClassName="aspect-[353/217] max-[374px]:aspect-[353/180] lg:aspect-auto lg:h-[640px]"
+              caption="Connor and a calf."
             >
               <Image
                 src="/images/farm/farm-life.jpg"
@@ -151,17 +155,17 @@ export default function AboutPage() {
                 fill
                 priority
                 sizes="(min-width: 1024px) 520px, 100vw"
-                className="object-cover object-[50%_58%] lg:object-[50%_55%]"
+                className="object-cover object-[50%_58%] max-[374px]:object-[50%_36%] lg:object-[50%_55%]"
               />
             </Plate>
 
             <div className="lg:col-start-1 lg:row-start-2 lg:mt-7">
-              <p className="m-0 mt-1.5 text-[15px] leading-[1.5] text-ink-body lg:mt-0 lg:max-w-[540px] lg:text-[18px] lg:leading-[1.6]">
+              <p className="m-0 mt-1.5 text-[15px] leading-[1.45] max-[374px]:text-[14px] text-ink-body lg:mt-0 lg:max-w-[540px] lg:text-[18px] lg:leading-[1.6]">
                 Five forested acres about an hour from Portland, home to a herd of Highland cows.
               </p>
               <FieldReviewTier tier="hero" className="mt-1.5 text-[14px] lg:mt-5 lg:text-[15px]" />
               <div className="mt-2.5 lg:mt-6 lg:border-t lg:border-rule lg:pt-6">
-                <p className="m-0 mb-2 font-display text-[18px] leading-snug lg:mb-0 lg:text-[24px]">
+                <p className="m-0 mb-2 font-display text-[18px] leading-snug max-[399px]:hidden lg:mb-0 lg:text-[24px]">
                   Planning a wedding here?
                 </p>
                 <FieldLink
@@ -202,8 +206,8 @@ export default function AboutPage() {
                   without guests on it.
                 </p>
                 <p className="m-0">
-                  The land he found in Brightwood had spent decades growing back into forest. He and his crew cleared
-                  it, kept the old trees, and rebuilt the place around them.
+                  The land he found in Brightwood was overgrown. He and his crew cleared it, kept the old trees, and
+                  rebuilt the place around them.
                 </p>
               </div>
               <FieldReview
@@ -221,7 +225,7 @@ export default function AboutPage() {
             <Plate
               className="mt-7 lg:col-start-1 lg:row-start-1 lg:mt-2"
               frameClassName="h-[240px] lg:h-[460px]"
-              caption="The patio, the lawn and the Lodge, from above."
+              caption="A styled aerial view of the farm."
             >
               <Image
                 src="/images/farm/farm-aerial-patio-lawn-lodge-dusk.jpg"
@@ -255,11 +259,12 @@ export default function AboutPage() {
               </div>
             </div>
 
+            {/* The herd (cows and calves) at full size; the smaller residents are compact rows below. */}
             <ol
               role="list"
-              className="m-0 mt-6 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-3 lg:border-l"
+              className="m-0 mt-6 list-none border-t border-rule p-0 lg:mt-10 lg:grid lg:grid-cols-2 lg:border-l"
             >
-              {residents().map((r, i) => (
+              {all.slice(0, HERD_COUNT).map((r, i) => (
                 <li
                   key={r.kind}
                   className="grid grid-cols-[100px_1fr] gap-x-4 border-b border-rule py-5 lg:flex lg:flex-col lg:border-r lg:px-8 lg:pb-8 lg:pt-6"
@@ -282,14 +287,47 @@ export default function AboutPage() {
                 </li>
               ))}
             </ol>
+            <ol
+              role="list"
+              start={HERD_COUNT + 1}
+              className="m-0 list-none p-0 lg:grid lg:grid-cols-2 lg:border-l lg:border-rule"
+            >
+              {all.slice(HERD_COUNT).map((r, i) => (
+                <li
+                  key={r.kind}
+                  className="grid grid-cols-[56px_1fr] items-center gap-x-3.5 border-b border-rule py-3 lg:border-r lg:px-8 lg:py-4"
+                >
+                  <FieldDrawing
+                    name={r.drawing}
+                    className="h-[56px] w-[56px] lg:h-[72px] lg:w-[72px]"
+                    sizes="72px"
+                  />
+                  <div>
+                    <p className="m-0 text-[11px] uppercase tracking-[0.14em] text-ink-meta">
+                      No. {HERD_COUNT + i + 1} · {r.kind}
+                    </p>
+                    <h3 className="m-0 mt-0.5 font-display text-[19px] font-semibold leading-[1.12] lg:text-[22px]">
+                      {r.title}
+                    </h3>
+                    <p className="m-0 mt-0.5 text-[13.5px] leading-[1.4] text-ink-body lg:text-[14.5px]">{r.line}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
             <FieldLink
               href="/farm-tours"
-              className="mt-2 flex min-h-[56px] items-center gap-3 border-b border-rule lg:mt-4"
+              className="mt-2 flex min-h-[56px] items-center gap-3 border-b border-rule max-[374px]:py-2 lg:mt-4"
             >
-              <span className="font-display text-[22px] font-medium">See tour dates</span>
-              <FieldLeader />
-              <span className="whitespace-nowrap text-[13px] text-ink-note">Private, ${TOUR_FOR_TWO} for two</span>
-              <FieldArrow size={16} className="text-fern" />
+              <span className="flex min-w-0 flex-col min-[375px]:contents">
+                <span className="font-display text-[22px] font-medium leading-tight">See tour dates</span>
+                <span className="hidden min-[375px]:contents">
+                  <FieldLeader />
+                </span>
+                <span className="whitespace-nowrap text-[13px] text-ink-note">Private, ${TOUR_FOR_TWO} for two</span>
+              </span>
+              <span className="ml-auto min-[375px]:ml-0">
+                <FieldArrow size={16} className="text-fern" />
+              </span>
             </FieldLink>
           </div>
         </section>
@@ -353,7 +391,7 @@ export default function AboutPage() {
             <div className="mt-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mt-2">
               <Plate
                 frameClassName="h-[300px] lg:h-[600px]"
-                caption="A guide, two guests and a calf, in the barn."
+                caption="Guests and a calf, in the barn."
               >
                 <Image
                   src="/images/farm/cow-2.jpg"
@@ -443,6 +481,11 @@ export default function AboutPage() {
           </div>
         </section>
       </div>
+
+      {/* Phone sticky action: appears once the hero button scrolls away. */}
+      <FieldStickyBar
+        primary={{ label: "Check your date", sublabel: "Two-night weddings from $13,000", href: CHECK_DATE_HREF }}
+      />
     </>
   );
 }

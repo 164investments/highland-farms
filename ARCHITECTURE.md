@@ -93,9 +93,9 @@ same everywhere: `src/data/farm-tours.ts`, `src/data/nordic-spa.ts`,
 `src/data/gift-certificates.ts`, `src/app/sauna-near-portland/page.tsx`,
 `src/app/terms/page.tsx`, `src/components/shared/KnowBeforeYouBook.tsx` and
 `public/llms.txt`. Point-of-sale lines render it through `cancellationAnswer()`.
-Stays have their own line ("Cancellation terms are provided at the time of
-booking."), the part that is true until the farm confirms the stay terms; never
-say the strict policy does or does not apply to lodging.
+Stays have their own line (`StayCancellationLine`): stay bookings are final, with
+no refunds (Jalene and AJ, 2026-10-07); never present the tour and spa policy or
+its weather exception as a lodging policy.
 
 ## The paper masthead and first screens
 
@@ -121,9 +121,10 @@ action carries `data-masthead-action` and fades while the bottom sticky bar
 shows (CONSISTENCY #9). Cart and order pages show no action; checkout gets the
 quiet variant (name, back to cart, "Secure") and the slim footer.
 
-**The bar** (`AnnouncementBar.tsx`) is one 40px pine line with no dismiss
+**The bar** (`AnnouncementBar.tsx`) is one 40px paper-shade line with a pine link and no dismiss
 button. Only about (the free call), shop (pickup and delivery terms, numbers
-from `src/lib/shop/fulfillment.ts`), stays (Thanksgiving, until Nov 23) and
+from `src/lib/shop/fulfillment.ts`), the stays index only (Thanksgiving, until Nov 23;
+single stays have their own booking and no bar) and
 tours/spa/sauna (gift certificates, Nov 1 to Dec 24) have one. Season gates
 run in the visitor's Pacific date: an inline script sets `<html data-season>`
 and `data-bar-hidden` before first paint, so a page prerendered weeks earlier
@@ -153,8 +154,8 @@ icon steps (see N real weddings, the free 20-page look book, the free call).
 layout and passed through `Header`, since the review snapshot and portfolio
 must not ship to the client. The sheet is portalled to `<body>` and the other
 body children are `inert` while it is open. Visits are rows with a framed
-real photo, the name and the one-line hint (`ChromeDoor.note`, shared with the
-footer). Then "More from the farm" (one dotted line that wraps after a dot on narrow phones) and three
+real photo, the name and the one-line hint (`ChromeDoor.note`; the
+footer no longer shows it). Then "More from the farm" (one dotted line that wraps after a dot on narrow phones) and three
 uniform quick actions (call, directions, Instagram: `TEL_HREF`, `DIRECTIONS_HREF`). The page action is pinned at the
 thumb. The current page carries a pine bar and "You are here". Photos come
 through `next/image` at 44-640px (3-30 KB) and load only when the sheet opens.
@@ -162,24 +163,68 @@ History: 2026-10-07 the hinted rows read "very busy"; the text-only fix read
 "very basic"; this version follows mobile-drawer practice. Escape, focus trap,
 scroll lock, `aria-current`.
 
-**The footer** (`Footer.tsx`, server) is paper-shade under a double rule:
-name and promise, Weddings and Visit door rows, Finding the farm, Talk to us
-(the one public line), reviews (`REVIEW_COUNT`, compact tier) and listings.
-A page hides parts it already shows with `<FooterHide parts={["find"]} />`
-(`doors | find | talk | proof`; pure CSS through `:has()`, so it is right in
-the server HTML); /contact hides find and talk by route.
+**The footer** (`Footer.tsx`, server) is the phone menu laid flat (mobile
+review board B1, 2026-10-07), paper-shade under a double rule: the menu's own
+plate with the compact review count in its mat (`proof`), Weddings as the one
+large lead with `WEDDING_MENU_NOTE`, the menu's price and September lines
+(`WEDDING_PRICE_NOTE`, `WEDDING_DEMAND_NOTE`) and its three icon steps
+(`data-footer-weddings` on the plate and this group), the visit doors as plain
+rows (`data-footer-visit-rows`) and the short links (`doors`; on phones an even
+two-column grid), the one public line in pine with the two labelled emails
+(`talk`), the address and directions (`find`), then the directories and legal on
+two compact 12px lines with 24px targets (a two-column grid under 375px; the "For
+AI agents" link stays) and the colophon. One note per group, one link style,
+no hint column (`ChromeDoor.note` is now unused by the footer). **By page type**
+(globals.css on `data-masthead`): weddings, the journal and couple pages, about,
+celebrations and contact drop the plate and Weddings group (the page carries its
+own); home drops the plate (its photo repeats) and the visit rows; the shop drops
+the visit rows; visit, stay, gift and Thanksgiving pages put the visit doors first
+on phones. A page hides parts it already shows with
+`<FooterHide parts={["find"]} />` (`doors | find | talk | proof`; pure CSS through
+`:has()`, so it is right in the server HTML); /contact hides find and talk by
+route, the legal pages hide `talk`, the 404 hides `doors` and `proof`. **The quiet
+footer** (`[data-footer-slim]`: the cow-head drawing with the "Highland Farms"
+wordmark, "Questions about an order? Call", Privacy, Terms, Accessibility)
+replaces it on checkout, the cart and the order pages by route, and on any page
+that renders `<FooterQuiet />` (`bare` drops the help line; the unsubscribe page
+uses it).
 
 **Wedding-call links** in the chrome go through `WeddingCallLink`, which pushes
 the same `booking_start` (`booking_type: "wedding_call"`) as the inquiry form.
 
-**The popup** (`EmailPopup.tsx`) offers the 2027 look book to couples only:
-the real-weddings journal, /about, and home after a wedding page in the same
-visit; never on a form or booking page. It promises no email; success hands
-over `/lookbook.pdf` and the call. Pushes `lookbook_email_submit` (plus the
-existing `email_subscribe`) and `lookbook_open`.
+**The look-book card** (`EmailPopup.tsx`) offers the 2027 look book to couples
+only: the real-weddings journal, /about, and home after a wedding page in the
+same visit; never on a form or booking page. Since 2026-10-07 (Hayden: "drop
+the gate") it is a docked, non-modal paper card with one button that opens
+`/lookbook.pdf`: no email field, no dimmed page, no focus trap; Escape or the
+plain close dismisses it for 30 days, and opening it ends it for good. Pushes
+`lookbook_open` (`placement: "lookbook-popup"`); `lookbook_email_submit` and
+`email_subscribe` no longer fire from it. In the page flow, /weddings and the
+journal use `LookbookCard` (`app/weddings/LookbookLink.tsx`): the same cover,
+one outline button, and its own `lookbook_open` placement.
+
+**Stay cross-sells** (`components/stay/StayLines.tsx`): `StayHereRows` renders
+"While you're here" on /stay and every stay page as small photo rows (Thanksgiving
+behind its season gate, then the tour and the spa through `BookingTextLink`), and
+`StayKnowRows` states a stay's minimum once.
+
+**The booking wrapper** (`BookingModalRoot` in `shared/BookingButton.tsx`) is a
+paper header over the Acuity iframe: the title wraps instead of crowding the
+links, a quiet "New tab" escape, a 44px plain close, and one line under the
+title (`wrapperNote`: the spa's quantity help, or "Private tour, rain or shine"
+on the tour calendar). Acuity's own page inside the frame is not ours.
+
+**The forms** (`components/forms/`) draw their own framed card with the cow
+seal: date and guests first, phone last with both text consents beside it in
+full (one-line labels above the unchanged wording), a folded optional note,
+one server-error line with the phone, and the success inside the same card;
+the call with Connor is its own door below. Pages render the form without a
+wrapper frame. Event guest bands are 2 to 8 / 9 to 20 / 21 to 50 / 51 to 125
+(one house, the whole farm), with older band values still labelled.
 
 **The bottom sticky bar** (`field/StickyShell.tsx`, used by `FieldStickyBar`)
-is the page's one phone action. It appears once the first-screen CTA
+is the page's one phone action (52px button; 48px with tighter padding under 375px,
+where `--sticky-bar-h` follows). It appears once the first-screen CTA
 (`data-hero-cta`) scrolls away, or from load with `showOnLoad` on pages that
 have no first-screen button (the wedding portfolio and couple pages). It hides
 while its `hideWhenVisible` target or any `[data-sticky-stop]` element is on

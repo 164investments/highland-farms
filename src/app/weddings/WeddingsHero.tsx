@@ -18,10 +18,10 @@ export function WeddingsHero() {
       aria-labelledby="weddings-hero-title"
       className="surface-paper bg-paper pt-[var(--header-h,104px)] text-ink"
     >
-      <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-3 lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(4,auto)_1fr] lg:gap-x-16 lg:px-16 lg:pb-10 lg:pt-10">
+      <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-3 lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(5,auto)_1fr] lg:gap-x-16 lg:px-16 lg:pb-10 lg:pt-10">
         <Plate
-          className="lg:col-start-2 lg:row-start-1 lg:row-end-7"
-          frameClassName="h-[182px] p-[6px] lg:h-auto lg:min-h-0 lg:flex-1 lg:p-2.5"
+          className="lg:col-start-2 lg:row-start-1 lg:row-end-8"
+          frameClassName="h-[182px] p-[6px] max-lg:[@media(max-height:600px)]:h-[116px] lg:h-auto lg:min-h-0 lg:flex-1 lg:p-2.5"
           captionClassName="hidden lg:block lg:text-[17px]"
           caption="A quiet minute at the pasture with one of the coos."
         >
@@ -32,33 +32,37 @@ export function WeddingsHero() {
             priority
             fetchPriority="high"
             sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
-            className="object-cover object-[50%_42%] lg:object-[58%_50%]"
+            className="object-cover object-[50%_30%] max-lg:[@media(max-height:600px)]:object-[50%_32%] lg:object-[58%_50%]"
           />
         </Plate>
 
         <h1
           id="weddings-hero-title"
-          className="field-heading mt-2.5 text-[32px] leading-[1.02] text-ink lg:col-start-1 lg:row-start-2 lg:mt-0 lg:text-[56px] min-[90rem]:text-[60px]"
+          className="field-heading mt-2.5 text-[32px] leading-[1.02] text-ink max-[359px]:text-[27px] lg:col-start-1 lg:row-start-2 lg:mt-0 lg:text-[56px] min-[90rem]:text-[60px]"
         >
           Your wedding weekend in the whimsical forest
         </h1>
 
+        <p className="m-0 mt-2 font-sans text-[14px] font-medium leading-snug text-ink-body lg:col-start-1 lg:row-start-3 lg:mt-5 lg:text-[17px]">
+          Two-night weddings from $13,000
+        </p>
+
         <FieldRows
           rows={WEDDING_AT_A_GLANCE}
-          rowClassName="min-h-[36px] py-0.5 lg:min-h-[54px]"
+          rowClassName="min-h-[36px] py-0.5 lg:min-h-[54px] max-lg:[@media(max-height:700px)]:[&:nth-child(n+3)]:hidden"
           termClassName="w-[92px] lg:w-[140px]"
-          className="mt-2.5 lg:col-start-1 lg:row-start-3 lg:mt-7 lg:max-w-[600px]"
+          className="mt-2.5 lg:col-start-1 lg:row-start-4 lg:mt-5 lg:max-w-[600px]"
         />
 
         <FieldReviewTier
           tier="hero"
-          className="mt-2.5 text-[13px] lg:col-start-1 lg:row-start-4 lg:mt-7 lg:text-[15px]"
+          className="mt-2.5 text-[13px] lg:col-start-1 lg:row-start-5 lg:mt-7 lg:text-[15px]"
           starSize={14}
         />
 
         <div
           data-hero-cta
-          className="mt-2.5 flex flex-col lg:col-start-1 lg:row-start-5 lg:mt-8 lg:flex-row lg:items-center lg:gap-7"
+          className="mt-2.5 flex flex-col lg:col-start-1 lg:row-start-6 lg:mt-8 lg:flex-row lg:items-center lg:gap-7"
         >
           <a href="#contact" className={cn(fieldCtaClass, "w-full lg:w-auto")}>
             Check your date

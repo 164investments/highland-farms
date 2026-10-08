@@ -72,7 +72,7 @@ function Favorite({ product, stock, index }: { product: Product; stock: StockRec
 }
 
 /**
- * "Farm favorites · Ordered most since August": the four most-ordered items
+ * "Farm favorites · Ordered most this season": the four most-ordered items
  * with one-tap adds. On /shop under the hero, and on the empty cart so a
  * shopper who opens the cart first can start an order without another page.
  * `products` is already filtered to featured and in stock by the caller.
@@ -93,7 +93,7 @@ export function FarmFavorites({
         <h2 className="field-heading m-0 font-display text-[30px] leading-none lg:text-[44px]">Farm favorites</h2>
         <p className="m-0 text-right text-[12px] leading-snug text-ink-meta lg:text-[13px]">
           Ordered most
-          <br className="lg:hidden" /> since August
+          <br className="lg:hidden" /> this season
         </p>
       </div>
       <ul className="m-0 mt-5 grid list-none grid-cols-2 gap-x-3.5 gap-y-7 p-0 lg:mt-8 lg:grid-cols-4 lg:gap-x-8">

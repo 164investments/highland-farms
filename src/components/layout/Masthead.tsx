@@ -25,9 +25,11 @@ const NAME: Record<NameSize, { name: string; place: string }> = {
     place:
       "mt-[5px] text-[11px] tracking-[0.2em] min-[360px]:max-[390px]:text-[10px] min-[360px]:max-[390px]:tracking-[0.18em] max-[360px]:text-[9px] max-[360px]:tracking-[0.12em] xl:mt-2 xl:text-[11px] xl:tracking-[0.32em]",
   },
+  // Checkout sits between "Cart" and "Secure": one line from 320px up (it wrapped and met the rule on SE).
   checkout: {
-    name: "text-[19px] tracking-[0.06em] lg:text-[28px]",
-    place: "mt-[5px] text-[9px] tracking-[0.22em] lg:mt-2 lg:text-[10.5px] lg:tracking-[0.32em]",
+    name: "whitespace-nowrap text-[19px] tracking-[0.06em] max-[374px]:text-[16px] max-[374px]:tracking-[0.04em] lg:text-[28px]",
+    place:
+      "mt-[5px] whitespace-nowrap text-[9px] tracking-[0.22em] max-[374px]:tracking-[0.14em] lg:mt-2 lg:text-[10.5px] lg:tracking-[0.32em]",
   },
   footer: {
     name: "text-[26px] tracking-[0.06em] lg:text-[34px]",
