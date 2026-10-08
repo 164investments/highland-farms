@@ -2,6 +2,12 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.5.3] - 2026-10-08
+
+### Changed
+
+- Farm tours, "Who you'll meet": the Highland cows keep their own row as No. 1, and the sheep, peacocks, guardian dogs and hens are one row of four on desktop (one list on phones), each drawing standing on the same line, with its Latin name. The sheep no longer sit alone in a row of their own.
+
 ## [0.3.5.2] - 2026-10-08
 
 ### Changed
