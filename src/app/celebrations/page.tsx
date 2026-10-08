@@ -326,14 +326,14 @@ export default function CelebrationsPage() {
             <Plate
               className="mt-5 lg:mt-0"
               frameClassName="aspect-[4/3] p-[7px] lg:p-2.5"
-              caption="A guide and two guests pet a Highland calf in the barn."
+              caption="Daunte and two guests pet a Highland calf in the barn."
             >
               {/* 4:3 everywhere: at 16:9 this portrait photo kept a third of its height and cut off every
                   face (Hayden 2026-10-08 crop audit). */}
               <StayPhoto
                 photo={{
                   src: "/images/farm/cow-2.jpg",
-                  alt: "A guide and two guests pet a Highland calf in the barn",
+                  alt: "Daunte and two guests pet a Highland calf in the barn",
                   position: "50% 48%",
                 }}
                 sizes="(min-width: 1024px) 60vw, calc(100vw - 40px)"

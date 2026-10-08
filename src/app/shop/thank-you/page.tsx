@@ -142,11 +142,11 @@ export default async function ThankYouPage({
         <div className="mx-auto max-w-[1312px] lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-center lg:gap-16">
           <Plate
             frameClassName="aspect-[4/3] lg:aspect-[4/5]"
-            caption="A guide, two guests and a calf, in the barn."
+            caption="Daunte, two guests and a calf, in the barn."
           >
             <Image
               src="/images/farm/cow-2.jpg"
-              alt="A farm guide and two guests petting a Highland calf in the barn"
+              alt="Daunte and two guests petting a Highland calf in the barn"
               fill
               sizes="(min-width: 1024px) 460px, calc(100vw - 54px)"
               className="object-cover object-[50%_55%]"

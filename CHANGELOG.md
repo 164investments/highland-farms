@@ -2,6 +2,12 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.5.2] - 2026-10-08
+
+### Changed
+
+- The barn photo of a guide with two guests and a calf names Daunte, in its captions and alt text on farm tours, celebrations, about and the order thank-you page.
+
 ## [0.3.5.1] - 2026-10-08
 
 ### Changed
