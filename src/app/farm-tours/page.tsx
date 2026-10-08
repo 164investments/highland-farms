@@ -14,7 +14,6 @@ import { VisitFaq } from "@/components/shared/VisitFaq";
 import { NativeBookingSection } from "@/components/booking/NativeBookingSection";
 import {
   FieldArrow,
-  FieldCatalogue,
   FieldDrawing,
   FieldLink,
   FieldNo,
@@ -96,7 +95,13 @@ const knowRows: KnowRow[] = [
   { term: "Timing", detail: "Book at least a day ahead. Dates open about three to four months out." },
 ];
 
-const sheep = [
+/**
+ * The supporting cast, Nos. 2 to 5: compact rows on phones (drawing left, one line), one row of four on
+ * desktop, each drawing standing on the same ground line. The cows are No. 1 and keep their own row.
+ * (Was: a row for the sheep alone, then three across; Hayden 2026-10-08: "a second row with a small sheep
+ * then third row with three feels weird".)
+ */
+const meet = [
   {
     id: "icelandic-sheep",
     drawing: "icelandic-sheep" as const,
@@ -104,10 +109,6 @@ const sheep = [
     subtitle: "Ovis aries, Icelandic breed",
     body: "At the end of the fern-forest trail. A northern breed with a thick double fleece.",
   },
-];
-
-/** Peacocks, dogs and hens: compact rows on phones (drawing left, one line), three across on desktop; cows and sheep stay full. */
-const meet = [
   {
     id: "white-peacock",
     drawing: "white-peacock" as const,
@@ -237,40 +238,20 @@ export default function FarmToursPage() {
             />
           </article>
 
-          <FieldCatalogue
-            className="mt-6 lg:mt-12"
-            start={2}
-            columns={1}
-            mediaLayout="side"
-            ruled
-            items={sheep.map((m) => ({
-              id: m.id,
-              title: m.title,
-              subtitle: m.subtitle,
-              body: m.body,
-              media: (
-                <FieldDrawing
-                  name={m.drawing}
-                  className="h-[64px] w-[64px] lg:h-[200px] lg:w-[300px]"
-                  sizes="(min-width: 1024px) 300px, 64px"
-                />
-              ),
-            }))}
-          />
-
-          <ul role="list" className="m-0 grid list-none divide-y divide-rule border-y border-rule p-0 lg:grid-cols-3 lg:gap-x-10 lg:divide-y-0 lg:py-8">
+          <ul role="list" className="m-0 mt-6 grid list-none divide-y divide-rule border-y border-rule p-0 lg:mt-12 lg:grid-cols-4 lg:gap-x-10 lg:divide-y-0 lg:border-b-0 lg:pb-0 lg:pt-10">
             {meet.map((m, i) => (
               <li key={m.id} className="grid grid-cols-[56px_minmax(0,1fr)] items-center gap-x-4 py-3 lg:flex lg:flex-col lg:items-start lg:py-0">
                 <FieldDrawing
                   name={m.drawing}
-                  className="row-span-2 h-[56px] w-[56px] lg:h-[160px] lg:w-full"
-                  sizes="(min-width: 1024px) 300px, 56px"
+                  className="row-span-2 h-[56px] w-[56px] lg:h-[150px] lg:w-full lg:object-[0%_100%]"
+                  sizes="(min-width: 1024px) 240px, 56px"
                 />
-                <h3 className="field-heading m-0 flex items-baseline gap-2 font-display text-[19px] leading-tight text-ink lg:mt-2 lg:block lg:text-[26px]">
-                  <FieldNo n={3 + i} className="lg:mb-0.5 lg:block" />
+                <h3 className="field-heading m-0 flex items-baseline gap-2 font-display text-[19px] leading-tight text-ink lg:mt-5 lg:block lg:text-[26px]">
+                  <FieldNo n={2 + i} className="lg:mb-0.5 lg:block" />
                   {m.title}
                 </h3>
-                <p className="m-0 font-sans text-[13px] leading-[1.45] text-ink-body lg:mt-1 lg:text-[15px]">{m.body}</p>
+                <p className="m-0 mt-0.5 hidden font-display text-[16px] italic leading-snug text-ink-note lg:block">{m.subtitle}</p>
+                <p className="m-0 font-sans text-[13px] leading-[1.45] text-ink-body lg:mt-2 lg:text-[15px]">{m.body}</p>
               </li>
             ))}
           </ul>
