@@ -225,7 +225,7 @@ export default function AboutPage() {
             <Plate
               className="mt-7 lg:col-start-1 lg:row-start-1 lg:mt-2"
               frameClassName="h-[240px] lg:h-[460px]"
-              caption="The patio, the lawn and the Lodge, from above."
+              caption="A styled aerial view of the farm."
             >
               <Image
                 src="/images/farm/farm-aerial-patio-lawn-lodge-dusk.jpg"

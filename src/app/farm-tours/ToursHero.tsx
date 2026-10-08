@@ -23,7 +23,7 @@ export function ToursHero() {
       <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-[18px] lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(5,auto)_1fr] lg:gap-x-16 lg:px-10 lg:pb-10 lg:pt-11 xl:px-10 min-[90rem]:px-16">
         <Plate
           className="lg:col-start-2 lg:row-start-1 lg:row-end-8"
-          frameClassName="h-[150px] max-[399px]:h-[110px] lg:h-auto lg:min-h-0 lg:flex-1"
+          frameClassName="h-[150px] max-[399px]:h-[140px] max-[359px]:h-[110px] lg:h-auto lg:min-h-0 lg:flex-1"
           captionClassName="mt-px max-[399px]:hidden lg:mt-0.5"
           caption="A guide with one of the herd."
         >

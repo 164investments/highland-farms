@@ -92,19 +92,20 @@ export function StaticGifts() {
         <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-8 pt-[18px] lg:grid lg:min-h-[clamp(600px,calc(100svh_-_var(--header-h,128px)),900px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(7,auto)_1fr] lg:gap-x-16 lg:px-10 lg:pb-10 lg:pt-11 xl:px-10 min-[90rem]:px-16">
           <Plate
             className="lg:col-start-2 lg:row-start-1 lg:row-end-10"
-            frameClassName="h-[112px] max-[399px]:h-[96px] lg:h-auto lg:min-h-0 lg:flex-1"
+            frameClassName="h-[140px] max-[359px]:h-[110px] lg:h-auto lg:min-h-0 lg:flex-1"
             captionClassName="mt-px max-sm:hidden lg:mt-0.5"
-            caption="A guide with one of the herd."
+            caption="Feeding a calf in the hay."
           >
             <Image
-              src="/images/farm/farmer-with-highland-cow.jpg"
-              alt="A farm guide kneeling beside a resting Highland cow"
+              src="/images/farm/agritourism-stay.jpg"
+              alt="Two people feeding a shaggy Highland calf in the hay, the herd behind them"
               fill
               priority
               fetchPriority="high"
               sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, calc(100vw - 56px)"
-              // Phone: a short band of the 3:2 photo (so the three tiles clear the fold); 32% keeps the guide's face and the cow's head in frame (desktop is portrait, so only x matters).
-              className="object-cover object-[40%_32%]"
+              // Phone: a band of the square photo (the three tiles still clear the fold); 27% keeps the man's head,
+              // the calf and the woman's face in frame. The gift page's own photo, not the tours hero (Hayden lens, r4).
+              className="object-cover object-[50%_27%]"
             />
           </Plate>
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { StructuredData } from "@/components/layout/StructuredData";
 import { FieldReview } from "@/components/field/Reviews";
 import { ContactForm } from "@/components/forms/ContactForm";
@@ -78,7 +79,8 @@ export default function ContactPage() {
                 Reach the right person at Highland Farms.
               </h1>
               <p className="m-0 mt-2.5 text-[14.5px] leading-[1.55] text-ink-body lg:mt-4 lg:text-[17px]">
-                Tours, the spa and stays book online any time. Already booked or running late? Call {phoneThenStop}
+                <Link href="/farm-tours" className={inlineLink}>Tours</Link>, <Link href="/nordic-spa" className={inlineLink}>the spa</Link> and{" "}
+                <Link href="/stay" className={inlineLink}>stays</Link> book online any time. Already booked or running late? Call {phoneThenStop}
               </p>
             </div>
 
