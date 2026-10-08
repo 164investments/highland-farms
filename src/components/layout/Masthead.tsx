@@ -19,11 +19,14 @@ const NAME: Record<NameSize, { name: string; place: string }> = {
   // Measured 2026-10-06 with the real fonts: centred within 0.5px for every
   // label from 374px up and on desktop; at 359-360 the longest labels push it
   // up to 3px left, at 320 up to 12px (the grid shifts it rather than let
-  // them touch).
+  // them touch). Desktop forces line-height 1: the text sizes were resetting
+  // `leading-none` to 1.5, so the 32px name sat in a 48px line box and the
+  // bar was 96px to hold ~22px of empty leading (Hayden 2026-10-08: the logo
+  // read too tall for the header). Now a 51px lockup in an 80px bar.
   masthead: {
-    name: "text-[20px] tracking-[0.06em] min-[390px]:max-[414px]:text-[19px] min-[375px]:max-[390px]:text-[18px] min-[375px]:max-[390px]:tracking-[0.05em] min-[360px]:max-[375px]:text-[17px] min-[360px]:max-[375px]:tracking-[0.05em] max-[360px]:text-[16px] max-[360px]:tracking-[0.04em] xl:text-[32px] xl:tracking-[0.07em]",
+    name: "text-[20px] tracking-[0.06em] min-[390px]:max-[414px]:text-[19px] min-[375px]:max-[390px]:text-[18px] min-[375px]:max-[390px]:tracking-[0.05em] min-[360px]:max-[375px]:text-[17px] min-[360px]:max-[375px]:tracking-[0.05em] max-[360px]:text-[16px] max-[360px]:tracking-[0.04em] xl:text-[32px] xl:tracking-[0.07em] xl:leading-none!",
     place:
-      "mt-[5px] text-[11px] tracking-[0.2em] min-[360px]:max-[390px]:text-[10px] min-[360px]:max-[390px]:tracking-[0.18em] max-[360px]:text-[9px] max-[360px]:tracking-[0.12em] xl:mt-2 xl:text-[11px] xl:tracking-[0.32em]",
+      "mt-[5px] text-[11px] tracking-[0.2em] min-[360px]:max-[390px]:text-[10px] min-[360px]:max-[390px]:tracking-[0.18em] max-[360px]:text-[9px] max-[360px]:tracking-[0.12em] xl:mt-2 xl:text-[11px] xl:tracking-[0.32em] xl:leading-none!",
   },
   // Checkout sits between "Cart" and "Secure": one line from 320px up (it wrapped and met the rule on SE).
   checkout: {

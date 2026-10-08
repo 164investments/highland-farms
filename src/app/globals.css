@@ -37,7 +37,7 @@
   /*
     The announcement bar: 40px, 44px on touch screens so its links are a
     44px tap target. Header height before JS measures it: 60px name row
-    (96px from xl) + the bar.
+    (80px from xl) + the bar.
   */
   --bar-h: 40px;
   --header-h: calc(60px + var(--bar-h));
@@ -61,7 +61,7 @@
 
 @media (min-width: 1280px) {
   :root {
-    --header-h: calc(96px + var(--bar-h));
+    --header-h: calc(80px + var(--bar-h));
   }
 }
 
@@ -74,7 +74,7 @@ html[data-bar-hidden] {
 }
 @media (min-width: 1280px) {
   html[data-bar-hidden] {
-    --header-h: 96px;
+    --header-h: 80px;
   }
 }
 
@@ -132,6 +132,33 @@ body:has([data-masthead="home"], [data-masthead="shop"]) [data-footer-visit-rows
    it as the offer a third time) and ends on the short links, contact and legal. */
 body:has([data-masthead="home"]) [data-footer-weddings] {
   display: none;
+}
+/* Desktop: those pages (plate and Weddings group dropped) set the four blocks left in one row of four with
+   no divider; contact and pages that hide the doors have no second row to divide (Footer.tsx). */
+@media (min-width: 1024px) {
+  body:has([data-masthead="home"], [data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead="about"], [data-masthead="celebrations"]) [data-footer-col] {
+    grid-column: span 3 / span 3;
+  }
+  body:has([data-masthead="home"], [data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead="about"], [data-masthead="celebrations"], [data-masthead="contact"]) [data-footer-divider],
+  body:has([data-footer-hide~="doors"]) [data-footer-divider] {
+    display: none;
+  }
+  /* In a quarter-width column the dotted lines wrapped one word onto a line of its own ("Contact",
+     "Instagram"), so they become two even columns; home's short links, the column's only content, stack. */
+  body:has([data-masthead="home"], [data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead="about"], [data-masthead="celebrations"]) [data-footer-dots] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    margin-left: 0;
+    clip-path: none;
+  }
+  body:has([data-masthead="home"], [data-masthead="weddings"], [data-masthead="portfolio"], [data-masthead="about"], [data-masthead="celebrations"]) [data-footer-dots] > li::before {
+    display: none;
+  }
+  body:has([data-masthead="home"]) [data-footer-more] {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 0;
+  }
 }
 @media (max-width: 1023px) {
   body:has([data-masthead="tours"], [data-masthead="spa"], [data-masthead="sauna"], [data-masthead="stays"], [data-masthead="stay"], [data-masthead="thanksgiving"], [data-masthead="gifts"], [data-masthead="celebrations"]) [data-footer-visit] {

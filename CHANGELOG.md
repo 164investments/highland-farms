@@ -2,6 +2,13 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.5.1] - 2026-10-08
+
+### Changed
+
+- Desktop masthead: the name and "Brightwood, Oregon" sit at line-height 1 as intended (the text sizes had reset it to 1.5, padding the lockup with about 22px of empty leading), and the bar is 80px instead of 96px. The name stays 32px. Phones are unchanged.
+- Desktop footer: blocks no longer slide into gaps left by hidden ones. Full footers are two rows of three under one rule; home, the wedding pages, about and celebrations set their four blocks in one row of four, with the short links and legal lines in even columns instead of wrapping a word onto its own line.
+
 ## [0.3.5.0] - 2026-10-08
 
 ### Changed
