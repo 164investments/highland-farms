@@ -1,8 +1,30 @@
-/** "Visiting for the day?" strip under the homepage first screen. */
+/**
+ * "Visiting for the day?" doors on the homepage first screen. Phones: a row of three names under the
+ * hero. Desktop: three doors (photo, name, price) at the foot of the text column. `fact` keys into
+ * visitFacts() in HomeVisitIndex, so the prices come from the booking data.
+ */
 export const VISIT_LINKS = [
-  { href: "/farm-tours", name: "Farm tour", phoneName: "Farm tour", note: "Hug the cows" },
-  { href: "/nordic-spa", name: "Nordic spa", phoneName: "Nordic spa", note: "Rain or shine" },
-  { href: "/stay", name: "Farm stays", phoneName: "Stays", note: "Sleeps 4 to 20" },
+  {
+    href: "/farm-tours",
+    name: "Farm tour",
+    phoneName: "Farm tour",
+    fact: "tour",
+    thumb: { src: "/images/farm/farm-visit.jpg", position: "object-[40%_88%]" },
+  },
+  {
+    href: "/nordic-spa",
+    name: "Nordic spa",
+    phoneName: "Nordic spa",
+    fact: "spa",
+    thumb: { src: "/images/spa/spa-exterior-plunge-moss.jpg", position: "object-[50%_50%]" },
+  },
+  {
+    href: "/stay",
+    name: "Farm stays",
+    phoneName: "Stays",
+    fact: "stays",
+    thumb: { src: "/images/properties/lodge.jpg", position: "object-[50%_55%]" },
+  },
 ] as const;
 
 /** The form intro the weddings page also uses (one wording on both pages). */

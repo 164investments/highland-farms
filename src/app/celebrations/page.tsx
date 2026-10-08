@@ -116,34 +116,41 @@ export default function CelebrationsPage() {
     <div className="surface-paper bg-paper pt-[var(--header-h,104px)] font-sans text-ink">
       <StructuredData pathname="/celebrations" />
 
-      {/* 1. Hero (board C): the promise, the largest coo photo and one button. The headcount ladder is screen 2. */}
+      {/* 1. Hero (board C): the promise, the largest coo photo and one button. The headcount ladder is screen 2.
+          Desktop is the home and tours split (7/5): the photo is a 2:3 portrait, and the old full-width 560px
+          band kept 28% of it, cutting the cow's horns and the balloon (Hayden 2026-10-08 crop audit). */}
       <section className="px-5 pt-5 pb-9 lg:px-16 lg:pt-14 lg:pb-16">
-        <div className="mx-auto max-w-[1312px]">
-          <div className="lg:mx-auto lg:max-w-[860px] lg:text-center">
+        <div className="mx-auto flex max-w-[1312px] flex-col lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[1fr_repeat(3,auto)_1fr] lg:gap-x-16">
+          <div className="lg:col-start-1 lg:row-start-2">
             <p className={cn("m-0 text-[17px] lg:text-[22px]", fieldEyebrowClass)}>Birthdays, reunions and retreats</p>
-            <h1 className="field-heading m-0 mt-1 font-display text-[33px] leading-[1.02] text-ink max-[359px]:text-[29px] lg:mt-3 lg:text-[64px]">
+            <h1 className="field-heading m-0 mt-1 font-display text-[33px] leading-[1.02] text-ink max-[359px]:text-[29px] lg:mt-3 lg:max-w-[640px] lg:text-[64px]">
               Gather your people on a Highland cow farm.
             </h1>
           </div>
-          <div className="mt-3 lg:mt-10">
+          <div className="mt-3 lg:col-start-2 lg:row-span-5 lg:row-start-1 lg:mt-0">
             <Plate
               caption={HERO_PHOTO.caption}
-              captionClassName="lg:text-center"
-              frameClassName="h-[290px] max-[359px]:h-[218px] lg:h-[560px]"
+              frameClassName="h-[290px] max-[359px]:h-[218px] lg:aspect-[3/4] lg:h-auto"
             >
-              <StayPhoto photo={HERO_PHOTO} sizes="(min-width: 1440px) 1312px, 100vw" priority />
+              {/* Desktop shows horn tips to boots (about 89% of the height); phones keep their 21% band. */}
+              <StayPhoto
+                photo={HERO_PHOTO}
+                sizes="(min-width: 1440px) 520px, (min-width: 1024px) 38vw, 100vw"
+                priority
+                className="lg:![object-position:50%_30%]"
+              />
             </Plate>
           </div>
           {/* Plain text, as on the other visit pages: no link out to Google on the first screen. */}
-          <FieldReviewTier tier="hero" className="mt-2.5 lg:mt-5 lg:justify-center" />
-          <div data-hero-cta className="mt-3.5 flex flex-col items-stretch lg:mt-8 lg:items-center">
+          <FieldReviewTier tier="hero" className="mt-2.5 lg:col-start-1 lg:row-start-3 lg:mt-7" />
+          <div data-hero-cta className="mt-3.5 flex flex-col items-stretch lg:col-start-1 lg:row-start-4 lg:mt-7 lg:flex-row lg:items-center lg:gap-7">
             <a href="#contact" className={cn(fieldCtaClass, "w-full lg:w-auto")}>
               Check your date
               <FieldArrow />
             </a>
             <a
               href="#headcount"
-              className="mt-1 inline-flex min-h-11 items-center justify-center gap-1.5 self-center font-sans text-[14px] text-ink-note lg:text-[15px]"
+              className="mt-1 inline-flex min-h-11 items-center justify-center gap-1.5 self-center font-sans text-[14px] text-ink-note lg:mt-0 lg:text-[15px]"
             >
               Or choose by headcount
               <FieldArrowDown size={16} />
@@ -318,14 +325,16 @@ export default function CelebrationsPage() {
             {/* One real plate for the section (the caption says what the frame shows). */}
             <Plate
               className="mt-5 lg:mt-0"
-              frameClassName="aspect-[4/3] p-[7px] lg:aspect-[16/9] lg:p-2.5"
+              frameClassName="aspect-[4/3] p-[7px] lg:p-2.5"
               caption="A guide and two guests pet a Highland calf in the barn."
             >
+              {/* 4:3 everywhere: at 16:9 this portrait photo kept a third of its height and cut off every
+                  face (Hayden 2026-10-08 crop audit). */}
               <StayPhoto
                 photo={{
                   src: "/images/farm/cow-2.jpg",
                   alt: "A guide and two guests pet a Highland calf in the barn",
-                  position: "50% 62%",
+                  position: "50% 48%",
                 }}
                 sizes="(min-width: 1024px) 60vw, calc(100vw - 40px)"
               />

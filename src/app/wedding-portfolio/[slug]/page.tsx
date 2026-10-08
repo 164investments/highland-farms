@@ -561,7 +561,7 @@ export default async function WeddingDetailPage({
                 title="Portfolio couple page: wedding call"
                 className="mt-1 flex min-h-11 items-center justify-center font-sans text-[14px] font-medium text-pine lg:justify-start"
               >
-                Or book a free 45-minute call with Connor
+                Or book a free 45-minute call with Daunte
               </WeddingCallLink>
               </div>
             </div>

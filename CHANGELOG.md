@@ -2,6 +2,17 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.3.5.0] - 2026-10-08
+
+### Changed
+
+- Daunte now takes the first wedding call. Every call link, the menu, the announcement bar, the form's success card and the weddings FAQ say "call with Daunte"; Connor's photo no longer sits beside the call link. Connor, who owns the farm, "helps plan every wedding and is there on the day" (home reason No. 4, and the weddings No. 4 heading "Connor is there on your day."). The quote beside the weddings form no longer describes a call with Connor.
+- Desktop masthead: four links each side of the name (Stays moved right), so the name sits between two groups of about the same width.
+- Home, desktop first screen: the photo runs the full height, and the day visits are three doors (photo, name, price) at the foot of the text column instead of a strip of three links spread across the page.
+- The wedding form's cow head sits inside the card on one paper, with the frame whole, instead of straddling the edge.
+- Desktop photo crops: the farm tour card on home is a landscape photo of a child feeding a cow; the farm-tours guest notes show the trail photo in a square beside the reviews; the celebrations hero is a text-and-photo split; the celebrations barn photo is 4:3. No more cut-off heads.
+- Captions: the two farm-tours photos of Connor now name him instead of "a guide".
+
 ## [0.3.4.0] - 2026-10-07
 
 ### Changed

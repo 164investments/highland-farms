@@ -73,7 +73,7 @@ export function WeddingsHero() {
             title="Weddings hero: wedding call"
             className="flex min-h-11 items-center justify-center self-center font-sans text-[13.5px] font-medium text-pine transition-colors hover:text-pine-dark lg:min-h-0 lg:border-b lg:border-pine-line lg:pb-0.5 lg:text-[15px] lg:hover:border-pine"
           >
-            Or book a free 45-minute call with Connor
+            Or book a free 45-minute call with Daunte
           </WeddingCallLink>
         </div>
       </div>

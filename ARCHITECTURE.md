@@ -218,7 +218,7 @@ on the tour calendar). Acuity's own page inside the frame is not ours.
 seal: date and guests first, phone last with both text consents beside it in
 full (one-line labels above the unchanged wording), a folded optional note,
 one server-error line with the phone, and the success inside the same card;
-the call with Connor is its own door below. Pages render the form without a
+the call with Daunte is its own door below. Pages render the form without a
 wrapper frame. Event guest bands are 2 to 8 / 9 to 20 / 21 to 50 / 51 to 125
 (one house, the whole farm), with older band values still labelled.
 

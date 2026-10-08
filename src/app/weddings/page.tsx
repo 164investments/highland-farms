@@ -407,19 +407,18 @@ export default function WeddingsPage() {
           <div className="mt-7 lg:col-span-7 lg:col-start-6 lg:mt-0">
             <p className={sectionLabel}>No. 4 &middot; Connor</p>
             <h2 id="connor-title" className={cn(h2Class, "mt-1.5 lg:mt-3 lg:text-[52px]")}>
-              Your first call is with Connor.
+              Connor is there on your day.
             </h2>
+            {/* C3 answered by Hayden 2026-10-08: Daunte runs wedding sales and takes the first call; Connor is
+                part of every wedding, helps along the way and is there on the day. */}
             <p className={cn(bodyLarge, "mt-4 lg:mt-6")}>
               Connor McWilliams owns the farm. He turned an overgrown forest property in Brightwood into
-              Highland Farms. The call is free and runs 45 minutes, on Google Meet or in person at the farm, and covers
-              your date, your people and how a weekend here works.
+              Highland Farms, and he helps plan every wedding here and is on the farm on the day.
             </p>
-            <PendingSlot
-              className="mt-3"
-              note="PENDING CONNOR C3: is he on the farm for every wedding? Hides one sentence."
-            >
-              <p className={bodyLarge}>He is on the farm for every wedding.</p>
-            </PendingSlot>
+            <p className={cn(bodyLarge, "mt-3")}>
+              Your first call is with Daunte. It is free and runs 45 minutes, on Google Meet or in person at the
+              farm, and covers your date, your people and how a weekend here works.
+            </p>
             <div className="mt-6 border-t border-rule pt-6">
               <FieldReview
                 spec={WEDDINGS_CONNOR_QUOTE}
@@ -432,7 +431,7 @@ export default function WeddingsPage() {
               title="Weddings Connor block: wedding call"
               className="mt-5 inline-flex min-h-11 items-center gap-2 font-sans text-[15px] font-medium text-pine hover:text-pine-dark"
             >
-              Book a free 45-minute call with Connor
+              Book a free 45-minute call with Daunte
               <FieldArrow size={16} />
             </WeddingCallLink>
           </div>
@@ -599,7 +598,7 @@ export default function WeddingsPage() {
             <p className="m-0 mt-3 font-sans text-[14px] font-medium leading-snug text-ink-body lg:text-[16px]">
               Every September 2026 Saturday sold out.
             </p>
-            {/* Desktop: the proof for the call link (Connor himself is introduced at No. 4), then the table. */}
+            {/* Desktop: proof that planning here is easy (Connor is introduced at No. 4), then the table. */}
             <div className="mt-10 hidden border-t border-rule pt-8 lg:block">
               <FieldReview
                 spec={WEDDINGS_CALL_QUOTE}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
-import Image from "next/image";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -70,7 +69,7 @@ export interface InquiryFormProps {
   showTrustSignals?: boolean;
   /** Submit label. Default "Check my date". */
   ctaText?: string;
-  /** Wedding types only: the free call with Connor and the look book under the button. Default true. */
+  /** Wedding types only: the free call with Daunte and the look book under the button. Default true. */
   showSoftPaths?: boolean;
   /** Keep the Event Type select visible even when defaultEventType presets it (general mode arriving from a wedding link). */
   showEventType?: boolean;
@@ -643,14 +642,15 @@ export function InquiryForm({
         </form>
       </FormCard>
 
-      {/* The call with Connor is its own door below the card, one 44px target. */}
+      {/* The call with Daunte is its own door below the card, one 44px target. No photo until we have
+          one of Daunte (Hayden 2026-10-08: Daunte takes the first call; Connor's face beside his name would be false). */}
       {showDoor && (
         <a
           // Render-time href must not read window (hydration); onClick refines it.
           href={callLink(`wedding-form-${placement ?? "inquiry"}`, {})}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-6 flex min-h-[54px] items-center gap-3.5"
+          className="mt-6 flex min-h-[54px] items-center"
           onClick={(e) => {
             // Prefill whatever they've typed so far; the form stays as it is in this tab.
             const v = getValues();
@@ -663,21 +663,11 @@ export function InquiryForm({
             trackCallStart(href, "Wedding call (inquiry form)");
           }}
         >
-          <span className="shrink-0 border border-frame bg-paper-light p-[3px]">
-            <Image
-              src="/images/team/connor-mcwilliams.jpg"
-              alt=""
-              width={192}
-              height={192}
-              sizes="54px"
-              className="block h-[54px] w-[54px] object-cover"
-            />
-          </span>
           <span className="min-w-0">
             <span className="mb-0.5 block font-display text-[18px] font-medium italic leading-tight text-fern">
               Rather talk first?
             </span>
-            <span className={fieldTextLinkClass}>Book a free 45-minute call with Connor</span>
+            <span className={fieldTextLinkClass}>Book a free 45-minute call with Daunte</span>
             <span className="sr-only"> (opens in a new tab)</span>
           </span>
         </a>
@@ -687,21 +677,19 @@ export function InquiryForm({
 }
 
 /**
- * The framed paper card. The cow head sits on its top edge as a seal; the edge
- * is drawn as two rules around it (not a patch of page colour), so it works on
- * any ground.
+ * The framed paper card, with the cow head as a seal inside its top edge. It used to straddle the edge,
+ * half on the section's ground and half on the card's paper, with the rule broken wider than the drawing;
+ * Hayden (2026-10-08): "doesn't feel properly blended". Inside, it sits on one paper and the frame is whole.
  */
 function FormCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-1">
-      <div aria-hidden="true" className="relative z-10 flex h-[72px] items-start">
-        <span className="mt-9 h-px flex-1 bg-frame" />
-        <FieldDrawing name="highland-cow-head" className="mx-2 h-[72px] w-[72px] shrink-0" sizes="72px" />
-        <span className="mt-9 h-px flex-1 bg-frame" />
-      </div>
-      <div className="-mt-9 border-x border-b border-frame bg-paper px-4 pb-[22px] pt-[50px] lg:px-10 lg:pb-10">
-        {children}
-      </div>
+    <div className="mt-1 border border-frame bg-paper px-4 pb-[22px] pt-4 lg:px-10 lg:pb-10 lg:pt-7">
+      <FieldDrawing
+        name="highland-cow-head"
+        className="mx-auto mb-2 block h-[56px] w-[56px] lg:mb-3 lg:h-[68px] lg:w-[68px]"
+        sizes="68px"
+      />
+      {children}
     </div>
   );
 }
