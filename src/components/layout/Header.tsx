@@ -36,7 +36,7 @@ const NAV_LINK =
  * live in the menu and footer.
  *
  * Heights are fixed: the bar (when the page has one; --bar-h, 40px or 44px
- * on touch screens) plus the name row, 60px or 96px from xl, 3px double rule
+ * on touch screens) plus the name row, 60px or 80px from xl, 3px double rule
  * included. The --header-h defaults in globals.css mirror them and the
  * ResizeObserver below keeps them exact. Past 40px of scroll the whole
  * masthead moves up by the bar's height, so the bar scrolls away and the
@@ -119,7 +119,7 @@ export function Header({ menuFacts }: { menuFacts: MenuFacts }) {
           {/* Centre column = the name. Side tracks stay `1fr` (not minmax(0,1fr)): when a label is too
               long to fit beside a centred name, the name moves over instead of colliding with it. The
               sizes in Masthead.tsx keep that from happening from 374px up; padding is symmetric. */}
-          <div className="mx-auto grid h-[60px] max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-x-3 px-1.5 xl:h-[96px] xl:px-16">
+          <div className="mx-auto grid h-[60px] max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-x-3 px-1.5 xl:h-[80px] xl:px-16">
             <div className="flex items-center">
               <button
                 type="button"

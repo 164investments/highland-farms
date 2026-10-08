@@ -108,10 +108,13 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
         className="surface-paper border-t-[3px] border-double border-frame bg-paper-shade font-sans text-ink"
       >
         {/* Phones: one column whose order follows the page type (globals.css: visit pages lead with Visit the farm). */}
-        <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-5 pt-4 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:px-16 lg:pb-10 lg:pt-14">
+        {/* Desktop: blocks fill rows of three (one rule between rows). Pages that drop the plate and Weddings
+            group (home, the wedding pages, celebrations) set what is left in one row of four instead
+            (globals.css), so no block slides up beside a row it doesn't belong to (Hayden 2026-10-08). */}
+        <div className="mx-auto flex max-w-[1440px] flex-col px-5 pb-5 pt-4 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:gap-y-10 lg:px-16 lg:pb-10 lg:pt-14">
           {/* The menu's own plate; the review count sits in its mat. */}
           {!hidden("proof") && (
-            <div data-footer-part="proof" data-footer-weddings="" className="lg:col-span-4">
+            <div data-footer-part="proof" data-footer-weddings="" data-footer-col="" className="lg:col-span-4">
               <div className="border border-frame bg-paper-light p-[5px] lg:p-2">
                 <div className="relative h-[112px] overflow-hidden max-[359px]:h-[96px] lg:h-[260px]">
                   <Image
@@ -138,7 +141,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
 
           {/* Weddings: the one large lead, one note, the menu's three steps. */}
           {!hidden("doors") && (
-            <nav aria-label="Footer: weddings" data-footer-part="doors" data-footer-weddings="" className="mt-1 lg:col-span-4 lg:mt-0">
+            <nav aria-label="Footer: weddings" data-footer-part="doors" data-footer-weddings="" data-footer-col="" className="mt-1 lg:col-span-4 lg:mt-0">
               <Link href={weddings.href} className="flex min-h-11 items-center justify-between text-ink hover:text-pine">
                 <span className="font-display text-[30px] font-semibold leading-none lg:text-[34px]">{weddings.title}</span>
                 <ChevronRight className="h-[18px] w-[18px] flex-none text-ink-meta" strokeWidth={1.6} aria-hidden="true" />
@@ -177,7 +180,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
 
           {/* Visit the farm: plain rows, then the short links on one dotted line. */}
           {!hidden("doors") && (
-            <nav aria-label="Footer: visit the farm" data-footer-part="doors" data-footer-visit="" className="mt-4 lg:col-span-4 lg:mt-0">
+            <nav aria-label="Footer: visit the farm" data-footer-part="doors" data-footer-visit="" data-footer-col="" className="mt-4 lg:col-span-4 lg:mt-0">
               <div data-footer-visit-rows="">
               <p className={EYEBROW}>Visit the farm</p>
               <ul role="list" className="m-0 mt-1 list-none border-t border-rule p-0">
@@ -196,7 +199,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                 ))}
               </ul>
               </div>
-              <ul role="list" className={`${DOTS} mt-1.5`}>
+              <ul role="list" data-footer-dots="" data-footer-more="" className={`${DOTS} mt-1.5`}>
                 {MORE_LINKS.map((link) => (
                   <li key={link.href} data-season-only={link.season} className={DOT_ITEM}>
                     <Link href={link.href} className={`${LINK} whitespace-nowrap`}>
@@ -208,9 +211,12 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
             </nav>
           )}
 
+          {/* Desktop: the one rule between the two rows of three. */}
+          <div aria-hidden="true" data-footer-divider="" className="hidden border-t border-rule lg:col-span-12 lg:block" />
+
           {/* Talk to us: the one public line leads, then the two emails. */}
           {!hidden("talk") && (
-            <div data-footer-part="talk" className="mt-4 border-t border-rule pt-2 lg:col-span-4 lg:mt-12">
+            <div data-footer-part="talk" data-footer-col="" className="mt-4 border-t border-rule pt-2 lg:col-span-4 lg:mt-0 lg:border-t-0 lg:pt-0">
               <a
                 href={TEL}
                 className="flex min-h-11 items-center font-display text-[28px] font-semibold text-pine [font-feature-settings:'lnum'_1] [font-variant-numeric:lining-nums] hover:text-pine-dark"
@@ -232,7 +238,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
 
           {/* Finding the farm: the address, then directions in the same quiet link style. */}
           {!hidden("find") && (
-            <div data-footer-part="find" className="lg:col-span-4 lg:mt-12 lg:border-t lg:border-rule lg:pt-2">
+            <div data-footer-part="find" data-footer-col="" className="lg:col-span-4">
               <p className={`${NOTE} mt-1`}>
                 {CONTACT.address}, <span className="whitespace-nowrap">{CONTACT.city}, {CONTACT.state} {CONTACT.zip}</span>
               </p>
@@ -244,8 +250,8 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
           )}
 
           {/* Elsewhere and legal: two quiet dotted lines. */}
-          <div className="mt-3 border-t border-rule pt-1 lg:col-span-4 lg:mt-12 lg:pt-2">
-            <ul role="list" className={`${SMALL_DOTS} pt-1`}>
+          <div data-footer-col="" className="mt-3 border-t border-rule pt-1 lg:col-span-4 lg:mt-0 lg:border-t-0 lg:pt-0">
+            <ul role="list" data-footer-dots="" className={`${SMALL_DOTS} pt-1`}>
               {directories.map((site) => (
                 <li key={site.href} className={SMALL_ITEM}>
                   <a href={site.href} target="_blank" rel="noopener noreferrer" className={SMALL_LINK}>
@@ -261,7 +267,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
                 </a>
               </li>
             </ul>
-            <ul role="list" className={`${SMALL_DOTS} mt-1 pb-1`}>
+            <ul role="list" data-footer-dots="" className={`${SMALL_DOTS} mt-1 pb-1`}>
               <li className={SMALL_ITEM}><Link href="/privacy" className={SMALL_LINK}>Privacy</Link></li>
               <li className={SMALL_ITEM}><Link href="/terms" className={SMALL_LINK}>Terms</Link></li>
               <li className={SMALL_ITEM}><Link href="/accessibility" className={SMALL_LINK}>Accessibility</Link></li>
@@ -270,7 +276,7 @@ export function Footer({ hide = [] }: { hide?: readonly FooterPart[] }) {
           </div>
 
           {/* Colophon. */}
-          <div className="mt-2 flex items-center gap-3 border-t border-rule pt-2.5 lg:col-span-12 lg:mt-10">
+          <div className="mt-2 flex items-center gap-3 border-t border-rule pt-2.5 lg:col-span-12 lg:mt-0 lg:pt-6">
             <FieldDrawing name="highland-cow-head" className="h-10 w-10 flex-none" sizes="40px" />
             <div>
               <p className="m-0 font-display text-[18px] italic leading-tight text-ink">Creating whimsical farm weddings.</p>
