@@ -72,6 +72,9 @@ npm run indexnow # only when live indexing is authorized
 ## Integration Architecture
 
 ### Website Payments (gated Stripe implementation, 2026-10-09)
+
+Keep live-account readbacks, webhook identifiers and credential handoff locations in the private release package. Follow the cutover guide’s provider-off deployment and stock reconciliation order before Stripe activation.
+
 ```
 Validate + server-price → atomic reserve_stripe_checkout (stock/slots/gift) →
   hosted Checkout, manual capture → verify canonical Stripe session/intent →

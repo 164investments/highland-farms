@@ -140,13 +140,15 @@ its readback before continuing.
    only to `checkout.session.completed`, `checkout.session.expired`,
    `checkout.session.async_payment_succeeded`,
    `checkout.session.async_payment_failed`, and `charge.refunded`. Store its
-   signing secret in approved environment configuration. Read back URL,
+   signing secret in approved environment configuration. Keep delivery disabled
+   until the reviewed recovery endpoint is deployed. Read back URL,
    merchant, mode and subscribed events. Signed events are retrieved canonically
    before reconciliation; duplicate and out-of-order deliveries are expected.
 5. **Production environment.** In Vercel project
    `prj_jY8fVdln43BFz60Y2PtvFuqGERMW`, set server-only `STRIPE_SECRET_KEY` and
    `STRIPE_WEBHOOK_SECRET`, set `STRIPE_ACCOUNT_ID=acct_1UOjHzF56Rmibldi`, and
-   set `NEXT_PUBLIC_PAYMENT_PROVIDER=stripe`. Keep the native calendar off and
+   leave `NEXT_PUBLIC_PAYMENT_PROVIDER` unset until the stock/deployment checks
+   in step 6 pass. Keep the native calendar off and
    retain all existing Square, Supabase, Acuity, email and cron configuration.
    Generate a separate random 32-byte `BOOKING_CALENDAR_API_TOKEN` for the
    prepared Claude bridge, set it server-only in this same Vercel project, and
@@ -160,11 +162,16 @@ its readback before continuing.
    machine; the standalone bridge and placeholder config are prepared locally.
    `STRIPE_CHECKOUT_ORIGIN` can remain unset because the default is the canonical
    website; do not introduce an arbitrary return host.
-6. **Reviewed deployment.** Deploy the approved commit with a rebuild so the
-   public provider selector is consistent in server and browser bundles. A push
-   to `main` triggers Vercel production deployment and belongs to this approval
-   scope only when the reviewed commit is identified. The deployment includes
-   the authenticated `/api/cron/stripe-reconcile` job on `*/5 * * * *`.
+6. **Reviewed deployment.** After fresh farm counts and the exact Square
+   tracking/count approval, first deploy the reviewed commit with the provider
+   flag still unset. Verify the timestamp-aware Square adapter, recovery routes,
+   cron authentication and limited calendar read. Reconcile linked stock through
+   the reviewed canonical-count adapter and verify current timestamps/quantities
+   before activating any Stripe holds. Enable the prepared webhook, then set
+   `NEXT_PUBLIC_PAYMENT_PROVIDER=stripe` and rebuild/deploy so server and browser
+   agree. Keep native booking off throughout. A push to `main` auto-deploys on
+   Vercel and belongs to this approval only for the reviewed commit. The release
+   includes authenticated `/api/cron/stripe-reconcile` on `*/5 * * * *`.
 7. **Readback and observation.** Confirm the expected deployment, provider flag,
    native flag off, shop redirect URL on `checkout.stripe.com` from existing
    customer sessions or approved sandbox evidence, webhook routing,
