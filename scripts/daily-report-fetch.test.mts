@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { fetchAllPages, fetchNativeAdditionsSafely } from "../src/lib/daily-report-fetch.ts";
+import { fetchAllPages, fetchNativeAdditionsSafely, fetchNativeGiftSales } from "../src/lib/daily-report-fetch.ts";
+import { createClient } from "@supabase/supabase-js";
 import { buildDailyReport } from "../src/lib/daily-report.ts";
 
 function appointment(id: number, overrides: Record<string, unknown> = {}) {
@@ -29,6 +30,25 @@ function appointment(id: number, overrides: Record<string, unknown> = {}) {
     ...overrides,
   };
 }
+
+test("native gift revenue includes either payment provider once and excludes unpaid/manual certificates", async () => {
+  const fixture = [
+    { kind: "value", product_scope: "farm-tour", initial_units: 15000, square_payment_id: "square-paid", stripe_payment_intent_id: null },
+    { kind: "visits", product_scope: "nordic-spa", initial_units: 3, square_payment_id: null, stripe_payment_intent_id: "pi_stripepaid" },
+    { kind: "value", product_scope: null, initial_units: 7500, square_payment_id: null, stripe_payment_intent_id: null },
+  ];
+  const db = createClient("https://report-tests.invalid", "test-placeholder", { global: { fetch: async (input) => {
+    const url = new URL(String(input));
+    assert.equal(url.origin, "https://report-tests.invalid");
+    assert.equal(url.searchParams.get("or"), "(square_payment_id.not.is.null,stripe_payment_intent_id.not.is.null)");
+    assert.equal(url.searchParams.get("order"), "code.asc", "Gift certificates use code as their primary key, not id");
+    assert.deepEqual(url.searchParams.getAll("created_at"), ["gte.2026-01-01T00:00:00Z", "lte.2026-12-31T23:59:59Z"]);
+    return Response.json(fixture.filter(row => row.square_payment_id || row.stripe_payment_intent_id));
+  } } });
+  const rows = await fetchNativeGiftSales(db, { start: "2026-01-01", end: "2026-12-31" });
+  assert.equal(rows.length, 2);
+  assert.deepEqual(rows.map(row => row.initial_units), [15000, 3]);
+});
 
 // ---- CRITICAL 1: native-additions reads must never take down the report ----
 

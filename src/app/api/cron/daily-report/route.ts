@@ -12,7 +12,7 @@ import {
   resolveGiftCertValueCents,
   toPacificDateKey,
 } from "@/lib/daily-report";
-import { fetchAllPages, fetchNativeAdditionsSafely } from "@/lib/daily-report-fetch";
+import { fetchAllPages, fetchNativeAdditionsSafely, fetchNativeGiftSales } from "@/lib/daily-report-fetch";
 import { getBookingProduct } from "@/lib/booking/products";
 import { GIFT_PRODUCTS } from "@/lib/booking/gift";
 
@@ -101,27 +101,14 @@ function archiveRowToAppointment(row: ArchiveRow): AcuityAppointment {
   });
 }
 
-interface GiftCertRow {
-  kind: "value" | "visits";
-  product_scope: string | null;
-  initial_units: number;
-  square_payment_id: string | null;
-}
-
-/** Native gift-cert sales (`square_payment_id is not null`), scoped to the
+/** Native gift-cert sales paid through Square or Stripe, scoped to the
  *  report year (purchase date) — same convention as `yearOrders`. */
 async function fetchNativeGiftCertValueCents(
   db: SupabaseClient,
   range: DateRange,
 ): Promise<number[]> {
-  const { data, error } = await db
-    .from("gift_certificates")
-    .select("kind, product_scope, initial_units, square_payment_id")
-    .not("square_payment_id", "is", null)
-    .gte("created_at", `${range.start}T00:00:00Z`)
-    .lte("created_at", `${range.end}T23:59:59Z`);
-  if (error) throw new Error(`gift_certificates fetch failed: ${error.message}`);
-  return ((data ?? []) as GiftCertRow[]).map((row) =>
+  const data = await fetchNativeGiftSales(db, range);
+  return data.map((row) =>
     resolveGiftCertValueCents(
       { kind: row.kind, productScope: row.product_scope ?? "", units: row.initial_units },
       GIFT_CATALOG,
