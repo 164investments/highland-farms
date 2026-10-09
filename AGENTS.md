@@ -28,7 +28,8 @@ npm run indexnow # only when live indexing is authorized
 - API routes: `src/app/api/` (inquiries, acuity/webhook, meta/webhook, subscribe, cron/daily-report)
 - Data: `src/data/` (properties, farm-tours, nordic-spa, gift-certificates, wedding-portfolio, thanksgiving); review quotes live in each page's own `quotes.ts`
 - Libs: `src/lib/` (supabase, acuity, daily-report, html, hubspot, bookediq, email, ga4, meta, meta-leads, schemas)
-- Stripe website payments: `src/lib/payments/` owns validated server pricing, durable reservation/reconciliation, Stripe REST transport, paid effects and browser retry context; `/api/payments/stripe/*`, `/api/stripe/webhook`, `/api/cron/stripe-reconcile`, `/payments/return`. Schema: `supabase-stripe.sql`. Pending shop-first production plan: [PAYMENT-20261009-STRIPE-SHOP](docs/stripe-cutover-2026-10-09.md); no production activation is authorized by the local implementation.
+- Stripe website payments: `src/lib/payments/` owns validated server pricing, durable reservation/reconciliation, Stripe REST transport, paid effects and browser retry context; `/api/payments/stripe/*`, `/api/stripe/webhook`, `/api/cron/stripe-reconcile`, `/payments/return`. Schema: `supabase-stripe.sql`. Approved shop-first production scope: [PAYMENT-20261009-STRIPE-SHOP](docs/stripe-cutover-2026-10-09.md); deployment requires its actual TEST gateway and full isolated booking gates. Native booking/gift activation remains separate.
+- Stripe API contract: `payments/stripe.ts` pins `2026-09-30.endive`; use `allowed_payment_method_types` for card filtering. The old `payment_method_types` field is rejected by Endive. Set session `wallet_options[link][display]=never`: Link can offer bank/Klarna funding within a card integration. Test the pinned version and hosted payment choices through the actual isolated gateway before changing them.
 - Limited calendar integration: `src/lib/booking/calendar-{auth,schema}.ts`, `/api/shop/admin/booking/calendar` (aggregate read, no customer details), `schedules`, `exceptions`, `blackouts` and `timed-blackouts`; `scripts/calendar-mcp.mjs` is the standalone Node stdio bridge for Jalene's own Claude client. Apply `supabase-stripe.sql` and `supabase-calendar.sql` before deploying new reads. Setup and token-provisioning boundaries are in the Stripe cutover guide. The limited token never grants booking cancel/refund/manual, certificates or shop/order access.
 - Native booking calendar (Phase 1, behind `NEXT_PUBLIC_NATIVE_CALENDAR`): `src/lib/booking/`, `src/app/api/booking/*`, `src/app/api/cron/booking-reminders` — spec: `docs/superpowers/specs/2026-08-27-native-calendar-design.md`, plan: `docs/superpowers/plans/2026-08-27-native-calendar-engine.md`; structure and rules in `ARCHITECTURE.md` under "Booking (native calendar)"
 - Native booking calendar Phase 2 (booking UX, wedding-call + gift certs, admin surface, still behind the same flag except admin): `src/components/booking/` (BookingFlow, BookingPayment, NativeBookingSection), `src/app/wedding-call/`, `src/app/gift-certificates/`, `src/app/api/booking/gift/checkout`, `src/app/api/shop/admin/booking/*` (blackouts, schedules, manual, cancel, certs), `src/app/shop/admin/` (CalendarTab, SchedulesTab, CertsTab), `src/lib/booking/google-calendar.ts` + `ics.ts` + `cancel-email.ts` + `gift-email.ts` — plan: `docs/superpowers/plans/2026-08-27-native-calendar-phase2.md`; cutover verification recipe: `scripts/booking-e2e.md`
@@ -122,18 +123,16 @@ Gift parity is 19 active products: 16 face-value offers plus 3/5/10-visit
 packages at $199/$299/$549 with 180-day expiry. Preserve legacy aliases;
 combo value credit works on tour/spa separately or together, never wedding
 calls. Both additive SQL schemas passed repeated isolated PostgreSQL checks
-with concurrency/gift fixtures, and nine compatibility tests passed. The full
-173-test suite and TypeScript/lint/build passed before final fixes; latest
-focused runs passed 13 admin checks, four signed inventory checks and 11 SQL
-groups. Payment browser checks passed at desktop 1440px and true iPhone 393px;
+with concurrency/gift fixtures, and nine compatibility tests passed. The final
+208-test suite and ESLint passed after the final review fixes; the final guarded shop-only production webpack build including TypeScript passed; focused runs also passed 13 admin
+checks, four signed inventory checks and 14 SQL groups. Payment browser checks passed at desktop 1440px and true iPhone 393px;
 78 calendar states passed with six screenshots. Submissions were mocked and
-outside requests blocked. Final full-suite count/lint/build remain pending.
-Actual Stripe gateway E2E is blocked by the missing TEST key. Proposed isolated
+outside requests blocked. Actual Stripe TEST S1–S10 plus S7I and all 30 numbered standing cases passed in isolation. Fresh inventory and final production configuration remain required before shop deployment. Approved isolated
 setup is `127.0.0.1:3099`, disposable local Unix-socket PostgreSQL ports
 55443/55444, a local fixture REST bridge, captured mail and mocked Square;
-Stripe CLI forwarding needs approved setup. No new remote account/hosting/DB.
+Local event forwarding setup is approved. No new remote account/hosting/DB.
 The receipt document excludes analytics/replay/CRM/chat through
-`PaymentPrivacy`; browser shop purchase events wait for normal navigation.
+`PaymentPrivacy`; browser shop purchase events wait for normal navigation. Keep explicit private/no-referrer header rules for both `/payments/:path*` and `/api/payments/stripe/:path*` in `next.config.ts`: its global default can override route response headers.
 
 ### Form Submission (`POST /api/inquiries`)
 ```
@@ -217,7 +216,7 @@ Validate cron header →
 - ⛔ **Square is the PRICE source of truth** (Hayden, 2026-08-26). Linked variants carry Square's price; re-sync with `scripts/sync-square-prices.mjs --apply`. Unlinked products (apparel, plush, bouquets) keep their own price.
 - ⛔ On the legacy Square payment path, the Square ORDER uses ad-hoc lines at our price, never `catalog_object_id`; a catalog line would re-price itself. Stripe checkout creates no Square payment/order, then adjusts linked Square inventory with a stable attempt key after paid finalization.
 - Square POS ↔ website inventory is linked per-variant via `shop_inventory.square_variation_id`. Mapping is ONE-TO-ONE (unique index). Confirm links in `/shop/admin` → Square link; `scripts/square-catalog-match.mjs` only proposes.
-- Stock counts are entered in `/shop/admin` → Count. Every count writes an audit row to `shop_stock_counts` (previous value + who counted). Do NOT hand anyone a spreadsheet for this.
+- Stock counts are entered in `/shop/admin` → Count. Every count writes an audit row to `shop_stock_counts` (previous value + who counted). Stock edits/counts reject unresolved Stripe holds; threshold-only edits remain allowed. Linked counts are website-only and a subsequent canonical Square count can replace them. Hayden chose fresh farm-entered Count audits as the cutover baseline (2026-10-09); never adopt stale seeded counts or mutate Square tracking/counts without an exact approved inventory plan. Do NOT hand anyone a spreadsheet for this.
 - ⛔ Never hardcode a review count or a rating anywhere — import `REVIEW_COUNT` / `FIVE_STAR_COUNT` / `REVIEW_RATING` from `@/lib/reviews`. Hardcoded `188` / `"4.9"` in three files is exactly how the site sat three months stale. Never render the rating as a decimal; display is five filled stars plus a count.
 - ⛔ The Google Business Profile API does NOT accept service accounts. Headless refresh needs a *user* refresh token — mint one scoped to `business.manage` alone with `scripts/mint-gmb-refresh-token.mjs`; don't reuse the local gcloud ADC token (it also carries `cloud-platform`).
 - robots.txt is a STATIC file at `public/robots.txt` (NOT `src/app/robots.ts` — a typed robots route can't emit the Cloudflare `Content-Signal` line; do not re-add robots.ts or the build conflicts). llms.txt is `public/llms.txt` — bump its `Last-Updated` on edits.

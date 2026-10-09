@@ -1,11 +1,9 @@
 /**
  * Square payments for the farm store.
  *
- * Square (not Stripe) because the farm's account is already live and approved
- * with CREDIT_CARD_PROCESSING — the Stripe plan from May 2026 was still waiting
- * on approval and has no keys in the environment. Card details never touch this
- * server: the browser tokenises with the Web Payments SDK and posts a one-use
- * `sourceId`.
+ * Legacy Square website payments and ongoing POS/catalog/inventory transport.
+ * The provider flag selects hosted Stripe for new website payments. Card details
+ * on the legacy path are tokenized in the browser and sent as a one-use sourceId.
  *
  * Talks to the REST API over fetch rather than pulling in the Square SDK — one
  * endpoint doesn't justify the dependency.

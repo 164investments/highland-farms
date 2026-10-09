@@ -14,7 +14,7 @@ One Next.js App Router site serving three businesses that share a farm:
    which owns the calendar, capacity and confirmation emails.
 3. **The farm store** — physical goods, with a legacy Square payment path and
    gated Stripe hosted Checkout. Square remains the POS, linked-price and
-   inventory system; Stripe production activation is pending approval.
+   inventory system; the approved Stripe shop cutover awaits fresh stock and final live configuration.
 
 These have different shapes: a lead fans out, the live experience calendar
 belongs to Acuity, and an order moves money transactionally. The gated native
@@ -302,8 +302,8 @@ gift purchase UIs to hosted Stripe Checkout. It is a build-time public flag;
 without that exact value, the legacy Square payment components/routes remain.
 The old Square checkout routes reject new requests when Stripe is enabled,
 preventing stale tabs from charging the alternate rail. This code is prepared
-locally; production changes await [PAYMENT-20261009-STRIPE-SHOP](docs/stripe-cutover-2026-10-09.md).
-The first proposed activation covers the shop. `NEXT_PUBLIC_NATIVE_CALENDAR`
+locally; [PAYMENT-20261009-STRIPE-SHOP](docs/stripe-cutover-2026-10-09.md) authorizes the shop cutover after its test and stock gates pass.
+The first activation covers the shop. `NEXT_PUBLIC_NATIVE_CALENDAR`
 stays off, so Acuity still owns public experience bookings and gift sales.
 
 ```
@@ -334,7 +334,7 @@ vary on retry without changing the purchase; the original attribution is kept.
 Reservation, capacity claims and gift redemption happen in one transaction.
 The default reservation is 45 minutes; the hosted session expires five minutes
 earlier, after 40 minutes. Stripe receives the exact cash due in integer USD
-cents and uses manual capture.
+cents and uses manual capture. The transport pins Stripe API `2026-09-30.endive` and uses `allowed_payment_method_types[0]=card`; the removed `payment_method_types` field must not return. Per-session `wallet_options[link][display]=never` excludes Link bank/Klarna funding from this card-only release. Upgrade the version through isolated gateway tests, including hosted method presentation and webhook compatibility.
 
 Webhook delivery, receipt polling and cron fetch canonical Stripe state and
 validate mode, session/intent binding, currency and exact amount. Capture
@@ -348,7 +348,7 @@ After capture, one transaction records the order and items, confirms every
 booking leg, or issues the gift certificate. Retrying a captured payment
 repeats domain finalization without charging again. Free or fully gift-covered
 bookings finalize without Stripe card entry; overdue pending free attempts
-expire and restore their reservations.
+expire and restore their reservations. Browser retry keys retire after verified paid/expired receipts or successful zero-charge booking, permitting an identical later purchase; old receipts cannot clear a newer attempt. Paid checkout replays return the existing receipt.
 
 A network exception is never proof of a decline. Unknown create/capture/cancel
 outcomes retain the same attempt and its reservation. Release needs verified
@@ -357,7 +357,7 @@ captured without a persisted claim. Late authorizations on expired attempts
 are cancelled rather than captured. Keep webhook/cron/state alive after a
 provider rollback so existing Stripe purchases can finish.
 
-Paid effects retry until `notified_at` is set. Customer/farm/recipient emails
+Paid effects retry until `notified_at` is set. Booking confirmation work checks the complete current group and payment/snapshot binding before Calendar creation and again before email. Fully cancelled groups get a separate `confirmation_suppressed_at` marker; partial, missing or consumed groups fail closed. Suppression never claims delivery and does not disable financial reconciliation. Already submitted messages can still race cancellation. Customer/farm/recipient emails
 have stable per-attempt Resend keys and strict provider-error handling;
 booking email payloads and ICS timestamps are frozen before sending.
 Wedding-call Calendar IDs are deterministic, with conflict readback, while
@@ -371,7 +371,7 @@ keys do not establish unlimited exactly-once email delivery.
 
 `PaymentPrivacy` suppresses GTM (including noscript), attribution, replay, CRM,
 email popup and chat scripts on `/payments/*`. Receipt metadata/headers prohibit
-indexing and referrer disclosure. The session ID is a receipt capability;
+indexing and referrer disclosure. `next.config.ts` applies explicit private/no-referrer/noindex rules to both `/payments/:path*` and `/api/payments/stripe/:path*`; the global header default overrides the status route’s own response policy without the API exception. The session ID is a receipt capability;
 public status responses expose only status/kind/reference/result, never the
 stored customer snapshot or intent ID. Shop browser purchase events remain
 queued until normal navigation loads GTM; conversion delivery is best effort.
@@ -508,6 +508,8 @@ order total diverge from the amount charged. Pricing and stock are therefore
 moved by two separate calls, on purpose.
 Stripe purchases create no Square payment/order; they preserve this independent
 price/inventory boundary through paid inventory adjustments.
+
+Manual inventory writes and audited Count batches lock inventory rows and reject stock changes while Stripe reservations remain unresolved; threshold-only edits remain allowed. Linked manual counts retain the existing website-only semantics and source timestamps, so the next canonical Square snapshot can replace them. Mapping changes reject unresolved holds, reset stock/source chronology on a real remap, and require a fresh canonical baseline. Checkout reservation compares current mappings and quantities with the prepared Square adjustment snapshot under those locks.
 
 ⛔ **Mapping is one-to-one and must stay that way.** A unique index enforces it.
 The website sells Pork Shoulder Roast in three weight tiers against Square's
@@ -649,17 +651,8 @@ The gift catalog has 19 active products: 16 existing face-value offers and
 remain accepted. Combo value credit can fund tours and spa independently or
 together, and is never eligible for wedding calls. Both additive SQL schemas
 passed repeated isolated PostgreSQL checks, including concurrency/gift
-fixtures; nine compatibility tests passed. The 173-test suite and TypeScript,
-lint and build passed before the final inventory/refund fixes; latest focused
-checks passed 13 admin cases, four signed inventory cases and 11 SQL groups.
-Desktop 1440px/true iPhone 393px payment states and 78 calendar browser states
-passed with mocked submissions and outside requests blocked; six calendar
-screenshots were captured. Final full-suite count/lint/build remain pending.
-Actual Stripe TEST-mode E2E is blocked by the missing TEST key; proposed setup
-uses local `127.0.0.1:3099`, disposable local Unix-socket PostgreSQL on
-ports 55443/55444, a fixture REST bridge, captured mail and mocked Square.
-Stripe CLI forwarding needs approved setup; no new remote infrastructure is
-proposed.
+fixtures; nine compatibility tests passed. The current 208-test suite and ESLint passed, as did 14 real PostgreSQL Stripe groups including count/remap races and cancelled-confirmation suppression. The final guarded shop-only production webpack build passed, including TypeScript.
+Desktop 1440px/true iPhone 393px payment states and 78 calendar browser states passed with mocked submissions and outside requests blocked; six calendar screenshots were captured. Actual Stripe TEST S1–S10 plus S7I, all 30 numbered standing cases and final shop-only desktop/true-mobile boundaries passed; synthetic negative cases are labeled separately in private evidence. No production activation has occurred. Fresh farm counts entered through Shop Admin are the chosen stock baseline; linked Square tracking and canonical counts must be reconciled under an exact separate inventory change approval before activation.
 
 ```
 src/lib/booking/

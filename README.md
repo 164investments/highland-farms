@@ -73,28 +73,16 @@ PostgreSQL migration/RPC fixture is `scripts/stripe-storage.test.py`, which
 requires existing PostgreSQL binaries and creates a disposable local database.
 These checks do not replace Stripe sandbox end-to-end verification. The
 two additive schemas passed repeated isolated PostgreSQL checks with
-concurrency/gift fixtures, and nine compatibility tests passed. The 173-test
-suite and TypeScript/lint/build passed before final fixes; latest focused runs
-passed 13 admin cases, four signed inventory cases and 11 SQL groups.
-Payment browser states passed at desktop 1440px and true iPhone 393px; 78
-calendar states passed with six screenshots, using mocked submissions and
-blocked outside requests. Final full-suite count/lint/build remain pending. The
-[cutover plan](docs/stripe-cutover-2026-10-09.md) records remaining checks and
-the standing [native booking matrix](scripts/booking-e2e.md); its historical
-live-data recipes must not be rerun under read-only authorization.
-Actual Stripe gateway E2E is blocked by the missing TEST key. Setup remains
-pending approval and uses `127.0.0.1:3099`, disposable local Unix-socket PostgreSQL ports
-55443/55444, a fixture REST bridge, captured mail and mocked Square; Stripe CLI
-forwarding still needs setup. No new remote hosting, database or account is
-proposed.
+concurrency/gift fixtures, and nine compatibility tests passed. The current 208-test suite, ESLint and 14 PostgreSQL Stripe groups pass, including count/remap races and cancellation suppression. The final guarded shop-only production webpack build passed, including TypeScript. Payment browser states passed at desktop 1440px and true iPhone 393px; 78 calendar states passed with six screenshots, using mocked submissions and blocked outside requests.
+The approved actual Stripe TEST matrix (S1–S10 plus inventory recovery S7I) and all 30 numbered standing booking cases passed in isolation. Actual card charges/refunds used TEST mode; inventory, mail and calendar effects were captured locally. Synthetic negative cases are identified separately in the private evidence index. The [cutover plan](docs/stripe-cutover-2026-10-09.md) records the gates and the standing [native booking matrix](scripts/booking-e2e.md); run historical live-data recipes only under their specific authorization. Tests use local `127.0.0.1:3099`, disposable PostgreSQL Unix sockets, a fixture REST bridge, captured mail/calendar and mocked Square. No production activation has occurred. Fresh farm counts entered in Shop Admin are the stock baseline; Square tracking/count changes need an exact separately approved proposal before shop activation.
 
 Jalene can maintain verified native calendar rules through a limited calendar
 API and the dependency-free `scripts/calendar-mcp.mjs` bridge on her own
 machine/Claude account. See the [local MCP setup](docs/stripe-cutover-2026-10-09.md#jalenes-local-calendar-mcp-setup).
 The dedicated `BOOKING_CALENDAR_API_TOKEN` grants calendar read and
 schedule/date-exception/date-blackout/timed-blackout changes, with no customer,
-order, certificate or refund access. Token provisioning, live calendar updates and native
-activation remain approval-gated; a hosted OAuth connector is not implemented.
+order, certificate or refund access. Token provisioning is approved in the shop plan; live calendar updates and native
+activation require separate approval; a hosted OAuth connector is not implemented.
 This repository is public. Keep Acuity snapshots, occupancy, timed blocks and
 generated calendar seed SQL/previews outside the checkout; the cutover guide
 documents private input paths and the dry-run preparation command. The private

@@ -2,11 +2,13 @@
 
 Plan: **PAYMENT-20261009-STRIPE-SHOP**
 
-Status: **Prepared locally; live execution is not approved.** Existing access
-and read-only inspection do not authorize schema writes, credential/webhook
-creation, production environment changes, deployment or a real charge/refund.
-Hayden must approve this written plan before any live step. Record the reviewed
-commit and final verification evidence with that approval.
+Status: **Setup and shop cutover approved by Hayden on 2026-10-09** for
+implementation commit `2d7c67d` under the private review package for this plan.
+Actual Stripe TEST-mode E2E and the full isolated standing booking matrix passed.
+Schema/server-only setup can proceed; shop activation still needs fresh farm
+counts and separate approval of the exact Square inventory baseline. Bookings and gift sales remain on
+Acuity. No real-money canary, customer import, live calendar seed, invitation or
+external message is authorized. Record final release evidence before activation.
 
 ## Exact targets and first-release scope
 
@@ -30,6 +32,8 @@ Native calendar preparation is active: use current Acuity API/UI evidence to
 prepare real rules, date exceptions and closures, with a limited API/MCP path
 for Jalene's own Claude workflow. This preparation does not activate native
 bookings or authorize live calendar writes.
+Fresh farm counts entered through **Shop Admin → Count** are the chosen stock baseline (Hayden, 2026-10-09). The initial inspection found 10 of 14 linked variations untracked in Square and no linked manual-count audits. Shop Admin counts update the website only; before activation, prepare exact Square tracking/count changes from fresh audits and obtain their separate approval. Current seeded website/Square numbers are not an authorized baseline.
+
 Square POS, catalog price sync, variation mappings, inventory credentials and
 webhooks remain configured. This plan does not change Square catalog prices,
 tracking flags, mappings or POS settings.
@@ -46,7 +50,7 @@ details while preserving the first attempt's attribution.
 shop stock or all booking legs, and redeems any gift credit. Default holds
 last **45 minutes**. Hosted Stripe sessions last **40 minutes**, leaving a
 five-minute reconciliation buffer, and authorize cards with **manual capture**.
-Free and fully gift-covered bookings need no card or hosted session.
+Free and fully gift-covered bookings need no card or hosted session. The transport pins API `2026-09-30.endive` and filters with `allowed_payment_method_types[0]=card`; Stripe removed `payment_method_types` in this version ([official changelog](https://docs.stripe.com/changelog/endive)). Sessions also set `wallet_options[link][display]=never` because [Link can accept bank/Klarna funding inside a card integration](https://docs.stripe.com/payments/link/link-payment-integrations). This keeps the initial release on the exercised card path.
 
 Webhook, receipt polling and the five-minute reconciliation cron fetch canonical
 Stripe state. They check payment mode, attempt/session/intent binding, USD
@@ -67,12 +71,14 @@ state, or the safe overdue no-session path, permits expiry. Late authorizations
 on expired reservations are cancelled. Expired pending zero-charge attempts
 restore reservations without contacting Stripe.
 
+Verified paid/expired receipts retire only their matching browser retry key; zero-charge success retires its key immediately. A paid checkout replay opens the existing receipt. This permits identical later purchases while an old receipt cannot clear a newer attempt.
+
 Paid emails use strict error handling and stable per-attempt/per-recipient
 Resend idempotency keys. Booking email data, Meet-link outcome and ICS timestamp
 are frozen before sends. Calendar event IDs are deterministic; Meet creation
 remains best effort, with the existing farm follow-up flag. Provider key
 retention is finite, so this does not promise unlimited exactly-once email
-delivery.
+delivery. Fresh complete booking-group/payment checks suppress cancelled confirmations before Calendar work and again before email. A distinct suppression marker does not claim delivery or stop financial reconciliation; an already submitted provider message can still race cancellation.
 
 Square absolute counts subtract open Stripe reservations and paid stock not
 yet synchronized. Before the first outbound adjustment, the effects RPC freezes
@@ -95,7 +101,7 @@ implementation prevents every cross-system oversell.
 
 ## Exact proposed live changes, in execution order
 
-These steps remain pending approval. Execute one category at a time and record
+The exact setup and shop release scope is approved. Execute one category at a time and record
 its readback before continuing.
 
 1. **Stripe TEST-mode setup and no-real-money end-to-end verification.** Before
@@ -104,13 +110,14 @@ its readback before continuing.
    `http://127.0.0.1:3099` and disposable local PostgreSQL over Unix sockets
    on ports `55443`/`55444`. Use a local fixture REST bridge, mocked Square
    inventory and locally captured mail/calendar effects. No new remote hosting,
-   database or account is proposed. A TEST key and Stripe CLI forwarding still
-   require approved setup; actual gateway E2E is blocked until the TEST key is
-   available. Confirm the restricted credential scope before provisioning.
+   database or account is proposed. Restricted TEST credentials and local event forwarding are approved;
+   the approved restricted TEST key is saved owner-only and actual hosted gateway checks passed. The exact permission-group amendment is recorded below.
    Do not send external
    messages or invitations. Exercise the sandbox scenarios below using Stripe
    test cards, with no real-money charge/refund or live canary. Passing this
-   gate is required before proceeding to live activation.
+   gate and the full `scripts/booking-e2e.md` matrix in the isolated environment
+   are required before proceeding to live schema, configuration or shop deployment,
+   even though public native booking stays off.
 2. **Schema.** Confirm the target Supabase project and existing shop/booking
    prerequisites. Apply the reviewed `supabase-stripe.sql` and then
    `supabase-calendar.sql` before deploying application code that reads the new
@@ -171,18 +178,19 @@ its readback before continuing.
 | Check | Evidence/status |
 | --- | --- |
 | Prepare, email and paid-effects regression checks | Included in the final passing suite; mocked external calls |
-| Full regression suite | **180 tests passed** after the final inventory/refund fixes, zero failed or skipped |
-| SQL migration and RPC behavior | Both additive schemas passed repeated isolated PostgreSQL verification, including concurrency and gift fixtures; latest run passed 11 groups |
+| Full regression suite | **208 tests passed** after the final review fixes, zero failed or skipped |
+| SQL migration and RPC behavior | Both additive schemas passed repeated isolated PostgreSQL verification, including concurrency and gift fixtures; latest run passed 14 groups |
 | Calendar/gift compatibility | Nine compatibility tests passed; this does not establish full calendar parity |
 | Latest focused regressions | 13 admin checks and four signed inventory checks passed after final fixes |
-| TypeScript, lint and build | Final ESLint and guarded production webpack build passed, including TypeScript; placeholder credentials, existing shared dependencies, no package/lockfile changes |
+| TypeScript, lint and build | Full ESLint and the final guarded shop-only production webpack build passed, including TypeScript; placeholder credentials, existing shared dependencies, no package/lockfile changes |
 | Final compiled API gates | Ten local checks passed: origin/JSON/config gates, legacy rail rejection, cron/calendar authentication and receipt privacy; no live calls |
-| Stripe sandbox end-to-end | **Blocked: TEST key unavailable**; local fixture REST bridge and Stripe CLI forwarding still need approved setup |
-| Native booking standing matrix | **Pending for this change**; historical results are not current cutover evidence |
+| Stripe sandbox end-to-end | Passed S1–S10 plus S7I with actual TEST hosted decline/success, canonical signed events, captures, refunds, expiry/concurrency and failure recovery. Synthetic negative canonical patches are labeled separately; no second merchant was provisioned. Inventory/mail/calendar effects were captured locally |
+| Native booking standing matrix | All 30 numbered A–D cases plus desktop/true mobile E pass in isolated legacy-off/on profiles with final SQL hashes |
 | Desktop and true mobile payment UI verification | Passed at desktop 1440px and true iPhone 393px across shop/gift/booking and receipt states; mocked submissions, outside requests blocked |
+| Final shop-only boundaries | Passed desktop and true iPhone: Stripe shop CTA, native booking/gift/availability disabled, Acuity fallbacks retained, no Square SDK, unknown receipt404 and private/no-referrer/noindex headers |
 | Calendar browser verification | 78 states passed; six screenshots captured |
 | Calendar MCP bridge | Eight mocked stdio/validation/transport/privacy tests passed on 2026-10-09, covering all nine tools; no real API calls |
-| Production execution | **Not approved or performed** |
+| Production activation | **Approved shop scope; blocked on fresh farm counts, exact Square inventory approval and final live configuration. Native bookings/gifts stay off.** |
 
 Safe Stripe sandbox verification needs an isolated database, mocked inventory,
 locally captured email/calendar effects, TEST-mode credentials and test webhook
