@@ -1,4 +1,4 @@
-import { createCheckoutSession, getCheckoutSession, getPaymentIntent, getPaymentCharge, captureIntent, cancelIntent, stripeLiveMode, type StripeSession } from "./stripe";
+import { createCheckoutSession, getCheckoutSession, getPaymentIntent, getPaymentCharge, captureIntent, cancelIntent, stripeLiveMode, StripeError, type StripeSession } from "./stripe";
 import { attachSession, getAttempt, getAttemptBySession, claimAttempt, finishAttempt, expireAttempt, markNotified, suppressBookingConfirmation, recordStripeRefund, type StripeAttempt } from "./store";
 import { reconcileStripeSession } from "./reconcile";
 import { sendCheckoutEffects } from "./effects";
@@ -19,7 +19,15 @@ export async function notifyPaidAttempt(attempt: StripeAttempt): Promise<void> {
 }
 
 export async function reconcileSession(sessionId: string): Promise<StripeAttempt | null> {
-  const session = await getCheckoutSession(sessionId);
+  let session: StripeSession;
+  try {
+    session = await getCheckoutSession(sessionId);
+  } catch (error) {
+    // Only a missing Checkout Session means the receipt does not exist. Later
+    // payment or storage failures must remain retryable reconciliation errors.
+    if (error instanceof StripeError && error.status === 404) return null;
+    throw error;
+  }
   if (session.livemode !== stripeLiveMode()) throw new Error("Stripe checkout mode mismatch");
   let attempt = await getAttemptBySession(session.id);
   if (!attempt && /^[0-9a-f-]{36}$/i.test(session.metadata.attempt_id ?? "")) {
