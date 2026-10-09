@@ -60,12 +60,14 @@ create table if not exists stripe_checkout_attempts (
   processing_until timestamptz,
   result jsonb,
   notified_at timestamptz,
+  confirmation_suppressed_at timestamptz,
   square_synced_at timestamptz,
   refunded_cents integer not null default 0 check (refunded_cents >= 0),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   check (due_cents + gift_applied_cents = amount_cents)
 );
+alter table stripe_checkout_attempts add column if not exists confirmation_suppressed_at timestamptz;
 alter table shop_orders add column if not exists stripe_attempt_id uuid references stripe_checkout_attempts(id);
 alter table bookings add column if not exists stripe_attempt_id uuid references stripe_checkout_attempts(id);
 alter table gift_certificates add column if not exists stripe_attempt_id uuid references stripe_checkout_attempts(id);
@@ -129,6 +131,122 @@ create or replace function sync_square_stock(p_variation_id text, p_quantity int
 returns integer language sql security definer set search_path = public
 as $$ select greatest(sync_square_stock_snapshot(p_variation_id, p_quantity, null), 0); $$;
 
+-- Source chronology belongs to a Square variation, not to the website row.
+-- Serialize mapping changes with reservation/sync/release, and never move an
+-- outstanding hold away from the frozen Square adjustment target. A changed
+-- mapping stays unavailable until its own authoritative count is received.
+create or replace function map_square_variant(
+  p_variant_id text, p_square_variation_id text, p_square_item_name text
+)
+returns void language plpgsql security definer set search_path = public
+as $$
+declare
+  previous_variation text;
+  next_variation text := nullif(p_square_variation_id, '');
+begin
+  select square_variation_id into previous_variation from shop_inventory
+    where variant_id = p_variant_id for update;
+  if not found then
+    raise exception 'unknown variant %', p_variant_id using errcode = 'P0002';
+  end if;
+  if previous_variation is distinct from next_variation then
+    if exists (
+      select 1 from stripe_checkout_attempts a, jsonb_array_elements(a.stock_items) line
+      where a.kind = 'shop' and line ->> 'variant_id' = p_variant_id
+        and (a.status in ('pending', 'processing', 'review')
+          or (a.status = 'paid' and a.square_synced_at is null))
+    ) then
+      raise exception 'variant has unresolved Stripe stock reservations; reconcile before relinking'
+        using errcode = '55000';
+    end if;
+    update shop_inventory set square_variation_id = next_variation,
+      square_item_name = nullif(p_square_item_name, ''), stock = 0,
+      square_count_calculated_at = null, square_count_quantity = null,
+      stripe_stock_shortfall = 0, synced_from_square_at = null, updated_at = now()
+      where variant_id = p_variant_id;
+  else
+    update shop_inventory set square_item_name = nullif(p_square_item_name, ''), updated_at = now()
+      where variant_id = p_variant_id;
+  end if;
+end;
+$$;
+
+-- Manual website counts cannot overwrite long-lived payment reservations.
+-- Linked manual counts remain WEBSITE-only, as before: they have no Square
+-- source timestamp and the next canonical snapshot (even unchanged) replaces
+-- them. Retain known Square chronology; never stamp/clear it from a local count.
+create or replace function update_shop_inventory_admin(p_variant_id text, p_patch jsonb)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  inventory shop_inventory%rowtype;
+begin
+  if jsonb_typeof(p_patch) is distinct from 'object'
+    or not (p_patch ? 'stock' or p_patch ? 'low_stock_threshold') then
+    raise exception 'inventory patch is empty or malformed' using errcode = '22023';
+  end if;
+  select * into inventory from shop_inventory where variant_id = p_variant_id for update;
+  if not found then raise exception 'unknown variant %', p_variant_id using errcode = 'P0002'; end if;
+  if p_patch ? 'stock' then
+    if exists (select 1 from stripe_checkout_attempts a, jsonb_array_elements(a.stock_items) line
+      where a.kind = 'shop' and line ->> 'variant_id' = p_variant_id
+        and (a.status in ('pending', 'processing', 'review')
+          or (a.status = 'paid' and a.square_synced_at is null))) then
+      raise exception 'variant has unresolved Stripe stock reservations; reconcile before counting'
+        using errcode = '55000';
+    end if;
+    if p_patch -> 'stock' <> 'null'::jsonb and ((p_patch ->> 'stock')::integer not between 0 and 100000) then
+      raise exception 'invalid stock count' using errcode = '22023';
+    end if;
+  end if;
+  if p_patch ? 'low_stock_threshold' and
+    ((p_patch ->> 'low_stock_threshold')::integer is null or (p_patch ->> 'low_stock_threshold')::integer not between 0 and 1000) then
+    raise exception 'invalid low stock threshold' using errcode = '22023';
+  end if;
+  update shop_inventory set
+    stock = case when p_patch ? 'stock' then (p_patch ->> 'stock')::integer else stock end,
+    stripe_stock_shortfall = case when p_patch ? 'stock' then 0 else stripe_stock_shortfall end,
+    low_stock_threshold = case when p_patch ? 'low_stock_threshold' then (p_patch ->> 'low_stock_threshold')::integer else low_stock_threshold end,
+    updated_at = now() where variant_id = p_variant_id returning * into inventory;
+  return jsonb_build_object('variant_id', inventory.variant_id, 'stock', inventory.stock,
+    'low_stock_threshold', inventory.low_stock_threshold);
+end;
+$$;
+
+-- Preserve the atomic counting-session/audit contract for website stock.
+create or replace function apply_stock_count(p_counted_by text, p_items jsonb)
+returns integer language plpgsql security definer set search_path = public
+as $$
+declare
+  line record;
+  inventory shop_inventory%rowtype;
+  applied integer := 0;
+begin
+  if coalesce(trim(p_counted_by), '') = '' then
+    raise exception 'counted_by is required' using errcode = 'P0001';
+  end if;
+  if jsonb_typeof(p_items) is distinct from 'array' or jsonb_array_length(p_items) = 0 then
+    raise exception 'at least one stock count is required' using errcode = '22023';
+  end if;
+  for line in select e ->> 'variant_id' variant_id, (e ->> 'counted')::integer counted
+    from jsonb_array_elements(p_items) e order by 1
+  loop
+    if nullif(line.variant_id, '') is null or line.counted is null or line.counted not between 0 and 100000 then
+      raise exception 'invalid stock count' using errcode = '22023';
+    end if;
+    select * into inventory from shop_inventory where variant_id = line.variant_id for update;
+    if not found then raise exception 'unknown variant %', line.variant_id using errcode = 'P0002'; end if;
+    -- The nested RPC takes this same row lock reentrantly and enforces the
+    -- hold guard. Any later rejection rolls back prior counts and audit.
+    perform update_shop_inventory_admin(line.variant_id, jsonb_build_object('stock', line.counted));
+    insert into shop_stock_counts(variant_id, previous, counted, counted_by)
+      values (line.variant_id, inventory.stock, line.counted, p_counted_by);
+    applied := applied + 1;
+  end loop;
+  return applied;
+end;
+$$;
+
 create or replace function reserve_stripe_checkout(p_attempt jsonb)
 returns jsonb language plpgsql security definer set search_path = public
 as $$
@@ -136,6 +254,8 @@ declare
   a stripe_checkout_attempts%rowtype;
   snap jsonb := p_attempt -> 'snapshot';
   items jsonb;
+  expected_square_lines jsonb;
+  frozen_square_lines jsonb;
   cert gift_certificates%rowtype;
   ids uuid[] := '{}';
   gift_code text := nullif(upper(coalesce(p_attempt ->> 'gift_code', snap ->> 'giftCode')), '');
@@ -169,6 +289,7 @@ begin
   if p_attempt ->> 'kind' = 'shop' then
     if jsonb_typeof(snap -> 'items') is distinct from 'array'
       or jsonb_array_length(snap -> 'items') = 0
+      or jsonb_typeof(snap -> 'squareLines') is distinct from 'array'
       or (snap #>> '{order,total_cents}')::integer is distinct from amount
       or snap #>> '{order,order_number}' is distinct from p_attempt ->> 'reference'
       or snap #>> '{order,fulfillment}' not in ('pickup', 'delivery')
@@ -207,6 +328,28 @@ begin
         from jsonb_array_elements(snap -> 'items') e group by 1
       ) s;
     perform claim_shop_stock(items);
+    -- Preparation is outside this transaction. A mapper can change the source
+    -- before reservation starts; compare under the stock row locks so frozen
+    -- paid effects can never adjust a different Square item from the one held.
+    if exists (select 1 from jsonb_array_elements(snap -> 'squareLines') e
+      where nullif(e ->> 'squareVariationId', '') is null
+        or coalesce((e ->> 'quantity')::integer, 0) <= 0) then
+      raise exception 'malformed Square stock snapshot' using errcode = '22023';
+    end if;
+    select coalesce(jsonb_agg(jsonb_build_object('squareVariationId', variation_id, 'quantity', quantity)
+      order by variation_id), '[]'::jsonb) into expected_square_lines from (
+      select i.square_variation_id variation_id, sum((e ->> 'quantity')::integer) quantity
+      from jsonb_array_elements(items) e join shop_inventory i on i.variant_id = e ->> 'variant_id'
+      where i.square_variation_id is not null group by i.square_variation_id
+    ) current_mapping;
+    select coalesce(jsonb_agg(jsonb_build_object('squareVariationId', variation_id, 'quantity', quantity)
+      order by variation_id), '[]'::jsonb) into frozen_square_lines from (
+      select e ->> 'squareVariationId' variation_id, sum((e ->> 'quantity')::integer) quantity
+      from jsonb_array_elements(snap -> 'squareLines') e group by 1
+    ) prepared_mapping;
+    if expected_square_lines is distinct from frozen_square_lines then
+      raise exception 'Square mapping changed during checkout preparation; retry checkout' using errcode = '22023';
+    end if;
     gift_code := null;
   elsif p_attempt ->> 'kind' = 'booking' then
     if jsonb_typeof(snap -> 'legs') is distinct from 'array'
@@ -581,6 +724,34 @@ begin
 end;
 $$;
 
+-- A cancelled group must never receive a deferred "booking confirmed" email.
+-- Suppression is a separate outcome from delivery; retain notified_at as-is.
+create or replace function suppress_stripe_booking_confirmation(p_id uuid)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare a stripe_checkout_attempts%rowtype;
+begin
+  select * into strict a from stripe_checkout_attempts where id = p_id for update;
+  if a.kind <> 'booking' or a.status <> 'paid' then
+    raise exception 'only finalized booking confirmations can be suppressed' using errcode = '22023';
+  end if;
+  perform 1 from bookings where id = any(a.booking_ids) order by id for update;
+  if cardinality(a.booking_ids) = 0
+    or (select count(*) from bookings where id = any(a.booking_ids)) <> cardinality(a.booking_ids)
+    or exists (select 1 from bookings where id = any(a.booking_ids)
+      and (stripe_attempt_id is distinct from a.id
+        or stripe_payment_intent_id is distinct from a.payment_intent_id
+        or status <> 'cancelled')) then
+    raise exception 'suppression requires a complete, bound, fully cancelled booking group' using errcode = '22023';
+  end if;
+  if a.confirmation_suppressed_at is null then
+    update stripe_checkout_attempts set confirmation_suppressed_at = now(), updated_at = now()
+      where id = p_id returning * into a;
+  end if;
+  return to_jsonb(a);
+end;
+$$;
+
 -- Keep legacy Square/admin behavior, but Stripe holds are released exclusively
 -- by verified gateway reconciliation, never by a blind local-time sweep.
 create or replace function sweep_expired_booking_holds()
@@ -604,9 +775,13 @@ revoke all on function expire_stripe_checkout(uuid) from public, anon, authentic
 revoke all on function sweep_expired_booking_holds() from public, anon, authenticated;
 revoke all on function sync_square_stock(text, integer) from public, anon, authenticated;
 revoke all on function sync_square_stock_snapshot(text, integer, timestamptz) from public, anon, authenticated;
+revoke all on function map_square_variant(text, text, text) from public, anon, authenticated;
+revoke all on function update_shop_inventory_admin(text, jsonb) from public, anon, authenticated;
+revoke all on function apply_stock_count(text, jsonb) from public, anon, authenticated;
 revoke all on function set_stripe_effects_data(uuid, jsonb) from public, anon, authenticated;
 revoke all on function record_stripe_refund(text, integer) from public, anon, authenticated;
 revoke all on function cancel_stripe_booking(uuid, text) from public, anon, authenticated;
+revoke all on function suppress_stripe_booking_confirmation(uuid) from public, anon, authenticated;
 grant execute on function reserve_stripe_checkout(jsonb) to service_role;
 grant execute on function attach_stripe_session(uuid, text) to service_role;
 grant execute on function claim_stripe_attempt(uuid, text) to service_role;
@@ -615,8 +790,12 @@ grant execute on function expire_stripe_checkout(uuid) to service_role;
 grant execute on function sweep_expired_booking_holds() to service_role;
 grant execute on function sync_square_stock(text, integer) to service_role;
 grant execute on function sync_square_stock_snapshot(text, integer, timestamptz) to service_role;
+grant execute on function map_square_variant(text, text, text) to service_role;
+grant execute on function update_shop_inventory_admin(text, jsonb) to service_role;
+grant execute on function apply_stock_count(text, jsonb) to service_role;
 grant execute on function set_stripe_effects_data(uuid, jsonb) to service_role;
 grant execute on function record_stripe_refund(text, integer) to service_role;
 grant execute on function cancel_stripe_booking(uuid, text) to service_role;
+grant execute on function suppress_stripe_booking_confirmation(uuid) to service_role;
 
 commit;
