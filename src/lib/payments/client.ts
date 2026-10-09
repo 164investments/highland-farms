@@ -16,6 +16,26 @@ const KEY_PREFIX = "hf-stripe-attempt-v1:";
 export const SHOP_CONTEXT_PREFIX = "hf-stripe-shop-v1:";
 const RETURN_PATH_PREFIX = "hf-stripe-return-v1:";
 const ATTEMPT_SESSION_PREFIX = "hf-stripe-session-v1:";
+type SessionAttempt = { fingerprint: string; idempotencyKey: string };
+const sessionAttempts = new Map<string, SessionAttempt>();
+
+function forgetAttempt(binding: SessionAttempt) {
+  if (keys.get(binding.fingerprint) === binding.idempotencyKey) keys.delete(binding.fingerprint);
+  try {
+    if (window.sessionStorage.getItem(KEY_PREFIX + binding.fingerprint) === binding.idempotencyKey) {
+      window.sessionStorage.removeItem(KEY_PREFIX + binding.fingerprint);
+    }
+  } catch { /* Same-page recovery still works without browser storage. */ }
+}
+
+function rememberSessionAttempt(sessionId: string, fingerprint: string, idempotencyKey: string) {
+  const binding = { fingerprint, idempotencyKey };
+  sessionAttempts.set(sessionId, binding);
+  try {
+    window.sessionStorage.setItem(RETURN_PATH_PREFIX + sessionId, window.location.pathname + window.location.hash);
+    window.sessionStorage.setItem(ATTEMPT_SESSION_PREFIX + sessionId, JSON.stringify(binding));
+  } catch { /* Optional recovery context only. */ }
+}
 
 export interface ShopPaymentContext {
   lines: DetailedLine[];
@@ -74,20 +94,21 @@ export async function startStripeCheckout(payload: Record<string, unknown> & { k
       if (data.status === "expired") {
         // The checkout endpoint can prove expiry even when no receipt page
         // was opened (for example, after an abandoned session).
-        keys.delete(fingerprint);
-        try { window.sessionStorage.removeItem(KEY_PREFIX + fingerprint); } catch { /* optional storage */ }
+        forgetAttempt({ fingerprint, idempotencyKey });
       }
       return { ok: false, status: response.status,
         error: typeof data.error === "string" ? data.error : "We couldn’t open secure payment. Please try again." };
     }
     if (validStripeCheckoutUrl(data.checkoutUrl) && typeof data.sessionId === "string" && /^cs_[A-Za-z0-9_]+$/.test(data.sessionId)) {
-      try {
-        window.sessionStorage.setItem(RETURN_PATH_PREFIX + data.sessionId, window.location.pathname + window.location.hash);
-        window.sessionStorage.setItem(ATTEMPT_SESSION_PREFIX + data.sessionId, fingerprint);
-      } catch { /* Optional recovery context only. */ }
+      rememberSessionAttempt(data.sessionId, fingerprint, idempotencyKey);
       return { ok: true, checkoutUrl: data.checkoutUrl, sessionId: data.sessionId };
     }
+    if (data.success === true && data.status === "paid" && typeof data.sessionId === "string" && /^cs_(test|live)_[A-Za-z0-9]+$/.test(data.sessionId)) {
+      rememberSessionAttempt(data.sessionId, fingerprint, idempotencyKey);
+      return { ok: true, checkoutUrl: `/payments/return?session_id=${encodeURIComponent(data.sessionId)}`, sessionId: data.sessionId };
+    }
     if (payload.kind === "booking" && data.success === true && typeof data.bookingNumber === "string" && data.amountCents === 0) {
+      forgetAttempt({ fingerprint, idempotencyKey });
       return { ok: true, success: true, bookingNumber: data.bookingNumber, amountCents: 0 };
     }
     return { ok: false, status: 502, error: "Secure payment isn’t ready. Please try again or contact the farm." };
@@ -100,17 +121,21 @@ export function rememberShopPayment(sessionId: string, context: ShopPaymentConte
   try { window.sessionStorage.setItem(SHOP_CONTEXT_PREFIX + sessionId, JSON.stringify(context)); } catch { /* confirmation still works */ }
 }
 
-/** Only call after the server has verified that this session expired. */
-export function forgetExpiredCheckout(sessionId: string) {
+/** Only call after the server has verified a terminal paid/expired outcome.
+ * An old receipt must never retire a newer purchase of the same items. */
+function forgetResolvedCheckout(sessionId: string) {
+  let binding = sessionAttempts.get(sessionId);
   try {
-    const fingerprint = window.sessionStorage.getItem(ATTEMPT_SESSION_PREFIX + sessionId);
-    if (fingerprint) {
-      keys.delete(fingerprint);
-      window.sessionStorage.removeItem(KEY_PREFIX + fingerprint);
-      window.sessionStorage.removeItem(ATTEMPT_SESSION_PREFIX + sessionId);
-    }
+    const raw = window.sessionStorage.getItem(ATTEMPT_SESSION_PREFIX + sessionId);
+    binding ??= raw ? JSON.parse(raw) : undefined;
+    window.sessionStorage.removeItem(ATTEMPT_SESSION_PREFIX + sessionId);
   } catch { /* Browser storage may be unavailable. */ }
+  if (binding && typeof binding.fingerprint === "string" && typeof binding.idempotencyKey === "string") forgetAttempt(binding);
+  sessionAttempts.delete(sessionId);
 }
+
+export const forgetExpiredCheckout = forgetResolvedCheckout;
+export const forgetCompletedCheckout = forgetResolvedCheckout;
 
 export function paymentRestartPath(sessionId: string, kind: PaymentKind) {
   try {

@@ -8,7 +8,7 @@ import { CONTACT } from "@/lib/constants";
 import { useCart } from "@/lib/shop/cart";
 import { formatCents } from "@/lib/shop/money";
 import { pushEvent } from "@/components/shop/track";
-import { forgetExpiredCheckout, paymentRestartPath, SHOP_CONTEXT_PREFIX, type PaymentKind, type ShopPaymentContext } from "@/lib/payments/client";
+import { forgetCompletedCheckout, forgetExpiredCheckout, paymentRestartPath, SHOP_CONTEXT_PREFIX, type PaymentKind, type ShopPaymentContext } from "@/lib/payments/client";
 
 type PaymentStatus = "pending" | "processing" | "paid" | "expired" | "review";
 interface PaymentState {
@@ -50,6 +50,7 @@ export function PaymentReturn() {
           throw new Error("unavailable");
         }
         if (data.status === "expired") forgetExpiredCheckout(sessionId);
+        if (data.status === "paid") forgetCompletedCheckout(sessionId);
         setPayment({ ...data, restartPath: paymentRestartPath(sessionId, data.kind) } as PaymentState);
         polls += 1;
         if (data.status === "pending" || data.status === "processing") {

@@ -33,7 +33,8 @@ export async function POST(request: Request) {
     attempt = await reconcileAttempt(attempt);
     if (attempt.status === "paid") {
       after(() => notifyPaidAttempt(attempt!));
-      return NextResponse.json({ success: true, ...attempt.result, amountCents: attempt.due_cents });
+      return NextResponse.json({ success: true, ...attempt.result, amountCents: attempt.due_cents,
+        status: "paid", sessionId: attempt.session_id });
     }
     if (attempt.status === "expired") return NextResponse.json({ error: "That payment session expired. Please start again.", status: "expired" }, { status: 409 });
     if (attempt.status !== "pending") return NextResponse.json({ error: "Your payment is being checked. Please use the confirmation page before trying again.", status: attempt.status }, { status: 409 });
