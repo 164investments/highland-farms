@@ -1,5 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+/** Keep request semantics independent of the merchant account default version. */
+export const STRIPE_API_VERSION = "2026-09-30.endive";
+
 /** Server-only Stripe transport. Checkout collects cards; this app never does. */
 export interface StripeIntent {
   id: string;
@@ -61,7 +64,7 @@ export async function stripeRequest<T>(
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key || !/^(sk|rk)_(live|test)_/.test(key)) throw new StripeError("Stripe is not configured", 503);
   if (!/^\/v1\/[a-z0-9_/?=&%.-]+$/i.test(path)) throw new Error("Invalid Stripe API path");
-  const headers: Record<string, string> = { Authorization: `Bearer ${key}` };
+  const headers: Record<string, string> = { Authorization: `Bearer ${key}`, "Stripe-Version": STRIPE_API_VERSION };
   if (options.body) headers["Content-Type"] = "application/x-www-form-urlencoded";
   if (options.idempotencyKey) headers["Idempotency-Key"] = options.idempotencyKey;
   const response = await fetch(`https://api.stripe.com${path}`, {
@@ -113,7 +116,9 @@ export async function createCheckoutSession(input: CheckoutSessionInput): Promis
     success_url: `${origin}/payments/return?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}${cancelPath}?payment=cancelled`,
     expires_at: String(expires),
-    "payment_method_types[0]": "card",
+    "allowed_payment_method_types[0]": "card",
+    // Link can expose bank/BNPL funding even within a card integration.
+    "wallet_options[link][display]": "never",
     "payment_intent_data[capture_method]": "manual",
     "payment_intent_data[description]": input.description,
     "line_items[0][price_data][currency]": "usd",

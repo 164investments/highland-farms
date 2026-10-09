@@ -148,7 +148,7 @@ globalThis.fetch = async (url, init) => {
   if (href.endsWith("/refunds/re_test")) return json(priorRefund);
   throw new Error(`Unmocked Stripe request: ${href}`);
 };
-test("hosted Checkout checks account and uses stable manual capture, trusted returns, metadata and expiry", async () => {
+test("hosted Checkout pins Endive and retries the card-only supported form with manual capture", async () => {
   requests = [];
   const input = { id: "attempt-test", reference: "HF-TEST", kind: "shop" as const, amountCents: 15000, email: "fixture@example.com", description: "Farm shop", expiresAt: new Date(Date.now() + 2700000).toISOString() };
   await createCheckoutSession(input);
@@ -156,6 +156,15 @@ test("hosted Checkout checks account and uses stable manual capture, trusted ret
   assert.equal(requests.filter((r) => r.url.endsWith("/account")).length, 1);
   const checkouts = requests.filter((r) => r.url.endsWith("/checkout/sessions"));
   assert.equal(checkouts[0].body.toString(), checkouts[1].body.toString());
+  for (const checkout of checkouts) {
+    assert.equal(checkout.body.get("allowed_payment_method_types[0]"), "card");
+    assert.equal(checkout.body.get("wallet_options[link][display]"), "never", "the card integration must not expose bank/BNPL funding through Link");
+    assert.equal([...checkout.body.keys()].filter((name) => name.startsWith("allowed_payment_method_types[")).length, 1);
+    assert.ok([...checkout.body.keys()].every((name) => !name.startsWith("payment_method_types")), "Endive rejects the removed payment_method_types parameter");
+    assert.equal(checkout.headers.get("Stripe-Version"), "2026-09-30.endive");
+    assert.equal(checkout.headers.get("Idempotency-Key"), "checkout:attempt-test");
+  }
+  assert.ok(requests.every((request) => request.headers.get("Stripe-Version") === "2026-09-30.endive"), "account verification and create must use the same pinned API contract");
   assert.equal(checkouts[0].body.get("payment_intent_data[capture_method]"), "manual");
   assert.equal(checkouts[0].body.get("payment_intent_data[metadata][attempt_id]"), "attempt-test");
   assert.equal(checkouts[0].body.get("line_items[0][price_data][unit_amount]"), "15000");
