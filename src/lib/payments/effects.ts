@@ -10,7 +10,7 @@ import { BOOKING_PRODUCTS } from "@/lib/booking/products";
 import { claimTrackingEvent } from "@/lib/tracking-dedupe";
 import { sendBookingPurchase } from "@/lib/ga4";
 import { sendMetaPurchase } from "@/lib/meta";
-import { freezeEffectsData, markSquareSynced, type StripeAttempt } from "./store";
+import { bookingConfirmationState, freezeEffectsData, markSquareSynced, type StripeAttempt } from "./store";
 import type { ShopSnapshot, BookingSnapshot, GiftSnapshot } from "./prepare";
 
 /** Independent effects all run, then the caller can retain the retry marker on failure. */
@@ -59,7 +59,10 @@ async function syncPaidShopInventory(attempt: StripeAttempt, snapshot: ShopSnaps
   await syncSquareInventoryCounts(counts);
 }
 
-async function bookingEmailData(attempt: StripeAttempt, snapshot: BookingSnapshot): Promise<BookingEmailData> {
+async function bookingEmailData(attempt: StripeAttempt, snapshot: BookingSnapshot): Promise<BookingEmailData | null> {
+  // Payment remains paid after a farm cancellation. The immutable snapshot
+  // alone cannot authorize a deferred confirmation or Calendar invitation.
+  if (await bookingConfirmationState(attempt) === "cancelled") return null;
   const existing = snapshot.effectsData;
   if (existing) return existing as BookingEmailData;
   const emailData: BookingEmailData = {
@@ -129,9 +132,10 @@ async function trackBooking(attempt: StripeAttempt, snapshot: BookingSnapshot): 
 }
 
 /** Call only after the paid transaction has atomically finalized all domain records. */
-export async function sendCheckoutEffects(attempt: StripeAttempt): Promise<void> {
+export async function sendCheckoutEffects(attempt: StripeAttempt): Promise<"delivered" | "suppressed"> {
   if (attempt.status !== "paid") throw new Error("Checkout effects require a finalized paid attempt");
-  if (attempt.notified_at) return;
+  if (attempt.confirmation_suppressed_at && attempt.kind === "booking") return "suppressed";
+  if (attempt.notified_at) return "delivered";
   const options = { strict: true, idempotencyKey: `stripe-${attempt.id}` };
   if (attempt.kind === "shop") {
     const snapshot = attempt.snapshot as ShopSnapshot;
@@ -143,6 +147,9 @@ export async function sendCheckoutEffects(attempt: StripeAttempt): Promise<void>
   } else if (attempt.kind === "booking") {
     const snapshot = attempt.snapshot as BookingSnapshot;
     const emailData = await bookingEmailData(attempt, snapshot);
+    // Calendar/payload work can yield. Check again immediately before emails.
+    // A cancellation after outbound submission cannot retract provider delivery.
+    if (!emailData || await bookingConfirmationState(attempt) === "cancelled") return "suppressed";
     await finishAll([
       sendBookingEmails(emailData, { ...options, timestamp: attempt.created_at }),
       trackBooking(attempt, snapshot),
@@ -159,4 +166,5 @@ export async function sendCheckoutEffects(attempt: StripeAttempt): Promise<void>
       expiresAt: typeof attempt.result?.expiresAt === "string" ? attempt.result.expiresAt : null,
     }, options);
   }
+  return "delivered";
 }

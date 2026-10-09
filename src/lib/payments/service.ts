@@ -1,5 +1,5 @@
 import { createCheckoutSession, getCheckoutSession, getPaymentIntent, getPaymentCharge, captureIntent, cancelIntent, stripeLiveMode, type StripeSession } from "./stripe";
-import { attachSession, getAttempt, getAttemptBySession, claimAttempt, finishAttempt, expireAttempt, markNotified, recordStripeRefund, type StripeAttempt } from "./store";
+import { attachSession, getAttempt, getAttemptBySession, claimAttempt, finishAttempt, expireAttempt, markNotified, suppressBookingConfirmation, recordStripeRefund, type StripeAttempt } from "./store";
 import { reconcileStripeSession } from "./reconcile";
 import { sendCheckoutEffects } from "./effects";
 import type { ShopSnapshot, BookingSnapshot, GiftSnapshot } from "./prepare";
@@ -12,9 +12,10 @@ export function publicAttempt(attempt: StripeAttempt) {
 }
 
 export async function notifyPaidAttempt(attempt: StripeAttempt): Promise<void> {
-  if (attempt.status !== "paid" || attempt.notified_at) return;
-  await sendCheckoutEffects(attempt);
-  await markNotified(attempt.id);
+  if (attempt.status !== "paid" || attempt.notified_at || (attempt.kind === "booking" && attempt.confirmation_suppressed_at)) return;
+  const outcome = await sendCheckoutEffects(attempt);
+  if (outcome === "suppressed") await suppressBookingConfirmation(attempt.id);
+  else await markNotified(attempt.id);
 }
 
 export async function reconcileSession(sessionId: string): Promise<StripeAttempt | null> {

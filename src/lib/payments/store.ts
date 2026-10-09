@@ -36,6 +36,8 @@ export interface StripeAttempt {
   processing_until: string | null;
   result: Record<string, unknown> | null;
   notified_at: string | null;
+  /** Cancelled booking confirmations are suppressed, never recorded as delivered. */
+  confirmation_suppressed_at?: string | null;
   square_synced_at: string | null;
   refunded_cents: number;
   created_at: string;
@@ -112,7 +114,7 @@ export function expireAttempt(id: string): Promise<StripeAttempt> {
 /** Includes paid attempts whose downstream effects still need retrying. */
 export async function listRecoverableAttempts(limit = 100): Promise<StripeAttempt[]> {
   const { data, error } = await db().from("stripe_checkout_attempts").select("*")
-    .or("status.in.(pending,processing,review),and(status.eq.paid,notified_at.is.null)")
+    .or("status.in.(pending,processing,review),and(status.eq.paid,notified_at.is.null,or(kind.neq.booking,confirmation_suppressed_at.is.null))")
     .order("updated_at", { ascending: true }).order("id", { ascending: true })
     .limit(Math.max(1, Math.min(1000, Math.trunc(limit) || 100)));
   if (error) throw error;
@@ -145,6 +147,43 @@ export async function markSquareSynced(id: string): Promise<void> {
 
 export function freezeEffectsData(id: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
   return rpc("set_stripe_effects_data", { p_id: id, p_data: data });
+}
+
+/** Fresh domain state, with complete binding checks before customer-facing effects. */
+export async function bookingConfirmationState(attempt: StripeAttempt): Promise<"confirmed" | "cancelled"> {
+  const ids = attempt.booking_ids;
+  const legs = attempt.snapshot.legs;
+  if (attempt.kind !== "booking" || attempt.status !== "paid" || !ids.length
+      || new Set(ids).size !== ids.length || !Array.isArray(legs) || legs.length !== ids.length) {
+    throw new Error("Booking confirmation group is incomplete");
+  }
+  const { data, error } = await db().from("bookings")
+    .select("id,stripe_attempt_id,stripe_payment_intent_id,product_slug,starts_at,duration_min,status")
+    .in("id", ids);
+  if (error) throw error;
+  if (!data || data.length !== ids.length || new Set(data.map(row => row.id)).size !== ids.length) {
+    throw new Error("Booking confirmation group is incomplete");
+  }
+  const remainingLegs = [...legs];
+  for (const row of data) {
+    if (!ids.includes(row.id) || row.stripe_attempt_id !== attempt.id
+        || row.stripe_payment_intent_id !== attempt.payment_intent_id) {
+      throw new Error("Booking confirmation group binding mismatch");
+    }
+    const index = remainingLegs.findIndex(leg => leg && row.product_slug === leg.product_slug
+      && Number.isFinite(Date.parse(row.starts_at)) && Date.parse(row.starts_at) === Date.parse(leg.starts_at)
+      && row.duration_min === leg.duration_min);
+    if (index < 0) throw new Error("Booking confirmation snapshot mismatch");
+    remainingLegs.splice(index, 1);
+  }
+  if (data.every(row => row.status === "cancelled")) return "cancelled";
+  if (data.every(row => row.status === "confirmed")) return "confirmed";
+  throw new Error("Booking confirmation group has consumed or inconsistent state");
+}
+
+/** RPC revalidates all cancelled rows under locks before recording suppression. */
+export function suppressBookingConfirmation(id: string): Promise<StripeAttempt> {
+  return rpc("suppress_stripe_booking_confirmation", { p_id: id });
 }
 
 /** Pass canonical cumulative Charge.amount_refunded, never one refund delta. */
