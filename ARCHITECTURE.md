@@ -12,11 +12,14 @@ One Next.js App Router site serving three businesses that share a farm:
    CRM out. No money changes hands on the site.
 2. **The experiences** — farm tours and the Nordic spa. Booked through **Acuity**,
    which owns the calendar, capacity and confirmation emails.
-3. **The farm store** — physical goods, paid for on this site through **Square**.
+3. **The farm store** — physical goods, with a legacy Square payment path and
+   gated Stripe hosted Checkout. Square remains the POS, linked-price and
+   inventory system; Stripe production activation is pending approval.
 
-These have genuinely different shapes. Don't unify them: a lead is a fire-and-forget
-fan-out, a booking is someone else's system, and an order moves money and must be
-transactional.
+These have different shapes: a lead fans out, the live experience calendar
+belongs to Acuity, and an order moves money transactionally. The gated native
+calendar and store share durable Stripe payment orchestration while keeping
+their catalogs, capacity and fulfillment rules in their own domains.
 
 ## Directory map
 
@@ -43,6 +46,8 @@ src/
     shop/                  commerce-only UI that lives outside /app/shop
   lib/
     shop/                  ALL farm-store domain logic (see below)
+    payments/              Stripe transport, durable checkout orchestration,
+                           reconciliation, paid effects and browser retry context
     <integration>.ts       one file per external system: acuity, hubspot,
                            bookediq, meta, ga4, supabase, resend, turnstile
     daily-report.ts        pure daily-report calculations + escaped email template
@@ -290,6 +295,98 @@ Google Business Profile v4 API
    than 10%, and skips a commit where only `fetched_at` moved — so a bad pull
    or a no-op run can't trigger a production deploy.
 
+## Website payments (gated Stripe implementation, 2026-10-09)
+
+`NEXT_PUBLIC_PAYMENT_PROVIDER=stripe` switches shop, native booking and native
+gift purchase UIs to hosted Stripe Checkout. It is a build-time public flag;
+without that exact value, the legacy Square payment components/routes remain.
+The old Square checkout routes reject new requests when Stripe is enabled,
+preventing stale tabs from charging the alternate rail. This code is prepared
+locally; production changes await [PAYMENT-20261009-STRIPE-SHOP](docs/stripe-cutover-2026-10-09.md).
+The first proposed activation covers the shop. `NEXT_PUBLIC_NATIVE_CALENDAR`
+stays off, so Acuity still owns public experience bookings and gift sales.
+
+```
+src/lib/payments/
+  prepare.ts       Zod validation + normalized request hash; re-price catalog,
+                   enforce delivery/schedule/party/combo rules; read-only snapshot
+  store.ts         service-role durable attempt and transactional RPC interface
+  stripe.ts        Stripe REST transport, account check, manual capture,
+                   signature verification and cumulative refund recovery
+  reconcile.ts     pure session/intent/reservation state machine
+  service.ts       shared checkout/session/recovery/notification orchestration
+  effects.ts       paid emails, Square stock adjustment/refresh, booking tracking
+  request.ts       parsed-origin checks and per-instance rate limiting
+  client.ts        stable browser retry keys and cart/return context
+src/app/api/payments/stripe/checkout/route.ts   prepare/reserve/open Checkout
+src/app/api/payments/stripe/status/route.ts     verify receipt + reconcile
+src/app/api/stripe/webhook/route.ts             signed Checkout/refund events
+src/app/api/cron/stripe-reconcile/route.ts      authenticated five-minute recovery
+src/app/payments/return/                       verified confirmation UI
+src/components/layout/PaymentPrivacy.tsx       third-party-script receipt boundary
+supabase-stripe.sql                            private state + financial columns/RPCs
+```
+
+The durable attempt binds a normalized purchase hash, server-priced snapshot,
+reference, Stripe session/intent, reserved stock/booking IDs, gift units and
+cash due. Browser prices and payment tokens are ignored. Tracking fields can
+vary on retry without changing the purchase; the original attribution is kept.
+Reservation, capacity claims and gift redemption happen in one transaction.
+The default reservation is 45 minutes; the hosted session expires five minutes
+earlier, after 40 minutes. Stripe receives the exact cash due in integer USD
+cents and uses manual capture.
+
+Webhook delivery, receipt polling and cron fetch canonical Stripe state and
+validate mode, session/intent binding, currency and exact amount. Capture
+requires a persisted processing claim, including a fresh check for known POS
+stock shortfalls. Its two-minute lease prevents concurrent work and permits
+crash recovery. Processing booking holds survive the generic hold sweep.
+The cron considers up to 50 attempts per run, rotates attempted rows through
+the queue even on failure, and has a 180-second work deadline inside a
+300-second route limit so older open sessions do not starve newer recovery.
+After capture, one transaction records the order and items, confirms every
+booking leg, or issues the gift certificate. Retrying a captured payment
+repeats domain finalization without charging again. Free or fully gift-covered
+bookings finalize without Stripe card entry; overdue pending free attempts
+expire and restore their reservations.
+
+A network exception is never proof of a decline. Unknown create/capture/cancel
+outcomes retain the same attempt and its reservation. Release needs verified
+expiry/cancellation, or the safe no-session deadline path, which cannot have
+captured without a persisted claim. Late authorizations on expired attempts
+are cancelled rather than captured. Keep webhook/cron/state alive after a
+provider rollback so existing Stripe purchases can finish.
+
+Paid effects retry until `notified_at` is set. Customer/farm/recipient emails
+have stable per-attempt Resend keys and strict provider-error handling;
+booking email payloads and ICS timestamps are frozen before sending.
+Wedding-call Calendar IDs are deterministic, with conflict readback, while
+Meet-link creation remains best effort. Before outbound Square adjustment, the
+effects RPC freezes its timestamp; concurrent/unknown-outcome retries reuse it
+with the same key. Unknown adjustments aged 24 hours fail closed, retaining
+stock holds for manual reconciliation. Effects set `square_synced_at` after
+adjustment and refresh canonical timestamped absolute counts. Provider
+idempotency retention is finite; these
+keys do not establish unlimited exactly-once email delivery.
+
+`PaymentPrivacy` suppresses GTM (including noscript), attribution, replay, CRM,
+email popup and chat scripts on `/payments/*`. Receipt metadata/headers prohibit
+indexing and referrer disclosure. The session ID is a receipt capability;
+public status responses expose only status/kind/reference/result, never the
+stored customer snapshot or intent ID. Shop browser purchase events remain
+queued until normal navigation loads GTM; conversion delivery is best effort.
+Booking GA4/Meta uses the shared event claim and tracks only cash collected,
+avoiding gift-redemption double counting.
+
+Stripe dashboard refunds update cumulative recorded cents without initiating
+domain cancellation. Refund preflight verifies every attempt leg is confirmed
+or cancelled before gateway access; SQL locks reject consumed, missing or
+mismatched related state. Farm booking cancellations refund the exact remaining
+cash first when requested, recognize existing/pending refund operations on
+retry, and cancel all legs/restore actual gift units once under the attempt
+lock. Pending, failed or unknown refunds keep the booking intact. Legacy
+Square bookings retain their original cancellation/refund path.
+
 ## Commerce (the farm store)
 
 Added Aug 2026 after the Squarespace store was cancelled and went dark. The old
@@ -298,13 +395,13 @@ Added Aug 2026 after the Squarespace store was cancelled and went dark. The old
 ```
 src/app/shop/
   data.ts              THE CATALOG — products, variants, prices. Static.
-  checkout/ExpressPay.tsx  Apple Pay + Google Pay (same source_id, no server change)
+  checkout/ExpressPay.tsx  legacy Square Apple Pay + Google Pay
   page.tsx             collection page (ISR, revalidate 60)
   ShopBody.tsx         collection UI (client)
   [slug]/              product detail + AddToCart
   cart/                cart page
-  checkout/            checkout form + Square card fields
-  thank-you/           post-purchase confirmation
+  checkout/            shared details form; hosted Stripe or legacy Square fields
+  thank-you/           legacy Square post-purchase confirmation
   order/               fallback "call us to order" page
 src/lib/shop/
   data flows from      catalog (static)  +  inventory (Supabase)
@@ -312,10 +409,10 @@ src/lib/shop/
   cart.tsx             client cart: external store + Context
   money.ts             integer cents; the only place dollars↔cents converts
   fulfillment.ts       pickup vs local delivery, ZIP allowlist, fees
-  square.ts            payment rail (REST, no SDK)
+  square.ts            POS inventory + legacy payment rail (REST, no SDK)
   orders.ts            order writes + atomic stock claim/release
   order-email.ts       customer receipt + farm pick list
-src/app/api/shop/checkout/route.ts   the one transactional endpoint
+src/app/api/shop/checkout/route.ts   legacy Square transactional endpoint
 src/app/api/shop/cart/save|recover/   abandoned-cart capture + restore
 src/app/api/cron/abandoned-carts/     hourly reminder job
 src/lib/shop/abandoned-cart-email.ts  the reminder template
@@ -335,18 +432,19 @@ src/lib/shop/admin-auth.ts           shared-token gate (+ admin-cookie.ts for th
    there are a one-time seed only.
 
 2. **The server is the price authority.** The browser sends variant ids and
-   quantities, never prices. `/api/shop/checkout` re-derives every line from
-   `data.ts`. A cart that remembered prices would let a stale tab check out at last
+   quantities, never prices. Stripe `payments/prepare.ts` and the legacy
+   `/api/shop/checkout` re-derive every line from `data.ts`. A cart that remembered prices would let a stale tab check out at last
    month's number.
 
 3. **Money is integer cents everywhere but the display edge.** Convert once via
    `money.ts`. Never do float arithmetic on a total.
 
-4. **Reserve stock before charging, release on decline.** `claim_shop_stock` runs
-   first and is atomic with a stable lock order; a declined card calls
-   `release_shop_stock`. A customer must never be charged for a cut that just sold
-   out. Everything after a successful charge (order insert, emails) is best-effort
-   and must never surface as a failed purchase.
+4. **Reserve stock before charging.** Stripe wraps `claim_shop_stock` in its
+   durable attempt transaction and releases only after safe expiry/cancellation;
+   unknown outcomes keep the reservation. The legacy Square route claims first,
+   releases on its failed-charge path, and records the order after charging.
+   Stripe finalization is transactional and recoverable after capture; email
+   failure must never tell a paid customer to purchase again.
 
 5. **Fulfillment is pickup or local delivery. The farm does not ship.** The rule
    lives once in `fulfillment.ts` and is enforced on both the form and the server,
@@ -361,7 +459,7 @@ src/lib/shop/admin-auth.ts           shared-token gate (+ admin-cookie.ts for th
    bouquets) keep their own price because Square has no opinion on them.
 
    This inverted an earlier rule that said the opposite. The reason the earlier
-   rule existed still holds in one specific place: **the Square order is still
+   rule existed still holds on the legacy payment path: **the Square order is
    built from ad-hoc line items at our price, never `catalog_object_id`.** Prices
    agreeing today doesn't make them the same system, and a catalog line would
    re-price itself from Square the instant someone edits the register, silently
@@ -388,19 +486,28 @@ sold at the register and on the website, because the two count separately.
 
 **Both directions, and why each is built the way it is:**
 
-- **Register → website.** Square's `inventory.count.updated` webhook writes the
-  new count into `shop_inventory` via `sync_square_stock`. Only variants that
+- **Register → website.** Square's `inventory.count.updated` webhook fetches
+  canonical quantity and raw `calculated_at`, then writes through the distinct
+  `sync_square_stock_snapshot` RPC. Under the inventory row lock, older snapshots
+  are discarded and equal timestamps recompute holds. The old two-argument
+  wrapper cannot overwrite a known timestamp. Failure returns 503 for retry,
+  with no claim-before-write event loss. Only variants that
   carry a `square_variation_id` are touched; a Square event for something the
-  website doesn't sell (wedding deposits, pumpkins) is a no-op by design.
+  website doesn't sell (wedding deposits, pumpkins) is a no-op by design. The
+  Stripe migration subtracts pending/processing/review reservations and paid
+  reservations not yet synchronized, so an absolute POS count cannot simply
+  erase a website hold. `stripe_stock_shortfall` records consumed held units.
 - **Website → register.** After a paid order, `adjustInventory()` posts an
   ADJUSTMENT to Square for the mapped lines.
 
-⛔ **The Square order is built from ad-hoc line items at OUR prices, never
+⛔ **The legacy Square order is built from ad-hoc line items at OUR prices, never
 `catalog_object_id`.** A catalog line is priced from Square's catalog, and
 Square's prices disagree with the website's (Beef Tenderloin $22 vs $29,
 Boneless Pork Chop $9 vs $15). Referencing the catalog would make the Square
 order total diverge from the amount charged. Pricing and stock are therefore
 moved by two separate calls, on purpose.
+Stripe purchases create no Square payment/order; they preserve this independent
+price/inventory boundary through paid inventory adjustments.
 
 ⛔ **Mapping is one-to-one and must stay that way.** A unique index enforces it.
 The website sells Pork Shoulder Roast in three weight tiers against Square's
@@ -408,10 +515,14 @@ single "Pork Shoulder Roast" — linking all three would decrement one count for
 three different products. `scripts/square-catalog-match.mjs` demotes any
 contested match to "needs a human" rather than guessing.
 
-⚠️ **A mapping only does something once the item has inventory tracking ON in
-Square.** At the time of writing only 4 of 53 Square variations track stock, and
-none of them are the mapped ones — so the plumbing is live but mostly idle until
-the farm switches tracking on.
+⚠️ **A mapping needs inventory tracking ON in Square.** Verify current mapped
+tracking and canonical timestamps live before activation; historical linked-item counts are
+not readiness evidence. Local claims and known-shortfall checks cannot close
+the distributed timing race between a POS sale, its webhook, website capture
+and the subsequent Square decrement. Exercise that overlap in an isolated
+fixture, and monitor linked-stock discrepancies after an approved cutover.
+Provider rollback changes the public flag while retaining the new Square
+adapter/webhook and timestamp-aware RPC; deploying old stock-sync code is unsafe.
 
 ### Abandoned cart recovery (added 2026-08-26)
 
@@ -460,34 +571,36 @@ consented to neither. Jalene has no photo on file and signs without one.
 
 Ranked.
 
-- ⚠️ **Stock reservation has no TTL.** `claim_shop_stock` decrements outright;
+- ⚠️ **Legacy Square stock reservation has no TTL.** `claim_shop_stock` decrements outright;
   there is no `reserved` column. Release only happens on the in-request decline
   path, so if the function dies between claim and release the unit is decremented
   forever (phantom sold-out). Needs either a reserved-with-expiry model or the
-  webhook above plus a sweeper.
+  webhook above plus a sweeper. Stripe attempts add durable expiry/recovery;
+  do not apply the legacy cleanup assumption to Stripe holds.
 - ⚠️ **Rate limiting is per-instance, in-memory.** Each warm serverless instance
   keeps its own counter, so the "12 per 15 min" is not global, and a cold start
-  resets it. Since every attempt calls Square, this endpoint is a card-testing
+  resets it. The legacy endpoint calls Square directly; both website providers
+  still need stronger shared abuse controls. The legacy endpoint is a card-testing
   oracle with a weak brake. Wants a shared store (Redis/Supabase) and/or the
   Turnstile challenge the repo already uses on the contact form.
 - **Admin auth is a single shared token**, and its cookie is set client-side so
   it is not httpOnly. Adequate for one farm team; not real accounts. If this ever
   needs per-person accountability beyond the free-text "counted by" field, that's
   the thing to fix first.
-- **Only 7 of 56 variants are linked to Square.** Apparel, plush and flowers have
-  no Square counterpart at all. Anything unlinked can still be oversold.
-- **Refunds are recorded, not initiated.** The webhook writes `refunded_cents`
-  and flips status when a refund happens in the Square dashboard; there is no
-  refund button on our side.
+- **POS mappings need current review.** Unlinked goods have no cross-system
+  inventory protection, even though local website stock claims are atomic.
+- **Shop refunds are recorded, not initiated by the shop UI.** Provider
+  webhooks write cumulative `refunded_cents` and status. Native farm booking
+  cancellation has a separate refund action.
 - **No CSP.** Not required for the wallets (Square is allowed by default when no
   CSP exists), but a checkout page with no script-integrity control is the one
   gap an assessor would flag under SAQ A-EP. If a CSP is ever added it MUST
   allowlist `web.squarecdn.com` and Square's PCI-connect origin, or card entry
   breaks silently.
-- **Cash App Pay, ACH and Afterpay are still off.** Apple Pay and Google Pay
-  are live. ACH is worth adding only for large tickets (1% capped at $5 vs
-  2.9%+30c) and settles in 2-3 days, so an order can't be treated as paid on
-  response.
+- **Stripe checkout currently requests card payments only.** Wallet
+  availability is Stripe/browser/account dependent and needs sandbox checks;
+  ACH, Cash App Pay and Afterpay are not part of this cutover. Legacy Square
+  Apple Pay and Google Pay code remains for rollback.
 - **(historical) Digital wallets were off.** Apple/Google Pay run through the same
   `POST /v2/payments` call and need no server change; Apple Pay needs the
   `.well-known/apple-developer-merchantid-domain-association` file plus domain
@@ -504,6 +617,49 @@ Google Meet, gift certificates, and the farm's admin booking surface. Phase 3a
 (also Aug 2026) added the Acuity-mirror importer, the frozen Acuity archive,
 the GTM event provisioner, and armed (but did not run) the cutover runbook —
 `docs/superpowers/plans/2026-08-27-cutover-runbook.md`.
+
+The October 9 Stripe implementation is a separate payment gate, described
+above. It does not establish calendar readiness. Acuity API evidence includes
+942 timed blocks, 129 explicit spa classes and tour limits of two appointments
+per slot and six per day. Native preparation maps these to date exceptions,
+interval blackouts and appointment-count limits using current Acuity evidence and
+authenticated admin maintenance, including date exceptions for Jalene's own
+Claude/MCP workflow. The private default-year preparation contains 93 future
+tour dates, 129 spa classes across 47 dates, six weekly wedding-call rules,
+20 future overrides and 87 timed blocks. Two API probes verified 65-minute
+wedding-call start spacing; finalized calls retain a 60-minute duration and
+actual imported padding. Refreshed appointment import, shared wedding resources,
+external busy coverage and full parity remain verification gaps. Ask for manual
+facts only when authorized APIs cannot expose them.
+Keep the native flag off until real schedules, exceptions, blackouts, imports and gifts pass
+the [standing matrix](scripts/booking-e2e.md) and Stripe TEST-mode end-to-end
+checks with no real-money transactions or external messages/invitations.
+
+This repository is public. Raw Acuity calendar inputs, occupancy/full timed
+blocks and generated seed SQL/previews stay outside Git under the private
+`~/scratch/highland-stripe-20261009/evidence/` input directory; the generated
+preview/seed is in `/Users/haydenlaverty/scratch/highland-stripe-20261009/prepared`.
+The path-driven
+`scripts/prepare-acuity-calendar.mts --ui PATH --api PATH --out DIR` preparation
+CLI defaults to dry run; it does not apply changes. See the cutover guide for
+the private input locations and review procedure.
+
+The gift catalog has 19 active products: 16 existing face-value offers and
+3/5/10-visit packages at $199/$299/$549 with 180-day expiry. Legacy aliases
+remain accepted. Combo value credit can fund tours and spa independently or
+together, and is never eligible for wedding calls. Both additive SQL schemas
+passed repeated isolated PostgreSQL checks, including concurrency/gift
+fixtures; nine compatibility tests passed. The 173-test suite and TypeScript,
+lint and build passed before the final inventory/refund fixes; latest focused
+checks passed 13 admin cases, four signed inventory cases and 11 SQL groups.
+Desktop 1440px/true iPhone 393px payment states and 78 calendar browser states
+passed with mocked submissions and outside requests blocked; six calendar
+screenshots were captured. Final full-suite count/lint/build remain pending.
+Actual Stripe TEST-mode E2E is blocked by the missing TEST key; proposed setup
+uses local `127.0.0.1:3099`, disposable local Unix-socket PostgreSQL on
+ports 55443/55444, a fixture REST bridge, captured mail and mocked Square.
+Stripe CLI forwarding needs approved setup; no new remote infrastructure is
+proposed.
 
 ```
 src/lib/booking/
@@ -534,13 +690,13 @@ src/lib/booking/
                            `source='acuity_import'` — see "The Acuity mirror" below
 src/components/booking/
   BookingFlow.tsx          client widget: date/slot pick -> party -> details -> pay
-  BookingPayment.tsx       Square card + wallet bootstrap, scoped to the widget
+  BookingPayment.tsx       legacy Square card + wallet bootstrap
   NativeBookingSection.tsx server wrapper — returns null when the flag is off, so
                            mounting it on a guest page is always flag-off-safe
 src/app/api/booking/
   availability/route.ts   GET — offered slots per product (or combo pairs)
-  checkout/route.ts       POST — the one transactional booking endpoint
-  gift/checkout/route.ts  POST — gift certificate purchase (charge, then issue)
+  checkout/route.ts       POST — legacy Square booking checkout
+  gift/checkout/route.ts  POST — legacy Square gift purchase (charge, then issue)
 src/app/gift-certificates/page.tsx   flag off: StaticGifts.tsx (each gift links to
                                      its Acuity catalog product); flag on:
                                      GiftBody.tsx (native purchase)
@@ -563,7 +719,42 @@ scripts/acuity-schedule-suggest.mts  observation-only report of Jalene's actual 
 scripts/publish-booking-gtm.mjs      provisions the GA4 event tags/triggers for the
                                        booking dataLayer events in GTM-MBH36BJH
 supabase-booking.sql      schema + RPCs, applied by hand (no migration runner here)
+supabase-calendar.sql     additive interval-blackout/capacity/import support;
+                           apply with supabase-stripe.sql before new application reads
 ```
+
+### Limited calendar API and Jalene's Claude bridge
+
+`calendar-auth.ts` accepts the existing full admin credential or the independent
+`BOOKING_CALENDAR_API_TOKEN` only on the aggregate calendar read and weekly
+schedule/date-exception/date-blackout/timed-blackout routes. Other booking and
+shop routes retain
+their full admin gate; the limited token cannot cancel/refund, create manual
+bookings, manage gift certificates or read customers/orders. Existing admin
+cookies are unchanged. `calendar-schema.ts` validates real dates, Pacific
+times, product slugs and explicit open-date capacity. Current slot capacities
+are capped at two tour appointments, six spa guests and one wedding call;
+the local MCP bridge checks those same product limits before making requests.
+
+`GET /api/shop/admin/booking/calendar?from=...&to=...` returns rules, exceptions,
+date and timed blackouts without free-text notes, and occupancy summed by
+product/start with conflict duration/padding. The inclusive range is at most
+63 days. `POST`/`DELETE` on `exceptions` replaces
+or removes an override by product/date. `startTimes:null` closes a date;
+deleting the exception restores weekly behavior. Weekly rule and blackout
+creation/deletion keep their existing endpoint shapes and audit behavior.
+`timed-blackouts` accepts offset-aware `startsAt`/`endsAt` instants, affected
+products and kind, with optional private notes; deletion uses its numeric ID.
+
+`scripts/calendar-mcp.mjs` runs locally on Jalene's machine through her own
+Claude/MCP client. It uses Node built-ins, newline stdio JSON-RPC and protocol
+`2024-11-05`, with nine validated read/set/delete tools. It calls only the
+canonical HTTPS site's calendar endpoints, uses the dedicated token without
+admin-token fallback, rejects redirects and filters API results again to
+exclude customer data, notes and secrets. It adds no hosted MCP/OAuth service.
+Provisioning the token and changing live schedules remain separate approved
+actions; [setup instructions](docs/stripe-cutover-2026-10-09.md#jalenes-local-calendar-mcp-setup)
+do not activate anything.
 
 ### The Acuity mirror (Phase 3a)
 
@@ -631,7 +822,7 @@ src/app/api/shop/admin/booking/
   blackouts/route.ts      POST/DELETE — wedding + closure blackouts
   schedules/route.ts      POST/DELETE — weekly recurring availability
   manual/route.ts         POST — phone/walk-in bookings (claims capacity, no charge)
-  cancel/route.ts         POST — farm-initiated cancel + Square refund + gift restore;
+  cancel/route.ts         POST — farm-initiated cancel + provider refund + gift restore;
                            detects a combo_group and cancels/refunds/emails the whole
                            pair atomically, never a single leg of a combo
   certs/route.ts          GET/POST — gift certificate issue, lookup, void
@@ -646,8 +837,10 @@ src/app/shop/admin/
 1. **The engine is pure; the RPC is the authority.** `engine.ts` decides what's
    offered; `claim_booking_slots` enforces capacity under an advisory lock.
    Availability shown to users is real counts — scarcity is never invented.
-2. **Slots are held BEFORE the card is charged** (10-min pending hold), released
-   on decline, swept by cron if a crash leaks one.
+2. **Slots are held BEFORE charging.** Legacy/admin claims use the original
+   10-minute pending hold. Stripe reservation extends it to the 45-minute
+   attempt deadline and processing claims protect it from the generic sweep;
+   only verified reconciliation releases Stripe holds.
 3. **The server derives every price from `products.ts`.** The browser sends
    product/date/time/party only.
 4. **All schedule wall-times are America/Los_Angeles**; storage is timestamptz.
@@ -681,14 +874,12 @@ src/app/shop/admin/
    after. Guests see none of it until the flag flips; the admin surface is
    just data entry against tables no guest-facing route reads while the flag
    is off.
-10. **Gift certificates charge BEFORE they insert** (the opposite order from a
-    booking, which claims capacity first) — there is no capacity to protect,
-    so nothing may be written until money has actually moved. If the insert
-    then fails, there is no row to force-confirm the way a paid booking has:
-    the route logs a `CRITICAL` line with the Square payment id and returns
-    `{ success: true, code: null }` rather than a failure, since the customer
-    was in fact charged. The farm reconciles from that log line and issues
-    the code by hand.
+10. **Gift certificates become redeemable only after payment.** Stripe stores
+    a durable attempt and generated code before hosted payment, then issues
+    the certificate in atomic paid finalization. An insert failure keeps the
+    captured attempt recoverable. The legacy Square route charges then inserts;
+    its paid-but-unissued failure logs `CRITICAL` and returns
+    `{ success: true, code: null }` for manual reconciliation.
 
 ## Conventions worth keeping
 

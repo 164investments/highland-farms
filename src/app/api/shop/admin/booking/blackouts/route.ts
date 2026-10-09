@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { isValidToken, tokenFromRequest } from "@/lib/shop/admin-auth";
+import { calendarAuthorized } from "@/lib/booking/calendar-auth";
+import { calendarDate } from "@/lib/booking/calendar-schema";
 import { insertBlackout, deleteBlackout, auditBooking } from "@/lib/booking/store";
 
 /**
@@ -10,19 +11,18 @@ import { insertBlackout, deleteBlackout, auditBooking } from "@/lib/booking/stor
 
 export const dynamic = "force-dynamic";
 
-const dateRe = /^\d{4}-\d{2}-\d{2}$/;
 const PRODUCT_SLUGS = ["farm-tour", "nordic-spa", "wedding-call"] as const;
 
 const postSchema = z.object({
   kind: z.enum(["wedding", "closure", "private_event"]),
-  startsOn: z.string().regex(dateRe),
-  endsOn: z.string().regex(dateRe),
+  startsOn: calendarDate,
+  endsOn: calendarDate,
   productSlugs: z.array(z.enum(PRODUCT_SLUGS)).min(1).max(PRODUCT_SLUGS.length),
   note: z.string().trim().max(500).nullable().optional(),
 });
 
 export async function POST(request: Request) {
-  if (!isValidToken(tokenFromRequest(request))) {
+  if (!calendarAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
 const deleteSchema = z.object({ id: z.number().int().positive() });
 
 export async function DELETE(request: Request) {
-  if (!isValidToken(tokenFromRequest(request))) {
+  if (!calendarAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

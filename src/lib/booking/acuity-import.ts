@@ -100,6 +100,8 @@ export interface BookingUpsert {
   productSlug: BookingSlug;
   startsAt: string; // UTC ISO
   durationMin: number;
+  paddingBeforeMin: number;
+  paddingAfterMin: number;
   partySize: number;
   units: number;
   amountCents: number;
@@ -122,13 +124,20 @@ export function mapAcuityAppointment(appt: AcuityAppointment): BookingUpsert | n
     return null;
   }
   const product = BOOKING_PRODUCTS[mapped.slug];
+  const duration = Number(appt.duration);
+  // Both wedding calendars still share the conservative native product until
+  // resource ownership is verified. Preserve finalization's actual 60-minute
+  // duration; it must not silently become a 45-minute public wedding call.
+  const isPublicWeddingCall = appt.appointmentTypeID === 78277096;
   return {
     acuityId: appt.id,
     productSlug: mapped.slug,
     // appt.datetime carries the UTC offset already (e.g. "...-07:00") --
     // new Date(...) is the correct, offset-aware parse.
     startsAt: new Date(appt.datetime).toISOString(),
-    durationMin: product.durationMin,
+    durationMin: Number.isInteger(duration) && duration > 0 ? duration : product.durationMin,
+    paddingBeforeMin: isPublicWeddingCall ? 5 : 0,
+    paddingAfterMin: isPublicWeddingCall ? 15 : 0,
     partySize: mapped.party,
     units: unitsFor(product, mapped.party),
     amountCents: Math.round(Number(appt.amountPaid || 0) * 100),
@@ -180,6 +189,8 @@ export async function upsertAcuityBooking(
         product_slug: mapped.productSlug,
         starts_at: mapped.startsAt,
         duration_min: mapped.durationMin,
+        padding_before_min: mapped.paddingBeforeMin,
+        padding_after_min: mapped.paddingAfterMin,
         party_size: mapped.partySize,
         units: mapped.units,
         amount_cents: mapped.amountCents,
@@ -204,6 +215,8 @@ export async function upsertAcuityBooking(
     product_slug: mapped.productSlug,
     starts_at: mapped.startsAt,
     duration_min: mapped.durationMin,
+    padding_before_min: mapped.paddingBeforeMin,
+    padding_after_min: mapped.paddingAfterMin,
     party_size: mapped.partySize,
     units: mapped.units,
     status: "confirmed",

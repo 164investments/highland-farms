@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { isValidToken, tokenFromRequest } from "@/lib/shop/admin-auth";
+import { calendarAuthorized } from "@/lib/booking/calendar-auth";
+import { calendarDate, calendarTimes, validCalendarCapacity } from "@/lib/booking/calendar-schema";
 import { upsertScheduleRule, deleteScheduleRule, auditBooking } from "@/lib/booking/store";
 
 /**
@@ -14,20 +15,18 @@ import { upsertScheduleRule, deleteScheduleRule, auditBooking } from "@/lib/book
 
 export const dynamic = "force-dynamic";
 
-const dateRe = /^\d{4}-\d{2}-\d{2}$/;
-const timeRe = /^\d{2}:\d{2}$/;
 
 const postSchema = z.object({
   productSlug: z.enum(["farm-tour", "nordic-spa", "wedding-call"]),
   weekday: z.number().int().min(0).max(6),
-  startTimes: z.array(z.string().regex(timeRe)).min(1).max(20),
+  startTimes: calendarTimes.refine((times) => times.length > 0),
   capacity: z.number().int().min(1).max(500),
-  effectiveFrom: z.string().regex(dateRe),
-  effectiveTo: z.string().regex(dateRe).nullable().optional(),
-});
+  effectiveFrom: calendarDate,
+  effectiveTo: calendarDate.nullable().optional(),
+}).refine((value) => validCalendarCapacity(value.productSlug, value.capacity), "Capacity exceeds the current farm limit.");
 
 export async function POST(request: Request) {
-  if (!isValidToken(tokenFromRequest(request))) {
+  if (!calendarAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -60,7 +59,7 @@ export async function POST(request: Request) {
 const deleteSchema = z.object({ id: z.number().int().positive() });
 
 export async function DELETE(request: Request) {
-  if (!isValidToken(tokenFromRequest(request))) {
+  if (!calendarAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

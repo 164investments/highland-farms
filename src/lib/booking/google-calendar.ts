@@ -14,7 +14,7 @@
  *   GOOGLE_SA_PRIVATE_KEY — PEM private key (literal \n or real newlines)
  */
 
-import { createSign } from "crypto";
+import { createHash, createSign } from "crypto";
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const EVENTS_API = "https://www.googleapis.com/calendar/v3/calendars/primary/events";
@@ -93,8 +93,12 @@ export async function createWeddingCallEvent(
 
     const start = new Date(opts.startIso);
     const end = new Date(start.getTime() + opts.durationMin * 60000);
+    // Calendar accepts hexadecimal IDs. Retries resolve this one event instead
+    // of inviting the customer repeatedly or creating duplicate appointments.
+    const eventId = createHash("sha256").update(`highland-wedding-call:${opts.bookingNumber}`).digest("hex");
 
     const body: Record<string, unknown> = {
+      id: eventId,
       summary: `Wedding Call: ${opts.guestName} + Highland Farms`,
       description: `Highland Farms wedding call. Booking ${opts.bookingNumber}.`,
       start: { dateTime: start.toISOString(), timeZone: TZ },
@@ -122,6 +126,17 @@ export async function createWeddingCallEvent(
       body: JSON.stringify(body),
     });
 
+    if (res.status === 409) {
+      const existing = await fetch(`${EVENTS_API}/${eventId}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!existing.ok) {
+        console.error("[booking] existing calendar event read failed", opts.bookingNumber, existing.status);
+        return null;
+      }
+      const data = await existing.json();
+      if (data.id !== eventId) return null;
+      return { eventId, meetLink: (data.hangoutLink as string | undefined) ?? null };
+    }
+
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       console.error("[booking] calendar event failed", opts.bookingNumber, res.status, text);
@@ -129,6 +144,10 @@ export async function createWeddingCallEvent(
     }
 
     const data = await res.json();
+    if (data.id !== eventId) {
+      console.error("[booking] calendar event returned unexpected id", opts.bookingNumber);
+      return null;
+    }
     return {
       eventId: data.id as string,
       meetLink: (data.hangoutLink as string | undefined) ?? null,

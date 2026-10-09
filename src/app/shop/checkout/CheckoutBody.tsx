@@ -22,6 +22,7 @@ import { ExpressPay, type WalletBlock } from "./ExpressPay";
 import { getProduct } from "../data";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { rememberShopPayment, startStripeCheckout, stripeCheckoutEnabled, usePaymentCancelled } from "@/lib/payments/client";
 
 /**
  * Checkout.
@@ -87,9 +88,10 @@ export function CheckoutBody({
   reviewTotal: number;
 }) {
   const router = useRouter();
+  const paymentCancelled = usePaymentCancelled();
   const { detailed, subtotalCents, count, clear, ready: cartReady } = useCart();
 
-  const [status, setStatus] = useState<Status>("loading");
+  const [status, setStatus] = useState<Status>(stripeCheckoutEnabled ? "ready" : "loading");
   const [failure, setFailure] = useState<Failure | null>(null);
   const [paidWith, setPaidWith] = useState<Failure["at"]>("card");
   const [chosen, setFulfillment] = useState<Fulfillment>("pickup");
@@ -128,6 +130,7 @@ export function CheckoutBody({
 
   // Load Square's SDK and attach the card fields once.
   useEffect(() => {
+    if (stripeCheckoutEnabled) return;
     if (!configured) {
       setStatus("unavailable");
       return;
@@ -415,6 +418,24 @@ export function CheckoutBody({
     // Gaps first: empty required fields are marked and focused even while the card
     // form is still loading, and this never reaches Square.
     if (!readyToPay()) return;
+    if (stripeCheckoutEnabled) {
+      setStatus("submitting");
+      const result = await startStripeCheckout({
+        kind: "shop", fulfillment,
+        customer: { name: form.name, email: form.email, phone: form.phone },
+        ...(fulfillment === "delivery" && { delivery: { address: form.address, city: form.city, zip: form.zip } }),
+        notes: form.notes || undefined, website: form.website || undefined,
+        items: detailed.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
+      });
+      if (result.ok && "checkoutUrl" in result) {
+        rememberShopPayment(result.sessionId, { lines: detailed, totalCents, feeCents });
+        window.location.assign(result.checkoutUrl);
+        return;
+      }
+      setFailure({ at: "card", message: result.ok ? "We couldn’t open secure payment. Please try again." : result.error });
+      setStatus("ready");
+      return;
+    }
     if (!cardRef.current || status !== "ready") {
       setFailure({
         at: "card",
@@ -460,7 +481,7 @@ export function CheckoutBody({
   ].filter((id): id is string => Boolean(id));
   const gapWords = ["No", "One", "Two", "Three", "Four", "Five", "Six"];
   const shortBy = Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
-  const payDisabled = busy || Boolean(blocking);
+  const payDisabled = busy || Boolean(blocking) || (stripeCheckoutEnabled && (!contactOk || !addressOk || !cartReady));
 
   // The shop has one empty state, the cart's (r4): an empty checkout goes there.
   // Never while an order is being placed: a paid order clears the cart just
@@ -517,6 +538,11 @@ export function CheckoutBody({
           <div className="lg:col-start-1 lg:row-start-1">
             <h1 className="field-heading m-0 font-display text-[34px] leading-none lg:text-[52px]">Checkout</h1>
             <p className="m-0 mt-2 text-[14px] text-ink-note">Guest checkout. No account to make.</p>
+            {stripeCheckoutEnabled && paymentCancelled && (
+              <p role="status" className="m-0 mt-4 border-l-2 border-pine-line bg-paper-shade px-4 py-3 text-[14px] text-ink-body">
+                You returned from secure payment. Your order is still here. Review your details to try again.
+              </p>
+            )}
 
             {/* Phone: the order as one collapsed row, so Pay sits right under the card field */}
             <details className="group mt-5 border-y border-rule lg:hidden">
@@ -543,7 +569,7 @@ export function CheckoutBody({
             {/* Wallets: first screen, pickup preselected. The payment request asks
                 for no contact fields, so the wallets stay held (aria-disabled, with
                 a plain line) until name, email and phone pass the server's rules. */}
-            <ExpressPay
+            {!stripeCheckoutEnabled && <ExpressPay
               payments={payments}
               totalCents={totalCents}
               disabled={busy || status !== "ready"}
@@ -553,7 +579,7 @@ export function CheckoutBody({
               onError={(message) => setFailure({ at: "wallet", message })}
               alert={failure?.at === "wallet" ? failure.message : null}
               placing={busy && paidWith === "wallet"}
-            />
+            />}
 
             {/* I. How you'll get it */}
             <fieldset className="m-0 mt-5 border-0 border-t border-ink p-0 pt-4">
@@ -736,10 +762,14 @@ export function CheckoutBody({
             {/* III. Card, then Pay directly under it */}
             <fieldset className="m-0 mt-8 border-0 border-t border-ink p-0 pt-4">
               <legend className={legend}>
-                <span className={numeral}>III</span>Card
+                <span className={numeral}>III</span>{stripeCheckoutEnabled ? "Secure payment" : "Card"}
               </legend>
               <div className="clear-left pt-3">
-                {status === "unavailable" ? (
+                {stripeCheckoutEnabled ? (
+                  <p className="m-0 text-[14px] leading-[1.5] text-ink-body">
+                    Continue to Stripe to choose your payment method. Your order is confirmed after payment is verified.
+                  </p>
+                ) : status === "unavailable" ? (
                   <p role="status" className="m-0 border-y border-rule py-3 text-[14px] leading-[1.5] text-ink-body">
                     Card payment isn&apos;t loading right now. Call{" "}
                     <a href={`tel:+1${CONTACT.phone.replace(/\D/g, "")}`} className="whitespace-nowrap font-medium text-pine">
@@ -797,7 +827,7 @@ export function CheckoutBody({
                   )}
                 >
                   <LockIcon size={15} />
-                  {busy ? "Paying…" : `Pay ${formatCents(totalCents)}`}
+                  {busy ? (stripeCheckoutEnabled ? "Opening secure payment…" : "Paying…") : stripeCheckoutEnabled ? `Continue to secure payment · ${formatCents(totalCents)}` : `Pay ${formatCents(totalCents)}`}
                 </button>
                 <p className="m-0 mt-2.5 text-[13px] text-ink-note lg:hidden">
                   That&apos;s everything. No sales tax.

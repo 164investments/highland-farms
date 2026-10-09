@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { SquareInventorySnapshot } from "./square";
 
 /**
  * Live stock for the farm store.
@@ -60,7 +61,7 @@ export async function getStockMap(): Promise<StockMap> {
  * Used to build itemised Square orders so an online sale moves the same count
  * the POS reads.
  */
-export async function getSquareVariationMap(): Promise<Map<string, string>> {
+export async function getSquareVariationMap(strict = false): Promise<Map<string, string>> {
   try {
     const { data, error } = await db()
       .from("shop_inventory")
@@ -68,6 +69,7 @@ export async function getSquareVariationMap(): Promise<Map<string, string>> {
       .not("square_variation_id", "is", null);
     if (error) {
       console.error("[shop] square mapping read failed:", error.message);
+      if (strict) throw new Error(`Square mapping read failed: ${error.message}`);
       return new Map();
     }
     return new Map(
@@ -75,7 +77,22 @@ export async function getSquareVariationMap(): Promise<Map<string, string>> {
     );
   } catch (err) {
     console.error("[shop] square mapping read threw:", err);
+    if (strict) throw err;
     return new Map();
+  }
+}
+
+/** Refresh after an idempotent paid-order adjustment; RPC subtracts open Stripe holds. */
+export async function syncSquareInventoryCounts(counts: Map<string, SquareInventorySnapshot>): Promise<void> {
+  for (const [variationId, count] of counts) {
+    if (!count.calculatedAt || !Number.isFinite(Date.parse(count.calculatedAt))) throw new Error("Square inventory source timestamp is required");
+    const { data, error } = await db().rpc("sync_square_stock_snapshot", {
+      p_variation_id: variationId,
+      p_quantity: count.quantity,
+      p_calculated_at: count.calculatedAt,
+    });
+    if (error) throw new Error(`Square inventory sync failed: ${error.message}`);
+    if (data === -1) throw new Error("Square inventory snapshot was superseded; retry with current canonical counts");
   }
 }
 

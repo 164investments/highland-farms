@@ -8,7 +8,7 @@
  * source of remaining-seat truth.
  */
 import { type BookingProduct } from "./products.ts";
-import { slotToUtc, pacificWeekday, eachDate } from "./time.ts";
+import { slotToUtc, pacificWeekday, pacificDateStr, eachDate } from "./time.ts";
 
 export interface ScheduleRule {
   productSlug: string;
@@ -29,8 +29,11 @@ export interface ScheduleException {
 
 export interface Blackout {
   kind: string;
-  startsOn: string;
-  endsOn: string;
+  startsOn?: string;
+  endsOn?: string;
+  /** Timed blocks use half-open intervals, including the booking's buffers. */
+  startsAt?: string;
+  endsAt?: string;
   productSlugs: string[];
 }
 
@@ -38,6 +41,9 @@ export interface BookedUnits {
   productSlug: string;
   startsAtIso: string;
   units: number;
+  durationMin?: number;
+  paddingBeforeMin?: number;
+  paddingAfterMin?: number;
 }
 
 export interface Slot {
@@ -62,9 +68,55 @@ function isBlackedOut(
   return blackouts.some(
     (b) =>
       b.productSlugs.includes(productSlug) &&
+      !b.startsAt && !b.endsAt &&
+      b.startsOn !== undefined && b.endsOn !== undefined &&
       dateStr >= b.startsOn &&
       dateStr <= b.endsOn,
   );
+}
+
+function slotInterval(product: BookingProduct, start: number): [number, number] {
+  return [start - (product.paddingBeforeMin ?? 0) * 60000,
+    start + (product.durationMin + (product.paddingAfterMin ?? 0)) * 60000];
+}
+
+function timedBlockApplies(product: BookingProduct, start: number, blackouts: Blackout[]): boolean {
+  const [from, to] = slotInterval(product, start);
+  return blackouts.some(b => b.productSlugs.includes(product.slug) && b.startsAt && b.endsAt
+    && Date.parse(b.startsAt) < to && Date.parse(b.endsAt) > from);
+}
+
+/** Peak concurrent units, not the sum of every appointment that intersects a
+ * long slot: consecutive existing bookings do not consume capacity together. */
+function overlappingUnits(product: BookingProduct, start: number, booked: BookedUnits[]): number {
+  // Acuity classes are independent explicit offerings, even if their durations
+  // overlap. Seats belong to their exact class start, not a pooled resource.
+  if (product.kind === "class") return booked.filter(b => b.productSlug === product.slug
+    && Date.parse(b.startsAtIso) === start).reduce((sum, b) => sum + b.units, 0);
+  const [from, to] = slotInterval(product, start);
+  const events = new Map<number, number>();
+  for (const b of booked) {
+    if (b.productSlug !== product.slug) continue;
+    const bookedStart = Date.parse(b.startsAtIso);
+    const left = Math.max(from, bookedStart - (b.paddingBeforeMin ?? product.paddingBeforeMin ?? 0) * 60000);
+    const right = Math.min(to, bookedStart + ((b.durationMin ?? product.durationMin)
+      + (b.paddingAfterMin ?? product.paddingAfterMin ?? 0)) * 60000);
+    if (left >= right) continue;
+    events.set(left, (events.get(left) ?? 0) + b.units);
+    events.set(right, (events.get(right) ?? 0) - b.units);
+  }
+  let active = 0, peak = 0;
+  for (const [, delta] of [...events].sort((a, b) => a[0] - b[0])) {
+    active += delta; peak = Math.max(peak, active);
+  }
+  return peak;
+}
+
+function remainingDaily(product: BookingProduct, date: string, booked: BookedUnits[]): number {
+  if (product.maxDailyAppointments === undefined) return Infinity;
+  const used = booked.filter(b => b.productSlug === product.slug
+    && pacificDateStr(new Date(b.startsAtIso)) === date).reduce((sum, b) => sum + b.units, 0);
+  return Math.max(0, product.maxDailyAppointments - used);
 }
 
 /** The offered times+capacity for one product on one date, or null when closed. */
@@ -118,13 +170,8 @@ export function computeAvailability(opts: {
   now: Date;
 }): DayAvailability[] {
   const { product, schedules, exceptions, blackouts, booked, now } = opts;
-  const usedBySlot = new Map<string, number>();
-  for (const b of booked) {
-    if (b.productSlug !== product.slug) continue;
-    const key = new Date(b.startsAtIso).toISOString();
-    usedBySlot.set(key, (usedBySlot.get(key) ?? 0) + b.units);
-  }
   const earliest = new Date(now.getTime() + product.leadTimeMin * 60000);
+  const latest = new Date(now.getTime() + product.horizonDays * 86400000);
 
   return eachDate(opts.from, opts.to).map((date) => {
     const plan = dayPlan(product.slug, date, schedules, exceptions, blackouts);
@@ -132,13 +179,13 @@ export function computeAvailability(opts: {
     const slots: Slot[] = [];
     for (const time of [...plan.times].sort()) {
       const startsAt = slotToUtc(date, time);
-      if (startsAt < earliest) continue;
-      const used = usedBySlot.get(startsAt.toISOString()) ?? 0;
+      if (startsAt < earliest || startsAt > latest || timedBlockApplies(product, startsAt.getTime(), blackouts)) continue;
+      const used = overlappingUnits(product, startsAt.getTime(), booked);
       slots.push({
         startsAt: startsAt.toISOString(),
         time,
         capacity: plan.capacity,
-        remainingUnits: Math.max(0, plan.capacity - used),
+        remainingUnits: Math.max(0, Math.min(plan.capacity - used, remainingDaily(product, date, booked))),
       });
     }
     return { date, slots };
@@ -158,6 +205,7 @@ export function slotCapacity(opts: {
   exceptions: ScheduleException[];
   blackouts: Blackout[];
   now: Date;
+  booked?: BookedUnits[];
 }): number | null {
   const plan = dayPlan(
     opts.product.slug, opts.dateStr, opts.schedules, opts.exceptions, opts.blackouts,
@@ -168,6 +216,8 @@ export function slotCapacity(opts: {
   if (startsAt < earliest) return null;
   const horizon = new Date(opts.now.getTime() + opts.product.horizonDays * 86400000);
   if (startsAt > horizon) return null;
+  if (timedBlockApplies(opts.product, startsAt.getTime(), opts.blackouts)) return null;
+  if (remainingDaily(opts.product, opts.dateStr, opts.booked ?? []) === 0) return null;
   return plan.capacity;
 }
 

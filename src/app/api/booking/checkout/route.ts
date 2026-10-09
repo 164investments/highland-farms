@@ -5,6 +5,7 @@ import {
   BOOKING_PRODUCTS, COMBO, unitsFor,
 } from "@/lib/booking/products";
 import { slotCapacity } from "@/lib/booking/engine";
+import { giftScopeAllows } from "@/lib/booking/gift-products";
 import { slotToUtc } from "@/lib/booking/time";
 import {
   claimSlots, confirmBookings, forceConfirmBookings, auditBooking, releaseBookings,
@@ -104,6 +105,7 @@ const checkoutSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (stripeEnabled()) return NextResponse.json({ error: "Checkout has changed. Please refresh the page to pay securely." }, { status: 409 });
   if (!nativeCalendarEnabled()) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -228,13 +230,7 @@ export async function POST(request: Request) {
       const cert = await getGiftCertificate(giftCode);
       // visits certs MUST be product-scoped (a visit credit is a seat in ONE
       // product); value certs may be scoped or universal.
-      const scopeOk =
-        cert &&
-        (cert.kind === "visits"
-          ? cert.productScope !== null &&
-            legs.every((l) => l.productSlug === cert.productScope)
-          : cert.productScope === null ||
-            legs.every((l) => l.productSlug === cert.productScope));
+      const scopeOk = cert && giftScopeAllows(cert.kind, cert.productScope, legs.map((leg) => leg.productSlug));
       if (!cert || !scopeOk) {
         await releaseBookings(claim.ids);
         return bad(
@@ -424,3 +420,4 @@ export async function POST(request: Request) {
     return bad("Something went wrong. Please try again, or call the farm.", 500);
   }
 }
+import { stripeEnabled } from "@/lib/payments/stripe";

@@ -336,11 +336,15 @@ export async function createOrder(
   }
 }
 
-/** Current Square counts for the given variation ids. Empty map on failure. */
-export async function getInventoryCounts(
+export interface SquareInventorySnapshot { quantity: number; calculatedAt: string | null }
+
+/** Authoritative snapshots preserve Square's raw timestamp precision. Strict
+ * callers require every requested IN_STOCK count and its source timestamp. */
+export async function getInventorySnapshots(
   variationIds: string[],
-): Promise<Map<string, number>> {
-  const counts = new Map<string, number>();
+  strict = true,
+): Promise<Map<string, SquareInventorySnapshot>> {
+  const counts = new Map<string, SquareInventorySnapshot>();
   if (variationIds.length === 0) return counts;
 
   const { accessToken, locationId } = config();
@@ -355,27 +359,44 @@ export async function getInventoryCounts(
       body: JSON.stringify({
         catalog_object_ids: variationIds.slice(0, 500),
         location_ids: [locationId],
+        states: ["IN_STOCK"],
+        limit: 1000,
       }),
     });
     const body = (await response.json().catch(() => ({}))) as {
-      counts?: { catalog_object_id?: string; state?: string; quantity?: string }[];
+      counts?: { catalog_object_id?: string; location_id?: string; state?: string; quantity?: string; calculated_at?: string }[];
       errors?: SquareError[];
     };
-    if (!response.ok) {
+    if (!response.ok || body.errors?.length) {
       console.error("[shop] inventory batch-retrieve failed:", JSON.stringify(body.errors ?? {}));
+      if (strict) throw new Error(`Square inventory read failed: ${response.status}`);
       return counts;
     }
     for (const c of body.counts ?? []) {
       // IN_STOCK is the only state that represents sellable units.
-      if (c.state === "IN_STOCK" && c.catalog_object_id) {
-        counts.set(c.catalog_object_id, Math.max(0, Math.floor(Number(c.quantity ?? 0))));
+      if (c.state === "IN_STOCK" && c.catalog_object_id && variationIds.includes(c.catalog_object_id)
+        && (c.location_id === locationId || (!strict && !c.location_id))) {
+        const quantity = Number(c.quantity);
+        const calculatedAt = c.calculated_at ?? null;
+        if (!Number.isFinite(quantity) || (strict && (!calculatedAt || !Number.isFinite(Date.parse(calculatedAt))))) {
+          throw new Error("Square inventory snapshot lacks a valid quantity or source timestamp");
+        }
+        counts.set(c.catalog_object_id, { quantity: Math.max(0, Math.floor(quantity)), calculatedAt });
       }
     }
+    if (strict && variationIds.some((id) => !counts.has(id))) throw new Error("Square inventory response is missing a requested IN_STOCK snapshot");
     return counts;
   } catch (err) {
     console.error("[shop] inventory batch-retrieve threw:", err);
+    if (strict) throw err;
     return counts;
   }
+}
+
+/** Legacy quantity-only API retains its original return shape. */
+export async function getInventoryCounts(variationIds: string[], strict = false): Promise<Map<string, number>> {
+  const snapshots = await getInventorySnapshots(variationIds, strict);
+  return new Map([...snapshots].map(([id, count]) => [id, count.quantity]));
 }
 
 /**
@@ -396,12 +417,13 @@ export async function getInventoryCounts(
 export async function adjustInventory(
   changes: { squareVariationId: string; quantity: number }[],
   idempotencyKey: string,
+  options?: { strict?: boolean; occurredAt?: string },
 ): Promise<void> {
   if (changes.length === 0) return;
   const { accessToken, locationId } = config();
 
   // RFC 3339, and Square rejects a future timestamp.
-  const occurredAt = new Date(Date.now() - 1000).toISOString();
+  const occurredAt = options?.occurredAt ?? new Date(Date.now() - 1000).toISOString();
 
   try {
     const response = await fetch(`${SQUARE_API}/inventory/changes/batch-create`, {
@@ -427,16 +449,18 @@ export async function adjustInventory(
       }),
     });
 
-    if (!response.ok) {
-      const body = (await response.json().catch(() => ({}))) as { errors?: SquareError[] };
+    const body = (await response.json().catch(() => null)) as { errors?: SquareError[] } | null;
+    if (!response.ok || body?.errors?.length || (options?.strict && !body)) {
       console.error(
         "[shop] Square inventory adjust failed:",
         response.status,
-        JSON.stringify(body.errors ?? {}),
+        JSON.stringify(body?.errors ?? {}),
       );
+      if (options?.strict) throw new Error(`Square inventory adjustment failed: ${response.status}`);
     }
   } catch (err) {
     console.error("[shop] Square inventory adjust threw:", err);
+    if (options?.strict) throw err;
   }
 }
 

@@ -6,8 +6,8 @@ import type { GiftProduct } from "./gift";
 /**
  * Gift certificate purchase confirmation + delivery.
  *
- * Copy rules: no expiry or refund is ever claimed (certificates don't
- * expire), plain warm voice, physical address footer. Mirrors the
+ * Copy rules: use the persisted expiry for visit packs; ordinary face-value
+ * gifts have no expiry. Plain warm voice, physical address footer. Mirrors the
  * `sendOrThrow` pattern in `confirmation-email.ts` — the Resend SDK resolves
  * `{ data: null, error }` on an API-level failure instead of rejecting, so a
  * bad key or a 4xx/5xx would look identical to success unless we throw here.
@@ -21,8 +21,9 @@ function getResend(): Resend {
 
 async function sendOrThrow(
   params: Parameters<Resend["emails"]["send"]>[0],
+  idempotencyKey?: string,
 ): Promise<void> {
-  const result = await getResend().emails.send(params);
+  const result = await getResend().emails.send(params, idempotencyKey ? { idempotencyKey } : undefined);
   if (result.error) {
     throw new Error(result.error.message);
   }
@@ -39,6 +40,15 @@ export interface GiftEmailData {
   purchaserEmail: string;
   recipientEmail: string | null;
   message: string | null;
+  expiresAt?: string | null;
+}
+
+function expiryNotice(data: GiftEmailData): string {
+  if (!data.expiresAt) return "";
+  const date = new Date(data.expiresAt).toLocaleDateString("en-US", {
+    timeZone: "America/Los_Angeles", year: "numeric", month: "long", day: "numeric",
+  });
+  return `<p>Use your visits by ${escapeHtml(date)} (180 days from purchase).</p>`;
 }
 
 function codeBlock(code: string): string {
@@ -64,6 +74,7 @@ function renderRecipientEmail(data: GiftEmailData): string {
     ${messageBlock}
     ${codeBlock(data.code)}
     ${howToRedeem()}
+    ${expiryNotice(data)}
     <p style="margin-top:24px">Questions? Reply to this email or call (971) 563-1921.</p>
     ${ADDRESS}
   </div>`;
@@ -78,6 +89,7 @@ function renderSelfEmail(data: GiftEmailData): string {
     <p>${escapeHtml(data.product.name)}, ${formatCents(data.product.amountCents)}</p>
     ${codeBlock(data.code)}
     ${howToRedeem()}
+    ${expiryNotice(data)}
     <p style="margin-top:24px">Questions? Reply to this email or call (971) 563-1921.</p>
     ${ADDRESS}
   </div>`;
@@ -93,12 +105,13 @@ function renderPurchaserReceiptEmail(data: GiftEmailData): string {
     is on its way to ${escapeHtml(data.recipientEmail ?? "")}.</p>
     <p style="margin-top:16px">This is your receipt copy. The code, for your records:</p>
     ${codeBlock(data.code)}
+    ${expiryNotice(data)}
     <p style="margin-top:24px">Questions? Reply to this email or call (971) 563-1921.</p>
     ${ADDRESS}
   </div>`;
 }
 
-export async function sendGiftEmails(data: GiftEmailData): Promise<void> {
+export async function sendGiftEmails(data: GiftEmailData, options?: { strict?: boolean; idempotencyKey?: string }): Promise<void> {
   const hasRecipient = Boolean(data.recipientEmail);
 
   // Independent sends: one bounced address must never hide the others, and
@@ -114,7 +127,7 @@ export async function sendGiftEmails(data: GiftEmailData): Promise<void> {
         to: data.recipientEmail as string,
         subject: `A gift from ${data.purchaserName}: Highland Farms`,
         html: renderRecipientEmail(data),
-      }),
+      }, options?.idempotencyKey ? `${options.idempotencyKey}-recipient` : undefined),
     });
     sends.push({
       label: "purchaser receipt",
@@ -123,7 +136,7 @@ export async function sendGiftEmails(data: GiftEmailData): Promise<void> {
         to: data.purchaserEmail,
         subject: "Your Highland Farms gift certificate receipt",
         html: renderPurchaserReceiptEmail(data),
-      }),
+      }, options?.idempotencyKey ? `${options.idempotencyKey}-purchaser` : undefined),
     });
   } else {
     sends.push({
@@ -133,7 +146,7 @@ export async function sendGiftEmails(data: GiftEmailData): Promise<void> {
         to: data.purchaserEmail,
         subject: `Your Highland Farms gift certificate: ${data.code}`,
         html: renderSelfEmail(data),
-      }),
+      }, options?.idempotencyKey ? `${options.idempotencyKey}-purchaser` : undefined),
     });
   }
 
@@ -146,7 +159,7 @@ export async function sendGiftEmails(data: GiftEmailData): Promise<void> {
       html: `<p>${escapeHtml(data.purchaserName)} (${escapeHtml(data.purchaserEmail)}) bought
         ${escapeHtml(data.product.name)}, ${formatCents(data.product.amountCents)}.
         Code ${escapeHtml(data.code)}.${hasRecipient ? ` Sent to ${escapeHtml(data.recipientEmail as string)}.` : ""}</p>`,
-    }),
+    }, options?.idempotencyKey ? `${options.idempotencyKey}-farm` : undefined),
   });
 
   const results = await Promise.allSettled(sends.map((s) => s.promise));
@@ -155,4 +168,7 @@ export async function sendGiftEmails(data: GiftEmailData): Promise<void> {
       console.error(`[gift] ${sends[i].label} email failed for ${data.code}:`, result.reason);
     }
   });
+  if (options?.strict && results.some((r) => r.status === "rejected")) {
+    throw new Error(`Gift confirmation delivery failed: ${data.code}`);
+  }
 }

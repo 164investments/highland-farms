@@ -35,6 +35,8 @@ interface Booking {
   phone: string;
   amountCents: number;
   squarePaymentId: string | null;
+  stripePaymentIntentId: string | null;
+  refundedCents: number;
   giftCertificateCode: string | null;
   giftAmountCents: number;
   referralSource: string | null;
@@ -88,15 +90,15 @@ function statusChipClass(status: string): string {
  * Refund owed if this booking (or its whole combo group) is cancelled now —
  * cash only, never the pre-gift total. Mirrors the cancel route's own gate
  * (`refund && paymentId && refundCents > 0`): a phone booking has no
- * `squarePaymentId` (nothing was ever charged), so it's never owed a refund
+ * processor payment ID (nothing was ever charged), so it's never owed a refund
  * even though `amountCents` is set from the same server pricing as checkout.
  */
 function refundCentsFor(b: Booking, all: Booking[]): number {
   const group = b.comboGroup
     ? all.filter((x) => x.comboGroup === b.comboGroup && x.status === "confirmed")
     : [b];
-  if (!group.some((x) => x.squarePaymentId)) return 0;
-  return group.reduce((sum, x) => sum + x.amountCents - x.giftAmountCents, 0);
+  if (!group.some((x) => x.squarePaymentId || x.stripePaymentIntentId)) return 0;
+  return Math.max(0, group.reduce((sum, x) => sum + x.amountCents - x.giftAmountCents - (x.refundedCents ?? 0), 0));
 }
 
 export function CalendarTab({ token }: { token: string }) {

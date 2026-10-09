@@ -15,6 +15,7 @@ import { MicrosoftClarity } from "@/components/layout/MicrosoftClarity";
 import { BookedIQWidget } from "@/components/layout/BookedIQWidget";
 import { AttributionTracker } from "@/components/layout/AttributionTracker";
 import { CartProvider } from "@/lib/shop/cart";
+import { PaymentPrivacy } from "@/components/layout/PaymentPrivacy";
 import "./globals.css";
 
 // 600 costs no extra download: both are variable fonts and Google serves the
@@ -148,6 +149,7 @@ export default function RootLayout({
       <body
         className="antialiased overflow-x-hidden"
       >
+        <PaymentPrivacy>
         <GoogleTagManager />
         <GoogleTagManagerNoScript />
         <AttributionTracker />
@@ -159,12 +161,14 @@ export default function RootLayout({
           src="//js.hs-scripts.com/241936089.js"
           strategy="afterInteractive"
         />
+        </PaymentPrivacy>
         <SkipLink />
         <CartProvider>
           <Header menuFacts={{ reviewCount: REVIEW_TIER_COUNTS.compact, realWeddings: confirmedCouples.length }} />
           <main id="main-content">{children}</main>
           <Footer />
         </CartProvider>
+        <PaymentPrivacy>
         <EmailPopup />
         {process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID && (
           <MicrosoftClarity
@@ -172,6 +176,7 @@ export default function RootLayout({
           />
         )}
         <BookedIQWidget />
+        </PaymentPrivacy>
       </body>
     </html>
   );

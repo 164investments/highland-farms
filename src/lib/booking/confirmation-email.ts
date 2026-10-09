@@ -29,8 +29,9 @@ function getResend(): Resend {
  */
 async function sendOrThrow(
   params: Parameters<Resend["emails"]["send"]>[0],
+  idempotencyKey?: string,
 ): Promise<void> {
-  const result = await getResend().emails.send(params);
+  const result = await getResend().emails.send(params, idempotencyKey ? { idempotencyKey } : undefined);
   if (result.error) {
     throw new Error(result.error.message);
   }
@@ -164,10 +165,14 @@ export function renderMeetLinkNeededBanner(data: BookingEmailData): string {
        ${escapeHtml(data.customerEmail)} before the call.</p>`;
 }
 
-export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
+export async function sendBookingEmails(data: BookingEmailData, options?: { strict?: boolean; idempotencyKey?: string; timestamp?: string }): Promise<void> {
+  // Retry bodies must remain byte-identical for Resend's idempotency key.
+  const ics = options?.timestamp
+    ? icsForBooking(data).replace(/^DTSTAMP:[^\r\n]*/m, `DTSTAMP:${new Date(options.timestamp).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z")}`)
+    : icsForBooking(data);
   const icsAttachment = {
     filename: "highland-farms.ics",
-    content: Buffer.from(icsForBooking(data)).toString("base64"),
+    content: Buffer.from(ics).toString("base64"),
   };
 
   // Independent sends: a bounced/rejected customer email must never stop the
@@ -179,7 +184,7 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
       subject: `You're booked: ${data.bookingNumber}`,
       html: renderBookingConfirmation(data),
       attachments: [icsAttachment],
-    }),
+    }, options?.idempotencyKey ? `${options.idempotencyKey}-customer` : undefined),
     sendOrThrow({
       from: FROM,
       to: FARM_RECIPIENTS,
@@ -188,7 +193,7 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
         ${escapeHtml(data.customerPhone)}) booked ${escapeHtml(data.bookingNumber)}:
         ${data.partySize} guests, paid ${formatCents(data.paidCents)}.</p>
         ${renderBookingConfirmation(data)}`,
-    }),
+    }, options?.idempotencyKey ? `${options.idempotencyKey}-farm` : undefined),
   ]);
 
   const [customerResult, farmResult] = results;
@@ -203,5 +208,8 @@ export async function sendBookingEmails(data: BookingEmailData): Promise<void> {
       `[booking] farm notification email failed ${data.bookingNumber}:`,
       farmResult.reason,
     );
+  }
+  if (options?.strict && results.some((r) => r.status === "rejected")) {
+    throw new Error(`Booking confirmation delivery failed: ${data.bookingNumber}`);
   }
 }

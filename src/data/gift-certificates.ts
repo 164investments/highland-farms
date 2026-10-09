@@ -2,14 +2,12 @@ import type { FAQItem } from "@/lib/types";
 import { BOOKING_LINKS } from "@/lib/constants";
 
 /**
- * Gift certificates sold through the Acuity catalog (live catalog read
- * 2026-10-06). Prices are Hayden's D2 decision: gifts cost what booking costs
+ * Gift certificates sold through the Acuity catalog (live prices rechecked
+ * 2026-10-09). Prices are Hayden's D2 decision: gifts cost what booking costs
  * ($75 per person for the spa, tour prices for tours, $300 for two for the
- * Highland Day). The native checkout reads its own prices from
- * src/lib/booking/gift.ts.
- *
- * Acuity still charges the old prices until its catalog is updated; the
- * static /gift-certificates page must not go live before that change.
+ * Highland Day). The native client/server catalog in
+ * src/lib/booking/gift-products.ts derives these same face-value gifts here
+ * and preserves the three currently eligible spa visit packs separately.
  *
  * `acuityId` is the Acuity product id. `?productId=<id>` on the catalog URL
  * shows that one product (category heading, price, "Add to cart"); verified in
