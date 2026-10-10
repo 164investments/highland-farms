@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { formatCents } from "@/lib/shop/money";
-import { GIFT_PRODUCTS, type GiftProductId } from "@/lib/booking/gift";
+import { GIFT_PRODUCTS, type GiftProductFamily, type GiftProductId } from "@/lib/booking/gift-products";
 import { BookingPayment } from "@/components/booking/BookingPayment";
+import { fieldCtaClass } from "@/components/ui/FieldGuide";
+import { startStripeCheckout, stripeCheckoutEnabled, usePaymentCancelled } from "@/lib/payments/client";
 
 declare global { interface Window { dataLayer?: Record<string, unknown>[] } }
 function push(event: string, params: Record<string, unknown> = {}) {
@@ -13,6 +15,7 @@ function push(event: string, params: Record<string, unknown> = {}) {
 }
 
 export function GiftBody() {
+  const paymentCancelled = usePaymentCancelled();
   const [productId, setProductId] = useState<GiftProductId | null>(null);
   const [purchaserName, setPurchaserName] = useState("");
   const [purchaserEmail, setPurchaserEmail] = useState("");
@@ -32,6 +35,7 @@ export function GiftBody() {
   useEffect(() => push("gift_view"), []);
 
   const product = GIFT_PRODUCTS.find((p) => p.id === productId) ?? null;
+  const familyProducts = product ? GIFT_PRODUCTS.filter((p) => p.family === product.family) : [];
   const detailsComplete = Boolean(
     product
       && purchaserName.trim()
@@ -39,10 +43,25 @@ export function GiftBody() {
       && (!recipientEmail || /.+@.+\..+/.test(recipientEmail)),
   );
 
-  async function submit(sourceId: string) {
-    if (!product || submitting) return;
+  async function submit(sourceId?: string) {
+    if (!product || !detailsComplete || submitting) return;
     setSubmitting(true);
     setError("");
+    if (stripeCheckoutEnabled) {
+      const result = await startStripeCheckout({
+        kind: "gift", productId: product.id,
+        purchaser: { name: purchaserName.trim(), email: purchaserEmail.trim() },
+        recipientEmail: recipientEmail.trim() || undefined,
+        message: message.trim() || undefined, website: website || undefined,
+      });
+      if (result.ok && "checkoutUrl" in result) {
+        window.location.assign(result.checkoutUrl);
+        return;
+      }
+      setSubmitting(false);
+      setError(result.ok ? "We couldn’t open secure payment. Please try again." : result.error);
+      return;
+    }
     if (!idempotencyKeyRef.current || !reuseKeyRef.current) {
       idempotencyKeyRef.current = crypto.randomUUID();
     }
@@ -110,27 +129,40 @@ export function GiftBody() {
 
   return (
     <div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {GIFT_PRODUCTS.map((p) => (
+      {stripeCheckoutEnabled && paymentCancelled && <p role="status" className="mb-5 border-l-2 border-pine-line bg-paper-shade px-4 py-3 font-sans text-sm text-ink-body">
+        You returned from secure payment. Choose your gift and review your details to try again.
+      </p>}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {([['tour', 'Farm tour'], ['spa', 'Nordic spa'], ['day', 'Highland Day'], ['pack', 'Spa visit packs']] as [GiftProductFamily, string][]).map(([family, label]) => {
+          const firstProduct = GIFT_PRODUCTS.find((p) => p.family === family)!;
+          return (
           <button
-            key={p.id}
+            key={family}
             type="button"
-            onClick={() => setProductId(p.id)}
-            className={`rounded-2xl border p-5 text-left transition ${
-              productId === p.id
-                ? "border-forest bg-forest/5"
-                : "border-forest/15 hover:border-forest/30"
+            aria-pressed={product?.family === family}
+            onClick={() => setProductId(firstProduct.id)}
+            className={`border p-5 text-left transition ${
+              product?.family === family
+                ? "border-pine bg-paper-shade"
+                : "border-frame bg-paper-light hover:border-pine"
             }`}
           >
-            <p className="text-lg text-forest">{p.name}</p>
-            <p className="mt-1 font-sans text-sm text-stone-600">{formatCents(p.amountCents)}</p>
-            <p className="mt-2 font-sans text-xs text-stone-500">{p.blurb}</p>
+            <span className="block font-display text-[24px] font-semibold text-ink">{label}</span>
+            <span className="mt-1 block font-sans text-sm text-ink-body">From {formatCents(firstProduct.amountCents)}</span>
+            <span className="mt-2 block font-sans text-xs text-ink-note">{family === 'day' ? 'A private tour and a spa spot for each guest.' : family === 'tour' ? 'A private 60-minute tour with the herd.' : family === 'pack' ? 'Three, five, or ten visits. Use within 180 days.' : 'A 90-minute Nordic Forest Spa session.'}</span>
           </button>
-        ))}
+          );
+        })}
       </div>
 
       {product && (
         <div className="relative mt-6 rounded-2xl border border-forest/15 p-5 sm:p-7">
+          <label htmlFor="gift-guests" className="block font-sans text-sm font-medium text-ink">{product.family === 'pack' ? 'Choose a visit pack' : 'How many guests?'}</label>
+          <select id="gift-guests" value={product.id} onChange={(e) => setProductId(e.target.value)}
+            className="mt-2 h-12 w-full border border-frame bg-paper-light px-3 font-sans text-base text-ink">
+            {familyProducts.map((p) => <option key={p.id} value={p.id}>{p.family === 'pack' ? `${p.units} visits` : `${p.guests} ${p.guests === 1 ? 'guest' : 'guests'}`} · {formatCents(p.amountCents)}</option>)}
+          </select>
+          <p className="mb-5 mt-2 font-sans text-sm text-ink-body">{product.blurb}</p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input
               className="rounded-lg border border-stone-300 px-3 py-2.5 font-sans text-sm"
@@ -165,9 +197,18 @@ export function GiftBody() {
             />
           </div>
 
-          {error && <p className="mt-4 font-sans text-sm text-red-700">{error}</p>}
+          {error && <p role="alert" className="mt-4 font-sans text-sm text-red-700">{error}</p>}
 
-          {detailsComplete && (
+          {stripeCheckoutEnabled && (
+            <div className="mt-5">
+              <button type="button" onClick={() => void submit()} disabled={!detailsComplete || submitting}
+                className={`${fieldCtaClass} w-full disabled:cursor-not-allowed disabled:bg-paper-shade disabled:text-ink-note`}>
+                {submitting ? "Opening secure payment…" : `Continue to secure payment · ${formatCents(product.amountCents)}`}
+              </button>
+              <p className="mt-2 font-sans text-xs text-ink-note">Choose your payment method securely with Stripe.</p>
+            </div>
+          )}
+          {detailsComplete && !stripeCheckoutEnabled && (
             <div className="mt-5">
               <BookingPayment
                 totalCents={product.amountCents} disabled={submitting}

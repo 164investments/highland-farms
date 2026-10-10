@@ -2,6 +2,20 @@
 
 All notable changes to Highland Farms are documented here.
 
+## [0.4.0.0] - 2026-10-09
+
+### Added
+
+- Gated hosted Stripe Checkout for the farm shop and prepared native booking/gift flows, with durable reservations, manual capture, verified receipts, refunds and five-minute recovery. The approved first activation covers the shop; public bookings and gifts stay on Acuity.
+- Limited calendar API and local Claude MCP bridge for schedules, date exceptions and closures, with a separate calendar-only credential. Acuity-derived calendar preparation stays private and native booking remains off.
+
+### Fixed
+
+- Protected reserved stock during Square sync, variation remapping and farm stock counts. Inventory adjustments retry with the same key and timestamp; unresolved outcomes retain their hold.
+- Stripe Checkout uses the current card filter and a pinned API version, avoiding the removed payment-method parameter. Link is disabled per session to keep the initial release on the tested card flow.
+- Receipt APIs retain their private, no-referrer and noindex headers through the site-wide configuration. Missing Stripe Checkout receipts return 404 while temporary verification failures remain retryable.
+- Checkout retries return a completed receipt and allow an identical later purchase. Cancelled bookings suppress deferred confirmations, and native gift revenue recognizes both payment providers.
+
 ## [0.3.5.3] - 2026-10-08
 
 ### Changed

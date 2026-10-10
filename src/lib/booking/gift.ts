@@ -1,62 +1,15 @@
 import { randomInt } from "crypto";
 import { insertGiftCertificate } from "./store";
+import type { GiftProduct } from "./gift-products";
+export { GIFT_PRODUCTS, getGiftProduct, giftScopeAllows } from "./gift-products";
+export type { GiftProduct, GiftProductFamily, GiftProductId } from "./gift-products";
 
 /**
  * Gift certificates: fixed-price products, redeemable at booking checkout via
  * `giftCode` (see `src/app/api/booking/checkout/route.ts`). Prices and units
- * are static here, like `products.ts` — the server derives the charge amount
- * from THIS file, never from the browser.
+ * come from the shared, client-safe `gift-products.ts` catalog. The server
+ * derives the charge amount from that catalog, never from the browser.
  */
-
-export type GiftProductId = "tour-for-two" | "spa-for-two" | "spa-3-visit";
-
-export interface GiftProduct {
-  id: GiftProductId;
-  name: string;
-  amountCents: number;
-  kind: "value" | "visits";
-  /** The booking product this certificate is scoped to. */
-  productScope: string;
-  /** `value` certs hold cents; `visits` certs hold a count of seats. */
-  units: number;
-  /** One line for the purchase card and the gift email. */
-  blurb: string;
-}
-
-export const GIFT_PRODUCTS: GiftProduct[] = [
-  {
-    id: "tour-for-two",
-    name: "Farm Tour for Two",
-    amountCents: 15000,
-    kind: "value",
-    productScope: "farm-tour",
-    units: 15000,
-    blurb: "A private 60-minute Highland Cow tour for two guests.",
-  },
-  {
-    id: "spa-for-two",
-    name: "Nordic Spa for Two",
-    // $75 per person (Hayden, 2026-10-06: gifts cost what booking costs).
-    amountCents: 15000,
-    kind: "value",
-    productScope: "nordic-spa",
-    units: 15000,
-    blurb: "A 90-minute Nordic Forest Spa session for two guests.",
-  },
-  {
-    id: "spa-3-visit",
-    name: "Spa 3-Visit Pack",
-    amountCents: 19900,
-    kind: "visits",
-    productScope: "nordic-spa",
-    units: 3,
-    blurb: "Three single-guest Nordic Forest Spa visits, any time.",
-  },
-];
-
-export function getGiftProduct(id: string): GiftProduct | undefined {
-  return GIFT_PRODUCTS.find((p) => p.id === id);
-}
 
 // Excludes 0/O/1/I/L so a code read aloud over the phone is never ambiguous.
 const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -80,6 +33,8 @@ export interface IssueGiftCertificateInput {
   recipientEmail: string | null;
   /** Square payment id from the ALREADY-COMPLETED charge — never called before the charge succeeds. */
   paymentId: string;
+  /** Bind legacy purchase expiry and its emailed receipt to the same instant. */
+  issuedAt?: string;
 }
 
 /**
@@ -90,6 +45,8 @@ export interface IssueGiftCertificateInput {
  * "money taken, certificate missing" reconciliation path, not this function.
  */
 export async function issueGiftCertificate(input: IssueGiftCertificateInput): Promise<string> {
+  const expiresAt = input.product.expiryDays === null ? null
+    : new Date((input.issuedAt ? Date.parse(input.issuedAt) : Date.now()) + input.product.expiryDays * 86_400_000).toISOString();
   const row = (code: string) => ({
     code,
     kind: input.product.kind,
@@ -100,6 +57,7 @@ export async function issueGiftCertificate(input: IssueGiftCertificateInput): Pr
     recipientEmail: input.recipientEmail,
     squarePaymentId: input.paymentId,
     status: "active" as const,
+    expiresAt,
   });
 
   const first = generateGiftCode();

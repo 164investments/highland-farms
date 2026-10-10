@@ -18,6 +18,11 @@ function getResend(): Resend {
   return resend;
 }
 
+async function sendOrThrow(params: Parameters<Resend["emails"]["send"]>[0], idempotencyKey?: string): Promise<void> {
+  const result = await getResend().emails.send(params, idempotencyKey ? { idempotencyKey } : undefined);
+  if (result.error) throw new Error(result.error.message);
+}
+
 const FROM = "Highland Farms <notifications@highlandfarmsoregon.com>";
 const FARM_RECIPIENTS = ["info@highlandfarms-oregon.com"];
 
@@ -78,7 +83,7 @@ function fulfillmentBlock(d: OrderEmailData): string {
     <p style="margin:8px 0 0;color:#4a4a4a">${PICKUP_READY}. Pickup ${PICKUP_HOURS} For same-day pickup, call ${CONTACT.ordersPhone}.</p>`;
 }
 
-export async function sendOrderEmails(d: OrderEmailData): Promise<void> {
+export async function sendOrderEmails(d: OrderEmailData, options?: { strict?: boolean; idempotencyKey?: string }): Promise<void> {
   const shell = (inner: string) =>
     `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;color:#2b2b2b;line-height:1.5">${inner}</div>`;
 
@@ -109,19 +114,19 @@ export async function sendOrderEmails(d: OrderEmailData): Promise<void> {
   `);
 
   const results = await Promise.allSettled([
-    getResend().emails.send({
+    sendOrThrow({
       from: FROM,
       to: [d.customerEmail],
       subject: `Your Highland Farms order ${d.orderNumber}`,
       html: customerHtml,
-    }),
-    getResend().emails.send({
+    }, options?.idempotencyKey ? `${options.idempotencyKey}-customer` : undefined),
+    sendOrThrow({
       from: FROM,
       to: FARM_RECIPIENTS,
       replyTo: d.customerEmail,
       subject: `New order ${d.orderNumber} — ${d.fulfillment === "delivery" ? "delivery" : "pickup"} — ${formatCents(d.totalCents)}`,
       html: farmHtml,
-    }),
+    }, options?.idempotencyKey ? `${options.idempotencyKey}-farm` : undefined),
   ]);
 
   results.forEach((r, i) => {
@@ -129,4 +134,7 @@ export async function sendOrderEmails(d: OrderEmailData): Promise<void> {
       console.error(`[shop] order email ${i === 0 ? "to customer" : "to farm"} failed:`, r.reason);
     }
   });
+  if (options?.strict && results.some((r) => r.status === "rejected")) {
+    throw new Error(`Order confirmation delivery failed: ${d.orderNumber}`);
+  }
 }

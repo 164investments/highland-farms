@@ -44,32 +44,35 @@ export async function POST(request: Request) {
   }
   const { variantId, stock, lowStockThreshold } = parsed.data;
 
-  const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  const update: Record<string, unknown> = {};
   if (stock !== undefined) update.stock = stock;
   if (lowStockThreshold !== undefined) update.low_stock_threshold = lowStockThreshold;
 
-  if (Object.keys(update).length === 1) {
+  if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }
 
-  const { data, error } = await db()
-    .from("shop_inventory")
-    .update(update)
-    .eq("variant_id", variantId)
-    .select("variant_id, stock, low_stock_threshold")
-    .maybeSingle();
+  const { data, error } = await db().rpc("update_shop_inventory_admin", {
+    p_variant_id: variantId,
+    p_patch: update,
+  });
 
   if (error) {
     console.error("[shop-admin] inventory update failed:", error.message);
+    if (error.code === "55000") {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
+    if (error.code === "P0002") {
+      return NextResponse.json({ error: "Unknown variant" }, { status: 404 });
+    }
     return NextResponse.json({ error: "Update failed" }, { status: 500 });
   }
   if (!data) {
     return NextResponse.json({ error: "Unknown variant" }, { status: 404 });
   }
 
-  // NOTE: this changes the WEBSITE count only. For a variant linked to Square,
-  // Square remains the source of truth and the next inventory.count.updated
-  // webhook will overwrite this. Correcting a linked product for real means
-  // correcting it in Square.
+  // The RPC serializes with checkout holds. This changes WEBSITE stock only;
+  // the next canonical Square count overwrites linked manual counts, even if
+  // its source timestamp is unchanged. Correct linked stock for real in Square.
   return NextResponse.json({ ok: true, ...data });
 }

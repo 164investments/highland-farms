@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { verifySquareSignature } from "@/lib/shop/square-webhook";
+import { getInventorySnapshots } from "@/lib/shop/square";
+import { syncSquareInventoryCounts } from "@/lib/shop/inventory";
 
 /**
  * Square webhook — the other half of the POS link, and the reconciliation the
@@ -77,26 +79,14 @@ async function claimEvent(eventId: string, eventType: string): Promise<boolean> 
 }
 
 async function handleInventory(event: SquareEvent): Promise<void> {
-  const counts = event.data?.object?.inventory_counts ?? [];
-  for (const c of counts) {
-    if (c.state !== "IN_STOCK" || !c.catalog_object_id) continue;
-    const quantity = Math.max(0, Math.floor(Number(c.quantity ?? 0)));
-
-    const { data, error } = await db().rpc("sync_square_stock", {
-      p_variation_id: c.catalog_object_id,
-      p_quantity: quantity,
-    });
-
-    if (error) {
-      console.error("[square-webhook] sync_square_stock failed:", error.message);
-      continue;
-    }
-    // 0 rows = a Square variation we have no mapping for. Normal: the farm
-    // sells plenty (wedding deposits, pumpkins) the website never lists.
-    if (data === 0) continue;
-    console.log(
-      `[square-webhook] stock synced from Square: ${c.catalog_object_id} -> ${quantity}`,
-    );
+  // Delivery order is not count order. Fetch canonical quantities/timestamps
+  // instead of letting a delayed payload restore a sold or held unit.
+  const ids = [...new Set((event.data?.object?.inventory_counts ?? [])
+    .filter((c) => c.state === "IN_STOCK" && c.catalog_object_id
+      && (!c.location_id || c.location_id === process.env.SQUARE_LOCATION_ID))
+    .map((c) => c.catalog_object_id!))];
+  for (let i = 0; i < ids.length; i += 500) {
+    await syncSquareInventoryCounts(await getInventorySnapshots(ids.slice(i, i + 500), true));
   }
 }
 
@@ -201,14 +191,25 @@ export async function POST(request: Request) {
   const type = event.type ?? "";
   if (!eventId) return NextResponse.json({ ok: true });
 
+  // Inventory application is idempotent and ordered by Square calculated_at.
+  // Do not claim an event before a read/write: a failed first delivery must
+  // remain retryable instead of being permanently dropped as a duplicate.
+  if (type === "inventory.count.updated") {
+    try {
+      await handleInventory(event);
+      return NextResponse.json({ ok: true });
+    } catch {
+      console.error("[square-webhook] canonical inventory sync needs retry", eventId);
+      return NextResponse.json({ error: "Please retry inventory delivery" }, { status: 503 });
+    }
+  }
+
   if (!(await claimEvent(eventId, type))) {
     return NextResponse.json({ ok: true, duplicate: true });
   }
 
   try {
-    if (type === "inventory.count.updated") {
-      await handleInventory(event);
-    } else if (type === "payment.created" || type === "payment.updated") {
+    if (type === "payment.created" || type === "payment.updated") {
       await handlePayment(event);
     } else if (type === "refund.created" || type === "refund.updated") {
       await handleRefund(event);

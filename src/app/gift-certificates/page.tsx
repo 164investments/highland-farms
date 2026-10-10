@@ -6,7 +6,7 @@ import { StaticGifts } from "./StaticGifts";
 import { StructuredData } from "@/components/layout/StructuredData";
 
 const DESCRIPTION =
-  "Give a private Highland Farms farm tour, a Nordic spa session, or a Highland Day with both. The code arrives by email, usually within minutes of checkout, and they pick the date.";
+  "Give a private Highland Farms farm tour, a Nordic spa session, a Highland Day with both, or a spa visit pack. The code arrives by email, usually within minutes of checkout, and they pick the date.";
 
 export const metadata: Metadata = {
   title: "Gift Certificates",
@@ -43,7 +43,7 @@ export default function GiftCertificatesPage() {
             <p className="font-sans text-xs uppercase tracking-[0.28em] text-forest/70">Gift Certificates</p>
             <h1 className="mt-3 text-4xl text-forest">Give Highland Farms.</h1>
             <p className="mt-3 font-sans text-stone-600">
-              A farm tour, a spa session, or a 3-visit spa pack. Pick one, and we&apos;ll
+              A farm tour, a spa session, a Highland Day with both, or a spa visit pack. Pick one, and we&apos;ll
               email the code, usually within minutes.
             </p>
             <div id="choose" className="mt-8 scroll-mt-[var(--header-h,128px)]">

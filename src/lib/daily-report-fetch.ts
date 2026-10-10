@@ -6,6 +6,28 @@
  * `@/...` aliases, which only Next's build does) so this resilience logic
  * is unit-testable in isolation via a relative import.
  */
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+export interface NativeGiftSale {
+  kind: "value" | "visits";
+  product_scope: string | null;
+  initial_units: number;
+}
+
+/** A paid native certificate has a payment identifier from either provider.
+ * Manual issues and Acuity imports have neither and are not native revenue. */
+export async function fetchNativeGiftSales(db: SupabaseClient, range: { start: string; end: string }): Promise<NativeGiftSale[]> {
+  return fetchAllPages<NativeGiftSale>(1000, async (from, to) => {
+    const { data, error } = await db.from("gift_certificates")
+      .select("kind, product_scope, initial_units")
+      .or("square_payment_id.not.is.null,stripe_payment_intent_id.not.is.null")
+      .gte("created_at", `${range.start}T00:00:00Z`)
+      .lte("created_at", `${range.end}T23:59:59Z`)
+      .order("code").range(from, to);
+    if (error) throw new Error(`gift_certificates fetch failed: ${error.message}`);
+    return (data ?? []) as NativeGiftSale[];
+  });
+}
 
 /**
  * Native additions — Mode A's `bookings source='native'` read, and the

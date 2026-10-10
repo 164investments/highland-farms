@@ -59,6 +59,9 @@ export async function POST(request: Request) {
 
   if (error) {
     console.error("[shop-admin] apply_stock_count failed:", error.code, error.message);
+    if (error.code === "55000") {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
     if (error.code === "P0002") {
       return NextResponse.json(
         { error: "One of those products is no longer in the catalog. Reload and try again." },

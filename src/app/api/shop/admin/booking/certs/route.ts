@@ -43,7 +43,7 @@ export async function GET(request: Request) {
 
 const issueSchema = z.object({
   action: z.literal("issue"),
-  productId: z.enum(["tour-for-two", "spa-for-two", "spa-3-visit"]),
+  productId: z.string().min(1).max(80),
   purchaserEmail: z.string().trim().email().max(200),
   recipientEmail: z.string().trim().email().max(200).nullable().optional(),
   paymentId: z.string().trim().max(64).nullable().optional(),

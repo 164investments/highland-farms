@@ -13,6 +13,8 @@ import { BOOKING_PRODUCTS, type BookingSlug } from "@/lib/booking/products";
 import { DatePicker } from "./DatePicker";
 import { ComboPicker } from "./ComboPicker";
 import { BookingPayment } from "./BookingPayment";
+import { fieldCtaClass } from "@/components/ui/FieldGuide";
+import { startStripeCheckout, stripeCheckoutEnabled, usePaymentCancelled } from "@/lib/payments/client";
 
 // Prices and party ranges come from the single price authority
 // (`BOOKING_PRODUCTS`) for the three real booking products. `combo` isn't a
@@ -59,6 +61,7 @@ export function BookingFlow({
   locationToggle?: boolean;
 }) {
   const isCombo = product === "combo";
+  const paymentCancelled = usePaymentCancelled();
   const [slot, setSlot] = useState<UiSlot | null>(null);
   const [date, setDate] = useState<string>("");
   const [spaTime, setSpaTime] = useState<string>("");
@@ -99,19 +102,25 @@ export function BookingFlow({
   }
 
   async function submit(sourceId?: string) {
-    if (!slot || submitting) return;
+    if (!slot || !detailsComplete || submitting) return;
     setSubmitting(true);
     setError("");
     push("booking_begin_checkout", { booking_product: product, value: totalCents / 100 });
-    const result = await submitBooking({
+    const payload = {
       product, date, time: slot.time, partySize: party,
       spaTime: isCombo ? spaTime : undefined,
       customer: { firstName: first.trim(), lastName: last.trim(), email: email.trim(), phone: phone.trim() },
-      referralSource: referral, policyAgreed: true,
+      referralSource: referral, policyAgreed: true as const,
       locationChoice: locationToggle ? location : undefined,
       giftCode: giftCode.trim() || undefined,
-      sourceId,
-    });
+    };
+    const result = stripeCheckoutEnabled
+      ? await startStripeCheckout({ kind: "booking", ...payload })
+      : await submitBooking({ ...payload, sourceId });
+    if (result.ok && "checkoutUrl" in result) {
+      window.location.assign(result.checkoutUrl);
+      return;
+    }
     setSubmitting(false);
     if (result.ok) {
       push("booking_purchase", {
@@ -149,6 +158,9 @@ export function BookingFlow({
       <p className="mt-1 font-sans text-sm text-stone-600">
         {isFree ? "Free. 45 minutes with our events team." : `No fees. ${formatCentsShort(PRICES[product])} per person. That's it.`}
       </p>
+      {stripeCheckoutEnabled && paymentCancelled && <p role="status" className="mt-4 border-l-2 border-pine-line bg-paper-shade px-4 py-3 font-sans text-sm text-ink-body">
+        You returned from secure payment. Choose your date and review your details to try again.
+      </p>}
 
       <div className="mt-5">
         {isCombo ? (
@@ -222,14 +234,23 @@ export function BookingFlow({
         </div>
       )}
 
-      {error && <p className="mt-4 font-sans text-sm text-red-700">{error}</p>}
+      {error && <p role="alert" className="mt-4 font-sans text-sm text-red-700">{error}</p>}
 
-      {slot && isFree && (
+      {slot && stripeCheckoutEnabled && (
+        <div className="mt-5">
+          <button type="button" onClick={() => void submit()} disabled={!detailsComplete || submitting}
+            className={`${fieldCtaClass} w-full disabled:cursor-not-allowed disabled:bg-paper-shade disabled:text-ink-note`}>
+            {submitting ? (isFree ? "Confirming your booking…" : "Opening secure payment…") : isFree ? `Book ${formatSlotTime(slot.time)}` : `Continue to secure payment · ${formatCents(totalCents)}`}
+          </button>
+          {!isFree && <p className="mt-2 font-sans text-xs text-ink-note">Choose your payment method securely with Stripe.</p>}
+        </div>
+      )}
+      {slot && isFree && !stripeCheckoutEnabled && (
         <Button className="mt-5 w-full" onClick={() => detailsComplete && submit()} type="button">
           {submitting ? "Booking…" : `Book ${formatSlotTime(slot.time)}`}
         </Button>
       )}
-      {slot && !isFree && detailsComplete && (
+      {slot && !isFree && detailsComplete && !stripeCheckoutEnabled && (
         <div className="mt-5">
           <BookingPayment totalCents={totalCents} disabled={submitting}
             onToken={(sourceId) => submit(sourceId)} onError={(m) => setError(m)} />

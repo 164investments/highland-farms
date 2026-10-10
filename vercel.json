@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/cron/stripe-reconcile",
+      "schedule": "*/5 * * * *"
+    },
+    {
       "path": "/api/cron/daily-report",
       "schedule": "0 15 * * *"
     },

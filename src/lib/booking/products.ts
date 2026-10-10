@@ -19,6 +19,10 @@ export interface BookingProduct {
   leadTimeMin: number;
   /** How far ahead the calendar opens. */
   horizonDays: number;
+  paddingBeforeMin?: number;
+  paddingAfterMin?: number;
+  /** Appointment rows per Pacific day, rather than party size or seats. */
+  maxDailyAppointments?: number;
 }
 
 export const BOOKING_PRODUCTS: Record<BookingSlug, BookingProduct> = {
@@ -30,8 +34,9 @@ export const BOOKING_PRODUCTS: Record<BookingSlug, BookingProduct> = {
     durationMin: 60,
     minParty: 2,
     maxParty: 6,
-    leadTimeMin: 120,
-    horizonDays: 180,
+    leadTimeMin: 720,
+    horizonDays: 365,
+    maxDailyAppointments: 6,
   },
   "nordic-spa": {
     slug: "nordic-spa",
@@ -42,7 +47,7 @@ export const BOOKING_PRODUCTS: Record<BookingSlug, BookingProduct> = {
     minParty: 1,
     maxParty: 6,
     leadTimeMin: 120,
-    horizonDays: 180,
+    horizonDays: 365,
   },
   "wedding-call": {
     slug: "wedding-call",
@@ -53,7 +58,9 @@ export const BOOKING_PRODUCTS: Record<BookingSlug, BookingProduct> = {
     minParty: 1,
     maxParty: 2,
     leadTimeMin: 720, // 12h — the team preps for these
-    horizonDays: 90,
+    horizonDays: 365,
+    paddingBeforeMin: 5,
+    paddingAfterMin: 15,
   },
 };
 

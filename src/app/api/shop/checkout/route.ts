@@ -19,6 +19,7 @@ import {
 } from "@/lib/shop/orders";
 import { sendOrderEmails } from "@/lib/shop/order-email";
 import { markCartRecovered } from "@/lib/shop/orders";
+import { stripeEnabled } from "@/lib/payments/stripe";
 
 /**
  * Farm store checkout.
@@ -114,6 +115,7 @@ function isAllowedOrigin(value: string | null): boolean {
 }
 
 export async function POST(request: Request) {
+  if (stripeEnabled()) return NextResponse.json({ error: "Checkout has changed. Please refresh the page to pay securely." }, { status: 409 });
   try {
     cleanupRateLimit();
 

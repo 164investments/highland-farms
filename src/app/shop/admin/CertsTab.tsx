@@ -3,25 +3,12 @@
 import { useState } from "react";
 import { Loader2, Search } from "lucide-react";
 import { formatCents } from "@/lib/shop/money";
+import { GIFT_PRODUCTS, type GiftProductId } from "@/lib/booking/gift-products";
 
 /**
  * Gift-certificate desk: issue, look up, void.
- *
- * The issue product list mirrors `GIFT_PRODUCTS` in `src/lib/booking/gift.ts`
- * for display only — that module can't be imported client-side (it pulls in
- * the service-role Supabase store), and the admin `/certs` POST route only
- * accepts these three fixed product ids (no free-form/custom-value cert path
- * exists server-side, despite the task brief's mention of one — see that
- * route's `issueSchema`).
+ * Display and server issuance share the pure product catalog.
  */
-
-const GIFT_PRODUCTS = [
-  { id: "tour-for-two", name: "Farm Tour for Two", amountCents: 15000, blurb: "A private 60-minute Highland Cow tour for two guests." },
-  { id: "spa-for-two", name: "Nordic Spa for Two", amountCents: 20000, blurb: "A 90-minute Nordic Forest Spa session for two guests." },
-  { id: "spa-3-visit", name: "Spa 3-Visit Pack", amountCents: 19900, blurb: "Three single-guest Nordic Forest Spa visits, any time." },
-] as const;
-
-type GiftProductId = (typeof GIFT_PRODUCTS)[number]["id"];
 
 interface GiftCertificate {
   code: string;
@@ -115,23 +102,13 @@ function IssueForm({ token }: { token: string }) {
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm">
       <p className="mb-2 text-xs uppercase tracking-[0.1em] text-muted font-sans">Issue a gift certificate</p>
-      <div className="mb-2 flex flex-wrap gap-2">
-        {GIFT_PRODUCTS.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            onClick={() => setProductId(p.id)}
-            className={`rounded-xl border px-3 py-2 text-left text-xs font-sans ${
-              productId === p.id
-                ? "border-forest bg-forest/5"
-                : "border-cream-dark hover:border-forest/40"
-            }`}
-          >
-            <span className="block text-sm text-charcoal">{p.name}</span>
-            <span className="block text-muted">{formatCents(p.amountCents)}</span>
-          </button>
-        ))}
-      </div>
+      <label className="mb-2 block text-xs font-sans">
+        <span className="mb-1 block text-muted">Gift product</span>
+        <select value={productId} onChange={(e) => setProductId(e.target.value)}
+          className="w-full rounded-lg border border-cream-dark bg-white px-2 py-2 text-sm outline-none focus:border-forest">
+          {GIFT_PRODUCTS.map((p) => <option key={p.id} value={p.id}>{p.name} · {formatCents(p.amountCents)}</option>)}
+        </select>
+      </label>
       <p className="mb-3 text-xs text-muted font-sans">{product.blurb}</p>
 
       <div className="grid gap-2 sm:grid-cols-3">

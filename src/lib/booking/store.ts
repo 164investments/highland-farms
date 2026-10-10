@@ -2,7 +2,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type {
   Blackout, BookedUnits, ScheduleException, ScheduleRule,
 } from "./engine";
-import { addDays } from "./time";
+import { addDays, pacificDateStr } from "./time";
 
 let client: SupabaseClient | undefined;
 
@@ -239,6 +239,7 @@ export interface GiftCertificateRow {
   recipientEmail: string | null;
   squarePaymentId: string | null;
   status: "active";
+  expiresAt?: string | null;
 }
 
 /**
@@ -258,6 +259,7 @@ export async function insertGiftCertificate(row: GiftCertificateRow): Promise<vo
     recipient_email: row.recipientEmail,
     square_payment_id: row.squarePaymentId,
     status: row.status,
+    expires_at: row.expiresAt ?? null,
   });
   if (error) {
     const err = new Error(`insertGiftCertificate failed: ${error.message}`) as Error & { code?: string };
@@ -332,24 +334,34 @@ export async function getScheduleData(
   booked: BookedUnits[];
 }> {
   const supa = db();
-  const [schedules, exceptions, blackouts, booked] = await Promise.all([
+  const queries = [
     supa.from("booking_schedules").select("*").in("product_slug", productSlugs),
     supa.from("booking_schedule_exceptions").select("*")
       .in("product_slug", productSlugs).gte("on_date", from).lte("on_date", to),
     supa.from("booking_blackouts").select("*")
       .lte("starts_on", to).gte("ends_on", from),
-    supa.from("bookings").select("product_slug, starts_at, units, status, hold_expires_at")
+    supa.from("bookings").select("product_slug, starts_at, duration_min, padding_before_min, padding_after_min, units, status, hold_expires_at")
       .in("product_slug", productSlugs)
       .gte("starts_at", `${from}T00:00:00Z`)
       // One extra UTC day so a Pacific evening slot on `to` (which lands on
       // the NEXT UTC date) still has its booked units counted.
       .lte("starts_at", `${addDays(to, 1)}T23:59:59Z`)
       .in("status", ["pending", "confirmed"]),
-  ]);
-
-  for (const r of [schedules, exceptions, blackouts, booked]) {
-    if (r.error) throw new Error(`booking schedule read failed: ${r.error.message}`);
-  }
+    supa.from("booking_timed_blackouts").select("*")
+      .lte("starts_at", `${addDays(to, 1)}T23:59:59Z`).gte("ends_at", `${from}T00:00:00Z`),
+  ];
+  // Current Acuity snapshots can exceed PostgREST's default 1,000 rows.
+  // Stable pagination prevents silently dropping an occupied slot or override.
+  const [schedules, exceptions, blackouts, booked, timed] = await Promise.all(queries.map(async (query) => {
+    const rows: NonNullable<Awaited<typeof query>["data"]> = [];
+    for (let offset = 0; ; offset += 1000) {
+      const { data, error } = await query.order("id").range(offset, offset + 999);
+      if (error) throw new Error("Booking schedule read failed");
+      rows.push(...(data ?? []));
+      if (!data || data.length < 1000) break;
+    }
+    return { data: rows };
+  }));
 
   const nowMs = Date.now();
   return {
@@ -367,21 +379,28 @@ export async function getScheduleData(
       startTimes: r.start_times,
       capacity: r.capacity,
     })),
-    blackouts: (blackouts.data ?? []).map((r) => ({
+    blackouts: [...(blackouts.data ?? []).map((r) => ({
       kind: r.kind,
       startsOn: r.starts_on,
       endsOn: r.ends_on,
       productSlugs: r.product_slugs,
-    })),
+    })), ...(timed.data ?? []).map((r) => ({
+      kind: r.kind, startsOn: pacificDateStr(new Date(r.starts_at)), endsOn: pacificDateStr(new Date(r.ends_at)),
+      startsAt: r.starts_at, endsAt: r.ends_at, productSlugs: r.product_slugs,
+    }))],
     booked: (booked.data ?? [])
       .filter(
         (r) => r.status === "confirmed"
+          || r.hold_expires_at === "infinity"
           || (r.hold_expires_at !== null && new Date(r.hold_expires_at).getTime() > nowMs),
       )
       .map((r) => ({
         productSlug: r.product_slug,
         startsAtIso: r.starts_at,
         units: r.units,
+        durationMin: r.duration_min,
+        paddingBeforeMin: r.padding_before_min,
+        paddingAfterMin: r.padding_after_min,
       })),
   };
 }
@@ -408,6 +427,9 @@ export interface AdminBookingRow {
   phone: string;
   amountCents: number;
   squarePaymentId: string | null;
+  stripePaymentIntentId: string | null;
+  stripeAttemptId: string | null;
+  refundedCents: number;
   giftCertificateCode: string | null;
   giftAmountCents: number;
   referralSource: string | null;
@@ -420,7 +442,7 @@ export interface AdminBookingRow {
 
 const ADMIN_BOOKING_COLUMNS =
   "id, booking_number, product_slug, starts_at, duration_min, party_size, units, status, " +
-  "first_name, last_name, email, phone, amount_cents, square_payment_id, " +
+  "first_name, last_name, email, phone, amount_cents, square_payment_id, stripe_payment_intent_id, stripe_attempt_id, refunded_cents, " +
   "gift_certificate_code, gift_amount_cents, referral_source, source, notes, combo_group, created_at";
 
 interface AdminBookingDbRow {
@@ -438,6 +460,9 @@ interface AdminBookingDbRow {
   phone: string;
   amount_cents: number;
   square_payment_id: string | null;
+  stripe_payment_intent_id: string | null;
+  stripe_attempt_id: string | null;
+  refunded_cents: number;
   gift_certificate_code: string | null;
   gift_amount_cents: number;
   referral_source: string | null;
@@ -463,6 +488,9 @@ function mapAdminBookingRow(r: AdminBookingDbRow): AdminBookingRow {
     phone: r.phone,
     amountCents: r.amount_cents,
     squarePaymentId: r.square_payment_id,
+    stripePaymentIntentId: r.stripe_payment_intent_id,
+    stripeAttemptId: r.stripe_attempt_id,
+    refundedCents: r.refunded_cents,
     giftCertificateCode: r.gift_certificate_code,
     giftAmountCents: r.gift_amount_cents,
     referralSource: r.referral_source,
@@ -497,6 +525,14 @@ export async function getBookingById(id: string): Promise<AdminBookingRow | null
   if (error) throw new Error(`getBookingById failed: ${error.message}`);
   if (!data) return null;
   return mapAdminBookingRow(data as unknown as AdminBookingDbRow);
+}
+
+/** Whole paid attempt, including consumed/cancelled legs, before any refund. */
+export async function getBookingsByIds(ids: string[]): Promise<AdminBookingRow[]> {
+  if (!ids.length) return [];
+  const { data, error } = await db().from("bookings").select(ADMIN_BOOKING_COLUMNS).in("id", ids);
+  if (error) throw new Error("Could not verify every booking leg");
+  return (data ?? []).map((row) => mapAdminBookingRow(row as unknown as AdminBookingDbRow));
 }
 
 export type CancelBookingResult =
@@ -727,6 +763,57 @@ export async function deleteScheduleRule(id: number): Promise<boolean> {
     .select("id");
   if (error) throw new Error(`deleteScheduleRule failed: ${error.message}`);
   return (data?.length ?? 0) > 0;
+}
+
+/** A date override replaces the weekly hours for that date; null closes it. */
+export async function setScheduleException(input: ScheduleException): Promise<ScheduleException> {
+  const { error } = await db().from("booking_schedule_exceptions").upsert({
+    product_slug: input.productSlug, on_date: input.onDate,
+    start_times: input.startTimes, capacity: input.capacity,
+  }, { onConflict: "product_slug,on_date" });
+  if (error) throw new Error("Could not save schedule exception");
+  return input;
+}
+
+export async function deleteScheduleException(productSlug: string, onDate: string): Promise<boolean> {
+  const { data, error } = await db().from("booking_schedule_exceptions").delete()
+    .eq("product_slug", productSlug).eq("on_date", onDate).select("id");
+  if (error) throw new Error("Could not delete schedule exception");
+  return Boolean(data?.length);
+}
+
+export interface TimedBlackoutRow {
+  id: number;
+  kind: string;
+  startsAt: string;
+  endsAt: string;
+  productSlugs: string[];
+}
+
+export async function listTimedBlackoutsRange(from: string, to: string): Promise<TimedBlackoutRow[]> {
+  const rows: TimedBlackoutRow[] = [];
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await db().from("booking_timed_blackouts")
+      .select("id,kind,starts_at,ends_at,product_slugs").order("id")
+      .lte("starts_at", `${addDays(to, 1)}T23:59:59Z`).gte("ends_at", `${from}T00:00:00Z`).range(offset, offset + 999);
+    if (error) throw new Error("Could not read timed blackouts");
+    rows.push(...(data ?? []).map((r) => ({ id: r.id, kind: r.kind, startsAt: r.starts_at, endsAt: r.ends_at, productSlugs: r.product_slugs })));
+    if (!data || data.length < 1000) return rows;
+  }
+}
+
+export async function insertTimedBlackout(input: Omit<TimedBlackoutRow, "id"> & { note: string | null }): Promise<TimedBlackoutRow> {
+  const { data, error } = await db().from("booking_timed_blackouts").insert({
+    kind: input.kind, starts_at: input.startsAt, ends_at: input.endsAt, product_slugs: input.productSlugs, note: input.note,
+  }).select("id,kind,starts_at,ends_at,product_slugs").single();
+  if (error || !data) throw new Error("Could not create timed blackout");
+  return { id: data.id, kind: data.kind, startsAt: data.starts_at, endsAt: data.ends_at, productSlugs: data.product_slugs };
+}
+
+export async function deleteTimedBlackout(id: number): Promise<boolean> {
+  const { data, error } = await db().from("booking_timed_blackouts").delete().eq("id", id).select("id");
+  if (error) throw new Error("Could not delete timed blackout");
+  return Boolean(data?.length);
 }
 
 export interface GiftCertificateAdminRow {

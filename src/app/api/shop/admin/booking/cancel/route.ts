@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isValidToken, tokenFromRequest } from "@/lib/shop/admin-auth";
 import {
-  getBookingById, cancelBooking, cancelBookingGroup, restoreGiftCertificate,
+  getBookingById, getBookingsByIds, cancelBooking, cancelBookingGroup, restoreGiftCertificate,
   lookupGiftCertificate, auditBooking, type AdminBookingRow,
 } from "@/lib/booking/store";
 import { refundPayment } from "@/lib/shop/square";
 import { sendCancelEmail } from "@/lib/booking/cancel-email";
+import { getAttempt, cancelStripeBooking, recordStripeRefund } from "@/lib/payments/store";
+import { refundStripePayment } from "@/lib/payments/stripe";
 
 /**
  * Farm-initiated cancel — STRICT policy: this route exists for weather,
@@ -71,9 +73,50 @@ export async function POST(request: Request) {
 
   try {
     const target = await getBookingById(id);
-    if (!target || target.status !== "confirmed") {
+    if (!target) {
       return bad("Booking not found, or not currently confirmed.", 404);
     }
+
+    if (target.stripeAttemptId) {
+      const attempt = await getAttempt(target.stripeAttemptId);
+      if (!attempt || attempt.kind !== "booking" || attempt.status !== "paid" || !attempt.booking_ids.includes(id)) {
+        return bad("The payment record needs checking before this booking can be cancelled.", 409);
+      }
+      const group = await getBookingsByIds(attempt.booking_ids);
+      if (group.length !== attempt.booking_ids.length || group.some((leg) =>
+        leg.stripeAttemptId !== attempt.id || !["confirmed", "cancelled"].includes(leg.status))) {
+        return bad("A booking in this payment has already been used or needs checking. No refund was requested.", 409);
+      }
+      let refunded = false;
+      let refundId: string | null = null;
+      if (refund && attempt.due_cents > 0) {
+        if (!attempt.payment_intent_id) return bad("The Stripe payment needs checking.", 409);
+        const result = await refundStripePayment({
+          paymentId: attempt.payment_intent_id,
+          amountCents: attempt.due_cents,
+          idempotencyKey: `booking-cancel-${attempt.id}`,
+        });
+        await recordStripeRefund(attempt.payment_intent_id, result.refundedCents);
+        if (result.status !== "succeeded" || result.refundedCents < attempt.due_cents) {
+          return bad("The refund is still pending or needs attention in Stripe. The booking has been kept; retry after checking Stripe.", 409);
+        }
+        refunded = true;
+        refundId = result.id;
+        await auditBooking("stripe_booking_refunded", id, { attempt_id: attempt.id, refund_id: refundId, reason, refunded_cents: result.refundedCents }, "admin");
+      }
+      // Refund first: a lost response can be retried while the booking remains
+      // confirmed. This transaction cancels every leg and restores gifts once.
+      const result = await cancelStripeBooking(attempt.id, reason);
+      if (result.cancelledIds.length && result.customerEmail) {
+        try {
+          await sendCancelEmail({ ...result, customerEmail: result.customerEmail, refunded });
+        } catch (err) {
+          console.error("[booking-admin] Stripe cancel email failed", attempt.reference, err instanceof Error ? err.name : "unknown");
+        }
+      }
+      return NextResponse.json({ ok: true, cancelledIds: result.cancelledIds, refunded, refundId, refundError: null, giftRestored: result.giftRestored });
+    }
+    if (target.status !== "confirmed") return bad("Booking not found, or not currently confirmed.", 404);
 
     // `flipped` = the rows THIS call actually cancelled (drives audit/email
     // side effects — never claim credit for a row a racing call flipped).

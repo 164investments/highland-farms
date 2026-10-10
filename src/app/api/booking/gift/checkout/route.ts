@@ -125,6 +125,7 @@ const giftCheckoutSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (stripeEnabled()) return NextResponse.json({ error: "Checkout has changed. Please refresh the page to pay securely." }, { status: 409 });
   if (!nativeCalendarEnabled()) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -190,12 +191,16 @@ export async function POST(request: Request) {
 
     // ---- Money taken. Issue the certificate. ----
     let code: string;
+    const issuedAt = new Date().toISOString();
+    const expiresAt = product.expiryDays === null ? null
+      : new Date(Date.parse(issuedAt) + product.expiryDays * 86_400_000).toISOString();
     try {
       code = await issueGiftCertificate({
         product,
         purchaserEmail: body.purchaser.email,
         recipientEmail: body.recipientEmail ?? null,
         paymentId: charge.paymentId,
+        issuedAt,
       });
     } catch (err) {
       // The card was charged and there is no certificate row. This is the
@@ -231,15 +236,17 @@ export async function POST(request: Request) {
           purchaserEmail: body.purchaser.email,
           recipientEmail: body.recipientEmail ?? null,
           message: body.message ?? null,
+          expiresAt,
         });
       } catch (err) {
         console.error("[gift] confirmation emails threw:", err);
       }
     });
 
-    return NextResponse.json({ success: true, code });
+    return NextResponse.json({ success: true, code, expiresAt });
   } catch (err) {
     console.error("[gift] checkout error:", err);
     return bad("Something went wrong. Please try again, or call the farm.", 500);
   }
 }
+import { stripeEnabled } from "@/lib/payments/stripe";

@@ -162,9 +162,10 @@ export async function recordOrder(input: OrderInput): Promise<string> {
  * customer about the cart they just checked out, which is the single most
  * obvious way an abandoned-cart flow makes a business look broken.
  */
-export async function markCartRecovered(email: string): Promise<void> {
+export async function markCartRecovered(email: string, strict = false): Promise<void> {
   const { error } = await db().rpc("mark_cart_recovered", { p_email: email });
   if (error) {
     console.error("[shop] mark_cart_recovered failed:", error.message);
+    if (strict) throw new Error(`Cart recovery failed: ${error.message}`);
   }
 }

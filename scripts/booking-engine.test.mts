@@ -160,8 +160,8 @@ test("engine: lead time hides slots starting too soon", () => {
     product: TOUR, from: "2026-09-05", to: "2026-09-05",
     schedules: rules, exceptions: [], blackouts: [], booked: [], now: nearNow,
   });
-  // 10:00 is 30 min out (< 120 lead) → hidden. 12:00 and 14:00 remain.
-  assert.deepEqual(days[0].slots.map((s) => s.time), ["12:00", "14:00"]);
+  // Current Acuity tours require 12 hours' notice: every same-day slot is hidden.
+  assert.deepEqual(days[0].slots.map((s) => s.time), []);
 });
 
 test("engine: slotCapacity is the checkout authority — null off-schedule", () => {
