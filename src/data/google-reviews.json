@@ -2,10 +2,30 @@
   "place_id": "ChIJF5dVblWLlVQRTa9sDtveCPY",
   "name": "Highland Farms",
   "rating": 4.9,
-  "user_rating_count": 254,
-  "fetched_at": "2026-10-05",
+  "user_rating_count": 256,
+  "fetched_at": "2026-10-12",
   "source": "google-business-profile-api",
   "reviews": [
+    {
+      "rating": 5,
+      "publish_time": "2026-10-08T18:36:39.177361Z",
+      "relative_time": null,
+      "author_name": "Halle Thompson",
+      "author_photo": "https://lh3.googleusercontent.com/a-/ALV-UjXMt8F_ecWDa5VgUrhzKq0s1QLi06x2Q3W89SZZVWkAtYYJEly7=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "My husband and I got married at Highland Farms this past summer and it was truly the happiest day of our lives! The venue itself is absolutely breathtaking and so well maintained. Getting to stay on the property with our wedding party was so special and made the weekend feel so personal and intimate. Getting to use the sauna and cedar hot tubs was also a huge highlight for our guests and made the whole experience feel so unique and elevated.\n\nConnor and his team were so friendly, helpful, attentive, and responsive. They went above and beyond all weekend to make our vision come to life, and they took care of every detail! Aside from a couple hiccups in communication leading up to our wedding day, everything turned out better than we could have imagined. We will cherish our wedding weekend at Highland Farms forever and can’t emphasize enough how stunning and special it is!\n(Photos by Lauren Miles)",
+      "owner_reply": null
+    },
+    {
+      "rating": 5,
+      "publish_time": "2026-10-06T02:05:03.076166Z",
+      "relative_time": null,
+      "author_name": "Will Pesek",
+      "author_photo": "https://lh3.googleusercontent.com/a/ACg8ocJM0C-3z5uqo0NvN0hmqYmb7AW19hT113RPa8xtw7ndsiWXk4IE=s120-c-rp-mo-ba12-br100",
+      "author_url": null,
+      "text": "Best highland cow experience.  Staff for super knowledgeable and extremely professional",
+      "owner_reply": null
+    },
     {
       "rating": 5,
       "publish_time": "2026-10-05T03:23:00.961176Z",
