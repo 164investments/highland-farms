@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run typecheck",
     "build": "next build",
     "start": "next start",
+    "typecheck": "next typegen && tsc -v | grep 'Version 7' && tsc --noEmit",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test --experimental-strip-types scripts/*.test.mts",
     "lint": "eslint",
     "indexnow": "node scripts/ping-indexnow.mjs"
@@ -30,12 +32,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "playwright": "^1.60.0",
     "playwright-extra": "^4.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "npm:@typescript/typescript6@~6.0.2"
   }
 }
